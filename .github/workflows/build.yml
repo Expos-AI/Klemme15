@@ -13,12 +13,18 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: 10.0.x
       - name: Build (native backend only)
-        run: dotnet build OpenHood.CrossPlatform.slnf -c Release
+        shell: bash
+        run: |
+          set -o pipefail
+          dotnet build OpenHood.CrossPlatform.slnf -c Release 2>&1 | tee build.log || {
+            grep -E "(error|warning) [A-Z]+[0-9]+" build.log | sort -u | head -30 | sed 's/^/::error::/'
+            exit 1
+          }
       - name: Test
         run: dotnet test tests/OpenHood.Tests -c Release --no-build
       - name: Demo scan through the CLI
@@ -28,16 +34,17 @@ jobs:
     name: Windows build with EDIABAS mode
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Fetch EdiabasLib
         shell: bash
         run: ./scripts/get-ediabaslib.sh
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             10.0.x
       - name: Build app and CLI with EdiabasLib
+        shell: bash
         run: |
           dotnet build src/OpenHood.App -c Release
           dotnet build src/OpenHood.Cli -c Release
@@ -54,18 +61,18 @@ jobs:
           - { os: macos-latest, rid: osx-arm64 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Fetch EdiabasLib
         shell: bash
         run: ./scripts/get-ediabaslib.sh
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/setup-dotnet@v5
         with:
           dotnet-version: |
             8.0.x
             10.0.x
       - name: Publish app
         run: dotnet publish src/OpenHood.App -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/${{ matrix.rid }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: OpenHood-${{ matrix.rid }}
           path: publish/${{ matrix.rid }}
