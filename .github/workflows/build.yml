@@ -67,6 +67,7 @@ jobs:
           - { os: windows-latest, rid: win-x64 }
           - { os: ubuntu-latest, rid: linux-x64 }
           - { os: macos-latest, rid: osx-arm64 }
+          - { os: macos-latest, rid: osx-x64 }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -78,9 +79,49 @@ jobs:
           dotnet-version: |
             8.0.x
             10.0.x
-      - name: Publish app
-        run: dotnet publish src/OpenHood.App -c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o publish/${{ matrix.rid }}
+      - name: Publish app and command-line tool
+        shell: bash
+        run: |
+          set -eo pipefail
+          out="publish/OpenHood-${GITHUB_REF_NAME}-${{ matrix.rid }}"
+          common="-c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None"
+          dotnet publish src/OpenHood.App $common -o "$out"
+          dotnet publish src/OpenHood.Cli $common -o "$out/cli"
+          cp LICENSE README.md "$out/"
+          cd publish
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            7z a -tzip "$(basename "$out").zip" "$(basename "$out")" > /dev/null
+          else
+            zip -qr "$(basename "$out").zip" "$(basename "$out")"
+          fi
+          ls -la
       - uses: actions/upload-artifact@v5
         with:
           name: OpenHood-${{ matrix.rid }}
-          path: publish/${{ matrix.rid }}
+          path: publish/*.zip
+
+  release:
+    name: GitHub release
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -la dist
+          gh release create "$GITHUB_REF_NAME" dist/*.zip \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "OpenHood $GITHUB_REF_NAME" \
+            --prerelease \
+            --notes "Early alpha. Tested against the built-in demo cars; not yet confirmed on a real vehicle. Read-only diagnostics (scan, faults, live data). Please report results from your car: see CONTRIBUTING.md.
+
+          Downloads: unzip and run OpenHood (OpenHood.exe on Windows). The command-line tool is in the cli folder. EDIABAS mode is included in the Windows build.
+
+          macOS: the app is unsigned, so right-click > Open the first time. Linux: chmod +x OpenHood, and add yourself to the dialout group for serial access."
