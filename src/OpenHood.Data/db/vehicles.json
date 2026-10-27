@@ -1,0 +1,19 @@
+{
+  "$comment": "Vehicle families. 'cable' is the K+DCAN switch position. Module ids refer to modules.json. Entries with verified=false still need confirming on a real car: see docs/CONTRIBUTING-DATA.md.",
+  "vehicles": [
+    {
+      "id": "E46",
+      "name": "3 Series E46 (1998-2006)",
+      "models": ["320i", "323i", "325i", "328i", "330i", "325xi", "330xi"],
+      "cable": "KLine",
+      "modules": ["E46.DME", "E46.EGS", "E46.DSC", "E46.MRS", "E46.IKE", "E46.GM5", "E46.LCM", "E46.IHKA", "E46.EWS", "E46.PDC", "E46.MFL", "E46.RAD", "E46.RLS"]
+    },
+    {
+      "id": "E9x",
+      "name": "3 Series E90/E91/E92/E93 (2005-2013)",
+      "models": ["323i", "325i", "328i", "330i", "335i", "325xi", "328xi"],
+      "cable": "DCan",
+      "modules": ["E9x.DME", "E9x.EGS", "E9x.DSC", "E9x.ACSM", "E9x.CAS", "E9x.KOMBI", "E9x.FRM", "E9x.JBE", "E9x.IHKA", "E9x.SZL", "E9x.EKPS", "E9x.PDC", "E9x.CIC", "E9x.FZD"]
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:OpenHood.App.ViewModels"
+        xmlns:views="using:OpenHood.App.Views"
+        x:Class="OpenHood.App.Views.MainWindow"
+        x:DataType="vm:MainViewModel"
+        Title="OpenHood"
+        Width="1180" Height="780" MinWidth="820" MinHeight="560"
+        Background="{DynamicResource WindowBrush}">
+
+  <Window.DataTemplates>
+    <DataTemplate DataType="vm:ConnectViewModel"><views:ConnectView /></DataTemplate>
+    <DataTemplate DataType="vm:ScanViewModel"><views:ScanView /></DataTemplate>
+    <DataTemplate DataType="vm:FaultsViewModel"><views:FaultsView /></DataTemplate>
+    <DataTemplate DataType="vm:LiveViewModel"><views:LiveView /></DataTemplate>
+    <DataTemplate DataType="vm:ExpertViewModel"><views:ExpertView /></DataTemplate>
+    <DataTemplate DataType="vm:LogViewModel"><views:LogView /></DataTemplate>
+  </Window.DataTemplates>
+
+  <Grid ColumnDefinitions="220,*">
+    <!-- Sidebar -->
+    <Border Background="{DynamicResource SidebarBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="12,16">
+        <StackPanel DockPanel.Dock="Top" Margin="8,0,8,20" Spacing="2">
+          <TextBlock Text="OpenHood" FontSize="20" FontWeight="Bold" />
+          <TextBlock Text="Open BMW diagnostics" Classes="muted" FontSize="12" />
+        </StackPanel>
+
+        <StackPanel DockPanel.Dock="Bottom" Margin="8,12,8,0" Spacing="4">
+          <TextBlock Text="{Binding Session.Status}" Classes="muted" FontSize="12" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding Version}" Classes="muted" FontSize="11" />
+        </StackPanel>
+
+        <ListBox Classes="nav" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:PageViewModel">
+              <StackPanel Orientation="Horizontal" Spacing="12">
+                <PathIcon Data="{Binding Icon}" Width="16" Height="16" />
+                <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <!-- Page -->
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}" />
+  </Grid>
+</Window>
