@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>OpenHood.Protocols</RootNamespace>
+    <Description>Clean-room BMW E-series protocol stack (DS2, BMW-FAST/KWP2000 on D-CAN, OBD-II on K-line), native backend and virtual car simulator. No BMW files needed.</Description>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenHood.Core\OpenHood.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="OpenHood.Tests" />
+  </ItemGroup>
+</Project>

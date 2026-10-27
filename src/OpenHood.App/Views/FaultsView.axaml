@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OpenHood.App.ViewModels"
+             x:Class="OpenHood.App.Views.FaultsView"
+             x:DataType="vm:FaultsViewModel">
+  <DockPanel Margin="32,28">
+    <StackPanel DockPanel.Dock="Top" Spacing="12" Margin="0,0,0,12">
+      <DockPanel>
+        <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
+        <StackPanel Spacing="4">
+          <TextBlock Classes="h1" Text="Faults" />
+          <TextBlock Classes="muted" Text="Present = active right now. Stored = happened before and is still in memory." />
+        </StackPanel>
+      </DockPanel>
+      <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+      <TextBlock Classes="muted" Text="{Binding EmptyText}" IsVisible="{Binding IsEmpty}" />
+    </StackPanel>
+
+    <ScrollViewer>
+      <ItemsControl ItemsSource="{Binding Groups}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:FaultGroupViewModel">
+            <Border Classes="card" Margin="0,0,0,14">
+              <StackPanel Spacing="8">
+                <DockPanel>
+                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+                    <Button Content="Clear faults" Command="{Binding AskClearCommand}" IsVisible="{Binding NotConfirming}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding Confirming}">
+                      <TextBlock Text="Clear this module's fault memory?" VerticalAlignment="Center" />
+                      <Button Classes="accent" Content="Yes, clear" Command="{Binding ClearCommand}" />
+                      <Button Content="No" Command="{Binding CancelClearCommand}" />
+                    </StackPanel>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <TextBlock Classes="h2" Text="{Binding Name}" />
+                    <TextBlock Classes="mono muted" Text="{Binding Address}" VerticalAlignment="Center" />
+                    <TextBlock Classes="muted" Text="{Binding CountText}" VerticalAlignment="Center" />
+                  </StackPanel>
+                </DockPanel>
+                <TextBlock Classes="muted" Text="{Binding Message}" IsVisible="{Binding HasMessage}" TextWrapping="Wrap" />
+                <ItemsControl ItemsSource="{Binding Faults}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:FaultRowViewModel">
+                      <Border Classes="row">
+                        <Grid ColumnDefinitions="80,70,110,*">
+                          <SelectableTextBlock Classes="mono" Text="{Binding Code}" FontWeight="SemiBold" />
+                          <TextBlock Grid.Column="1" Classes="muted" Text="{Binding Source}" />
+                          <TextBlock Grid.Column="2" Text="{Binding State}" Foreground="{Binding StateBrush}" />
+                          <StackPanel Grid.Column="3" Spacing="4">
+                            <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                            <TextBlock Classes="muted" FontSize="12" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
+                          </StackPanel>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</UserControl>

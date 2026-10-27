@@ -1,0 +1,72 @@
+using OpenHood.Core;
+using OpenHood.Data;
+using OpenHood.Protocols;
+using OpenHood.Protocols.Simulation;
+using OpenHood.Protocols.Transport;
+using OpenHood.Serial;
+#if EDIABAS
+using OpenHood.Ediabas;
+#endif
+
+namespace OpenHood;
+
+/// <summary>Everything needed to open a diagnostic session. Shared by the app and the CLI.</summary>
+public sealed record ConnectionSettings
+{
+    public required string VehicleId { get; init; }
+    public string? Port { get; init; }
+    public bool Demo { get; init; }
+
+    /// <summary>Folder with the user's SGBD files. Set to use EDIABAS mode (Windows build).</summary>
+    public string? EdiabasPath { get; init; }
+
+    /// <summary>The cable's DSR line really reports ignition (genuine K+DCAN designs do; some clones don't).</summary>
+    public bool TrustDsr { get; init; }
+
+    public IReadOnlyList<LiveParameter> LiveFavorites { get; init; } = [];
+}
+
+public static class BackendFactory
+{
+#if EDIABAS
+    public const bool EdiabasAvailable = true;
+#else
+    public const bool EdiabasAvailable = false;
+#endif
+
+    public static IDiagnosticBackend Create(ConnectionSettings settings, VehicleFamily vehicle, TrafficLog log)
+    {
+        var mode = vehicle.Cable.Equals("KLine", StringComparison.OrdinalIgnoreCase) ? CableMode.KLine : CableMode.DCan;
+
+        if (!string.IsNullOrWhiteSpace(settings.EdiabasPath) && !settings.Demo)
+        {
+#if EDIABAS
+            var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
+            return new EdiabasBackend(new EdiabasOptions
+            {
+                EcuPath = settings.EdiabasPath,
+                ComPort = settings.Port ?? throw new DiagnosticException("Choose the cable's port"),
+                VinSgbds = engine?.Sgbd ?? [],
+                LiveFavorites = settings.LiveFavorites,
+                Log = log,
+            });
+#else
+            throw new DiagnosticException("EDIABAS mode is only included in the Windows build of OpenHood.");
+#endif
+        }
+
+        ITransport transport = settings.Demo
+            ? (mode == CableMode.KLine ? VirtualCar.E46_325i() : VirtualCar.E90_325i())
+            : new SerialPortTransport(settings.Port ?? throw new DiagnosticException("Choose the cable's port"))
+            {
+                TrustDsrForIgnition = settings.TrustDsr,
+            };
+
+        return new NativeBackend(new LoggingTransport(transport, log), new NativeBackendOptions
+        {
+            Mode = mode,
+            RequireIgnition = settings.TrustDsr && !settings.Demo,
+            ProbeTimeout = TimeSpan.FromMilliseconds(settings.Demo ? 120 : 400),
+        });
+    }
+}

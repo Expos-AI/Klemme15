@@ -1,0 +1,5 @@
+{
+  "$comment": "BMW-specific fault codes, keyed by module id then 4-digit hex code. Starts empty on purpose: every entry must be written in your own words and confirmed on a real car (never copied from BMW software or documents). See docs/CONTRIBUTING-DATA.md for the format and an example.",
+  "modules": {
+  }
+}
