@@ -3,6 +3,15 @@ name: build
 on:
   push:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version to tag and publish (e.g. v0.1.0). Leave empty for a normal build."
+        required: false
+        default: ""
+
+env:
+  RELEASE_TAG: ${{ inputs.version != '' && inputs.version || github.ref_name }}
 
 jobs:
   cross-platform:
@@ -60,7 +69,7 @@ jobs:
   publish:
     name: Publish ${{ matrix.rid }}
     needs: [cross-platform, windows-ediabas]
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.version != '')
     strategy:
       matrix:
         include:
@@ -83,7 +92,7 @@ jobs:
         shell: bash
         run: |
           set -eo pipefail
-          out="publish/OpenHood-${GITHUB_REF_NAME}-${{ matrix.rid }}"
+          out="publish/OpenHood-${RELEASE_TAG}-${{ matrix.rid }}"
           common="-c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None"
           dotnet publish src/OpenHood.App $common -o "$out"
           dotnet publish src/OpenHood.Cli $common -o "$out/cli"
@@ -116,9 +125,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           ls -la dist
-          gh release create "$GITHUB_REF_NAME" dist/*.zip \
+          gh release create "$RELEASE_TAG" dist/*.zip --target "$GITHUB_SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "OpenHood $GITHUB_REF_NAME" \
+            --title "OpenHood $RELEASE_TAG" \
             --prerelease \
             --notes "Early alpha. Tested against the built-in demo cars; not yet confirmed on a real vehicle. Read-only diagnostics (scan, faults, live data). Please report results from your car: see CONTRIBUTING.md.
 
