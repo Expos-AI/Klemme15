@@ -46,8 +46,16 @@ jobs:
       - name: Build app and CLI with EdiabasLib
         shell: bash
         run: |
-          dotnet build src/OpenHood.App -c Release
-          dotnet build src/OpenHood.Cli -c Release
+          set -eo pipefail
+          for p in src/OpenHood.App src/OpenHood.Cli; do
+            dotnet build "$p" -c Release 2>&1 | tee build.log || {
+              grep -E "(error|warning) [A-Z]+[0-9]+" build.log | sort -u | head -30 | sed 's/^/::error::/'
+              exit 1
+            }
+          done
+          # Prove EDIABAS mode was compiled in, not silently skipped.
+          ls src/OpenHood.App/bin/Release/net10.0-windows10.0.26100.0/OpenHood.Ediabas.dll
+          ls src/OpenHood.App/bin/Release/net10.0-windows10.0.26100.0/EdiabasLib.dll
 
   publish:
     name: Publish ${{ matrix.rid }}
