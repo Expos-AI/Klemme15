@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Generate src/OpenHood.Data/db/obd-generic.json from python-OBD's DTC table.
+"""Generate src/Klemme15.Data/db/obd-generic.json from python-OBD's DTC table.
 
-python-OBD (https://github.com/brendan-w/python-OBD) is GPL-2.0-or-later, compatible with OpenHood's
+python-OBD (https://github.com/brendan-w/python-OBD) is GPL-2.0-or-later, compatible with Klemme15's
 GPL-3.0-or-later; the titles are the standard SAE J2012 code titles. Usage:
   pip download obd --no-deps -d /tmp/obd && unzip /tmp/obd/*.whl -d /tmp/obd/x
   python3 tools/research/import_generic_obd.py /tmp/obd/x/obd/codes.py
@@ -11,7 +11,7 @@ import ast, json, pathlib, sys
 src = pathlib.Path(sys.argv[1]).read_text()
 dtc = next(ast.literal_eval(n.value) for n in ast.parse(src).body
            if isinstance(n, ast.Assign) and getattr(n.targets[0], "id", "") == "DTC")
-out = pathlib.Path(__file__).resolve().parents[2] / "src/OpenHood.Data/db/obd-generic.json"
+out = pathlib.Path(__file__).resolve().parents[2] / "src/Klemme15.Data/db/obd-generic.json"
 doc = {
     "$comment": ("Standard generic OBD-II code titles (SAE J2012), imported from python-OBD "
                  "(https://github.com/brendan-w/python-OBD, GPL-2.0-or-later, by Brendan Whitfield and contributors). "

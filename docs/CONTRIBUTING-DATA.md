@@ -1,6 +1,6 @@
 # Contributing to the open database
 
-The database lives in `src/OpenHood.Data/db/` as plain JSON. You can also drop files with the same names into your user folder (`%APPDATA%\OpenHood\db` on Windows, `~/.config/OpenHood/db` on Linux and macOS) to try changes without rebuilding. Entries there override the built-in ones.
+The database lives in `src/Klemme15.Data/db/` as plain JSON. You can also drop files with the same names into your user folder (`%APPDATA%\Klemme15\db` on Windows, `~/.config/Klemme15/db` on Linux and macOS) to try changes without rebuilding. Entries there override the built-in ones.
 
 ## Ground rules
 
@@ -45,7 +45,7 @@ Add or fix entries in those files (or a new one listed in `merge_codes.py`), the
 
 ## Describing a BMW fault code (`bmw-codes.json`)
 
-Key by module id, then the 4-digit hex code as OpenHood displays it:
+Key by module id, then the 4-digit hex code as Klemme15 displays it:
 
 ```json
 {

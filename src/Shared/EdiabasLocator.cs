@@ -1,4 +1,4 @@
-namespace OpenHood;
+namespace Klemme15;
 
 /// <summary>A folder of SGBD files found on this computer.</summary>
 public sealed record SgbdFolder(string Path, int PrgCount, string Origin);

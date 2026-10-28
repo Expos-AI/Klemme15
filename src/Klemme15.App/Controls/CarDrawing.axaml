@@ -1,0 +1,32 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Klemme15.App.Controls.CarDrawing"
+             Width="1000" Height="460">
+  <!-- Top view of a generic E-series sedan, front at left, driver side at bottom (left-hand drive).
+       Generated from the same path data as the design preview; 1000 x 460 drawing units. -->
+  <Canvas Width="1000" Height="460">
+    <Path Data="M 50 230 C 50 150 64 104 100 86 C 120 76 140 72 160 70 C 190 63 230 62 262 66 C 300 70 320 70 360 68 L 700 67 C 730 66 750 62 790 62 C 830 62 850 66 870 70 C 920 80 948 120 952 170 C 955 200 955 260 952 290 C 948 340 920 380 870 390 C 850 394 830 398 790 398 C 750 398 730 394 700 393 L 360 392 C 320 390 300 390 262 394 C 230 398 190 397 160 390 C 140 388 120 384 100 374 C 64 356 50 310 50 230 Z" Fill="{DynamicResource CarBodyBrush}" />
+    <Path Data="M 172 72 L 250 72 C 256 72 258 74 258 80 L 258 92 C 258 98 256 100 250 100 L 172 100 C 166 100 164 98 164 92 L 164 80 C 164 74 166 72 172 72 Z M 172 360 L 250 360 C 256 360 258 362 258 368 L 258 380 C 258 386 256 388 250 388 L 172 388 C 166 388 164 386 164 380 L 164 368 C 164 362 166 360 172 360 Z M 732 70 L 810 70 C 816 70 818 72 818 78 L 818 92 C 818 98 816 100 810 100 L 732 100 C 726 100 724 98 724 92 L 724 78 C 724 72 726 70 732 70 Z M 732 360 L 810 360 C 816 360 818 362 818 368 L 818 382 C 818 388 816 390 810 390 L 732 390 C 726 390 724 388 724 382 L 724 368 C 724 362 726 360 732 360 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 66 150 L 80 150 L 80 310 L 66 310 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 118 188 L 302 188 C 308 188 312 192 312 198 L 312 262 C 312 268 308 272 302 272 L 118 272 C 112 272 108 268 108 262 L 108 198 C 108 192 112 188 118 188 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 120 230 A 13 13 0 1 0 146 230 A 13 13 0 1 0 120 230 Z M 153 230 A 13 13 0 1 0 179 230 A 13 13 0 1 0 153 230 Z M 186 230 A 13 13 0 1 0 212 230 A 13 13 0 1 0 186 230 Z M 219 230 A 13 13 0 1 0 245 230 A 13 13 0 1 0 219 230 Z M 252 230 A 13 13 0 1 0 278 230 A 13 13 0 1 0 252 230 Z M 285 230 A 13 13 0 1 0 311 230 A 13 13 0 1 0 285 230 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 133 188 L 150 166 L 182 158 M 166 188 L 170 166 M 199 188 L 182 158 L 200 150 M 232 188 L 248 166 L 280 158 M 265 188 L 268 166 M 298 188 L 280 158 L 300 150" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 316 208 L 440 216 L 440 244 L 316 252 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 440 226 L 748 226 M 440 234 L 748 234" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 749 230 A 22 22 0 1 0 793 230 A 22 22 0 1 0 749 230 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 771 100 L 771 208 M 771 252 L 771 360" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 211 100 L 211 186 M 211 274 L 211 360" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 182 158 C 230 150 280 160 330 186 L 832 186 M 280 158 C 300 160 318 170 340 198 L 832 198 M 832 160 L 900 160 L 900 300 L 832 300 Z M 900 280 L 950 298 M 900 292 L 948 310" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 368 178 L 428 178 C 436 178 438 182 438 192 C 438 202 436 206 428 206 L 368 206 C 360 206 358 202 358 192 C 358 182 360 178 368 178 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 590 270 L 700 270 C 708 270 712 274 712 282 L 712 340 C 712 348 708 352 700 352 L 590 352 C 582 352 578 348 578 340 L 578 282 C 578 274 582 270 590 270 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 860 92 L 900 92 L 900 136 L 860 136 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" StrokeJoin="Round" />
+    <Path Data="M 480 270 L 548 270 L 548 340 L 480 340 Z M 480 120 L 548 120 L 548 190 L 480 190 Z M 640 112 L 700 112 L 700 348 L 640 348 Z" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.2" StrokeJoin="Round" StrokeDashArray="4,4" />
+    <Path Data="M 418 268 L 418 336" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.2" StrokeJoin="Round" StrokeDashArray="4,4" />
+    <Path Data="M 50 230 C 50 150 64 104 100 86 C 120 76 140 72 160 70 C 190 63 230 62 262 66 C 300 70 320 70 360 68 L 700 67 C 730 66 750 62 790 62 C 830 62 850 66 870 70 C 920 80 948 120 952 170 C 955 200 955 260 952 290 C 948 340 920 380 870 390 C 850 394 830 398 790 398 C 750 398 730 394 700 393 L 360 392 C 320 390 300 390 262 394 C 230 398 190 397 160 390 C 140 388 120 384 100 374 C 64 356 50 310 50 230 Z" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
+    <Path Data="M 335 104 C 346 92 382 88 455 88 L 700 90 C 746 92 778 100 794 112 L 794 348 C 778 360 746 368 700 370 L 455 372 C 382 372 346 368 335 356 C 322 322 318 272 318 230 C 318 188 322 138 335 104 Z" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
+    <Path Data="M 470 104 L 688 106 C 704 106 712 114 712 124 L 712 336 C 712 346 704 354 688 354 L 470 356 C 458 356 452 348 452 338 L 452 122 C 452 112 458 104 470 104 Z" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
+    <Path Data="M 96 92 C 160 98 250 100 318 104 M 96 368 C 160 362 250 360 318 356" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
+    <Path Data="M 800 108 C 850 112 900 116 940 124 M 800 352 C 850 348 900 344 940 336" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
+    <Path Data="M 330 70 L 340 52 L 354 52 L 352 70 Z M 330 390 L 340 408 L 354 408 L 352 390 Z" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
+  </Canvas>
+</UserControl>

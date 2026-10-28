@@ -1,7 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <RootNamespace>OpenHood.Core</RootNamespace>
-    <Description>Vehicle model, backend contracts, scanner and reports. No dependencies.</Description>
-  </PropertyGroup>
-</Project>

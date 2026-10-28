@@ -1,14 +1,14 @@
-using OpenHood.Core;
-using OpenHood.Data;
-using OpenHood.Protocols;
-using OpenHood.Protocols.Simulation;
-using OpenHood.Protocols.Transport;
-using OpenHood.Serial;
+using Klemme15.Core;
+using Klemme15.Data;
+using Klemme15.Protocols;
+using Klemme15.Protocols.Simulation;
+using Klemme15.Protocols.Transport;
+using Klemme15.Serial;
 #if EDIABAS
-using OpenHood.Ediabas;
+using Klemme15.Ediabas;
 #endif
 
-namespace OpenHood;
+namespace Klemme15;
 
 /// <summary>Everything needed to open a diagnostic session. Shared by the app and the CLI.</summary>
 public sealed record ConnectionSettings
@@ -54,7 +54,7 @@ public static class BackendFactory
                 Log = log,
             });
 #else
-            throw new DiagnosticException("EDIABAS mode is only included in the Windows build of OpenHood.");
+            throw new DiagnosticException("EDIABAS mode is only included in the Windows build of Klemme15.");
 #endif
         }
 

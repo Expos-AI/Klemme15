@@ -1,0 +1,15 @@
+{
+  "solution": {
+    "path": "Klemme15.sln",
+    "projects": [
+      "src/Klemme15.Core/Klemme15.Core.csproj",
+      "src/Klemme15.Protocols/Klemme15.Protocols.csproj",
+      "src/Klemme15.Data/Klemme15.Data.csproj",
+      "src/Klemme15.Serial/Klemme15.Serial.csproj",
+      "src/Klemme15.Cli/Klemme15.Cli.csproj",
+      "src/Klemme15.App/Klemme15.App.csproj",
+      "tests/Klemme15.Tests/Klemme15.Tests.csproj",
+      "tools/Klemme15.Screenshots/Klemme15.Screenshots.csproj"
+    ]
+  }
+}

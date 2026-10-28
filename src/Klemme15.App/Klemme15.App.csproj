@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\Ediabas.props" />
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <AssemblyName>Klemme15</AssemblyName>
+    <RootNamespace>Klemme15.App</RootNamespace>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
+    <!-- Avalonia 11.2 pulls Tmds.DBus.Protocol 0.20.0 (GHSA-xrw6-gwf8-vvr9); 0.21.3 is the patched version. -->
+    <PackageReference Include="Tmds.DBus.Protocol" Version="0.21.3" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="11.2.3" Condition="'$(Configuration)' == 'Debug'" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Klemme15.Core\Klemme15.Core.csproj" />
+    <ProjectReference Include="..\Klemme15.Protocols\Klemme15.Protocols.csproj" />
+    <ProjectReference Include="..\Klemme15.Data\Klemme15.Data.csproj" />
+    <ProjectReference Include="..\Klemme15.Serial\Klemme15.Serial.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,7 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Klemme15.Core</RootNamespace>
+    <Description>Vehicle model, backend contracts, scanner and reports. No dependencies.</Description>
+  </PropertyGroup>
+</Project>

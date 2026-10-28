@@ -30,14 +30,14 @@ jobs:
         shell: bash
         run: |
           set -o pipefail
-          dotnet build OpenHood.CrossPlatform.slnf -c Release 2>&1 | tee build.log || {
+          dotnet build Klemme15.CrossPlatform.slnf -c Release 2>&1 | tee build.log || {
             grep -E "(error|warning) [A-Z]+[0-9]+" build.log | sort -u | head -30 | sed 's/^/::error::/'
             exit 1
           }
       - name: Test
-        run: dotnet test tests/OpenHood.Tests -c Release --no-build
+        run: dotnet test tests/Klemme15.Tests -c Release --no-build
       - name: Demo scan through the CLI
-        run: dotnet run --project src/OpenHood.Cli -c Release --no-build -- scan --demo --report demo-scan.html
+        run: dotnet run --project src/Klemme15.Cli -c Release --no-build -- scan --demo --report demo-scan.html
 
   screenshots:
     name: UI screenshots
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           set -eo pipefail
-          dotnet run --project tools/OpenHood.Screenshots -c Release -- "$RUNNER_TEMP/shots" 2>&1 | tee shots.log || {
+          dotnet run --project tools/Klemme15.Screenshots -c Release -- "$RUNNER_TEMP/shots" 2>&1 | tee shots.log || {
             grep -E "(error|warning) [A-Z]+[0-9]+|Exception|   at " shots.log | head -40 | sed 's/^/::error::/'
             exit 1
           }
@@ -89,15 +89,15 @@ jobs:
         shell: bash
         run: |
           set -eo pipefail
-          for p in src/OpenHood.App src/OpenHood.Cli; do
+          for p in src/Klemme15.App src/Klemme15.Cli; do
             dotnet build "$p" -c Release 2>&1 | tee build.log || {
               grep -E "(error|warning) [A-Z]+[0-9]+" build.log | sort -u | head -30 | sed 's/^/::error::/'
               exit 1
             }
           done
           # Prove EDIABAS mode was compiled in, not silently skipped.
-          ls src/OpenHood.App/bin/Release/net10.0-windows10.0.26100.0/OpenHood.Ediabas.dll
-          ls src/OpenHood.App/bin/Release/net10.0-windows10.0.26100.0/EdiabasLib.dll
+          ls src/Klemme15.App/bin/Release/net10.0-windows10.0.26100.0/Klemme15.Ediabas.dll
+          ls src/Klemme15.App/bin/Release/net10.0-windows10.0.26100.0/EdiabasLib.dll
 
   publish:
     name: Publish ${{ matrix.rid }}
@@ -125,10 +125,10 @@ jobs:
         shell: bash
         run: |
           set -eo pipefail
-          out="publish/OpenHood-${RELEASE_TAG}-${{ matrix.rid }}"
+          out="publish/Klemme15-${RELEASE_TAG}-${{ matrix.rid }}"
           common="-c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None"
-          dotnet publish src/OpenHood.App $common -o "$out"
-          dotnet publish src/OpenHood.Cli $common -o "$out/cli"
+          dotnet publish src/Klemme15.App $common -o "$out"
+          dotnet publish src/Klemme15.Cli $common -o "$out/cli"
           cp LICENSE README.md "$out/"
           cd publish
           if [ "$RUNNER_OS" = "Windows" ]; then
@@ -139,7 +139,7 @@ jobs:
           ls -la
       - uses: actions/upload-artifact@v5
         with:
-          name: OpenHood-${{ matrix.rid }}
+          name: Klemme15-${{ matrix.rid }}
           path: publish/*.zip
 
   release:
@@ -160,10 +160,10 @@ jobs:
           ls -la dist
           gh release create "$RELEASE_TAG" dist/*.zip --target "$GITHUB_SHA" \
             --repo "$GITHUB_REPOSITORY" \
-            --title "OpenHood $RELEASE_TAG" \
+            --title "Klemme15 $RELEASE_TAG" \
             --prerelease \
             --notes "Early alpha. Tested against the built-in demo cars; not yet confirmed on a real vehicle. Read-only diagnostics (scan, faults, live data). Please report results from your car: see CONTRIBUTING.md.
 
-          Downloads: unzip and run OpenHood (OpenHood.exe on Windows). The command-line tool is in the cli folder. EDIABAS mode is included in the Windows build.
+          Downloads: unzip and run Klemme15 (Klemme15.exe on Windows). The command-line tool is in the cli folder. EDIABAS mode is included in the Windows build.
 
-          macOS: the app is unsigned, so right-click > Open the first time. Linux: chmod +x OpenHood, and add yourself to the dialout group for serial access."
+          macOS: the app is unsigned, so right-click > Open the first time. Linux: chmod +x Klemme15, and add yourself to the dialout group for serial access."
