@@ -128,7 +128,8 @@ def xaml_control(t):
              x:Class="Klemme15.App.Controls.LogoMark">
   <Viewbox Stretch="Uniform">
     <Canvas Width="512" Height="512">
-      <Rectangle Width="512" Height="512" RadiusX="{t["radius"]:.1f}" RadiusY="{t["radius"]:.1f}" Fill="{WHITE}" />
+      <Rectangle Width="512" Height="512" RadiusX="{t["radius"]:.1f}" RadiusY="{t["radius"]:.1f}" Fill="{WHITE}"
+                 Stroke="{{DynamicResource LineBrush}}" StrokeThickness="14" />
       <Path Fill="{INK}" Data="{t["body"]}" />
       <Rectangle Canvas.Left="{cx:.1f}" Canvas.Top="{cy:.1f}" Width="{cw:.1f}" Height="{ch:.1f}" RadiusX="{cr:.1f}" RadiusY="{cr:.1f}" Fill="{WHITE}" />
       <Ellipse Canvas.Left="{hx - hr:.1f}" Canvas.Top="{hy - hr:.1f}" Width="{2 * hr:.1f}" Height="{2 * hr:.1f}" Fill="{AMBER}" />
