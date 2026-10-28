@@ -56,6 +56,20 @@ public sealed class SessionState : ViewModelBase
         return Klemme15.Data.OfficialLookup.ResolveVariant(Database.OfficialSources, ecu, identity, _model?.EngineCode,
             v => Database.Measurements?.Has(v) == true);
     }
+
+    /// <summary>
+    /// The module version a service function would run on: the name the module reported (EDIABAS mode), else the
+    /// most likely version from its part number and the engine, limited to versions the function knows.
+    /// </summary>
+    public string? ServiceVariant(EcuDefinition ecu, ServiceFunction function)
+    {
+        if (_backend is IModuleReadings readings && _backend is IJobRunner && readings.VariantOf(ecu) is { } reported) return reported;
+        var identity = _lastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == ecu.Id)?.Identity;
+        if (identity?.Variant is { } v) return v;
+        return OfficialLookup.ResolveVariant(Database.OfficialSources, ecu, identity, _model?.EngineCode,
+            c => function.Implementations.Any(i => i.Variants.Contains(c.ToLowerInvariant())));
+    }
+
     public string Status { get => _status; set => Set(ref _status, value); }
 
     /// <summary>Short connection label for the header, e.g. "Demo car" or "Cable on COM3".</summary>

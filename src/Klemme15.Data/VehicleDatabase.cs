@@ -28,6 +28,11 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>Klemme15's troubleshooting guides (db/guides.json).</summary>
     public GuideLibrary Guides => _guides ??= GuideLibrary.Load();
 
+    private ServiceLibrary? _service;
+
+    /// <summary>Klemme15's service functions (db/service.json).</summary>
+    public ServiceLibrary Service => _service ??= ServiceLibrary.Load();
+
     /// <summary>Replaces the official sources (e.g. after the user downloads a database or picks their BMW folder).</summary>
     public void SetOfficialSources(IEnumerable<IOfficialFaultSource> sources)
     {

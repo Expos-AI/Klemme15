@@ -61,6 +61,9 @@ public sealed class AppSettings
     /// <summary>BMW Ecu folder to read official fault texts from (any OS). Null: use EdiabasPath or auto-detect.</summary>
     public string? EcuFolder { get; set; }
     public bool TrustDsr { get; set; }
+
+    /// <summary>Lets service functions that haven't been confirmed on a real car run. Off by default.</summary>
+    public bool ExperimentalService { get; set; }
     public List<FavoriteParameter> LiveFavorites { get; set; } = [];
 
     public sealed class FavoriteParameter

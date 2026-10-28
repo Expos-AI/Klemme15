@@ -1,8 +1,10 @@
-Early alpha. Read-only diagnostics: scan, faults, readings and live data. Confirmed on a real E90 over D-CAN; most other models are tested against the built-in demo cars. Please report results from your car: see CONTRIBUTING.md.
+Early alpha. Scan, faults, readings, live data, and experimental service functions. Confirmed on a real E90 over D-CAN; most other models are tested against the built-in demo cars. Please report results from your car: see CONTRIBUTING.md.
 
 **Official BMW meanings for every code:** in the Garage, download the optional bmw-unified-db fault database (13 MB, third-party) or point Klemme15 at your own ISTA/INPA files. See docs/FAULT-DATA.md.
 
-**Readings without ISTA (new):** in the Garage press "Add engine readings" (one-time ~130 MB download, keeps a few MB). The Readings page then shows hundreds of engine values for every E90-family petrol and diesel engine, read by Klemme15 itself: no ISTA, no BMW files, any Windows 10/11, Mac or Linux computer. Not yet confirmed on a real car: please test and send your traffic log.
+**Service functions (new, experimental):** a Service page to register a new battery, calibrate the steering angle sensor, reset automatic gearbox adaptations, initialise the windows, and test components (radiator fan, fuel pump, thermostat heater, electric water pump, secondary air pump, throttle, DISA flap). Klemme15 checks the car first, asks you to confirm each requirement, runs once and shows the module's answer. They follow BMW's own procedure for your module version but haven't been confirmed on a real car yet, so they only run after you switch on experimental functions. Battery registration also works without BMW files on E90-family engines; the others need "Use my own BMW files". Please report how it went.
+
+**Readings without ISTA:** in the Garage press "Add engine readings" (one-time ~130 MB download, keeps a few MB). The Readings page then shows hundreds of engine values for every E90-family petrol and diesel engine, read by Klemme15 itself: no ISTA, no BMW files, any Windows 10/11, Mac or Linux computer. Not yet confirmed on a real car: please test and send your traffic log.
 
 **Readings with your BMW files:** with "Use my own BMW files" ticked, every module's status values come from BMW's own scripts (ISTA/INPA/EDIABAS).
 

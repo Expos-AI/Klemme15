@@ -21,6 +21,9 @@ internal static class Cli
           readings --module <id>        Read every status value a module offers (needs --ediabas, or --demo)
                    [--filter lambda] [--job STATUS_X]
           clear   --module <id> [--yes] Clear one module's fault memory
+          service                       List service functions (battery registration, calibrations, tests)
+          service <id> [--experimental] Run one, e.g. 'service battery-registration --port COM3 --experimental'
+                                        (checks the car, asks you to confirm each step; --yes skips the questions)
           live    [--pids rpm,coolant]  Stream live engine data (Ctrl+C to stop)
           discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
@@ -164,6 +167,8 @@ internal static class Cli
                 if (ports.Count == 0) Console.WriteLine("No serial ports found. Is the cable plugged in and its driver installed?");
                 foreach (var p in ports) Console.WriteLine($"{p.Name,-22} {p.Description}{(p.LikelyKDCan ? "   <- likely K+DCAN" : "")}");
                 return 0;
+            case "service" when a.Positional.Count == 0:
+                return ListService(db);
             case "vehicles":
                 foreach (var v in db.Vehicles)
                 {
@@ -232,6 +237,7 @@ internal static class Cli
                 "scan" => await Scan(backend, codes, vehicle, a, cts.Token),
                 "faults" => await Faults(backend, codes, Module(vehicle, a), cts.Token),
                 "readings" => await Readings(backend, db, model, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
+                "service" => await Service(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "discover" => await Discover(backend, vehicle, cts.Token),
@@ -320,6 +326,78 @@ internal static class Cli
     }
 
     /// <summary>klemme15 readings --module DME [--job STATUS_X] [--filter lambda]: BMW status values, read-only.</summary>
+    private static int ListService(VehicleDatabase db)
+    {
+        foreach (var group in db.Service.All.GroupBy(f => f.Category))
+        {
+            Console.WriteLine(group.Key);
+            foreach (var f in group)
+                Console.WriteLine($"  {f.Id,-28} {f.Title}{(f.Verified ? "" : "  [experimental]")}");
+            Console.WriteLine();
+        }
+        Console.WriteLine("Run one with: klemme15 service <id> --port <cable port> [--ediabas <BMW Ecu folder>] [--experimental]");
+        return 0;
+    }
+
+    /// <summary>klemme15 service ID: shows the function, checks the car, asks for every confirmation, runs it once.</summary>
+    private static async Task<int> Service(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle, VehicleModel? model, bool demo,
+        TrafficLog log, Args a, CancellationToken ct)
+    {
+        var id = a.Positional.ElementAtOrDefault(0);
+        var f = db.Service.All.FirstOrDefault(x => x.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+        if (f is null) { Console.Error.WriteLine($"Unknown service function '{id}'. See 'klemme15 service'."); return 2; }
+
+        Console.WriteLine();
+        Console.WriteLine(f.Title);
+        Console.WriteLine($"  {f.Summary}");
+        Console.WriteLine($"  When: {f.When}");
+        Console.WriteLine($"  Risk: {f.Risk}{(f.Verified ? "" : ", EXPERIMENTAL (not yet confirmed on a real car)")}");
+        foreach (var b in f.Before) Console.WriteLine($"  Before: {b}");
+        if (!ServiceRunner.Allowed(f, a.Has("experimental")))
+        {
+            Console.Error.WriteLine("This function is experimental. Add --experimental to run it at your own risk.");
+            return 2;
+        }
+
+        var ecu = ServiceRunner.ModuleFor(f, vehicle.Modules);
+        var identity = ecu is null ? null : await backend.IdentifyAsync(ecu, ct);
+        string? variant = identity?.Variant
+            ?? (ecu is not null && backend is IModuleReadings r && backend is IJobRunner ? r.VariantOf(ecu) : null)
+            ?? (ecu is null ? null : OfficialLookup.ResolveVariant(db.OfficialSources, ecu, identity, model?.EngineCode,
+                v => f.Implementations.Any(i => i.Variants.Contains(v.ToLowerInvariant()))));
+        var plan = ServiceRunner.Availability(f, ecu, variant, identity is not null, backend is IJobRunner, backend is IRawRequests, demo);
+        Console.WriteLine();
+        Console.WriteLine(plan.Reason);
+        if (!plan.Available) return 1;
+
+        var state = demo ? new VehicleState(12.6, 0, 0, true) : await ServiceRunner.ReadStateAsync(backend, vehicle.Modules.FirstOrDefault(m => m.IsEngine), ct);
+        var ok = true;
+        foreach (var c in ServiceRunner.Evaluate(f.Checks, state))
+        {
+            Console.WriteLine($"  [{c.State switch { CheckState.Pass => "OK", CheckState.Fail => "NO", _ => "??" }}] {c.Text}{(c.Detail is null ? "" : $": {c.Detail}")}");
+            if (c.State == CheckState.Fail) ok = false;
+            else if (c.State == CheckState.Unknown && !Confirm($"Confirm: {c.Text}?", a)) ok = false;
+        }
+        foreach (var item in f.Checks.Confirm)
+            if (!Confirm(item, a)) ok = false;
+        if (!ok) { Console.WriteLine("Not run: a requirement isn't met."); return 1; }
+        if (!Confirm($"Run '{f.Title}' on {ecu!.Name} now?", a)) { Console.WriteLine("Not run."); return 1; }
+
+        var outcome = await ServiceRunner.RunAsync(f, plan, backend, ecu, log, ct);
+        Console.WriteLine(outcome.Success ? outcome.Message : $"Failed: {outcome.Message}");
+        foreach (var d in outcome.Details) Console.WriteLine($"  {d}");
+        if (outcome.Success) foreach (var s in f.After) Console.WriteLine($"Afterwards: {s}");
+        return outcome.Success ? 0 : 1;
+    }
+
+    private static bool Confirm(string question, Args a)
+    {
+        if (a.Has("yes")) { Console.WriteLine($"  {question} yes (--yes)"); return true; }
+        Console.Write($"  {question} [y/N] ");
+        var answer = Console.ReadLine()?.Trim();
+        return answer is not null && (answer.Equals("y", StringComparison.OrdinalIgnoreCase) || answer.Equals("yes", StringComparison.OrdinalIgnoreCase));
+    }
+
     private static async Task<int> Readings(IDiagnosticBackend backend, VehicleDatabase db, VehicleModel? model, IModuleReadings? readings, EcuDefinition ecu, Args a, CancellationToken ct)
     {
         var identity = await backend.IdentifyAsync(ecu, ct);
@@ -463,7 +541,7 @@ internal sealed class Args
     public string? Command { get; private set; }
     public List<string> Positional { get; } = [];
 
-    private static readonly HashSet<string> Flags = new(StringComparer.OrdinalIgnoreCase) { "demo", "yes", "trust-dsr" };
+    private static readonly HashSet<string> Flags = new(StringComparer.OrdinalIgnoreCase) { "demo", "yes", "trust-dsr", "experimental" };
 
     public static Args Parse(string[] argv)
     {

@@ -31,9 +31,10 @@ public sealed class MainViewModel : ViewModelBase
             (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },
             () => CurrentPage = Live);
         Live = new LiveViewModel(Session, dialogs);
+        Service = new ServiceViewModel(Session, settings);
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);
-        Pages = [Garage, Vehicle, Faults, Readings, Live, Expert, Log];
+        Pages = [Garage, Vehicle, Faults, Readings, Live, Service, Expert, Log];
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
@@ -53,6 +54,7 @@ public sealed class MainViewModel : ViewModelBase
     public FaultsViewModel Faults { get; }
     public ReadingsViewModel Readings { get; }
     public LiveViewModel Live { get; }
+    public ServiceViewModel Service { get; }
     public ExpertViewModel Expert { get; }
     public LogViewModel Log { get; }
     public IReadOnlyList<PageViewModel> Pages { get; }

@@ -1,0 +1,181 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:sys="using:System"
+             x:Class="Klemme15.App.Views.ServiceView"
+             x:DataType="vm:ServiceViewModel">
+  <UserControl.Styles>
+    <Style Selector="Button.function">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="12,8" />
+      <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="Button.function.selected">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+    </Style>
+    <Style Selector="Border.warn">
+      <Setter Property="Background" Value="{DynamicResource AmberSoftBrush}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+    </Style>
+    <Style Selector="Border.bad">
+      <Setter Property="Background" Value="{DynamicResource RedSoftBrush}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+    </Style>
+    <Style Selector="Border.good">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="300,*" Margin="36,26,36,0">
+    <!-- Function list -->
+    <DockPanel Grid.Column="0" Margin="0,0,24,0">
+      <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,14">
+        <TextBlock Classes="title" Text="Service" />
+        <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
+                   Text="Connect to your car in the Garage and run the quick test to see which functions your car supports." />
+        <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NeedsScan}"
+                   Text="Run the quick test first, so Klemme15 knows each module's version." />
+      </StackPanel>
+      <Border DockPanel.Dock="Bottom" Classes="panel" Padding="14,12" Margin="0,8,0,24">
+        <StackPanel Spacing="6">
+          <ToggleSwitch IsChecked="{Binding Experimental}" OnContent="Experimental functions on" OffContent="Experimental functions off" />
+          <TextBlock Classes="muted small" TextWrapping="Wrap"
+                     Text="Functions marked experimental follow BMW's own procedures but haven't been confirmed on a real car with Klemme15 yet. Turn this on to use them at your own risk, and please report how it went." />
+        </StackPanel>
+      </Border>
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Groups}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ServiceGroupViewModel">
+              <StackPanel Spacing="2" Margin="0,0,0,12">
+                <TextBlock Classes="muted small" Text="{Binding Name}" FontWeight="SemiBold" Margin="12,0,0,4" />
+                <ItemsControl ItemsSource="{Binding Items}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ServiceItemViewModel">
+                      <Button Classes="function" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
+                        <DockPanel>
+                          <TextBlock DockPanel.Dock="Right" Classes="muted small" Text="{Binding Badge}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                          <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" Opacity="{Binding Opacity}" />
+                        </DockPanel>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+
+    <!-- Selected function -->
+    <ScrollViewer Grid.Column="1" IsVisible="{Binding HasSelection}">
+      <StackPanel Spacing="14" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32">
+        <StackPanel Spacing="4">
+          <TextBlock Classes="section" Text="{Binding FunctionTitle}" TextWrapping="Wrap" />
+          <TextBlock Classes="muted small" Text="{Binding ModuleText}" />
+        </StackPanel>
+        <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
+        <StackPanel Spacing="2">
+          <TextBlock Classes="muted small" Text="When to use it" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding When}" TextWrapping="Wrap" />
+        </StackPanel>
+
+        <Border Classes="warn" IsVisible="{Binding Unverified}">
+          <TextBlock TextWrapping="Wrap" Classes="small"
+                     Text="Experimental: not yet confirmed on a real car with Klemme15. It uses BMW's own procedure for your module version, but there is no guarantee." />
+        </Border>
+        <Border Classes.bad="{Binding IsHighRisk}" Classes.good="{Binding !IsHighRisk}">
+          <TextBlock TextWrapping="Wrap" Classes="small" Text="{Binding RiskText}" />
+        </Border>
+
+        <StackPanel Spacing="6" IsVisible="{Binding HasBefore}">
+          <TextBlock Classes="section" FontSize="16" Text="Before you start" />
+          <ItemsControl ItemsSource="{Binding Before}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="sys:String">
+                <TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" Margin="0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <Border Classes="panel" Padding="18,14">
+          <StackPanel Spacing="12">
+            <TextBlock Classes="section" FontSize="16" Text="Run it on your car" />
+            <TextBlock Text="{Binding AvailabilityText}" TextWrapping="Wrap" Classes="small" Classes.muted="{Binding IsAvailable}" Classes.amber="{Binding !IsAvailable}" />
+            <TextBlock Classes="amber small" TextWrapping="Wrap" IsVisible="{Binding Blocked}"
+                       Text="This function is experimental. Switch on experimental functions (bottom left) to run it." />
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Content="1. Check the car" Command="{Binding CheckCommand}" />
+              <TextBlock Classes="muted small" Text="{Binding Status}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520" />
+            </StackPanel>
+
+            <ItemsControl ItemsSource="{Binding Checks}" IsVisible="{Binding HasChecks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ServiceCheckViewModel">
+                  <Grid ColumnDefinitions="44,*" Margin="0,3">
+                    <TextBlock Grid.Column="0" Classes="mono" Text="{Binding Mark}" FontWeight="Bold"
+                               Classes.lit="{Binding Passed}" Classes.red="{Binding Failed}" Classes.amber="{Binding Unknown}" />
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Text="{Binding Text}" />
+                      <TextBlock Classes="muted small" Text="{Binding Detail}" IsVisible="{Binding HasDetail}" TextWrapping="Wrap" />
+                      <CheckBox Content="I've checked this myself" IsChecked="{Binding Confirmed}" IsVisible="{Binding Unknown}" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <ItemsControl ItemsSource="{Binding Confirms}" IsVisible="{Binding HasChecks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ServiceConfirmViewModel">
+                  <CheckBox IsChecked="{Binding Ticked}" Margin="0,2">
+                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                  </CheckBox>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Classes="primary" Content="2. Run" Command="{Binding RunCommand}" />
+              <Button Content="Stop waiting" Command="{Binding CancelCommand}" />
+            </StackPanel>
+
+            <Border Classes.good="{Binding ResultOk}" Classes.bad="{Binding ResultFailed}" IsVisible="{Binding HasResult}">
+              <StackPanel Spacing="4">
+                <TextBlock Text="{Binding Result}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <ItemsControl ItemsSource="{Binding ResultDetails}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="sys:String">
+                      <SelectableTextBlock Classes="mono small" Text="{Binding}" TextWrapping="Wrap" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="6" IsVisible="{Binding HasAfter}">
+          <TextBlock Classes="section" FontSize="16" Text="Afterwards" />
+          <ItemsControl ItemsSource="{Binding After}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="sys:String">
+                <TextBlock Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" Margin="0,2" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>
