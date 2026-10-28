@@ -318,6 +318,7 @@
     <Style Selector="Border.module.absent">
       <Setter Property="BorderBrush" Value="{DynamicResource SteelFaintBrush}" />
       <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Opacity" Value="0.55" />
     </Style>
     <Style Selector="Ellipse.srcdot.stored">
       <Setter Property="Fill" Value="{DynamicResource AmberBrush}" />
