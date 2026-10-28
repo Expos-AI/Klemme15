@@ -64,6 +64,8 @@ public sealed class GarageViewModel : PageViewModel
         OpenFaultDataPageCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.ProjectUrl));
         OpenFaultDataLicenseCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.LicenseUrl));
         ChooseEcuFolderCommand = new AsyncCommand(ChooseEcuFolderAsync);
+        DownloadReadingsCommand = new AsyncCommand(DownloadReadingsAsync, () => !_downloading,
+            e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed: {e.Message}"; DownloadReadingsCommand?.RaiseCanExecuteChanged(); DownloadFaultDataCommand.RaiseCanExecuteChanged(); });
 
         _session.PropertyChanged += (_, e) =>
         {
@@ -98,6 +100,47 @@ public sealed class GarageViewModel : PageViewModel
     public AsyncCommand OpenFaultDataPageCommand { get; }
     public AsyncCommand OpenFaultDataLicenseCommand { get; }
     public AsyncCommand ChooseEcuFolderCommand { get; }
+    public AsyncCommand DownloadReadingsCommand { get; }
+    public string DownloadReadingsText => _session.Database.Measurements is null
+        ? $"Add engine readings ({Klemme15.DataImport.FullDatabaseImport.ApproxSize})" : "Update engine readings";
+
+    /// <summary>
+    /// Downloads the full database once and keeps only the engine measurement tables, so the Readings page works
+    /// without BMW's files. Fetches the fault dictionaries first if they aren't installed yet.
+    /// </summary>
+    private async Task DownloadReadingsAsync()
+    {
+        _downloading = true;
+        DownloadFaultDataCommand.RaiseCanExecuteChanged();
+        DownloadReadingsCommand.RaiseCanExecuteChanged();
+        var finished = false;
+        try
+        {
+            if (FaultDataDownload.ReadManifest() is null)
+            {
+                DownloadText = "Downloading fault database first...";
+                await FaultDataDownload.DownloadAsync(_session.Database);
+            }
+            var progress = new Progress<double>(p =>
+            {
+                if (!finished) DownloadText = p < 1 ? $"Downloading full database... {p:P0}" : "Checking and extracting engine tables (this takes a minute)...";
+            });
+            var count = await Klemme15.DataImport.FullDatabaseImport.DownloadAsync(_session.Database, progress: progress);
+            finished = true;
+            DownloadText = null;
+            await RefreshFaultDataAsync();
+            FaultDataStatus += $" Added readings for {count} engine computers; the large download was deleted again.";
+        }
+        finally
+        {
+            finished = true;
+            DownloadText = null;
+            _downloading = false;
+            DownloadFaultDataCommand.RaiseCanExecuteChanged();
+            DownloadReadingsCommand.RaiseCanExecuteChanged();
+            Raise(nameof(DownloadReadingsText));
+        }
+    }
 
     private async Task RefreshFaultDataAsync()
     {

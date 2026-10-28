@@ -16,5 +16,6 @@
     <ProjectReference Include="..\..\src\Klemme15.Core\Klemme15.Core.csproj" />
     <ProjectReference Include="..\..\src\Klemme15.Protocols\Klemme15.Protocols.csproj" />
     <ProjectReference Include="..\..\src\Klemme15.Data\Klemme15.Data.csproj" />
+    <ProjectReference Include="..\..\src\Klemme15.DataImport\Klemme15.DataImport.csproj" />
   </ItemGroup>
 </Project>

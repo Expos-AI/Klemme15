@@ -115,10 +115,12 @@
             <TextBlock Classes="muted" TextWrapping="Wrap"
                        Text="Klemme15 explains codes with its own researched meanings. For BMW's own text on every code of every module, add one of these. Both stay on your computer." />
             <TextBlock Text="{Binding FaultDataStatus}" TextWrapping="Wrap" />
-            <StackPanel Orientation="Horizontal" Spacing="8">
-              <Button Classes="primary" Content="{Binding DownloadButtonText}" Command="{Binding DownloadFaultDataCommand}" />
-              <Button Content="Use my BMW files (ISTA / INPA)" Command="{Binding ChooseEcuFolderCommand}" />
-            </StackPanel>
+            <WrapPanel>
+              <Button Margin="0,0,8,8" Classes="primary" Content="{Binding DownloadButtonText}" Command="{Binding DownloadFaultDataCommand}" />
+              <Button Margin="0,0,8,8" Content="{Binding DownloadReadingsText}" Command="{Binding DownloadReadingsCommand}"
+                      ToolTip.Tip="Engine values on the Readings page without ISTA: downloads the full database once and keeps only the engine tables (a few MB)" />
+              <Button Margin="0,0,8,8" Content="Use my BMW files (ISTA / INPA)" Command="{Binding ChooseEcuFolderCommand}" />
+            </WrapPanel>
             <TextBlock Classes="lit" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
             <TextBlock Classes="muted small" TextWrapping="Wrap"
                        Text="The download is bmw-unified-db, a free community project on GitHub (not part of Klemme15). Its fault texts are derived from BMW's diagnostic data, which BMW owns; that project publishes them for right-to-repair. Klemme15 checks the file's checksum and keeps only the modules for your car family." />

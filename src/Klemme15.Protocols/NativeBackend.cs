@@ -29,7 +29,7 @@ public sealed record NativeBackendOptions
 /// Talks to the car with Klemme15's own protocol implementation. Needs no BMW software or files.
 /// What it can decode is limited by the open database; EDIABAS mode covers the rest.
 /// </summary>
-public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe
+public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe, IRawRequests
 {
     private readonly ITransport _transport;
     private readonly NativeBackendOptions _options;
@@ -212,6 +212,15 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                 break;
         }
         return true;
+    }, ct);
+
+    /// <summary>One raw request to a BMW-FAST (D-CAN or KWP on K-line) module; the reply as received, or null on no reply.</summary>
+    public Task<byte[]?> RequestAsync(EcuDefinition ecu, byte[] request, CancellationToken ct = default) => OnBus<byte[]?>(() =>
+    {
+        if (ProtocolFor(ecu) != BusProtocol.BmwFast)
+            throw new NotSupportedException($"{ecu.Name} uses the older DS2 protocol; module readings for it need EDIABAS mode for now.");
+        UseFast();
+        return _fast.Request(ecu.Address, request, TimeSpan.FromMilliseconds(400), ct);
     }, ct);
 
     public IReadOnlyList<LiveParameter> GetLiveParameters(EcuDefinition ecu) =>

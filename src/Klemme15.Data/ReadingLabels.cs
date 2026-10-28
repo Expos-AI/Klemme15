@@ -11,13 +11,14 @@ public static class ReadingLabels
     /// <summary>Groups in display order; first match on the job name (and comment) wins.</summary>
     private static readonly (string Group, Regex Match)[] Groups =
     [
-        ("Oxygen sensors and mixture", R(@"L_?SONDE|LAMBDA|LSH|LSU|GEMISCH|\bADD\b|STATUS_ADD|STATUS_INT|ADAPTION_GEMISCH|INTEGRATOR|TRIM")),
+        ("Oxygen sensors and mixture", R(@"L_?SONDE|LAMBDA|LSH|LSU|GEMISCH|\bLS\b|LS[ _-]?HEIZ|NERNST|\bADD\b|STATUS_ADD|STATUS_INT|ADAPTION_GEMISCH|INTEGRATOR|TRIM")),
         ("Misfires and smooth running", R(@"LAUFRUHE|\bAUSSETZER|VERBRENNUNGSAUSSETZ|\bLRP|MISFIRE|SEGMENTZEIT|\bLUR\b")),
         ("VANOS and camshafts", R(@"VANOS|NOCKEN|\bENWS|\bANWS|^NW|_NW|EXZENTER|\bVVT|VALVETRONIC|\bEXWE")),
         ("Ignition and knock", R(@"KLOPF|^KB\d|ZUEND|^ZW_|^ZS\d|IGNITION")),
         ("Fuel system", R(@"^EV\d|INJEKT|KRAFTSTOFF|^EKP|RAIL|^HDP|MENGEN|TANK|^DMTL|^TEV|EINSPRITZ")),
-        ("Intake, exhaust, throttle and pedal", R(@"ABGAS|^AGK|DROSSEL|^DK|_DK|^PWG|^FWV|^LMM|^HFM|LUFTMASSE|SAUG|^DISA|ANSAUG|AN_LUFT|LADEDRUCK|^SDF|BOOST|WASTEGATE|^UDF|UMGEBUNGSDRUCK|^SLP|^SLV|SEKUNDAER")),
+        ("Intake, exhaust, throttle and pedal", R(@"ABGAS|^AGK|PEDAL|FAHRERWUNSCH|LUFTFUELLUNG|DROSSEL|^DK|_DK|^PWG|^FWV|^LMM|^HFM|LUFTMASSE|SAUG|^DISA|ANSAUG|AN_LUFT|LADEDRUCK|^SDF|BOOST|WASTEGATE|^UDF|UMGEBUNGSDRUCK|^SLP|^SLV|SEKUNDAER")),
         ("Switches and states", R(@"SCHALTER|TASTER|DIGITAL|FUNKTION|BETRIEBSZUST|^STATE|^SPT$|^TTEMP|^ODS$|OELDRUCKSCH")),
+        ("Engine oil", R(@"OELSTAND|OELNIVEAU|OELWECHSEL|OELQUAL|OELDRUCK|OELZUSTAND|\bOEL\b|^OEL|^ODS$")),
         ("Temperatures", R(@"TEMP|THERMOSTAT|^KFT|KUEHL|^TKA|^TOEL")),
         ("Battery, alternator and power", R(@"^UBAT|BATTERIE|SPANNUNG|^IBS|GENERATOR|DFMONITOR|STROM|^BSD|ENERGIE|KL15|KL30|KLEMME|^SR$|STARTRELAIS")),
         ("Wheels, brakes and stability", R(@"^RAD|RADGESCHW|RADDREHZ|BREMS|^BLS|^BLTS|DRUCK_HZ|GIER|QUER|LENKW|^LWS|^DSC|^ABS")),
@@ -34,7 +35,7 @@ public static class ReadingLabels
     public static string GroupOf(string job, string? comment)
     {
         // The job name is the most reliable signal; the description (without BMW's boilerplate) breaks ties.
-        var name = job.StartsWith("STATUS_", StringComparison.OrdinalIgnoreCase) ? job[7..] : job;
+        var name = System.Text.RegularExpressions.Regex.Replace(job, "^(STATUS_|STAT_)|_(WERT|TEXT)$", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         foreach (var (group, match) in Groups)
             if (match.IsMatch(name)) return group;
         if (CleanComment(comment) is { } text)
@@ -49,9 +50,12 @@ public static class ReadingLabels
     /// <summary>English title for a reading job, from BMW's comment when it translates well, else from the job name.</summary>
     public static string JobTitle(string job, string? comment)
     {
+        // Values BMW never named: "STAT_0x440D_WERT".
+        if (Regex.Match(job, @"^STAT_0x([0-9A-Fa-f]{4})_WERT$") is { Success: true } unnamed && CleanComment(comment) is null)
+            return $"Unnamed value 0x{unnamed.Groups[1].Value.ToUpperInvariant()}";
         var cleaned = CleanComment(comment);
         if (cleaned is not null && GermanGlossary.Translate(cleaned) is { } en) return en;
-        var fromName = FromName(job, "STATUS_");
+        var fromName = FromName(Regex.Replace(job, "^STAT_|_(WERT|TEXT)$", "", RegexOptions.IgnoreCase), "STATUS_");
         // Prefer readable German over a name that is mostly abbreviations.
         return cleaned is not null && fromName.Count(char.IsUpper) > fromName.Length / 2 ? cleaned : fromName;
     }

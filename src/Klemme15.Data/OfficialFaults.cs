@@ -18,41 +18,7 @@ public static class OfficialLookup
     public static OfficialMatch? Find(IReadOnlyList<IOfficialFaultSource> sources, EcuDefinition ecu, EcuIdentity? identity, string? engine, string code)
     {
         if (sources.Count == 0 || !TryParseCode(code, out var number)) return null;
-
-        bool Has(string v) => sources.Any(s => s.HasVariant(v));
-        var confirmed = false;
-        List<string> candidates;
-
-        // 1. The module named its variant (EDIABAS mode).
-        if (identity?.Variant is { Length: > 0 } named && Has(named.ToLowerInvariant()))
-        {
-            candidates = [named.ToLowerInvariant()];
-            confirmed = true;
-        }
-        else
-        {
-            candidates = ecu.Variants.Select(v => v.ToLowerInvariant()).Where(Has).ToList();
-
-            // 2. The module's BMW part number belongs to exactly one known variant.
-            if (PartDigits(identity?.PartNumber) is { } part)
-            {
-                var byPart = candidates.Where(v => sources.Any(s => s.PartNumbersOf(v).Contains(part))).ToList();
-                if (byPart.Count == 1) { candidates = byPart; confirmed = true; }
-            }
-
-            // 3. Engine computers: keep the ones made for this engine.
-            if (!confirmed && engine is { Length: > 0 })
-            {
-                var forEngine = candidates.Where(v =>
-                {
-                    var engines = sources.SelectMany(s => s.EnginesOf(v)).ToList();
-                    return engines.Count == 0 || engines.Any(e => engine.StartsWith(e, StringComparison.OrdinalIgnoreCase) || e.StartsWith(engine, StringComparison.OrdinalIgnoreCase));
-                }).ToList();
-                // Exact engine code first (MSV70 is "N52"; MSV80 is "N52KP"), then the rest in database order.
-                if (forEngine.Count > 0)
-                    candidates = forEngine.OrderBy(v => sources.SelectMany(s => s.EnginesOf(v)).Any(e => e.Equals(engine, StringComparison.OrdinalIgnoreCase)) ? 0 : 1).ToList();
-            }
-        }
+        var (candidates, confirmed) = Candidates(sources, ecu, identity, engine);
 
         var hits = new List<(string Variant, OfficialEntry Entry, string Source)>();
         foreach (var v in candidates)
@@ -79,6 +45,46 @@ public static class OfficialLookup
 
         return new OfficialMatch(first.Variant.ToUpperInvariant(), first.Entry, first.Source, confirmed || hits.Count == 1 && candidates.Count == 1, alternatives);
     }
+
+    /// <summary>
+    /// The module's possible variants, most likely first: the variant the module named (EDIABAS mode), the one its
+    /// BMW part number belongs to, or the ones made for this engine. Confirmed when the module itself pinned it down.
+    /// </summary>
+    public static (List<string> Candidates, bool Confirmed) Candidates(IReadOnlyList<IOfficialFaultSource> sources, EcuDefinition ecu, EcuIdentity? identity, string? engine)
+    {
+        bool Has(string v) => sources.Any(s => s.HasVariant(v));
+
+        // 1. The module named its variant (EDIABAS mode).
+        if (identity?.Variant is { Length: > 0 } named && Has(named.ToLowerInvariant()))
+            return ([named.ToLowerInvariant()], true);
+
+        var candidates = ecu.Variants.Select(v => v.ToLowerInvariant()).Where(Has).ToList();
+
+        // 2. The module's BMW part number belongs to exactly one known variant.
+        if (PartDigits(identity?.PartNumber) is { } part)
+        {
+            var byPart = candidates.Where(v => sources.Any(s => s.PartNumbersOf(v).Contains(part))).ToList();
+            if (byPart.Count == 1) return (byPart, true);
+        }
+
+        // 3. Engine computers: keep the ones made for this engine, exact engine code first
+        //    (MSV70 is "N52"; MSV80 is "N52KP"), then the rest in database order.
+        if (engine is { Length: > 0 })
+        {
+            var forEngine = candidates.Where(v =>
+            {
+                var engines = sources.SelectMany(s => s.EnginesOf(v)).ToList();
+                return engines.Count == 0 || engines.Any(e => engine.StartsWith(e, StringComparison.OrdinalIgnoreCase) || e.StartsWith(engine, StringComparison.OrdinalIgnoreCase));
+            }).ToList();
+            if (forEngine.Count > 0)
+                candidates = forEngine.OrderBy(v => sources.SelectMany(s => s.EnginesOf(v)).Any(e => e.Equals(engine, StringComparison.OrdinalIgnoreCase)) ? 0 : 1).ToList();
+        }
+        return (candidates, candidates.Count == 1 && ecu.Variants.Count(v => Has(v.ToLowerInvariant())) == 1);
+    }
+
+    /// <summary>Most likely variant of a module among those <paramref name="usable"/> accepts (e.g. ones with a measurement table).</summary>
+    public static string? ResolveVariant(IReadOnlyList<IOfficialFaultSource> sources, EcuDefinition ecu, EcuIdentity? identity, string? engine, Func<string, bool> usable) =>
+        Candidates(sources, ecu, identity, engine).Candidates.FirstOrDefault(usable);
 
     /// <summary>"2A82", "0x2A82" or "01" → number.</summary>
     public static bool TryParseCode(string code, out int number)
