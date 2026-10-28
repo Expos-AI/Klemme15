@@ -1,4 +1,9 @@
-# Klemme15
+<h1 align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/brand/klemme15-lockup-dark.svg">
+    <img alt="Klemme15" src="docs/brand/klemme15-lockup-light.svg" width="440">
+  </picture>
+</h1>
 
 *Named after terminal 15 (Klemme 15), the ignition-on line every BMW diagnosis starts with. Formerly OpenHood.*
 

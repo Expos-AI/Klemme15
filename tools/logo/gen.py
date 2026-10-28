@@ -1,0 +1,172 @@
+"""Generates every Klemme15 logo asset from one source of truth.
+
+Run from the repo root:  python3 tools/logo/gen.py   (needs fontTools)
+Then rasterise:          node tools/logo/render.js   (needs Playwright; writes PNG + ICO)
+
+The numerals and wordmark are Barlow (SIL OFL, bundled in the app), converted to outlines,
+so no font is needed to display the logo anywhere.
+"""
+from pathlib import Path
+from fontTools.ttLib import TTFont
+from fontTools.pens.svgPathPen import SVGPathPen
+from fontTools.pens.transformPen import TransformPen
+from fontTools.pens.boundsPen import BoundsPen
+
+ROOT = Path(__file__).resolve().parents[2]
+FONTS = ROOT / "src/Klemme15.App/Assets/Fonts"
+APP_LOGO = ROOT / "src/Klemme15.App/Assets/Logo"
+BRAND = ROOT / "docs/brand"
+
+AMBER = "#F2A93B"
+INK = "#0B0F14"
+WHITE = "#FFFFFF"
+
+NUM_FONT = "Barlow_600SemiBold.ttf"
+WORD_FONT = "Barlow_500Medium.ttf"
+
+
+def _font(name):
+    f = TTFont(FONTS / name)
+    return f, f.getGlyphSet(), f.getBestCmap(), f["OS/2"].sCapHeight
+
+
+def text_path(font, s, cap, x, baseline, tracking=0):
+    f, gs, cmap, cap_h = _font(font)
+    k = cap / cap_h
+    pen = SVGPathPen(gs, ntos=lambda v: f"{v:.2f}".rstrip("0").rstrip("."))
+    cx = 0
+    for ch in s:
+        g = cmap[ord(ch)]
+        gs[g].draw(TransformPen(pen, (k, 0, 0, -k, x + cx * k, baseline)))
+        cx += gs[g].width + tracking
+    return pen.getCommands(), (cx - tracking) * k
+
+
+def ink_bounds(font, s, cap):
+    f, gs, cmap, cap_h = _font(font)
+    k = cap / cap_h
+    bp = BoundsPen(gs)
+    cx = 0
+    for ch in s:
+        g = cmap[ord(ch)]
+        gs[g].draw(TransformPen(bp, (1, 0, 0, 1, cx, 0)))
+        cx += gs[g].width
+    x0, _, x1, _ = bp.bounds
+    return x0 * k, x1 * k
+
+
+def terminal_paths(x, y, s):
+    """Spade terminal, 76 x 200 units: crimp barrel, taper, flat blade. Returns (body, crimp line, hole)."""
+    def p(px, py):
+        return f"{x + px * s:.1f} {y + py * s:.1f}"
+    body = (f"M{p(0, 8)} Q{p(0, 0)} {p(8, 0)} L{p(68, 0)} Q{p(76, 0)} {p(76, 8)} L{p(76, 80)} L{p(64, 100)} "
+            f"L{p(64, 190)} L{p(54, 200)} L{p(22, 200)} L{p(12, 190)} L{p(12, 100)} L{p(0, 80)} Z")
+    crimp = (x + 10 * s, y + 36 * s, 56 * s, 8 * s, 2 * s)
+    hole = (x + 38 * s, y + 160 * s, 12 * s)
+    return body, crimp, hole
+
+
+def tile_parts(size=512):
+    """Geometry of the app tile at the given size."""
+    k = size / 512
+    cap, gap, tw = 200 * k, 30 * k, 76 * k
+    nx0, nx1 = ink_bounds(NUM_FONT, "15", cap)
+    x0 = (size - (tw + gap + (nx1 - nx0))) / 2
+    top = (size - cap) / 2
+    body, crimp, hole = terminal_paths(x0, top, k)
+    digits, _ = text_path(NUM_FONT, "15", cap, x0 + tw + gap - nx0, top + cap)
+    return dict(size=size, radius=112 * k, body=body, crimp=crimp, hole=hole, digits=digits)
+
+
+def tile_svg_body(t, colour=True, inverted=False):
+    """Default: white tile, ink drawing (for dark backgrounds). inverted: ink tile, white drawing (for light ones)."""
+    paper, ink = (INK, WHITE) if inverted else (WHITE, INK)
+    cx, cy, cw, ch, cr = t["crimp"]
+    hx, hy, hr = t["hole"]
+    return (f'<rect width="{t["size"]}" height="{t["size"]}" rx="{t["radius"]:.1f}" fill="{paper}"/>'
+            f'<path d="{t["body"]}" fill="{ink}"/>'
+            f'<rect x="{cx:.1f}" y="{cy:.1f}" width="{cw:.1f}" height="{ch:.1f}" rx="{cr:.1f}" fill="{paper}"/>'
+            f'<circle cx="{hx:.1f}" cy="{hy:.1f}" r="{hr:.1f}" fill="{AMBER if colour else paper}"/>'
+            f'<path d="{t["digits"]}" fill="{ink}"/>')
+
+
+def svg(w, h, body, title="Klemme15"):
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" '
+            f'role="img" aria-label="{title}">{body}</svg>\n')
+
+
+def lockup_svg(word_colour, inverted=False):
+    T, gap = 240, 56
+    cap = T * 0.42
+    d, ww = text_path(WORD_FONT, "Klemme15", cap, T + gap, (T + cap) / 2, tracking=10)
+    w = int(T + gap + ww + 4)
+    return svg(w, T, f'<g>{tile_svg_body(tile_parts(T), inverted=inverted)}</g><path d="{d}" fill="{word_colour}"/>')
+
+
+def social_card():
+    """1280 x 640 GitHub social preview."""
+    W, H = 1280, 640
+    T, gap = 220, 52
+    cap = T * 0.42
+    _, ww = text_path(WORD_FONT, "Klemme15", cap, 0, 0, tracking=10)
+    x0 = (W - (T + gap + ww)) / 2
+    y0 = 200
+    d, _ = text_path(WORD_FONT, "Klemme15", cap, x0 + T + gap, y0 + (T + cap) / 2, tracking=10)
+    tag, tw = text_path(WORD_FONT, "Open-source BMW diagnostics", 30, 0, 0)
+    tag, _ = text_path(WORD_FONT, "Open-source BMW diagnostics", 30, (W - tw) / 2, y0 + T + 90)
+    return svg(W, H, f'<rect width="{W}" height="{H}" fill="#0D141B"/>'
+                     f'<g transform="translate({x0:.1f} {y0})">{tile_svg_body(tile_parts(T))}</g>'
+                     f'<path d="{d}" fill="{WHITE}"/><path d="{tag}" fill="#8796A5"/>')
+
+
+def xaml_control(t):
+    cx, cy, cw, ch, cr = t["crimp"]
+    hx, hy, hr = t["hole"]
+    return f'''<!-- Generated by tools/logo/gen.py. Do not edit by hand. -->
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Klemme15.App.Controls.LogoMark">
+  <Viewbox Stretch="Uniform">
+    <Canvas Width="512" Height="512">
+      <Rectangle Width="512" Height="512" RadiusX="{t["radius"]:.1f}" RadiusY="{t["radius"]:.1f}" Fill="{WHITE}" />
+      <Path Fill="{INK}" Data="{t["body"]}" />
+      <Rectangle Canvas.Left="{cx:.1f}" Canvas.Top="{cy:.1f}" Width="{cw:.1f}" Height="{ch:.1f}" RadiusX="{cr:.1f}" RadiusY="{cr:.1f}" Fill="{WHITE}" />
+      <Ellipse Canvas.Left="{hx - hr:.1f}" Canvas.Top="{hy - hr:.1f}" Width="{2 * hr:.1f}" Height="{2 * hr:.1f}" Fill="{AMBER}" />
+      <Path Fill="{INK}" Data="{t["digits"]}" />
+    </Canvas>
+  </Viewbox>
+</UserControl>
+'''
+
+
+def csharp_inline(t):
+    body = tile_svg_body(t).replace('"', '\\"')
+    return f'''// Generated by tools/logo/gen.py. Do not edit by hand.
+namespace Klemme15.Core;
+
+/// <summary>The Klemme15 app mark as inline SVG, for HTML reports.</summary>
+public static class Logo
+{{
+    public const string Svg = "<svg xmlns=\\"http://www.w3.org/2000/svg\\" viewBox=\\"0 0 512 512\\" role=\\"img\\" aria-label=\\"Klemme15\\">{body}</svg>";
+}}
+'''
+
+
+def main():
+    APP_LOGO.mkdir(parents=True, exist_ok=True)
+    BRAND.mkdir(parents=True, exist_ok=True)
+    t = tile_parts(512)
+    icon = svg(512, 512, tile_svg_body(t))
+    for d in (APP_LOGO, BRAND):
+        (d / "klemme15-icon.svg").write_text(icon)
+    (BRAND / "klemme15-icon-mono.svg").write_text(svg(512, 512, tile_svg_body(t, colour=False)))
+    (BRAND / "klemme15-lockup-dark.svg").write_text(lockup_svg(WHITE))
+    (BRAND / "klemme15-lockup-light.svg").write_text(lockup_svg(INK, inverted=True))
+    (BRAND / "klemme15-social.svg").write_text(social_card())
+    (ROOT / "src/Klemme15.App/Controls/LogoMark.axaml").write_text(xaml_control(t))
+    (ROOT / "src/Klemme15.Core/Logo.cs").write_text(csharp_inline(t))
+    print("SVG, XAML and C# written.")
+
+
+if __name__ == "__main__":
+    main()
