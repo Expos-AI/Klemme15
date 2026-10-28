@@ -58,10 +58,11 @@
             <c:CarDrawing />
             <ItemsControl Classes="markers" ItemsSource="{Binding PreviewMarkers}" IsHitTestVisible="False">
               <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate><Canvas Width="1000" Height="460" /></ItemsPanelTemplate>
+                <ItemsPanelTemplate><Canvas Width="1000" Height="460" ClipToBounds="False" /></ItemsPanelTemplate>
               </ItemsControl.ItemsPanel>
               <ItemsControl.Styles>
                 <Style Selector="ItemsControl.markers > ContentPresenter" x:DataType="vm:MarkerViewModel">
+                  <Setter Property="ClipToBounds" Value="False" />
                   <Setter Property="Canvas.Left" Value="{Binding Left}" />
                   <Setter Property="Canvas.Top" Value="{Binding Top}" />
                 </Style>
