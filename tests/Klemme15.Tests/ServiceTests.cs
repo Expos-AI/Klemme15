@@ -46,11 +46,15 @@ public class ServiceTests
     {
         // No coding, flashing, immobiliser, key, VIN or odometer jobs. (Injector correction codes are allowed: they are
         // calibration values printed on the part, which ISTA also writes as a service function.)
-        var forbidden = new[] { "CODIER", "FLASH", "EWS", "ISN", "CAS_", "SCHLUESSEL", "FAHRGESTELL", "FG_NR", "VIN", "GWSZ", "STARTWERT", "SPEICHER_SCHREIBEN", "EEPROM" };
+        var forbidden = new[] { "CODIER", "FLASH", "EWS", "ISN", "CAS_", "SCHLUESSEL", "FAHRGESTELL", "FG_NR", "VIN", "GWSZ", "STARTWERT", "SPEICHER_SCHREIBEN", "EEPROM", "AUTHENTISIERUNG", "TRANSPONDER", "KEY", "SECRET" };
         foreach (var f in Library.All)
         {
-            Assert.DoesNotContain(f.Modules, m => m is "CAS" or "EWS" or "ELV");
-            foreach (var step in f.Implementations.SelectMany(i => i.Steps.Concat(i.Stop)))
+            Assert.DoesNotContain(f.Modules, m => m is "EWS" or "ELV");
+            // The key module (CAS) is allowed for exactly one thing: reading and clearing the steering lock's event counters.
+            if (f.Modules.Contains("CAS"))
+                Assert.All(f.Implementations.SelectMany(i => i.Steps.Concat(i.Stop)), step =>
+                    Assert.Contains(step.Job, new[] { "STATUS_ELV_WERTE", "STEUERN_ELVCOUNTER_CAS_LOESCHEN", "STEUERN_ELVCOUNTER_ELV_LOESCHEN" }));
+            foreach (var step in f.Implementations.SelectMany(i => i.Steps.Concat(i.Stop)).Where(st => !st.Job.StartsWith("STEUERN_ELVCOUNTER_", StringComparison.Ordinal)))
                 Assert.DoesNotContain(forbidden, w => step.Job.Contains(w, StringComparison.OrdinalIgnoreCase));
         }
         // Native requests may only start a routine ($31) or control an output ($30).

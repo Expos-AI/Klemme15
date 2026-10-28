@@ -58,6 +58,9 @@
           <Button Classes="quiet" Content="HTML" Command="{Binding ExportHtmlCommand}" />
           <Button Classes="quiet" Content="Markdown" Command="{Binding ExportMarkdownCommand}" />
           <Button Classes="quiet" Content="JSON" Command="{Binding ExportJsonCommand}" />
+          <Button Classes="quiet" Content="Copy for a forum post" Command="{Binding CopyForumCommand}"
+                  ToolTip.Tip="A short summary with the VIN removed, ready to paste into E90Post, Reddit or Bimmerforums" />
+          <TextBlock Classes="muted small" Text="{Binding CopiedText}" VerticalAlignment="Center" Margin="6,0,0,0" />
         </StackPanel>
         <StackPanel Margin="18,0" VerticalAlignment="Center" Spacing="5">
           <TextBlock Text="{Binding Summary}" IsVisible="{Binding HasScan}" />

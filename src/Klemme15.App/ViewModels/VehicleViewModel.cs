@@ -38,6 +38,7 @@ public sealed class VehicleViewModel : PageViewModel
         DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
         ExportHtmlCommand = new AsyncCommand(() => ExportAsync("html"), () => _session.LastScan is not null);
         ExportMarkdownCommand = new AsyncCommand(() => ExportAsync("md"), () => _session.LastScan is not null);
+        CopyForumCommand = new AsyncCommand(CopyForumAsync, () => _session.LastScan is not null);
         ExportJsonCommand = new AsyncCommand(() => ExportAsync("json"), () => _session.LastScan is not null);
 
         _session.PropertyChanged += (_, e) =>
@@ -397,7 +398,26 @@ public sealed class VehicleViewModel : PageViewModel
         ExportHtmlCommand.RaiseCanExecuteChanged();
         ExportMarkdownCommand.RaiseCanExecuteChanged();
         ExportJsonCommand.RaiseCanExecuteChanged();
+        CopyForumCommand.RaiseCanExecuteChanged();
         if (selectedId is not null && Markers.FirstOrDefault(m => m.Id == selectedId) is { } again) Select(again);
+    }
+
+    public AsyncCommand CopyForumCommand { get; }
+
+    private string _copied = "";
+
+    /// <summary>"Copied: paste it into your forum post" after the forum summary was copied.</summary>
+    public string CopiedText { get => _copied; private set => Set(ref _copied, value); }
+
+    private async Task CopyForumAsync()
+    {
+        if (_session.LastScan is not { } scan) return;
+        var car = _session.Model is { } m ? $"{_session.Vehicle?.Id} {m.Name} ({m.Engine})" : null;
+        var text = ReportWriter.ToForumPost(scan, car);
+        if (await _dialogs.CopyTextAsync(text))
+            CopiedText = "Copied (VIN removed). Paste it into your forum post.";
+        else
+            await _dialogs.SaveTextAsync("Save forum summary", $"klemme15-forum-{scan.Started:yyyyMMdd-HHmm}.md", "md", text);
     }
 
     private async Task ExportAsync(string ext)

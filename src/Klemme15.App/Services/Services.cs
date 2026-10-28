@@ -14,6 +14,9 @@ public interface IDialogService
 
     /// <summary>Opens a web page in the user's browser.</summary>
     Task OpenUrlAsync(string url);
+
+    /// <summary>Puts text on the clipboard. Returns false if that isn't possible here.</summary>
+    Task<bool> CopyTextAsync(string text);
 }
 
 public sealed class DialogService(Window owner) : IDialogService
@@ -38,6 +41,13 @@ public sealed class DialogService(Window owner) : IDialogService
     {
         if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme is "https" or "http")
             await owner.Launcher.LaunchUriAsync(uri);
+    }
+
+    public async Task<bool> CopyTextAsync(string text)
+    {
+        if (owner.Clipboard is not { } clipboard) return false;
+        await clipboard.SetTextAsync(text);
+        return true;
     }
 
     public async Task<string?> PickFolderAsync(string title)
