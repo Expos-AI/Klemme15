@@ -59,6 +59,15 @@ public sealed class LiveViewModel : PageViewModel
     private string? _error;
     private StringBuilder? _recording;
 
+    /// <summary>The recording's columns, fixed when it starts, so every row lines up with the header.</summary>
+    private List<LiveParameterViewModel> _columns = [];
+
+    private void StartColumns()
+    {
+        _columns = Selected.ToList();
+        _recording?.AppendLine("time," + string.Join(",", _columns.Select(p => $"\"{p.Name} ({p.Unit})\"")));
+    }
+
     public LiveViewModel(SessionState session, IDialogService dialogs)
     {
         _session = session;
@@ -68,7 +77,7 @@ public sealed class LiveViewModel : PageViewModel
         RecordCommand = new RelayCommand(() =>
         {
             _recording = new StringBuilder();
-            if (_running) _recording.AppendLine("time," + string.Join(",", Selected.Select(p => $"\"{p.Name} ({p.Unit})\"")));
+            if (_running) StartColumns();
             Raise(nameof(IsRecording));
             RaiseCommands();
         }, () => _recording is null);
@@ -150,8 +159,7 @@ public sealed class LiveViewModel : PageViewModel
         Error = null;
         var selected = Selected.ToList();
         foreach (var p in selected) p.Reset();
-        var byId = selected.ToDictionary(p => p.Parameter.Id);
-        _recording?.AppendLine("time," + string.Join(",", selected.Select(p => $"\"{p.Name} ({p.Unit})\"")));
+        StartColumns();
 
         _cts = new CancellationTokenSource();
         IsRunning = true;
@@ -161,11 +169,15 @@ public sealed class LiveViewModel : PageViewModel
         {
             while (!_cts.IsCancellationRequested)
             {
+                // Values ticked or unticked while running take effect on the next update.
+                selected = Selected.ToList();
+                if (selected.Count == 0) { await Task.Delay(200, _cts.Token); continue; }
+                var byId = selected.ToDictionary(p => p.Parameter.Id);
                 var values = await backend.ReadLiveAsync(engine, selected.Select(p => p.Parameter).ToList(), _cts.Token);
                 foreach (var v in values)
                     if (byId.TryGetValue(v.Parameter.Id, out var vm)) vm.Update(v);
                 _recording?.AppendLine(DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "," +
-                    string.Join(",", selected.Select(p => p.Latest?.ToString(CultureInfo.InvariantCulture) ?? "")));
+                    string.Join(",", _columns.Select(p => byId.ContainsKey(p.Parameter.Id) ? p.Latest?.ToString(CultureInfo.InvariantCulture) ?? "" : "")));
                 frames++;
                 var seconds = (DateTime.UtcNow - started).TotalSeconds;
                 if (seconds > 0) Rate = $"{frames / seconds:0.0} updates/s";

@@ -318,7 +318,7 @@ public sealed class ServiceViewModel : PageViewModel
         {
             var state = _session.IsDemo
                 ? ServiceRunner.DemoState(item.Function.Checks)
-                : await ServiceRunner.ReadStateAsync(backend, _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine));
+                : await ServiceRunner.ReadStateAsync(backend, _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements);
             Checks.Clear();
             foreach (var c in ServiceRunner.Evaluate(item.Function.Checks, state))
                 Checks.Add(new ServiceCheckViewModel(c, Changed));

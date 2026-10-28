@@ -307,7 +307,8 @@ internal static class Cli
                 EcuScanStatus.Error => "ERROR",
                 _ => "     ",
             };
-            Console.WriteLine($"  [{mark}] {r.Ecu.Name,-34} {r.Ecu.AddressHex}  {(r.Faults.Count > 0 ? r.Faults.Count + " fault(s)" : "")} {r.Error}");
+            var faults = r.Faults.Count > 0 ? r.Faults.Count + " fault(s)" : "";
+            Console.WriteLine($"  [{mark}] {r.Ecu.Name,-34} {r.Ecu.AddressHex}  {faults,-10} {r.Identity?.Summary} {r.Error}".TrimEnd());
         });
         var scan = await scanner.ScanAsync(vehicle.Modules, $"{vehicle.Id} {a.Get("model")}".Trim(), progress, ct);
         await Task.Delay(50, CancellationToken.None);   // let the last progress line print
@@ -343,6 +344,22 @@ internal static class Cli
         return 0;
     }
 
+    /// <summary>
+    /// BMW's measurement values for the engine: from BMW's files in EDIABAS mode, otherwise read by Klemme15 itself
+    /// with the downloaded tables, for the engine computer version its part number identifies.
+    /// </summary>
+    private static async Task<IMeasurementReader?> MeasurementsFor(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle,
+        VehicleModel? model, TrafficLog log, CancellationToken ct)
+    {
+        if (backend is IMeasurementReader own) return own;
+        if (backend is not IRawRequests raw || db.Measurements is not { } tables) return null;
+        var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
+        if (engine is null) return null;
+        var identity = await backend.IdentifyAsync(engine, ct);
+        return new Klemme15.Protocols.NativeReadings(raw, tables,
+            e => OfficialLookup.ResolveVariant(db.OfficialSources, e, identity, model?.EngineCode, v => tables.Has(v)), log);
+    }
+
     /// <summary>klemme15 readings --module DME [--job STATUS_X] [--filter lambda]: BMW status values, read-only.</summary>
     private static async Task<int> GuidedTest(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle, VehicleModel? model, bool demo,
         TrafficLog log, Args a, CancellationToken ct)
@@ -351,14 +368,7 @@ internal static class Cli
         var info = GuidedTests.All.FirstOrDefault(t => t.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
         if (info is null) { Console.Error.WriteLine($"Unknown test '{id}'. See 'klemme15 test'."); return 2; }
         var engine = vehicle.Modules.First(m => m.IsEngine);
-        IMeasurementReader? measurements = backend as IMeasurementReader;
-        if (demo) measurements = new Klemme15.Protocols.Simulation.DemoReadings(model);
-        else if (measurements is null && backend is IRawRequests raw && db.Measurements is { } tables)
-        {
-            var identity = await backend.IdentifyAsync(engine, ct);
-            measurements = new Klemme15.Protocols.NativeReadings(raw, tables,
-                e => OfficialLookup.ResolveVariant(db.OfficialSources, e, identity, model?.EngineCode, v => tables.Has(v)), log);
-        }
+        var measurements = demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : await MeasurementsFor(backend, db, vehicle, model, log, ct);
         ISignalSource signals = demo ? new Klemme15.Protocols.Simulation.DemoSignals(measurements!, engine) : new EngineSignals(backend, engine, measurements);
         Console.WriteLine();
         Console.WriteLine(info.Title);
@@ -454,7 +464,8 @@ internal static class Cli
             return 2;
         }
 
-        var state = demo ? ServiceRunner.DemoState(f.Checks) : await ServiceRunner.ReadStateAsync(backend, vehicle.Modules.FirstOrDefault(m => m.IsEngine), ct);
+        var state = demo ? ServiceRunner.DemoState(f.Checks) : await ServiceRunner.ReadStateAsync(backend, vehicle.Modules.FirstOrDefault(m => m.IsEngine),
+                await MeasurementsFor(backend, db, vehicle, model, log, ct), ct);
         var ok = true;
         foreach (var c in ServiceRunner.Evaluate(f.Checks, state))
         {

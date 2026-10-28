@@ -291,21 +291,11 @@
       ],
       "verified": true,
       "variants": [
-        "mevd174k",
-        "mevd17kw",
-        "mevd176k",
-        "edme82",
-        "msd80",
         "msv80",
-        "me17n45",
-        "msv70",
         "mss60",
-        "mev17n46",
         "mev9n46l",
-        "me9n45",
         "d60m47a0",
         "d60m57a0",
-        "d60m57d0",
         "d62m57a0",
         "d62m57b0",
         "d70n47a0",
@@ -315,6 +305,16 @@
         "d72n47b0",
         "d73n57b0",
         "d73n57c0",
+        "edme82",
+        "me17n45",
+        "mev17n46",
+        "me9n45",
+        "mevd174k",
+        "mevd17kw",
+        "mevd176k",
+        "msd80",
+        "msv70",
+        "d60m57d0",
         "d73n57d0"
       ]
     },
@@ -335,10 +335,10 @@
       "verified": false,
       "variants": [
         "gs1912",
-        "gsb233",
         "gs19d",
-        "gs19b",
-        "dkg_90"
+        "dkg_90",
+        "gsb233",
+        "gs19b"
       ]
     },
     {
@@ -432,8 +432,8 @@
       ],
       "verified": true,
       "variants": [
-        "frm_70",
-        "frm_87"
+        "frm_87",
+        "frm_70"
       ]
     },
     {
@@ -451,8 +451,8 @@
       ],
       "verified": true,
       "variants": [
-        "jbbf70",
-        "jbbf87"
+        "jbbf87",
+        "jbbf70"
       ]
     },
     {
@@ -470,11 +470,11 @@
       ],
       "verified": true,
       "variants": [
-        "ihka89",
-        "ihka87",
-        "ihkr89",
         "ihkr90",
-        "ihr_87"
+        "ihka87",
+        "ihr_87",
+        "ihka89",
+        "ihkr89"
       ]
     },
     {
@@ -490,7 +490,8 @@
         418,
         300
       ],
-      "verified": false
+      "verified": false,
+      "optional": true
     },
     {
       "id": "E9x.EKPS",
@@ -545,13 +546,13 @@
       ],
       "verified": false,
       "variants": [
+        "rad2",
+        "rad12r",
+        "rad1",
         "cicmr",
         "cicr",
         "ccc_60",
-        "rad2",
-        "rad1",
-        "mask60",
-        "rad12r"
+        "mask60"
       ]
     },
     {
@@ -645,8 +646,8 @@
         "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
       ],
       "variants": [
-        "rdc_60",
-        "rdckwp"
+        "rdckwp",
+        "rdc_60"
       ]
     },
     {
@@ -696,15 +697,15 @@
         "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
       ],
       "variants": [
-        "cvm_88",
-        "cvm_88_2",
-        "ctm_89",
         "ctm_93_4",
         "ctm_93_5",
         "ctm_93_6",
         "ctm_93_3",
         "ctm_93_2",
-        "ctm_93"
+        "ctm_93",
+        "cvm_88",
+        "cvm_88_2",
+        "ctm_89"
       ]
     },
     {
@@ -1124,8 +1125,8 @@
         "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
       ],
       "variants": [
-        "cccg60",
-        "rad2_gw"
+        "rad2_gw",
+        "cccg60"
       ]
     },
     {
@@ -1152,8 +1153,8 @@
       "variants": [
         "zbeh87",
         "zbel87",
-        "zbe_60_2",
-        "zbel87_2"
+        "zbel87_2",
+        "zbe_60_2"
       ]
     },
     {
@@ -1170,7 +1171,7 @@
         515,
         335
       ],
-      "verified": false,
+      "verified": true,
       "note": "Only with memory seats. The group table names it FAS.",
       "sources": [
         "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
@@ -1255,9 +1256,9 @@
         "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
       ],
       "variants": [
-        "cid_89",
         "cid_90",
-        "cid_87"
+        "cid_87",
+        "cid_89"
       ]
     },
     {
@@ -1301,6 +1302,26 @@
       ],
       "variants": [
         "ccca60"
+      ]
+    },
+    {
+      "id": "E9x.LDM",
+      "name": "Longitudinal dynamics / cruise control (LDM)",
+      "address": "1C",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_001C",
+        "D_LDM"
+      ],
+      "verified": true,
+      "optional": true,
+      "variants": [
+        "ldm_90"
+      ],
+      "pos": [
+        250,
+        300
       ]
     },
     {
@@ -1514,8 +1535,8 @@
       ],
       "verified": false,
       "variants": [
-        "jbbf70",
-        "jbbf87"
+        "jbbf87",
+        "jbbf70"
       ],
       "pos": [
         395,
@@ -1555,30 +1576,30 @@
       "verified": false,
       "variants": [
         "d60m47a0",
-        "d60m57a0",
-        "d60m57d0",
-        "d62m57a0",
-        "d62m57b0",
         "d70n47a0",
         "d70n47b0",
         "d71n47a0",
         "d71n47c0",
-        "d72n47b0",
-        "d73n57b0",
-        "d73n57c0",
-        "d73n57d0",
         "edme82",
         "me17n45",
         "me9n45",
         "mev17n46",
         "mev9n46l",
+        "d60m57a0",
+        "d62m57a0",
+        "d62m57b0",
+        "d72n47b0",
+        "d73n57b0",
+        "d73n57c0",
+        "mss60",
+        "msv80",
+        "d60m57d0",
+        "d73n57d0",
         "mevd174k",
         "mevd176k",
         "mevd17kw",
         "msd80",
-        "mss60",
-        "msv70",
-        "msv80"
+        "msv70"
       ],
       "engine": true,
       "pos": [
@@ -1637,8 +1658,8 @@
       "variants": [
         "dkg_90",
         "gs1912",
-        "gs19b",
         "gs19d",
+        "gs19b",
         "gsb233"
       ],
       "pos": [
@@ -1662,6 +1683,24 @@
       "pos": [
         470,
         262
+      ]
+    },
+    {
+      "id": "E8x.LDM",
+      "name": "Longitudinal dynamics / cruise control (LDM)",
+      "address": "1C",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_001C"
+      ],
+      "verified": false,
+      "variants": [
+        "ldm_90"
+      ],
+      "pos": [
+        250,
+        300
       ]
     },
     {
@@ -1712,15 +1751,15 @@
       ],
       "verified": false,
       "variants": [
-        "ctm_89",
+        "cvm_88",
+        "cvm_88_2",
         "ctm_93",
         "ctm_93_2",
         "ctm_93_3",
         "ctm_93_4",
         "ctm_93_5",
         "ctm_93_6",
-        "cvm_88",
-        "cvm_88_2"
+        "ctm_89"
       ],
       "pos": [
         858,
@@ -1757,8 +1796,8 @@
       "verified": false,
       "variants": [
         "dsc_87",
-        "dxc_90",
-        "mriabs2"
+        "mriabs2",
+        "dxc_90"
       ],
       "pos": [
         250,
@@ -2033,8 +2072,8 @@
       ],
       "verified": false,
       "variants": [
-        "cccg60",
-        "rad2_gw"
+        "rad2_gw",
+        "cccg60"
       ],
       "partOf": "E8x.CIC"
     },
@@ -2049,13 +2088,13 @@
       ],
       "verified": false,
       "variants": [
+        "rad1",
+        "rad2",
+        "rad12r",
         "ccc_60",
         "cicmr",
         "cicr",
-        "mask60",
-        "rad1",
-        "rad12r",
-        "rad2"
+        "mask60"
       ],
       "pos": [
         338,
@@ -2091,10 +2130,10 @@
       ],
       "verified": false,
       "variants": [
-        "zbe_60_2",
         "zbeh87",
         "zbel87",
-        "zbel87_2"
+        "zbel87_2",
+        "zbe_60_2"
       ],
       "pos": [
         505,
@@ -2168,8 +2207,8 @@
       ],
       "verified": false,
       "variants": [
-        "frm_70",
-        "frm_87"
+        "frm_87",
+        "frm_70"
       ],
       "pos": [
         400,
@@ -2188,8 +2227,8 @@
       "verified": false,
       "variants": [
         "cid_87",
-        "cid_89",
-        "cid_90"
+        "cid_90",
+        "cid_89"
       ],
       "pos": [
         368,
@@ -2208,10 +2247,10 @@
       "verified": false,
       "variants": [
         "ihka87",
-        "ihka89",
-        "ihkr89",
+        "ihr_87",
         "ihkr90",
-        "ihr_87"
+        "ihka89",
+        "ihkr89"
       ],
       "pos": [
         338,
@@ -2395,7 +2434,7 @@
     },
     {
       "id": "E60.LDM",
-      "name": "Longitudinal dynamics (cruise control)",
+      "name": "Longitudinal dynamics / cruise control (LDM)",
       "address": "1C",
       "protocol": "BmwFast",
       "category": "Chassis",
@@ -3257,7 +3296,7 @@
     },
     {
       "id": "E70.LDM",
-      "name": "Longitudinal dynamics (cruise control)",
+      "name": "Longitudinal dynamics / cruise control (LDM)",
       "address": "15",
       "protocol": "BmwFast",
       "category": "Chassis",
@@ -4291,7 +4330,7 @@
     },
     {
       "id": "E89.LDM",
-      "name": "Longitudinal dynamics (cruise control)",
+      "name": "Longitudinal dynamics / cruise control (LDM)",
       "address": "1C",
       "protocol": "BmwFast",
       "category": "Chassis",

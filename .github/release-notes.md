@@ -1,6 +1,14 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in this release:**
+**Fixed after the first real-car test (2006 E90 325i):**
+- Module identification is decoded: part number, hardware and coding index and production date for every D-CAN module (the engine computer's part number now pins down its exact version, e.g. MSV70).
+- Engine readings without BMW files now work: the engine computer refused the request Klemme15 used, so values are read the way BMW's own tools do (a temporary measurement record). This also fixes the VANOS and cylinder roughness tests.
+- Battery voltage is read from BMW's own measurement when the engine computer ignores the standard OBD request; live data no longer stalls on values the car never answers.
+- Live data CSV: columns could shift when values were ticked after starting; every row now lines up with its header.
+- The cruise control module (LDM, 0x1C) is in the E90 list; the junction box and footwell module try the E90 versions first; the quick test is faster.
+- Model data checked against published sources: the North American 325i/325xi have the 3.0 L N52, plus corrections to years and body styles across families.
+
+**New in 0.10:**
 - **More cars**: 1 Series E8x, 5/6 Series E60/E61/E63/E64 (2007 on), X5 E70 / X6 E71, Z4 E89, 5 Series E39, X5 E53, 7 Series E38, each with demo cars. Built from BMW's module data, not yet confirmed on real cars: please report.
 - **Guided tests with a verdict** (Tests page): fuel trims at idle and 2,500 rpm, VANOS target vs actual, cylinder roughness, and "Why won't it start?" (read-only).
 - **Faults sorted** into fix now / worth checking / background (info and shadow memory).

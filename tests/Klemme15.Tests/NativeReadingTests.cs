@@ -46,25 +46,89 @@ public class NativeReadingTests
 
     private static readonly EcuDefinition Dme = new() { Id = "E9x.DME", Name = "Engine (DME)", Address = 0x12, Protocol = BusProtocol.BmwFast };
 
-    [Fact]
-    public async Task Reads_a_value_with_22_and_scales_it()
+    /// <summary>Behaves like the MSV70 in a real E90: $22 for these ids is refused, $2C F0 / $21 F0 works.</summary>
+    private static byte[]? Msv70(byte[] r, Dictionary<ushort, byte[]> values, List<ushort> defined)
     {
-        var module = new FakeModule(r => [0x62, r[1], r[2], 0x50]);
+        switch (r[0])
+        {
+            case 0x22:
+                return [0x7F, 0x22, 0x12];
+            case 0x2C when r.Length == 3 && r[2] == 0x04:
+                defined.Clear();
+                return [0x6C, 0xF0];
+            case 0x2C:
+                for (var i = 2; i + 5 < r.Length; i += 6)
+                {
+                    var id = (ushort)(r[i + 3] << 8 | r[i + 4]);
+                    if (!values.ContainsKey(id)) return [0x7F, 0x2C, 0x31];
+                    defined.Add(id);
+                }
+                return [0x6C, 0xF0];
+            case 0x21 when r[1] == 0xF0:
+                return [0x61, 0xF0, .. defined.SelectMany(id => values[id])];
+            default:
+                return [0x7F, r[0], 0x11];
+        }
+    }
+
+    [Fact]
+    public async Task Reads_a_value_through_a_measurement_record_and_scales_it()
+    {
+        var defined = new List<ushort>();
+        var module = new FakeModule(r => Msv70(r, new() { [0x4200] = [0x50] }, defined));
         var readings = new NativeReadings(module, new FakeTables(), _ => "msv70");
         Assert.True(readings.Supports(Dme));
         var list = await readings.ListReadingsAsync(Dme);
         var values = await readings.ReadAsync(Dme, list[0].Job);
-        Assert.Equal(new byte[] { 0x22, 0x42, 0x00 }, module.Sent[0]);
+        Assert.Equal(new byte[] { 0x2C, 0xF0, 0x04 }, module.Sent[0]);
+        Assert.Equal(new byte[] { 0x2C, 0xF0, 0x02, 0x01, 0x01, 0x42, 0x00, 0x01 }, module.Sent[1]);
+        Assert.Equal(new byte[] { 0x21, 0xF0 }, module.Sent[2]);
         Assert.Equal(12.0, values[0].Number);
         Assert.Equal("°C", values[0].Unit);
+    }
+
+    private sealed class ThreeValues : IMeasurementTables
+    {
+        public bool Has(string variant) => true;
+        public IReadOnlyList<MeasurementDef> MeasurementsOf(string variant) =>
+        [
+            new(0x4200, "STAT_A_WERT", "a", "°C", "unsigned char", false, 0.75, 1, -48),
+            new(0x5A85, "STAT_B_WERT", "b", "rpm", "unsigned integer", false, 1, 1, 0),
+            new(0x5800, "STAT_MISSING_WERT", "c", "%", "unsigned char", false, 1, 1, 0),
+        ];
+    }
+
+    [Fact]
+    public async Task Reads_many_values_in_one_record_and_skips_ones_the_module_lacks()
+    {
+        var defined = new List<ushort>();
+        var module = new FakeModule(r => Msv70(r, new() { [0x4200] = [0x50], [0x5A85] = [0x02, 0xEE] }, defined));
+        var readings = new NativeReadings(module, new ThreeValues(), _ => "msv70");
+        var values = await readings.ReadMeasurementsAsync(Dme, ["STAT_A_WERT", "STAT_B_WERT", "STAT_MISSING_WERT"]);
+        Assert.Equal(12.0, values["STAT_A_WERT"]);
+        Assert.Equal(750.0, values["STAT_B_WERT"]);
+        Assert.False(values.ContainsKey("STAT_MISSING_WERT"));
+        // The record is defined once for all three; the module refuses it, so the values are retried one by one.
+        Assert.Equal(2 + 3 * 6, module.Sent[1].Length);
+    }
+
+    [Fact]
+    public async Task Falls_back_to_22_when_the_module_refuses_records()
+    {
+        var module = new FakeModule(r => r[0] == 0x22 ? [0x62, r[1], r[2], 0x50] : [0x7F, r[0], 0x11]);
+        var readings = new NativeReadings(module, new FakeTables(), _ => "msv70");
+        var values = await readings.ReadAsync(Dme, "STAT_ANSAUGLUFTTEMPERATUR_WERT");
+        Assert.Equal(12.0, values[0].Number);
+        Assert.Equal(new byte[] { 0x22, 0x42, 0x00 }, module.Sent[^1]);
     }
 
     [Fact]
     public async Task A_refusal_is_explained()
     {
-        var readings = new NativeReadings(new FakeModule(_ => [0x7F, 0x22, 0x31]), new FakeTables(), _ => "msv70");
+        var defined = new List<ushort>();
+        var readings = new NativeReadings(new FakeModule(r => Msv70(r, [], defined)), new FakeTables(), _ => "msv70");
         var e = await Assert.ThrowsAsync<DiagnosticException>(() => readings.ReadAsync(Dme, "STAT_ANSAUGLUFTTEMPERATUR_WERT"));
-        Assert.Contains("declined", e.Message);
+        Assert.Contains("doesn't offer", e.Message);
     }
 
     [Fact]
@@ -88,5 +152,22 @@ public class NativeReadingTests
             Assert.Equal(0.75, MeasurementTables.ParseBmwNumber("0,75"));
         }
         finally { Directory.Delete(folder, true); }
+    }
+
+    [Fact]
+    public void Decodes_bmw_fast_identification_as_read_from_a_real_e90()
+    {
+        // MSV70 engine computer and MK60 DSC from a 2006 E90 323i (identification only, no VIN).
+        var dme = NativeBackend.ParseKwpIdent(Convert.FromHexString("00000756168400040100333420060418040000000000000000000000FFFFFF"));
+        Assert.Equal("7561684", dme.PartNumber);
+        Assert.Equal("04", dme.CodingIndex);
+        Assert.Equal("2006-04-18", dme.ProductionDate);
+        var dsc = NativeBackend.ParseKwpIdent(Convert.FromHexString("000006775387080705B14C41200603291800 0BFD041E0D000000000000".Replace(" ", "")));
+        Assert.Equal("6775387", dsc.PartNumber);
+        Assert.Equal("08", dsc.HardwareVersion);
+        Assert.Equal("2006-03-29", dsc.ProductionDate);
+        Assert.Contains("Part 6775387", dsc.Summary);
+        // Something that isn't this layout still gives the ASCII part number.
+        Assert.Equal("7519308", NativeBackend.ParseKwpIdent(System.Text.Encoding.ASCII.GetBytes("7519308 MS43 HW 01")).PartNumber);
     }
 }

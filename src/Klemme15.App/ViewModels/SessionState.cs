@@ -49,6 +49,7 @@ public sealed class SessionState : ViewModelBase
             ? _demoReadings ??= new Klemme15.Protocols.NativeReadings(raw, tables, VariantForReadings, Log)
             : null);
     private IModuleReadings? _demoReadings;
+    private EcuIdentity? _engineIdentity;
 
     /// <summary>BMW measurement values by name (for guided tests): from the user's files, the demo, or the downloaded tables.</summary>
     public IMeasurementReader? Measurements => _backend as IMeasurementReader ?? Readings as IMeasurementReader;
@@ -56,7 +57,8 @@ public sealed class SessionState : ViewModelBase
     /// <summary>The module version to read native values for: from its part number when the quick test read it, else the engine.</summary>
     private string? VariantForReadings(EcuDefinition ecu)
     {
-        var identity = _lastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == ecu.Id)?.Identity;
+        var identity = _lastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == ecu.Id)?.Identity
+                       ?? (ecu.IsEngine ? _engineIdentity : null);
         return Klemme15.Data.OfficialLookup.ResolveVariant(Database.OfficialSources, ecu, identity, _model?.EngineCode,
             v => Database.Measurements?.Has(v) == true);
     }
@@ -114,6 +116,14 @@ public sealed class SessionState : ViewModelBase
         Model = model;
         IsDemo = settings.Demo;
         Backend = backend;
+        // The engine computer's part number pins down its exact version (MSV70 vs MSV80 on an N52), which the
+        // readings and guided tests need before any quick test has run.
+        _engineIdentity = null;
+        if (!settings.Demo && vehicle.Modules.FirstOrDefault(m => m.IsEngine) is { } engine)
+        {
+            try { _engineIdentity = await backend.IdentifyAsync(engine, ct); }
+            catch (Exception e) when (e is DiagnosticException or TimeoutException) { }
+        }
         Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
         Status = $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
     }

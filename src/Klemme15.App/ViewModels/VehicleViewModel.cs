@@ -214,12 +214,14 @@ public sealed class VehicleViewModel : PageViewModel
     private async Task<double?> CheckBatteryAsync(IDiagnosticBackend backend, VehicleFamily vehicle)
     {
         var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
-        var voltage = engine is null ? null : backend.GetLiveParameters(engine).FirstOrDefault(p => p.Id == "voltage");
-        if (engine is null || voltage is null) return null;
+        if (engine is null) return null;
         try
         {
-            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
-            var v = (await backend.ReadLiveAsync(engine, [voltage], cts.Token)).FirstOrDefault()?.Value;
+            // The standard OBD value first; many BMW engine computers (MSV70 among them) don't answer it, so then
+            // BMW's own battery voltage measurement.
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var read = await new EngineSignals(backend, engine, _session.Measurements).ReadAsync(["voltage"], cts.Token);
+            double? v = read.TryGetValue("voltage", out var volts) ? volts : null;
             Warning = v switch
             {
                 < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then scan again.",

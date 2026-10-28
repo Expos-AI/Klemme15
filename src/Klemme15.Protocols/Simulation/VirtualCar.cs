@@ -161,7 +161,7 @@ public sealed class VirtualCar : ITransport
         {
             case 0x3E: return [0x7E];
             case 0x1A when req.Length > 1 && req[1] == 0x80:
-                return [0x5A, 0x80, .. Encoding.ASCII.GetBytes(ecu.Ident)];
+                return [0x5A, 0x80, .. KwpIdent(ecu.Ident)];
             case 0x1A when req.Length > 1 && req[1] == 0x90 && ecu.IsEngine:
                 return [0x5A, 0x90, .. Encoding.ASCII.GetBytes(Vin)];
             case 0x1A:
@@ -323,6 +323,29 @@ public sealed class VirtualCar : ITransport
     private static string FakePartNumber(string seed) => Stable(seed, 6_900_000, 7_600_000).ToString();
 
     /// <summary>Demo E90 325i (N52) with a couple of typical faults.</summary>
+    /// <summary>
+    /// The identification block a real D-CAN module sends ($5A 80), in the layout read from a real E90: part number
+    /// as packed digits, hardware/coding/diagnostic/variant indexes, two characters, production date, supplier.
+    /// Built from the simulated module's "7562350 MSV70 HW 08 SW 3A CI 0B" description.
+    /// </summary>
+    internal static byte[] KwpIdent(string ident)
+    {
+        var words = ident.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        byte Field(string name, byte fallback)
+        {
+            var i = Array.IndexOf(words, name);
+            return i >= 0 && i + 1 < words.Length && byte.TryParse(words[i + 1], System.Globalization.NumberStyles.HexNumber, null, out var b) ? b : fallback;
+        }
+        var part = words.Length > 0 && words[0].All(char.IsAsciiDigit) ? words[0].PadLeft(12, '0') : "000000000000";
+        var bytes = new List<byte>(Convert.FromHexString(part[^12..]))
+        {
+            Field("HW", 0x01), Field("CI", 0x04), 0x05, 0xA0, (byte)'K', (byte)'L',
+            0x20, 0x07, 0x05, 0x14,   // made 2007-05-14
+            0x04, 0x00, Field("SW", 0x10), 0x00, 0x00, 0x00,
+        };
+        return [.. bytes];
+    }
+
     public static VirtualCar E90_325i() => new("Virtual E90 325i", [
         new VirtualEcu
         {

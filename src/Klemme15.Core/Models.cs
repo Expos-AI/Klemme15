@@ -82,6 +82,7 @@ public sealed record EcuIdentity
                 HardwareVersion is null ? null : $"HW {HardwareVersion}",
                 SoftwareVersion is null ? null : $"SW {SoftwareVersion}",
                 CodingIndex is null ? null : $"CI {CodingIndex}",
+                ProductionDate is null ? null : $"made {ProductionDate}",
             }.Where(s => s is not null));
             if (parsed.Length > 0) return parsed;
             // Not decoded yet: show the start of the raw reply so it can be studied.
