@@ -58,7 +58,8 @@ public sealed class FaultGroupViewModel : ViewModelBase
             var where = _session.Locate(f, Ecu);
             var item = new FaultItemViewModel(f, Ecu, where?.Title, where?.IsComponent == true)
             {
-                SourceLinks = f.Sources.Where(u => u.StartsWith("http", StringComparison.Ordinal)).Select(u => new SourceLink(u, _openUrl)).ToList(),
+                SourceLinks = f.Sources.Where(u => u.StartsWith("http", StringComparison.Ordinal))
+                                       .Select(u => new SourceLink(u, _openUrl)).DistinctBy(l => l.Label).ToList(),
             };
             item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
             Faults.Add(item);
