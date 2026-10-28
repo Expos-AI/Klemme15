@@ -180,6 +180,13 @@ public sealed class ReadingsViewModel : PageViewModel
         if (Modules.Count == 0) Reload();
     }
 
+    /// <summary>Selects a module by id (used by "Readings" on the Faults page).</summary>
+    public void ShowModule(string ecuId)
+    {
+        if (Modules.Count == 0) Reload();
+        if (Modules.FirstOrDefault(m => m.Ecu.Id == ecuId) is { } module && module != _module) Select(module);
+    }
+
     private void Reload()
     {
         AutoRefresh = false;

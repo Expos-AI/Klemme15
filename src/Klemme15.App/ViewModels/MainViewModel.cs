@@ -22,6 +22,11 @@ public sealed class MainViewModel : ViewModelBase
             Vehicle.ShowFault(fault, ecu);
         }, url => _ = dialogs.OpenUrlAsync(url));
         Readings = new ReadingsViewModel(Session, settings);
+        Faults.OpenReadings = ecu =>
+        {
+            CurrentPage = Readings;
+            Readings.ShowModule(ecu.Id);
+        };
         Live = new LiveViewModel(Session, dialogs);
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);
