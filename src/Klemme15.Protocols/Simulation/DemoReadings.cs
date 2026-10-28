@@ -7,8 +7,35 @@ namespace Klemme15.Protocols.Simulation;
 /// written in the German style of BMW's own files on purpose, so the demo exercises the same English labelling.
 /// Values move a little on every read, like a car idling on the driveway. Nothing here is BMW data.
 /// </summary>
-public sealed class DemoReadings(VehicleModel? model) : IModuleReadings
+public sealed class DemoReadings(VehicleModel? model) : IModuleReadings, IMeasurementReader
 {
+    private readonly DateTime _start = DateTime.UtcNow;
+
+    /// <summary>Measurement values for the guided tests: cylinder 3 runs a little rough, VANOS follows its target.</summary>
+    public async Task<IReadOnlyDictionary<string, double>> ReadMeasurementsAsync(EcuDefinition ecu, IReadOnlyList<string> resultNames, CancellationToken ct = default)
+    {
+        await Task.Delay(40, ct);
+        var t = (DateTime.UtcNow - _start).TotalSeconds;
+        var target = 90 + 15 * Math.Sin(t / 3);
+        var exTarget = 95 + 10 * Math.Cos(t / 4);
+        var values = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in resultNames)
+        {
+            double? v = name switch
+            {
+                "STAT_NW_EINLASSSPREIZUNG_SOLL_WERT" => target,
+                "STAT_NW_EINLASSSPREIZUNG_WERT" => target + Jitter(0, 1.2),
+                "STAT_NW_AUSLASS_SOLL_WERT" => exTarget,
+                "STAT_NW_AUSLASSSPREIZUNG_WERT" => exTarget + Jitter(0, 1.0),
+                "STAT_LAUFUNRUHE_ZYL3_WERT" => Jitter(1.9, 0.3),
+                _ when name.StartsWith("STAT_LAUFUNRUHE_ZYL", StringComparison.Ordinal) && int.TryParse(name[19..^5], out var n) && n <= 6 => Jitter(0.4, 0.15),
+                _ => null,
+            };
+            if (v is { } d) values[name] = d;
+        }
+        return values;
+    }
+
     private readonly Random _random = new(15);
     private readonly bool _turbo = model?.EngineCode?.StartsWith("N54", StringComparison.OrdinalIgnoreCase) == true
                                 || model?.EngineCode?.StartsWith("N55", StringComparison.OrdinalIgnoreCase) == true;

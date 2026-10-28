@@ -30,6 +30,7 @@ public sealed class SessionState : ViewModelBase
                 Raise(nameof(SupportsJobs));
                 _demoReadings = null;
                 Raise(nameof(Readings));
+                Raise(nameof(Measurements));
             }
         }
     }
@@ -48,6 +49,9 @@ public sealed class SessionState : ViewModelBase
             ? _demoReadings ??= new Klemme15.Protocols.NativeReadings(raw, tables, VariantForReadings, Log)
             : null);
     private IModuleReadings? _demoReadings;
+
+    /// <summary>BMW measurement values by name (for guided tests): from the user's files, the demo, or the downloaded tables.</summary>
+    public IMeasurementReader? Measurements => _backend as IMeasurementReader ?? Readings as IMeasurementReader;
 
     /// <summary>The module version to read native values for: from its part number when the quick test read it, else the engine.</summary>
     private string? VariantForReadings(EcuDefinition ecu)

@@ -91,6 +91,7 @@ public static class Icons
     public static readonly Geometry Readings = StreamGeometry.Parse("M12 3a10 10 0 0 1 10 10c0 2.4-.8 4.6-2.3 6.3l-1.5-1.3A8 8 0 1 0 5.8 18l-1.5 1.3A10 10 0 0 1 12 3zm4.6 4.6 1.4 1.4-4.3 4.3a2 2 0 1 1-1.4-1.4z");
     public static readonly Geometry Live = StreamGeometry.Parse("M3 20h18v2H3zM5 10h3v8H5zm5-6h3v14h-3zm5 9h3v5h-3z");
     public static readonly Geometry Service = StreamGeometry.Parse("M14.7 6.3a4 4 0 0 0-5.2 5.2L3 18l3 3 6.5-6.5a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.1-.6-.6-2.1z");
+    public static readonly Geometry Tests = StreamGeometry.Parse("M2 11h4l2-5 4 12 3-9 2 2h5v2h-6l-1-1-3 9-4-12-1 2H2z");
     public static readonly Geometry Expert = StreamGeometry.Parse("M2 4h20v16H2zm2 2v12h16V6zM6.4 8 11 12l-4.6 4L5 14.6 8 12 5 9.4zM12 15h6v2h-6z");
     public static readonly Geometry Log = StreamGeometry.Parse("M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z");
 }

@@ -25,7 +25,7 @@ public sealed record EdiabasOptions
 /// Runs jobs from the user's own BMW SGBD files through EdiabasLib. Gives the deepest coverage
 /// (every module, BMW fault texts, all status jobs) but needs those files. Runs on Windows, macOS and Linux.
 /// </summary>
-public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner, IModuleReadings
+public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner, IModuleReadings, IMeasurementReader
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly Dictionary<string, string> _resolved = new(StringComparer.OrdinalIgnoreCase);
@@ -262,6 +262,45 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 values.Add(new LiveValue(p, number, text ?? "no result", DateTimeOffset.Now));
             }
         }
+        return values;
+    }
+
+    // ------------------------------------------------------------------ IMeasurementReader
+
+    private readonly Dictionary<string, Dictionary<string, string>> _measurementArgs = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Reads BMW measurement values by result name with the module's STATUS_MESSWERTBLOCK_LESEN job. The argument for
+    /// each value comes from the MESSWERTETAB table in the user's own file for this module version.
+    /// </summary>
+    public async Task<IReadOnlyDictionary<string, double>> ReadMeasurementsAsync(EcuDefinition ecu, IReadOnlyList<string> resultNames, CancellationToken ct = default)
+    {
+        var sgbd = ReadingSgbd(ecu);
+        Dictionary<string, string>? args;
+        lock (_measurementArgs) _measurementArgs.TryGetValue(sgbd, out args);
+        if (args is null)
+        {
+            args = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                foreach (var row in await RunJobAsync(sgbd, "_TABLE", "MESSWERTETAB", ct))
+                {
+                    var arg = row.FirstOrDefault(kv => kv.Key.Equals("ARG", StringComparison.OrdinalIgnoreCase)).Value;
+                    var result = row.FirstOrDefault(kv => kv.Key.Equals("RESULTNAME", StringComparison.OrdinalIgnoreCase)).Value;
+                    if (!string.IsNullOrWhiteSpace(arg) && arg != "-" && !string.IsNullOrWhiteSpace(result)) args.TryAdd(result.Trim(), arg.Trim());
+                }
+            }
+            catch (DiagnosticException) { /* no measurement table in this file */ }
+            lock (_measurementArgs) _measurementArgs[sgbd] = args;
+        }
+
+        var values = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        var wanted = resultNames.Where(args.ContainsKey).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        if (wanted.Count == 0) return values;
+        var sets = await RunJobAsync(sgbd, "STATUS_MESSWERTBLOCK_LESEN", "JA;" + string.Join(';', wanted.Select(w => args[w])), ct);
+        foreach (var (k, v) in sets.SelectMany(x => x))
+            if (wanted.Contains(k, StringComparer.OrdinalIgnoreCase) && double.TryParse(v, NumberStyles.Float, CultureInfo.InvariantCulture, out var d))
+                values[k] = d;
         return values;
     }
 
