@@ -36,3 +36,10 @@
 - Coding with automatic backup and verified restore
 - Android build
 - Community knowledge base of fixes linked to fault codes
+
+## Not planned, on purpose
+
+- Immobiliser work of any kind (DME/CAS alignment, key programming, ISN): it is what makes a stolen car start.
+- Flashing module software, and coding the vehicle order (for example a battery type change): the riskiest writes there are. Curated comfort coding (FRM/KOMBI) may come later, only with automatic backup and a read-back check, once the write path is proven on real cars.
+- Bundling BMW's wiring diagrams (WDS): they are BMW's documents. Guides can name connectors and pins in our own words.
+- Closed wireless adapters (MHD, Thor): their protocols aren't public. Open bridges (RFC 2217/TCP) work today; BLE adapters are planned.

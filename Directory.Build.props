@@ -8,6 +8,6 @@
     <Authors>Klemme15 contributors</Authors>
     <Copyright>Klemme15 contributors, GPL-3.0-or-later</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <Version>0.9.0</Version>
+    <Version>0.10.0</Version>
   </PropertyGroup>
 </Project>
