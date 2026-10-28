@@ -41,6 +41,10 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     private LineState _line = LineState.Closed;
     private IReadOnlySet<byte>? _present;
 
+    /// <summary>OBD values a module didn't answer, counted; after <see cref="SilentLimit"/> misses they aren't asked again.</summary>
+    private readonly Dictionary<(byte Address, byte Pid), int> _silentPids = [];
+    private const int SilentLimit = 2;
+
     /// <summary>How long to wait for a module the broadcast says isn't there (one quick confirmation).</summary>
     private static readonly TimeSpan AbsentConfirmTimeout = TimeSpan.FromMilliseconds(100);
 
@@ -104,6 +108,9 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         if (_options.Mode != CableMode.DCan) return null;
         UseFast();
         var answers = _fast.RequestFunctional([Kwp2000.TesterPresent], TimeSpan.FromMilliseconds(700), ct);
+        // A real 2006 E90 ignored 0xDF; BMW's own jobs address all modules at 0xEF.
+        if (answers.Count == 0)
+            answers = _fast.RequestFunctional([Kwp2000.TesterPresent], TimeSpan.FromMilliseconds(700), ct, BmwFastChannel.FunctionalEf);
         if (answers.Count == 0) return null;
         _present = answers.Select(a => a.Source).ToHashSet();
         return _present;
@@ -121,7 +128,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                 if (r is null) return null;
                 if (r[0] == 0x7F)   // answers but refuses ident: still present
                     return new EcuIdentity { Raw = new Dictionary<string, string> { ["negative"] = Convert.ToHexString(r) } };
-                return ParseIdent(r.Length > 2 ? r[2..] : []);
+                return ParseKwpIdent(r.Length > 2 ? r[2..] : []);
             }
             case BusProtocol.Ds2:
             {
@@ -234,7 +241,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
             {
                 ct.ThrowIfCancellationRequested();
                 double? value = null;
-                if (Obd2.TryGetPid(p, out var pid))
+                if (Obd2.TryGetPid(p, out var pid) && _silentPids.GetValueOrDefault((ecu.Address, pid.Id)) < SilentLimit)
                 {
                     IEnumerable<byte[]> responses;
                     if (_options.Mode == CableMode.DCan)
@@ -249,6 +256,9 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                         responses = _obd.Request([0x01, pid.Id], ct);
                     }
                     value = responses.Select(r => Obd2.DecodeResponse(r, pid)).FirstOrDefault(v => v is not null);
+                    // A value the engine computer never answers (PID 0x42 on an MSV70) would cost a timeout on every update.
+                    var key = (ecu.Address, pid.Id);
+                    _silentPids[key] = value is null ? _silentPids.GetValueOrDefault(key) + 1 : 0;
                 }
                 values.Add(new LiveValue(p, value, value is null ? "no data" : null, DateTimeOffset.Now));
             }
@@ -273,7 +283,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                     if (r is null) return null;
                     return r[0] == 0x7F
                         ? new EcuIdentity { Raw = new Dictionary<string, string> { ["negative"] = Convert.ToHexString(r) } }
-                        : ParseIdent(r.Length > 2 ? r[2..] : []);
+                        : ParseKwpIdent(r.Length > 2 ? r[2..] : []);
                 }
                 UseDs2();
                 var d = _ds2.Request(address, [Ds2.Identify], timeout, ct);
@@ -330,6 +340,41 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
 
     private static IEnumerable<Fault> ObdFaults(EcuDefinition ecu, IEnumerable<string> codes) =>
         codes.Select(c => new Fault { EcuId = ecu.Id, Code = c, Source = FaultSource.Obd2, State = FaultState.Stored });
+
+    /// <summary>
+    /// BMW's KWP2000 identification ($1A 80) on D-CAN cars, as confirmed on a real E90's modules:
+    /// bytes 0-5 the part number as packed digits (00 00 07 56 16 84 = 7561684), then the hardware, coding,
+    /// diagnostic and variant indexes, two characters, the production date as packed digits (20 06 04 18 =
+    /// 2006-04-18) and the supplier number. Anything that doesn't fit falls back to <see cref="ParseIdent"/>.
+    /// </summary>
+    internal static EcuIdentity ParseKwpIdent(byte[] data)
+    {
+        if (data.Length < 17) return ParseIdent(data);
+        var digits = Convert.ToHexString(data, 0, 6);
+        if (!digits.All(char.IsAsciiDigit)) return ParseIdent(data);
+        var part = digits.TrimStart('0');
+        if (part.Length is < 6 or > 8) return ParseIdent(data);
+
+        string? date = null;
+        var d = Convert.ToHexString(data, 12, 4);
+        if (d.All(char.IsAsciiDigit) && int.Parse(d[..4]) is >= 1990 and <= 2035 && int.Parse(d[4..6]) is >= 1 and <= 12 && int.Parse(d[6..8]) is >= 1 and <= 31)
+            date = $"{d[..4]}-{d[4..6]}-{d[6..8]}";
+        var basic = ParseIdent(data);
+        var raw = new Dictionary<string, string>(basic.Raw)
+        {
+            ["variantIndex"] = data[9].ToString("X2"),
+        };
+        return new EcuIdentity
+        {
+            PartNumber = part,
+            HardwareVersion = data[6].ToString("X2"),
+            CodingIndex = data[7].ToString("X2"),
+            DiagnosticIndex = data[8].ToString("X2"),
+            ProductionDate = date,
+            Supplier = data[16].ToString("X2"),
+            Raw = raw,
+        };
+    }
 
     /// <summary>
     /// Ident layouts differ per ECU, so keep everything raw and pull out the obvious bits:

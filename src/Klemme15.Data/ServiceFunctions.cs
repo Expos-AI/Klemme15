@@ -156,23 +156,23 @@ public static class ServiceRunner
             : "Not available with this connection.");
     }
 
-    /// <summary>Reads voltage, engine speed and road speed where the connection allows; unknown values stay null.</summary>
-    public static async Task<VehicleState> ReadStateAsync(IDiagnosticBackend backend, EcuDefinition? engine, CancellationToken ct = default)
+    /// <summary>
+    /// Reads voltage, engine speed and road speed where the connection allows: the standard OBD values, then BMW's own
+    /// measurement values (many BMW engine computers don't answer the OBD voltage request), then BMW's status jobs in
+    /// EDIABAS mode. Unknown values stay null and must be confirmed by the user.
+    /// </summary>
+    public static async Task<VehicleState> ReadStateAsync(IDiagnosticBackend backend, EcuDefinition? engine,
+        IMeasurementReader? measurements = null, CancellationToken ct = default)
     {
         double? voltage = null, rpm = null, speed = null;
         if (engine is not null)
         {
             try
             {
-                var wanted = backend.GetLiveParameters(engine).Where(p => p.Id is "voltage" or "rpm" or "speed").ToList();
-                if (wanted.Count > 0)
-                    foreach (var v in await backend.ReadLiveAsync(engine, wanted, ct))
-                        switch (v.Parameter.Id)
-                        {
-                            case "voltage": voltage = v.Value; break;
-                            case "rpm": rpm = v.Value; break;
-                            case "speed": speed = v.Value; break;
-                        }
+                var read = await new EngineSignals(backend, engine, measurements).ReadAsync(["voltage", "rpm", "speed"], ct);
+                if (read.TryGetValue("voltage", out var v)) voltage = v;
+                if (read.TryGetValue("rpm", out var r)) rpm = r;
+                if (read.TryGetValue("speed", out var sp)) speed = sp;
             }
             catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException) { }
 

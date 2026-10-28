@@ -61,13 +61,16 @@ public sealed class BmwFastChannel(ITransport transport)
     /// <summary>Functional (broadcast) address: every module on D-CAN may answer.</summary>
     public const byte Functional = 0xDF;
 
+    /// <summary>The functional address BMW's own diagnostic jobs use ("FUNKTIONAL" in DIAGNOSE_AUFRECHT).</summary>
+    public const byte FunctionalEf = 0xEF;
+
     /// <summary>
     /// Sends one request to all modules at once and collects every answer that arrives within <paramref name="window"/>.
     /// Returns source address and payload for each module that answered.
     /// </summary>
-    public IReadOnlyList<(byte Source, byte[] Data)> RequestFunctional(ReadOnlySpan<byte> data, TimeSpan window, CancellationToken ct = default)
+    public IReadOnlyList<(byte Source, byte[] Data)> RequestFunctional(ReadOnlySpan<byte> data, TimeSpan window, CancellationToken ct = default, byte address = Functional)
     {
-        var request = KwpFrame.Build(Functional, TesterAddress, data);
+        var request = KwpFrame.Build(address, TesterAddress, data);
         transport.DiscardInput();
         transport.Write(request);
         var buf = BusReader.ReadUntil(transport, window, _ => false, ct);

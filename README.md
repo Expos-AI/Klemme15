@@ -9,7 +9,7 @@
 
 **Open-source BMW diagnostics for everyone.** Scan every module, read and clear faults, watch live engine data and export shareable reports. Use a cheap K+DCAN cable on Windows, macOS or Linux.
 
-> **Status: early alpha.** Confirmed on a real E90 over D-CAN (VIN and modules read); most other models are so far tested against the built-in demo cars. Read-only functions (scan, faults, readings, live data) are the focus; service functions are experimental until confirmed on real cars. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
+> **Status: early alpha.** Confirmed on a real 2006 E90 325i over D-CAN: 12 modules identified with part numbers, faults read and cleared, live data recorded, fuel trim test run. The other families and the service functions are built from BMW's data and tested against demo cars. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
 
 Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.
 
@@ -69,7 +69,7 @@ Screenshots are rendered automatically by CI from the demo cars on every push, s
 | E81/E82/E87/E88 1 Series (2007 on), E60/E61 5 Series and E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E89 Z4 | D-CAN | Like the E90 family | Full |
 | E39 5 Series, E53 X5, E38 7 Series | K-line | Like the E46 | Full |
 
-The E90 family is confirmed on a real car; the others are built from BMW's module data and tested against demo cars, so please [report a test drive](CONTRIBUTING.md#report-a-test-drive). E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode. F- and G-series (Ethernet cable) are on the [roadmap](docs/ROADMAP.md).
+The E90 family is confirmed on a real car (a 2006 325i); the others are built from BMW's module data and tested against demo cars, so please [report a test drive](CONTRIBUTING.md#report-a-test-drive). E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode. F- and G-series (Ethernet cable) are on the [roadmap](docs/ROADMAP.md).
 
 ## Quick start
 

@@ -153,19 +153,19 @@ FAMILIES = [
     ("E8x", "1 Series E81 / E82 / E87 / E88 (2007 on)", "2007-2013", "DCan", ["E87", "E82", "E88"], [
         ("128i", "128i", "Coupe, convertible", "2008-2013", "N52 3.0 L inline-6", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
         ("135i", "135i", "Coupe, convertible", "2008-2013", "N54 3.0 L twin-turbo inline-6 (N55 from 2011)", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
-        ("118d", "118d / 120d", "Hatchback, coupe", "2007-2013", "N47 2.0 L diesel inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
-        ("120i", "116i / 118i / 120i", "Hatchback, coupe", "2007-2013", "N46 2.0 L inline-4 (N43/N45 in some markets)", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
-        ("123d", "123d", "Hatchback, coupe", "2007-2011", "N47 2.0 L twin-turbo diesel inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
+        ("118d", "118d / 120d", "Hatchback, coupe, convertible", "2007-2013", "N47 2.0 L diesel inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
+        ("120i", "116i / 118i / 120i", "Hatchback, coupe, convertible (not 116i)", "2007-2013", "N46 2.0 L inline-4 (N43/N45 in some markets)", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
+        ("123d", "123d", "Hatchback, coupe, convertible", "2007-2013", "N47 2.0 L twin-turbo diesel inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
     ]),
     ("E60", "5 Series E60 / E61 and 6 Series E63 / E64 (2007 on)", "2007-2010", "DCan", ["E60", "E63", "E64", "E61"], [
-        ("528i", "528i", "Sedan, touring", "2008-2010", "N52 3.0 L inline-6", "Rear-wheel drive or xDrive", D_CORE + ["LM"]),
+        ("528i", "528i", "Sedan", "2008-2010", "N52 3.0 L inline-6", "Rear-wheel drive or xDrive", D_CORE + ["LM"]),
         ("535i", "535i", "Sedan, touring", "2008-2010", "N54 3.0 L twin-turbo inline-6", "Rear-wheel drive or xDrive", D_CORE + ["LM"]),
-        ("550i", "550i / 650i", "Sedan, coupe, convertible", "2006-2010", "N62 4.8 L V8", "Rear-wheel drive", D_CORE + ["LM"]),
+        ("550i", "550i / 650i", "Sedan, coupe, convertible", "2007-2010", "N62 4.8 L V8", "Rear-wheel drive", D_CORE + ["LM"]),
         ("535d", "535d", "Sedan, touring", "2007-2010", "M57 3.0 L twin-turbo diesel inline-6", "Rear-wheel drive", D_CORE + ["LM"]),
-        ("530i", "525i / 530i", "Sedan, touring", "2007-2010", "N52 inline-6", "Rear-wheel drive or xDrive", D_CORE + ["LM"]),
+        ("530i", "525i / 530i", "Sedan, touring", "2007-2010", "N52 3.0 L inline-6 (N53 in Europe from 2007)", "Rear-wheel drive or xDrive", D_CORE + ["LM"]),
         ("520d", "520d", "Sedan, touring", "2007-2010", "N47 2.0 L diesel inline-4", "Rear-wheel drive", D_CORE + ["LM"]),
     ]),
-    ("E70", "X5 E70 / X6 E71", "2007-2013", "DCan", ["E70", "E71", "E72"], [
+    ("E70", "X5 E70 / X6 E71", "2007-2014", "DCan", ["E70", "E71", "E72"], [
         ("30i", "X5 3.0si / xDrive30i", "SUV", "2007-2010", "N52 3.0 L inline-6", "xDrive", D_CORE + ["FRM", "JBE", "VGSG"]),
         ("48i", "X5 4.8i", "SUV", "2007-2010", "N62 4.8 L V8", "xDrive", D_CORE + ["FRM", "JBE", "VGSG"]),
         ("35d", "X5 xDrive35d", "SUV", "2009-2013", "M57 3.0 L twin-turbo diesel inline-6", "xDrive", D_CORE + ["FRM", "JBE", "VGSG"]),
@@ -177,14 +177,14 @@ FAMILIES = [
         ("35i", "sDrive35i / 35is", "Roadster", "2009-2016", "N54 3.0 L twin-turbo inline-6", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
         ("23i", "sDrive23i", "Roadster", "2009-2011", "N52 2.5 L inline-6", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
         ("28i", "sDrive28i", "Roadster", "2012-2016", "N20 2.0 L turbo inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
-        ("18i", "sDrive18i / 20i", "Roadster", "2013-2016", "N20 2.0 L turbo inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
+        ("18i", "sDrive18i / 20i", "Roadster", "2011-2016", "N20 2.0 L turbo inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
     ]),
     ("E39", "5 Series E39", "1997-2003", "KLine", ["E39"], [
-        ("525i", "525i / 530i", "Sedan, touring", "2001-2003", "M54 inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
-        ("528i", "528i", "Sedan, touring", "1997-2000", "M52 2.8 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("525i", "525i / 530i", "Sedan, touring", "2001-2003", "M54 2.5 L / 3.0 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("528i", "528i", "Sedan, touring", "1997-2000", "M52 2.8 L inline-6 (M52TU from 1998)", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
         ("540i", "540i", "Sedan, touring", "1997-2003", "M62 4.4 L V8", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
-        ("m5", "M5", "Sedan", "1998-2003", "S62 5.0 L V8", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
-        ("530d", "525d / 530d", "Sedan, touring", "1998-2003", "M57 diesel inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("m5", "M5", "Sedan", "2000-2003", "S62 5.0 L V8", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("530d", "525d / 530d", "Sedan, touring", "1998-2003 (525d from 2000)", "M57 2.5 L / 2.9 L diesel inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
     ]),
     ("E53", "X5 E53", "2000-2006", "KLine", ["E53"], [
         ("30i", "X5 3.0i", "SUV", "2001-2006", "M54 3.0 L inline-6", "All-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
@@ -194,9 +194,9 @@ FAMILIES = [
         ("30d", "X5 3.0d", "SUV", "2001-2006", "M57 3.0 L diesel inline-6", "All-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
     ]),
     ("E38", "7 Series E38", "1995-2001", "KLine", ["E38"], [
-        ("740i", "740i / 740iL", "Sedan", "1995-2001", "M62 4.4 L V8", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("740i", "740i / 740iL", "Sedan", "1995-2001", "M62 4.4 L V8 (M60 4.0 L in 1995)", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
         ("750il", "750iL", "Sedan", "1995-2001", "M73 5.4 L V12", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
-        ("728i", "728i", "Sedan", "1996-2001", "M52 2.8 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("728i", "728i", "Sedan", "1995-2001", "M52 2.8 L inline-6 (M52TU from 1998)", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
         ("735i", "735i", "Sedan", "1996-2001", "M62 3.5 L V8", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
         ("730d", "730d", "Sedan", "1998-2001", "M57 3.0 L diesel inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
     ]),
@@ -214,6 +214,28 @@ for fid, name, years, cable, chassis, models in FAMILIES:
         "models": [model(fid, mid, mname, body, yrs, eng, drv, [x for x in mm if x in ids]) for mid, mname, body, yrs, eng, drv, mm in models],
     })
     print(f"{fid:4} {cable:5} {len(mods):3} modules: {' '.join(sorted(ids))}")
+# Try the module versions BMW ties to the family's own chassis first. The variant lists are the order Klemme15 tries
+# when a module's version can't be read from its part number, so an E90 must not get the X5's junction box first.
+PREFERRED = {
+    "E9x": [["E90", "E91", "E92", "E93"], ["E87", "E82", "E88", "E81"], ["E89"]],
+    "E8x": [["E87", "E82", "E88", "E81"], ["E90", "E91", "E92", "E93"], ["E89"]],
+    "E60": [["E60", "E61", "E63", "E64"], ["E65"], ["E89"]],
+    "E70": [["E70", "E71", "E72"], ["E89"]],
+    "E89": [["E89"]],
+}
+for m in mod_doc["modules"]:
+    fam = m["id"].split(".")[0]
+    if fam not in PREFERRED or len(m.get("variants", [])) < 2:
+        continue
+    def rank(v):
+        row = con.execute("select chassis from ecu_variant where lower(sgbd)=?", (v,)).fetchone()
+        listed = json.loads(row[0]) if row and row[0] and row[0].startswith("[") else []
+        for i, group in enumerate(PREFERRED[fam]):
+            if any(ch in listed for ch in group):
+                return i
+        return len(PREFERRED[fam])
+    m["variants"] = sorted(m["variants"], key=rank)   # stable: keeps the existing order within a rank
+
 json.dump(mod_doc, open(MODULES, "w"), indent=2, ensure_ascii=False)
 open(MODULES, "a").write("\n")
 json.dump(veh_doc, open(VEHICLES, "w"), indent=2, ensure_ascii=False)

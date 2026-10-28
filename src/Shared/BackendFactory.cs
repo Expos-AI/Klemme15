@@ -75,7 +75,7 @@ public static class BackendFactory
         {
             Mode = mode,
             RequireIgnition = settings.TrustDsr && !settings.Demo,
-            ProbeTimeout = TimeSpan.FromMilliseconds(settings.Demo ? 120 : 400),
+            ProbeTimeout = TimeSpan.FromMilliseconds(settings.Demo ? 120 : 300),
         });
     }
 }
