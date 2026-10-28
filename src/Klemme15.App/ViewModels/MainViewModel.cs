@@ -25,8 +25,11 @@ public sealed class MainViewModel : ViewModelBase
         Faults.OpenReadings = ecu =>
         {
             CurrentPage = Readings;
-            Readings.ShowModule(ecu.Id);
+            Readings.ShowModule(ecu.Id, "");
         };
+        Faults.GuideActions = new GuideActions(
+            (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },
+            () => CurrentPage = Live);
         Live = new LiveViewModel(Session, dialogs);
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);

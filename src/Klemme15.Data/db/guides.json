@@ -1,0 +1,594 @@
+{
+ "$comment": "Klemme15 troubleshooting guides, written by contributors in their own words (GPLv3 like the rest of the project). A guide is offered for a fault when its OBD-II code is in 'obd', or when the fault's text contains one of the 'keywords' (lower case; English and German both work). A keyword matches whole words; '*' at either end allows more letters there, for German compounds ('*raddrehzahl*'). 'modules' limits keyword matches to those modules. Step fields: 'module' + 'readings' open that module on the Readings page filtered by that text; 'live' points to the Live data page; 'engines' shows a step only for those engines. Keep steps factual and safe; say 'usually' or 'common cause' when it is a likelihood, and never tell people to probe airbag circuits.",
+ "guides": [
+  {
+   "id": "mixture",
+   "title": "Mixture too lean or too rich",
+   "summary": "The engine computer is adding or removing a lot of fuel to keep the mixture right. On these engines the usual cause of 'too lean' is air getting in past the air-mass meter.",
+   "obd": [
+    "P0171",
+    "P0174",
+    "P0172",
+    "P0175"
+   ],
+   "keywords": [
+    "lean",
+    "too lean",
+    "rich",
+    "too rich",
+    "mixture",
+    "fuel trim",
+    "gemisch*",
+    "mager",
+    "fett"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "steps": [
+    {
+     "text": "With the engine warm and idling, read the mixture adaptation (fuel trims) for both banks. Note the additive (idle) and multiplicative (load) values.",
+     "module": "DME",
+     "readings": "mixture",
+     "live": true
+    },
+    {
+     "text": "Hold the engine at about 2,500 rpm and read them again. A large correction at idle that shrinks at higher rpm points to a vacuum (unmetered air) leak. A correction that stays high at every rpm points to fuel delivery or the air-mass meter."
+    },
+    {
+     "text": "Check the crankcase vent system first: with the engine idling, slowly loosen the oil filler cap. Strong suction, a whistle or a rough idle that changes means the vent valve or its hoses are leaking.",
+     "engines": [
+      "M54",
+      "N52",
+      "N51",
+      "N53"
+     ]
+    },
+    {
+     "text": "Look for cracked or loose intake parts: the rubber boot after the air-mass meter, the intake manifold and its gaskets, the DISA valve seals and the dipstick tube O-ring.",
+     "engines": [
+      "M54",
+      "N52",
+      "N51",
+      "N53",
+      "M52"
+     ]
+    },
+    {
+     "text": "A smoke test of the intake finds leaks that are hard to see. Many independent shops do this quickly and cheaply."
+    },
+    {
+     "text": "If no leak is found and the correction is high at all loads, check the air-mass meter (clean or test it) and the fuel pressure before replacing parts.",
+     "module": "DME",
+     "readings": "air mass"
+    },
+    {
+     "text": "After the repair, clear the fault memory and drive normally so the adaptations relearn. (A guided adaptation reset is planned in Service functions.)"
+    }
+   ]
+  },
+  {
+   "id": "misfire",
+   "title": "Misfires",
+   "summary": "One or more cylinders are not firing cleanly. Find out whether the fault follows a part (coil, plug, injector) or stays with the cylinder.",
+   "obd": [
+    "P0300",
+    "P0301",
+    "P0302",
+    "P0303",
+    "P0304",
+    "P0305",
+    "P0306",
+    "P0307",
+    "P0308"
+   ],
+   "keywords": [
+    "misfire",
+    "misfires",
+    "*aussetzer*",
+    "smooth running",
+    "*laufunruhe*",
+    "combustion"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "steps": [
+    {
+     "text": "Note which cylinder or cylinders are named. Several cylinders on one bank point to a shared cause such as mixture, a vacuum leak or valve timing rather than one coil.",
+     "module": "DME",
+     "readings": "smooth running"
+    },
+    {
+     "text": "Swap the ignition coil of the misfiring cylinder with a neighbour, clear the faults and drive. If the misfire moves with the coil, replace the coil."
+    },
+    {
+     "text": "Pull and inspect the spark plug: worn electrodes, oil fouling or cracked porcelain. Replace plugs as a set when they are due."
+    },
+    {
+     "text": "Oil in the spark plug wells usually means a leaking valve cover gasket or plug-well seals. Fix it, because oil on the coils causes misfires."
+    },
+    {
+     "text": "Do not swap the piezo injectors between cylinders without recoding them: each is calibrated for its position. If a misfire stays on one cylinder after coil and plug, the injector is a common cause.",
+     "engines": [
+      "N54",
+      "N53",
+      "N55"
+     ]
+    },
+    {
+     "text": "If misfires come with VANOS or Valvetronic faults, follow those first: wrong valve timing or lift causes misfires on several cylinders.",
+     "engines": [
+      "N52",
+      "N51",
+      "N46",
+      "N55"
+     ]
+    },
+    {
+     "text": "Clear the faults after the repair and drive normally; the misfire counters and smooth-running values should settle.",
+     "module": "DME",
+     "readings": "smooth running"
+    }
+   ]
+  },
+  {
+   "id": "vanos",
+   "title": "Valve timing and lift (VANOS, Valvetronic)",
+   "summary": "The engine computer can't move a camshaft (VANOS) or the valve lift (Valvetronic) where it wants it, or the cam and crank positions don't agree.",
+   "keywords": [
+    "vanos",
+    "*vanos*",
+    "camshaft",
+    "*nockenwelle*",
+    "exzenter*",
+    "correlation",
+    "valvetronic",
+    "*valvetronic*",
+    "eccentric shaft",
+    "*exzenterwelle*"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "steps": [
+    {
+     "text": "Check the engine oil level and condition first. VANOS is moved by oil pressure, so low or old oil causes these faults."
+    },
+    {
+     "text": "Read the VANOS positions with the engine running. The actual position should follow the target closely; one that lags or sticks shows which side (intake or exhaust) is the problem.",
+     "module": "DME",
+     "readings": "VANOS"
+    },
+    {
+     "text": "On many of these engines the intake and exhaust VANOS solenoids are the same part. Swapping them and clearing the faults shows whether the fault follows the solenoid. Clean the solenoid screens while they're out.",
+     "engines": [
+      "N52",
+      "N51",
+      "N53",
+      "N54",
+      "N55"
+     ]
+    },
+    {
+     "text": "Inspect the camshaft position sensors and their connectors for oil or damage."
+    },
+    {
+     "text": "Valvetronic faults (valve lift): check the Valvetronic motor's connector and the eccentric shaft sensor on top of the engine for oil and damage. Low battery voltage while starting can also set these faults. After replacing Valvetronic parts the end stops must be relearned (an adaptation); a workshop can run it, and it's planned for Service functions.",
+     "module": "DME",
+     "readings": "eccentric",
+     "engines": [
+      "N52",
+      "N51",
+      "N46",
+      "N55"
+     ]
+    },
+    {
+     "text": "A cam/crank correlation fault that keeps coming back can mean the timing chain has stretched or jumped. This needs a mechanic with timing tools; don't keep driving hard on it."
+    }
+   ]
+  },
+  {
+   "id": "cooling",
+   "title": "Cooling: thermostat and electric water pump",
+   "summary": "These engines use an electric water pump and a map-controlled thermostat; both are known wear items.",
+   "obd": [
+    "P0128",
+    "P0125"
+   ],
+   "keywords": [
+    "thermostat",
+    "*thermostat*",
+    "coolant pump",
+    "water pump",
+    "*kuehlmittelpumpe*",
+    "*wasserpumpe*"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "safety": [
+    "Never open the cooling system while it is hot: it is under pressure."
+   ],
+   "steps": [
+    {
+     "text": "From cold, watch the coolant temperature as the engine warms up. It should climb steadily. These engines run warm on purpose (often around 95 to 110 °C) when driven gently.",
+     "module": "DME",
+     "readings": "coolant",
+     "live": true
+    },
+    {
+     "text": "A slow warm-up, or a temperature that never gets up to normal, points to the thermostat stuck open.",
+     "module": "DME",
+     "readings": "thermostat"
+    },
+    {
+     "text": "Overheating warnings, a pump fault or the fan running hard at idle point to the electric water pump. Check its connector and wiring before replacing it.",
+     "engines": [
+      "N52",
+      "N51",
+      "N53",
+      "N54",
+      "N55"
+     ]
+    },
+    {
+     "text": "The pump and thermostat are often replaced together, because they wear at similar mileages and share the labour. Bleed the cooling system afterwards."
+    }
+   ]
+  },
+  {
+   "id": "hpfp",
+   "title": "Fuel pressure (direct injection)",
+   "summary": "Rail pressure is dropping below what the engine computer asked for. This can be the high-pressure pump, or the in-tank pump not feeding it enough.",
+   "obd": [
+    "P0087",
+    "P0191"
+   ],
+   "keywords": [
+    "rail pressure",
+    "high-pressure",
+    "fuel pressure",
+    "hpfp",
+    "*raildruck*",
+    "*kraftstoffhochdruck*",
+    "low-pressure"
+   ],
+   "modules": [
+    "DME",
+    "EKPS"
+   ],
+   "steps": [
+    {
+     "text": "Read the rail pressure, target and actual, at idle and with a light load. Actual falling well below target, especially when accelerating, confirms the fault.",
+     "module": "DME",
+     "readings": "rail"
+    },
+    {
+     "text": "Check the low-pressure side first: if the in-tank pump or fuel filter can't keep up, the high-pressure pump starves. Read the low-pressure sensor if your module offers it.",
+     "module": "DME",
+     "readings": "low pressure"
+    },
+    {
+     "text": "If the low-pressure side holds steady while the rail pressure drops under load, the high-pressure pump is the usual cause. BMW extended warranty coverage on many N54 high-pressure pumps; ask a dealer with your VIN.",
+     "engines": [
+      "N54"
+     ]
+    },
+    {
+     "text": "Long cranking before starting and a stumble under load are typical symptoms. Clear the faults after the repair and confirm actual pressure tracks target again."
+    }
+   ]
+  },
+  {
+   "id": "boost",
+   "title": "Boost too low (turbo engines)",
+   "summary": "The engine is making less boost than it asked for (underboost).",
+   "obd": [
+    "P0299"
+   ],
+   "keywords": [
+    "boost",
+    "boost pressure",
+    "charge-air",
+    "charge air",
+    "underboost",
+    "*ladedruck*",
+    "wastegate",
+    "*wastegate*",
+    "turbo",
+    "turbocharger"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "steps": [
+    {
+     "text": "Read boost target and actual during a pull in a safe place, with a passenger reading the screen. Actual staying below target confirms the fault.",
+     "module": "DME",
+     "readings": "boost"
+    },
+    {
+     "text": "Pressure-test the charge pipes, intercooler and couplers: a split pipe or loose clamp is a common, cheap cause."
+    },
+    {
+     "text": "Check the diverter valves and the vacuum lines to the wastegates and boost solenoids for cracks.",
+     "engines": [
+      "N54"
+     ]
+    },
+    {
+     "text": "A rattle from the turbos at idle or when lifting off can mean worn wastegates. That needs a turbo specialist to judge."
+    }
+   ]
+  },
+  {
+   "id": "charging",
+   "title": "Battery, charging and power supply",
+   "summary": "Low voltage causes faults in many modules at once. Check the battery and charging before chasing other faults.",
+   "keywords": [
+    "battery",
+    "alternator",
+    "undervoltage",
+    "overvoltage",
+    "supply voltage",
+    "*batterie*",
+    "*unterspannung*",
+    "ibs",
+    "power supply",
+    "generator"
+   ],
+   "steps": [
+    {
+     "text": "With the engine off (rested at least an hour), the battery should read about 12.4 to 12.7 V. Below about 12.2 V it is flat or worn.",
+     "module": "DME",
+     "readings": "battery",
+     "live": true
+    },
+    {
+     "text": "With the engine running, expect roughly 13.5 to 14.8 V. BMW's smart charging can briefly show less when the battery is full, so watch it for a minute.",
+     "module": "DME",
+     "readings": "voltage",
+     "live": true
+    },
+    {
+     "text": "Check the battery's age and type. A new battery must match the type and capacity of the old one, and on these cars it must be registered so the charging adapts. (Battery registration is planned in Service functions.)"
+    },
+    {
+     "text": "Inspect the main ground straps and the battery terminals for corrosion. A bad ground causes strange voltage faults."
+    },
+    {
+     "text": "After fixing the power supply, clear all fault memories and run the quick test again: many 'message missing' faults disappear with good voltage."
+    }
+   ]
+  },
+  {
+   "id": "bus",
+   "title": "Many 'message missing' or bus faults",
+   "summary": "Modules complain that another module stopped talking. Usually this is a single cause, not many broken modules.",
+   "keywords": [
+    "message",
+    "messages",
+    "can bus",
+    "can_id*",
+    "missing message",
+    "*botschaft*",
+    "*kommunikation*",
+    "communication"
+   ],
+   "steps": [
+    {
+     "text": "Look for the module that every message fault points at, and whether it answered the quick test. If it didn't answer, check its fuse and connector."
+    },
+    {
+     "text": "Low voltage during cranking or a jump start leaves these faults in many modules. Check the battery (see 'Battery, charging and power supply')."
+    },
+    {
+     "text": "Clear all fault memories, cycle the ignition and run the quick test again. Faults that don't come back were a one-off."
+    },
+    {
+     "text": "If they come straight back, note which modules report them and check the wiring and connectors between them, especially after water leaks."
+    }
+   ]
+  },
+  {
+   "id": "wheel-speed",
+   "title": "Wheel speed sensor",
+   "summary": "The stability control module gets no signal, or a bad one, from a wheel speed sensor. ABS, DSC and often the brake warning lights come on.",
+   "keywords": [
+    "wheel speed",
+    "wheel-speed",
+    "*raddrehzahl*",
+    "*drehzahlfuehler*",
+    "speed sensor"
+   ],
+   "modules": [
+    "DSC"
+   ],
+   "steps": [
+    {
+     "text": "Read all four wheel speeds while the car rolls slowly, or with the wheels raised and turned by hand safely. The faulty wheel reads zero or jumps around while the others agree.",
+     "module": "DSC",
+     "readings": "wheel"
+    },
+    {
+     "text": "Inspect that sensor's cable along its whole run for chafing and its connector for corrosion. A damaged cable is as common as a failed sensor."
+    },
+    {
+     "text": "The sensor reads a magnetic ring on the wheel bearing or hub. A worn bearing or damaged ring causes the same fault and won't be fixed by a new sensor."
+    },
+    {
+     "text": "After the repair, clear the faults and drive above walking pace so the module sees all four wheels again."
+    }
+   ]
+  },
+  {
+   "id": "steering-angle",
+   "title": "Steering angle sensor",
+   "summary": "The stability control module thinks the steering angle is wrong or offset, usually after an alignment, a steering repair or a sensor fault.",
+   "keywords": [
+    "steering angle",
+    "*lenkwinkel*",
+    "lws"
+   ],
+   "modules": [
+    "DSC",
+    "SZL"
+   ],
+   "steps": [
+    {
+     "text": "With the wheels pointing straight ahead and the car on level ground, read the steering angle. It should be close to zero.",
+     "module": "DSC",
+     "readings": "steering"
+    },
+    {
+     "text": "If it is clearly off-centre after an alignment or steering work, the sensor needs a calibration (steering angle learn). That's planned in Service functions; until then a shop can do it in a minute."
+    },
+    {
+     "text": "If the value jumps or is missing, check the steering column switch module (where the sensor lives on these cars) and its connector."
+    }
+   ]
+  },
+  {
+   "id": "steering-lock",
+   "title": "Electric steering lock",
+   "summary": "On many E-series cars the steering lock is electric and controlled by the car access system (CAS). When it fails or loses power, the car may refuse to start and show a steering lock message.",
+   "keywords": [
+    "steering lock",
+    "*lenkradschloss*",
+    "*lenkradverriegelung*",
+    "elv"
+   ],
+   "modules": [
+    "CAS"
+   ],
+   "steps": [
+    {
+     "text": "Check the battery first: the lock needs good voltage to release, and a weak battery causes exactly these faults.",
+     "module": "DME",
+     "readings": "battery",
+     "live": true
+    },
+    {
+     "text": "If the car won't start, turn the steering wheel gently left and right while pressing start or turning the key. If that helps, the lock motor is struggling."
+    },
+    {
+     "text": "Note whether the faults are about the lock's power supply or its wiring. Check the fuse that feeds it and the connector at the steering column."
+    },
+    {
+     "text": "A failed steering lock has to be replaced and paired with the car access system, which needs dealer-level software. Some owners have the lock replaced by a specialist instead; ask locally before buying parts."
+    }
+   ]
+  },
+  {
+   "id": "o2-heater",
+   "title": "Oxygen sensor heater",
+   "summary": "The heater inside an oxygen sensor isn't working, so the sensor takes too long to start reading.",
+   "obd": [
+    "P0030",
+    "P0031",
+    "P0032",
+    "P0036",
+    "P0037",
+    "P0038",
+    "P0050",
+    "P0051",
+    "P0052",
+    "P0056",
+    "P0057",
+    "P0058"
+   ],
+   "keywords": [
+    "sensor heater",
+    "oxygen sensor heater",
+    "*sondenheizung*",
+    "*sondenbeheizung*"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "steps": [
+    {
+     "text": "Note which sensor is named: bank 1 or 2, before or after the catalytic converter.",
+     "module": "DME",
+     "readings": "heater"
+    },
+    {
+     "text": "Check the sensor's connector (often near the gearbox) for melted plastic or corrosion, and the wiring for contact with the exhaust."
+    },
+    {
+     "text": "If the wiring and fuse are fine, the sensor itself is the usual cause. Use the correct BMW-spec sensor for that position."
+    }
+   ]
+  },
+  {
+   "id": "secondary-air",
+   "title": "Secondary air system",
+   "summary": "After a cold start a pump blows air into the exhaust to heat the catalytic converters. The engine computer saw too little airflow.",
+   "obd": [
+    "P0410",
+    "P0411",
+    "P0491",
+    "P0492"
+   ],
+   "keywords": [
+    "secondary air",
+    "*sekundaerluft*",
+    "*sekundärluft*"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "steps": [
+    {
+     "text": "On a cold start (engine sat several hours), listen near the front of the engine: the pump should hum for a minute or two.",
+     "module": "DME",
+     "readings": "secondary air"
+    },
+    {
+     "text": "If it doesn't run, check its fuse, relay and connector. If it runs, check the hoses and the check valve for leaks, and whether the valve sticks shut."
+    },
+    {
+     "text": "Carbon can clog the air passages into the cylinder head over time; that needs a workshop to clean."
+    }
+   ]
+  },
+  {
+   "id": "airbag",
+   "title": "Airbag system",
+   "summary": "The airbag control module has found a problem in a seat, belt or airbag circuit. The airbag light stays on until it is fixed.",
+   "keywords": [
+    "airbag",
+    "*airbag*",
+    "belt tensioner",
+    "seat occupancy",
+    "occupant",
+    "*gurtstrammer*",
+    "*sitzbelegung*"
+   ],
+   "modules": [
+    "ACSM",
+    "MRS"
+   ],
+   "safety": [
+    "Disconnect the battery and wait at least a few minutes before unplugging anything under the seats or near an airbag.",
+    "Never measure airbag or belt-tensioner circuits with a multimeter: it can set them off."
+   ],
+   "steps": [
+    {
+     "text": "Note the circuit named in the fault (driver, passenger, seat, belt tensioner, side or head airbag)."
+    },
+    {
+     "text": "Faults on seat circuits are often a loose or corroded connector under the seat, especially after the seat was moved or removed. With the battery disconnected, check them and reconnect firmly."
+    },
+    {
+     "text": "A passenger occupancy fault is often the seat sensor mat in the passenger seat. That's a known wear part."
+    },
+    {
+     "text": "After fixing it, reconnect the battery, clear the airbag fault memory and check the light goes out. If the fault returns straight away, have a specialist check the circuit."
+    }
+   ]
+  }
+ ]
+}

@@ -1,19 +1,25 @@
 using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Klemme15.Core;
+using Klemme15.Data;
 
 namespace Klemme15.App.ViewModels;
 
+/// <summary>Where a guide step's buttons take the user.</summary>
+public sealed record GuideActions(Action<string, string> OpenReadings, Action OpenLive);
+
 public sealed class FaultGroupViewModel : ViewModelBase
 {
+    private readonly GuideActions? _guideActions;
     private readonly SessionState _session;
     private readonly Action<Fault, EcuDefinition> _showOnCar;
     private readonly Action<string> _openUrl;
     private bool _confirming;
     private string? _message;
 
-    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar, Action<string> openUrl)
+    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar, Action<string> openUrl, GuideActions? guideActions = null)
     {
+        _guideActions = guideActions;
         _session = session;
         _showOnCar = showOnCar;
         _openUrl = openUrl;
@@ -67,9 +73,25 @@ public sealed class FaultGroupViewModel : ViewModelBase
             };
             item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
             item.TranslateCommand = new RelayCommand(() => _openUrl(item.TranslateUrl));
+            if (_session.Database.Guides.For(f, Ecu) is { } guide) item.Guide = BuildGuide(guide);
             Faults.Add(item);
         }
         Raise(nameof(CountText));
+    }
+
+    private GuideViewModel BuildGuide(Guide guide)
+    {
+        var modules = _session.Vehicle?.Modules ?? [];
+        var steps = guide.StepsFor(_session.Model?.EngineCode).Select((step, i) =>
+        {
+            // "DME" in a guide means this car family's engine module (E9x.DME, E46.DME).
+            var target = step.Module is { } m ? modules.FirstOrDefault(x => x.Id.EndsWith("." + m, StringComparison.OrdinalIgnoreCase)) : null;
+            RelayCommand? readings = target is not null && step.Readings is { } filter && _guideActions is { } a && _session.Readings is not null
+                ? new RelayCommand(() => a.OpenReadings(target.Id, filter)) : null;
+            RelayCommand? live = step.Live && _guideActions is { } b && _session.IsConnected ? new RelayCommand(b.OpenLive) : null;
+            return new GuideStepViewModel(i + 1, step.Text, readings, live);
+        }).ToList();
+        return new GuideViewModel(guide.Title, guide.Summary, guide.Safety, steps);
     }
 
     private async Task ClearAsync()
@@ -114,6 +136,9 @@ public sealed class FaultsViewModel : PageViewModel
     /// <summary>Navigates to the Readings page for a module.</summary>
     public Action<EcuDefinition>? OpenReadings { get; set; }
 
+    /// <summary>Navigation for the buttons in troubleshooting guides.</summary>
+    public GuideActions? GuideActions { get; set; }
+
     public bool IsEmpty => Groups.Count == 0;
     public int ActiveCount => Groups.Sum(g => g.Faults.Count(f => f.IsActive));
     public int StoredCount => Groups.Sum(g => g.Faults.Count(f => f.IsStored));
@@ -141,7 +166,7 @@ public sealed class FaultsViewModel : PageViewModel
             foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0).OrderByDescending(e => e.Faults.Any(f => f.State == FaultState.Present)))
             {
                 var ecu = e.Ecu;
-                Groups.Add(new FaultGroupViewModel(_session, ecu, e.Faults, _showOnCar, _openUrl)
+                Groups.Add(new FaultGroupViewModel(_session, ecu, e.Faults, _showOnCar, _openUrl, GuideActions)
                 {
                     ReadingsCommand = OpenReadings is { } open ? new RelayCommand(() => open(ecu)) : null,
                 });

@@ -157,6 +157,17 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public string TranslateUrl => "https://translate.google.com/?sl=de&tl=en&op=translate&text=" + Uri.EscapeDataString(Fault.OfficialText ?? "");
     public RelayCommand? TranslateCommand { get; set; }
 
+    private GuideViewModel? _guide;
+    private bool _guideOpen;
+
+    /// <summary>Troubleshooting guide for this fault, if there is one.</summary>
+    public GuideViewModel? Guide { get => _guide; set { _guide = value; Raise(nameof(HasGuide)); } }
+    public bool HasGuide => _guide is not null;
+    public bool GuideOpen { get => _guideOpen; set { Set(ref _guideOpen, value); Raise(nameof(GuideButtonText)); } }
+    public string GuideButtonText => _guideOpen ? "Hide steps" : "Troubleshoot";
+    public RelayCommand ToggleGuideCommand => _toggle ??= new RelayCommand(() => GuideOpen = !GuideOpen);
+    private RelayCommand? _toggle;
+
     /// <summary>Clickable source links (community entries only).</summary>
     public IReadOnlyList<SourceLink> SourceLinks { get; init; } = [];
     public bool HasSourceLinks => SourceLinks.Count > 0;
@@ -188,6 +199,27 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
 }
 
 /// <summary>A source URL shown as a short link (its site name).</summary>
+/// <summary>One numbered step of a troubleshooting guide, with optional shortcuts to readings or live data.</summary>
+public sealed class GuideStepViewModel(int number, string text, RelayCommand? readings, RelayCommand? live)
+{
+    public string Number { get; } = number.ToString(System.Globalization.CultureInfo.InvariantCulture);
+    public string Text { get; } = text;
+    public RelayCommand? ReadingsCommand { get; } = readings;
+    public RelayCommand? LiveCommand { get; } = live;
+    public bool HasReadings => ReadingsCommand is not null;
+    public bool HasLive => LiveCommand is not null;
+}
+
+/// <summary>A troubleshooting guide shown under a fault.</summary>
+public sealed class GuideViewModel(string title, string summary, IReadOnlyList<string> safety, IReadOnlyList<GuideStepViewModel> steps)
+{
+    public string Title { get; } = title;
+    public string Summary { get; } = summary;
+    public IReadOnlyList<string> Safety { get; } = safety;
+    public bool HasSafety => Safety.Count > 0;
+    public IReadOnlyList<GuideStepViewModel> Steps { get; } = steps;
+}
+
 public sealed class SourceLink(string url, Action<string> open)
 {
     public string Url { get; } = url;
