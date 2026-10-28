@@ -251,7 +251,7 @@ public class ServiceTests
         catch (OperationCanceledException) { stopped = true; }
         Assert.True(stopped);
         Assert.Equal("msv80/STEUERN_ENDE/", cancelled.Jobs[^1]);
-        Assert.False(cancelled.Jobs.Contains("msv80/STATUS_X/"));
+        Assert.DoesNotContain(cancelled.Jobs, j => j == "msv80/STATUS_X/");
     }
 
     [Fact]
