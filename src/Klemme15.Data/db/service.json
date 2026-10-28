@@ -76,6 +76,7 @@
    "implementations": [
     {
      "variants": [
+      "komb70",
       "komb87"
      ],
      "steps": [
@@ -190,7 +191,23 @@
     },
     {
      "variants": [
-      "edme82"
+      "d50m57a0",
+      "d50m57c0",
+      "d50m57d0",
+      "d50m57e0",
+      "d60_pm",
+      "d62vt71b",
+      "edme82",
+      "me9n62",
+      "me9n62_2",
+      "ms_s65",
+      "ms_s65_2",
+      "ms_s65_3",
+      "msd80n43",
+      "msd85",
+      "msd85y",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -255,11 +272,13 @@
    "implementations": [
     {
      "variants": [
+      "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
-      "d62m57b0"
+      "d62m57b0",
+      "d62vt71b"
      ],
      "steps": [
       {
@@ -308,6 +327,8 @@
      "variants": [
       "me17n45",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev9n46",
       "mev9n46l",
       "mevd174k",
@@ -315,8 +336,13 @@
       "mevd17kw",
       "ms450ds0",
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv70",
-      "msv80"
+      "msv80",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -330,8 +356,23 @@
       "bms43ds0",
       "bms46ds0",
       "bms46ds1",
+      "dm5212l5",
+      "dm5212l6",
+      "dm5212r5",
+      "dm5212r6",
+      "dm528ds0",
+      "dm528ds3",
+      "ms410ds0",
+      "ms410ds1",
+      "ms410ds2",
+      "ms410ds3",
+      "ms411ds1",
+      "ms411ds2",
       "ms420ds0",
+      "ms420ds1",
       "ms430ds0",
+      "mss52ds0",
+      "mss52ds1",
       "mss54ds0"
      ],
      "steps": [
@@ -429,9 +470,13 @@
     {
      "variants": [
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -450,6 +495,7 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4"
      ],
      "steps": [
@@ -491,9 +537,13 @@
     {
      "variants": [
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -605,6 +655,9 @@
     {
      "variants": [
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv80"
      ],
      "steps": [
@@ -690,11 +743,16 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -752,6 +810,8 @@
      "variants": [
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
       "mev9n46l",
@@ -760,10 +820,17 @@
       "mevd17kw",
       "ms430ds0",
       "ms450ds0",
+      "ms_s65",
+      "ms_s65_2",
+      "ms_s65_3",
       "msd80",
+      "msd85",
+      "msd85y",
       "mss60",
       "msv70",
-      "msv80"
+      "msv80",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -809,11 +876,16 @@
     {
      "variants": [
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
       "mev9n46l",
       "ms430ds0",
       "ms450ds0",
+      "ms_s65",
+      "ms_s65_2",
+      "ms_s65_3",
       "mss60",
       "msv70",
       "msv80"
@@ -842,8 +914,18 @@
     {
      "variants": [
       "bms46ds1",
+      "dm5212l3",
+      "dm5212r3",
+      "dm5212r5",
+      "dm5212r6",
+      "me9e65_6",
       "me9k_ng4",
+      "ms411ds1",
+      "ms411ds2",
       "ms420ds0",
+      "ms420ds1",
+      "mss52ds0",
+      "mss52ds1",
       "mss54ds0"
      ],
      "steps": [
@@ -894,7 +976,12 @@
     {
      "variants": [
       "ms450ds0",
+      "ms_s65",
+      "ms_s65_2",
+      "ms_s65_3",
       "msd80",
+      "msd85",
+      "msd85y",
       "msv70"
      ],
      "steps": [
@@ -1079,6 +1166,9 @@
      "variants": [
       "me17n45",
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv70",
       "msv80"
      ],
@@ -1106,6 +1196,9 @@
     },
     {
      "variants": [
+      "ms_s65",
+      "ms_s65_2",
+      "ms_s65_3",
       "mss60"
      ],
      "steps": [
@@ -1137,11 +1230,16 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -1160,15 +1258,25 @@
     },
     {
      "variants": [
+      "d40m57a1",
       "d50m47a",
       "d50m47b1",
+      "d50m57a0",
       "d50m57a1",
+      "d50m57b1",
+      "d50m57c0",
+      "d50m57d0",
+      "d50m57e0",
       "d50m57e1",
+      "d50vq02a",
+      "d50vq05a",
+      "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vt71b",
       "d70n47a0",
       "d70n47b0",
       "d71n47a0",
@@ -1302,12 +1410,18 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
       "mev9n46l",
-      "mss54ds0"
+      "mss52ds1",
+      "mss54ds0",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -1364,7 +1478,9 @@
     },
     {
      "variants": [
-      "ms420ds0"
+      "dde40kw0",
+      "ms420ds0",
+      "ms420ds1"
      ],
      "steps": [
       {
@@ -1407,6 +1523,9 @@
     {
      "variants": [
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv70",
       "msv80"
      ],
@@ -1434,11 +1553,16 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -1545,6 +1669,9 @@
     {
      "variants": [
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv70",
       "msv80"
      ],
@@ -1608,8 +1735,11 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
       "mev9n46l"
@@ -1689,7 +1819,8 @@
     },
     {
      "variants": [
-      "ms420ds0"
+      "ms420ds0",
+      "ms420ds1"
      ],
      "steps": [
       {
@@ -1736,6 +1867,9 @@
      "variants": [
       "me17n45",
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv70",
       "msv80"
      ],
@@ -1785,6 +1919,7 @@
     {
      "variants": [
       "msd80",
+      "msd80n43",
       "msv70",
       "msv80"
      ],
@@ -1798,11 +1933,16 @@
     },
     {
      "variants": [
+      "me9e65_6",
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -1842,7 +1982,8 @@
      "variants": [
       "bms46ds0",
       "bms46ds1",
-      "ms420ds0"
+      "ms420ds0",
+      "ms420ds1"
      ],
      "steps": [
       {
@@ -1904,6 +2045,9 @@
     {
      "variants": [
       "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
       "msv70",
       "msv80"
      ],
@@ -1943,6 +2087,9 @@
     },
     {
      "variants": [
+      "ms_s65",
+      "ms_s65_2",
+      "ms_s65_3",
       "mss60"
      ],
      "steps": [
@@ -1957,9 +2104,13 @@
      "variants": [
       "me9k_ng4",
       "me9n45",
+      "me9n62",
+      "me9n62_2",
       "mev17n46",
       "mev9n46",
-      "mev9n46l"
+      "mev9n46l",
+      "n62_tue",
+      "n62_tue2"
      ],
      "steps": [
       {
@@ -2352,12 +2503,17 @@
     {
      "variants": [
       "d50m47b1",
+      "d50m57b1",
+      "d50m57d0",
+      "d50m57e0",
       "d50m57e1",
+      "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
-      "d62m57b0"
+      "d62m57b0",
+      "d62vt71b"
      ],
      "steps": [
       {
@@ -2414,13 +2570,22 @@
      "variants": [
       "d50m47a",
       "d50m47b1",
+      "d50m57a0",
       "d50m57a1",
+      "d50m57b1",
+      "d50m57c0",
+      "d50m57d0",
+      "d50m57e0",
       "d50m57e1",
+      "d50vq02a",
+      "d50vq05a",
+      "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vt71b",
       "d70n47a0",
       "d70n47b0",
       "d71n47a0",
@@ -2542,12 +2707,21 @@
     },
     {
      "variants": [
+      "d50m57a0",
       "d50m57a1",
+      "d50m57b1",
+      "d50m57c0",
+      "d50m57d0",
+      "d50m57e0",
       "d50m57e1",
+      "d50vq02a",
+      "d50vq05a",
+      "d60_pm",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vt71b",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0"
@@ -2603,6 +2777,7 @@
    "implementations": [
     {
      "variants": [
+      "d62vt71b",
       "d72n47b0",
       "d73n57b0",
       "d73n57c0",
@@ -2651,10 +2826,19 @@
     },
     {
      "variants": [
+      "d40m57a1",
       "d50m47a",
       "d50m47b1",
+      "d50m57a0",
       "d50m57a1",
+      "d50m57b1",
+      "d50m57c0",
+      "d50m57d0",
+      "d50m57e0",
       "d50m57e1",
+      "d50vq02a",
+      "d50vq05a",
+      "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
@@ -2777,6 +2961,7 @@
    "implementations": [
     {
      "variants": [
+      "d62vt71b",
       "d70n47a0",
       "d70n47b0",
       "d71n47c0",
@@ -2785,7 +2970,8 @@
       "d73n57c0",
       "d73n57d0",
       "mevd174k",
-      "mevd176k"
+      "mevd176k",
+      "msd80n43"
      ],
      "steps": [
       {
@@ -2827,6 +3013,7 @@
     {
      "variants": [
       "dsc_87",
+      "dxc_70",
       "dxc_90"
      ],
      "steps": [
@@ -3021,6 +3208,9 @@
     },
     {
      "variants": [
+      "dsc_60pp",
+      "dxc8_p",
+      "dxc_70",
       "dxc_90"
      ],
      "steps": [
@@ -3146,6 +3336,11 @@
     },
     {
      "variants": [
+      "dsc_60",
+      "dsc_60pp",
+      "dxc8",
+      "dxc8_p",
+      "dxc_70",
       "dxc_90"
      ],
      "steps": [
@@ -3247,6 +3442,11 @@
    "implementations": [
     {
      "variants": [
+      "dsc_60",
+      "dsc_60pp",
+      "dxc8",
+      "dxc8_p",
+      "dxc_70",
       "dxc_90"
      ],
      "steps": [
@@ -3289,6 +3489,7 @@
    "implementations": [
     {
      "variants": [
+      "afs_60",
       "afs_90"
      ],
      "steps": [
@@ -3335,6 +3536,7 @@
    "implementations": [
     {
      "variants": [
+      "eps_72",
       "eps_90"
      ],
      "steps": [
@@ -3410,7 +3612,9 @@
    "implementations": [
     {
      "variants": [
+      "gs19a",
       "gs19b",
+      "gs19c",
       "gs19d"
      ],
      "steps": [
@@ -3425,9 +3629,18 @@
       "_gs20",
       "_gs834",
       "_gs860x",
+      "_gs870",
+      "ags732",
+      "ags922",
       "gs20",
+      "gs832",
+      "gs836",
+      "gs851",
+      "gs855",
       "gs8600",
       "gs8601",
+      "gs8602",
+      "gs8603",
       "gs8604"
      ],
      "steps": [
@@ -3480,7 +3693,8 @@
    "implementations": [
     {
      "variants": [
-      "gs30"
+      "gs30",
+      "ssg_60"
      ],
      "steps": [
       {
@@ -3523,7 +3737,8 @@
    "implementations": [
     {
      "variants": [
-      "gs30"
+      "gs30",
+      "ssg_60"
      ],
      "steps": [
       {
@@ -3568,7 +3783,8 @@
    "implementations": [
     {
      "variants": [
-      "gs30"
+      "gs30",
+      "ssg_60"
      ],
      "steps": [
       {
@@ -3607,6 +3823,7 @@
    "implementations": [
     {
      "variants": [
+      "vgsg70",
       "vgsg90"
      ],
      "steps": [
@@ -3649,6 +3866,7 @@
    "implementations": [
     {
      "variants": [
+      "vgsg70",
       "vgsg90"
      ],
      "steps": [
@@ -3690,6 +3908,10 @@
    "implementations": [
     {
      "variants": [
+      "dsc_60pp",
+      "dxc8",
+      "dxc8_p",
+      "dxc_70",
       "dxc_90"
      ],
      "steps": [
@@ -3858,6 +4080,9 @@
    "implementations": [
     {
      "variants": [
+      "ihka60",
+      "ihka60_2",
+      "ihka70",
       "ihka87",
       "ihka89",
       "ihkr89",
@@ -3896,6 +4121,11 @@
     },
     {
      "variants": [
+      "ihka39_2",
+      "ihka39_3",
+      "ihka39_4",
+      "ihka39_5",
+      "ihkr39",
       "ihkr46"
      ],
      "steps": [
@@ -4003,6 +4233,8 @@
    "implementations": [
     {
      "variants": [
+      "komb60",
+      "komb70",
       "komb87"
      ],
      "steps": [
@@ -4022,6 +4254,8 @@
     },
     {
      "variants": [
+      "kombi39",
+      "kombi39c",
       "kombi46",
       "kombi46r"
      ],
@@ -4061,8 +4295,11 @@
     {
      "variants": [
       "ccc_60",
+      "champ",
+      "champ2r",
       "cicmr",
       "cicr",
+      "mask2",
       "mask60",
       "rad1",
       "rad12r",
@@ -4103,9 +4340,12 @@
    "implementations": [
     {
      "variants": [
+      "cid_60",
+      "cid_70",
       "cid_87",
       "cid_89",
-      "cid_90"
+      "cid_90",
+      "cidr_70"
      ],
      "steps": [
       {
@@ -4143,12 +4383,14 @@
     {
      "variants": [
       "cmediar",
+      "tele60",
       "tele60_2",
       "tele60_3",
       "telibus2",
       "telibus3",
       "ulf2_60",
-      "ulf_60"
+      "ulf_60",
+      "ulf_60pb"
      ],
      "steps": [
       {
@@ -4186,6 +4428,7 @@
     {
      "variants": [
       "amp_60",
+      "amph56",
       "amph70",
       "ampt70",
       "amptlr89"
@@ -4225,6 +4468,9 @@
    "implementations": [
     {
      "variants": [
+      "ihka60",
+      "ihka60_2",
+      "ihka70",
       "ihka87",
       "ihka89",
       "ihkr89",
@@ -4266,7 +4512,10 @@
    "implementations": [
     {
      "variants": [
-      "pdc_87"
+      "pdc_65_2",
+      "pdc_87",
+      "pdc_e65",
+      "pdcr3"
      ],
      "steps": [
       {
@@ -4304,6 +4553,7 @@
     {
      "variants": [
       "rdc_60",
+      "rdc_can",
       "rdckwp"
      ],
      "steps": [
@@ -4341,6 +4591,7 @@
    "implementations": [
     {
      "variants": [
+      "fzd_70",
       "fzd_87"
      ],
      "steps": [
@@ -4453,6 +4704,7 @@
    "implementations": [
     {
      "variants": [
+      "sat_60",
       "sat_rad2"
      ],
      "steps": [
@@ -4491,6 +4743,12 @@
     {
      "variants": [
       "cccg60",
+      "champ2rg",
+      "champgw",
+      "cicmr_gw",
+      "cicr_gw",
+      "mask2gw",
+      "mcgw60",
       "rad2_gw"
      ],
      "steps": [
@@ -4528,7 +4786,10 @@
    "implementations": [
     {
      "variants": [
+      "ech60",
+      "ecl60",
       "zbe_60_2",
+      "zbeh60",
       "zbeh87",
       "zbel87",
       "zbel87_2"
@@ -4568,7 +4829,10 @@
    "implementations": [
     {
      "variants": [
-      "ccca60"
+      "ccca60",
+      "champ2rs",
+      "cicmr_sd",
+      "cicr_hd"
      ],
      "steps": [
       {
@@ -4605,6 +4869,7 @@
    "implementations": [
     {
      "variants": [
+      "ahm_70",
       "ahm_e65"
      ],
      "steps": [
@@ -4649,6 +4914,7 @@
       "ctm_93_4",
       "ctm_93_5",
       "ctm_93_6",
+      "cvm_64",
       "cvm_88",
       "cvm_88_2"
      ],
@@ -4725,6 +4991,7 @@
    "implementations": [
     {
      "variants": [
+      "bfs_65_2",
       "bfs_87",
       "bfs_plx"
      ],
@@ -4763,6 +5030,7 @@
    "implementations": [
     {
      "variants": [
+      "fas_65_2",
       "fas_87",
       "fas_plx"
      ],
