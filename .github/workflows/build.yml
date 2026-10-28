@@ -1,7 +1,6 @@
 name: build
 
-# The repo is private for now, so Actions minutes count against the free allowance
-# (macOS x10, Windows x2). Docs-only pushes skip CI, and macOS runs only for releases.
+# Docs-only pushes skip CI. Public repo: standard GitHub-hosted runners are free.
 on:
   push:
     paths-ignore: ["**.md", "docs/**", "LICENSE"]
@@ -23,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON(inputs.version != '' && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest","windows-latest"]') }}
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
