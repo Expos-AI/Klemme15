@@ -56,15 +56,26 @@ public sealed record EcuIdentity
     /// <summary>Everything the ECU returned, for display and bug reports.</summary>
     public IReadOnlyDictionary<string, string> Raw { get; init; } = new Dictionary<string, string>();
 
-    public string Summary =>
-        string.Join("  ", new[]
+    public string Summary
+    {
+        get
         {
-            Variant is null ? null : $"Variant {Variant}",
-            PartNumber is null ? null : $"Part {PartNumber}",
-            HardwareVersion is null ? null : $"HW {HardwareVersion}",
-            SoftwareVersion is null ? null : $"SW {SoftwareVersion}",
-            CodingIndex is null ? null : $"CI {CodingIndex}",
-        }.Where(s => s is not null));
+            var parsed = string.Join("  ", new[]
+            {
+                Variant is null ? null : $"Variant {Variant}",
+                PartNumber is null ? null : $"Part {PartNumber}",
+                HardwareVersion is null ? null : $"HW {HardwareVersion}",
+                SoftwareVersion is null ? null : $"SW {SoftwareVersion}",
+                CodingIndex is null ? null : $"CI {CodingIndex}",
+            }.Where(s => s is not null));
+            if (parsed.Length > 0) return parsed;
+            // Not decoded yet: show the start of the raw reply so it can be studied.
+            if (Raw.TryGetValue("hex", out var hex) && hex.Length > 0)
+                return "ID " + string.Join(" ", hex.Chunk(2).Take(12).Select(c => new string(c))) + (hex.Length > 24 ? " ..." : "");
+            if (Raw.TryGetValue("negative", out var neg)) return $"Answered, ident refused ({neg})";
+            return "";
+        }
+    }
 }
 
 public enum FaultState

@@ -15,19 +15,19 @@
     { "id": "E46.RAD",  "name": "Radio",                        "address": "68", "protocol": "Ds2", "category": "Infotainment","sgbd": ["D_RADIO", "D_0068"], "pos": [338, 205], "verified": false },
     { "id": "E46.RLS",  "name": "Rain / light sensor (RLS)",    "address": "E8", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_RLS", "D_00E8"], "pos": [458, 262], "verified": false },
 
-    { "id": "E9x.DME",  "name": "Engine (DME)",                 "address": "12", "protocol": "BmwFast", "category": "Powertrain", "engine": true, "sgbd": ["D_0012", "D_MOTOR"], "pos": [285, 110], "verified": false },
+    { "id": "E9x.DME",  "name": "Engine (DME)",                 "address": "12", "protocol": "BmwFast", "category": "Powertrain", "engine": true, "sgbd": ["D_0012", "D_MOTOR"], "pos": [285, 110], "verified": true, "seenOn": ["E90 325i 2006"] },
     { "id": "E9x.EGS",  "name": "Automatic transmission (EGS)", "address": "18", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0018", "D_EGS"], "pos": [415, 230], "verified": false },
-    { "id": "E9x.DSC",  "name": "Stability control (DSC)",      "address": "29", "protocol": "BmwFast", "category": "Chassis",    "sgbd": ["D_0029"], "pos": [250, 345], "verified": false },
-    { "id": "E9x.ACSM", "name": "Airbag (ACSM)",                "address": "01", "protocol": "BmwFast", "category": "Safety",     "sgbd": ["D_0001"], "pos": [560, 230], "verified": false },
-    { "id": "E9x.CAS",  "name": "Car access system (CAS)",      "address": "40", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0040"], "pos": [372, 330], "verified": false },
-    { "id": "E9x.KOMBI","name": "Instrument cluster (KOMBI)",   "address": "60", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0060"], "pos": [345, 300], "verified": false },
-    { "id": "E9x.FRM",  "name": "Footwell module (FRM)",        "address": "72", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0072"], "pos": [400, 368], "verified": false },
-    { "id": "E9x.JBE",  "name": "Junction box (JBE)",           "address": "00", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0000"], "pos": [395, 110], "verified": false },
-    { "id": "E9x.IHKA", "name": "Climate control (IHKA)",       "address": "78", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0078"], "pos": [338, 255], "verified": false },
+    { "id": "E9x.DSC",  "name": "Stability control (DSC)",      "address": "29", "protocol": "BmwFast", "category": "Chassis",    "sgbd": ["D_0029"], "pos": [250, 345], "verified": true, "seenOn": ["E90 325i 2006"] },
+    { "id": "E9x.ACSM", "name": "Airbag (ACSM)",                "address": "01", "protocol": "BmwFast", "category": "Safety",     "sgbd": ["D_0001"], "pos": [560, 230], "verified": true, "seenOn": ["E90 325i 2006"] },
+    { "id": "E9x.CAS",  "name": "Car access system (CAS)",      "address": "40", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0040"], "pos": [372, 330], "verified": true, "seenOn": ["E90 325i 2006"] },
+    { "id": "E9x.KOMBI","name": "Instrument cluster (KOMBI)",   "address": "60", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0060"], "pos": [345, 300], "verified": true, "seenOn": ["E90 325i 2006"] },
+    { "id": "E9x.FRM",  "name": "Footwell module (FRM)",        "address": "72", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0072"], "pos": [400, 368], "verified": true, "seenOn": ["E90 325i 2006"] },
+    { "id": "E9x.JBE",  "name": "Junction box (JBE)",           "address": "00", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0000"], "pos": [395, 110], "verified": true, "seenOn": ["E90 325i 2006"] },
+    { "id": "E9x.IHKA", "name": "Climate control (IHKA)",       "address": "78", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0078"], "pos": [338, 255], "verified": true, "seenOn": ["E90 325i 2006"] },
     { "id": "E9x.SZL",  "name": "Steering column switches (SZL)","address": "02", "protocol": "BmwFast", "category": "Chassis",   "sgbd": ["D_0002"], "pos": [418, 300], "verified": false },
-    { "id": "E9x.EKPS", "name": "Fuel pump control (EKPS)",     "address": "17", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0017"], "pos": [596, 334], "verified": false },
+    { "id": "E9x.EKPS", "name": "Fuel pump control (EKPS)",     "address": "17", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0017"], "pos": [596, 334], "verified": true, "seenOn": ["E90 325i 2006"] },
     { "id": "E9x.PDC",  "name": "Park distance control (PDC)",  "address": "64", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0064"], "pos": [880, 340], "verified": false },
     { "id": "E9x.CIC",  "name": "Head unit (CCC / CIC)",        "address": "63", "protocol": "BmwFast", "category": "Infotainment","sgbd": ["D_0063"], "pos": [338, 205], "verified": false },
-    { "id": "E9x.FZD",  "name": "Roof function centre (FZD)",   "address": "56", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0056"], "pos": [470, 230], "verified": false }
+    { "id": "E9x.FZD",  "name": "Roof function centre (FZD)",   "address": "56", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0056"], "pos": [470, 230], "verified": true, "seenOn": ["E90 325i 2006"] }
   ]
 }

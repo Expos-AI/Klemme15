@@ -46,6 +46,33 @@ public class ModelTests
         Assert.Equal(frm.Name, where.Title);
     }
 
+    [Fact]
+    public void CodesSeenOnARealE90AreDescribedAndPlaced()
+    {
+        var cas = Db.Modules.Single(m => m.Id == "E9x.CAS");
+        Assert.True(cas.Verified);
+        Assert.Contains("steering lock", Db.DescribeBmw("E9x.CAS", "A111"));
+        var where = Db.Locate(new Fault { EcuId = cas.Id, Code = "A111", Source = FaultSource.Bmw }, cas);
+        Assert.True(where!.IsComponent);
+        Assert.Equal(Db.FindComponent("steering_lock")!.Name, where.Title);
+    }
+
+    [Fact]
+    public void DiscoveryFindsModulesTheDatabaseDoesNotList()
+    {
+        var family = Db.FindVehicle("E9x")!;
+        var addresses = VehicleDatabase.UnlistedAddresses(family);
+        Assert.DoesNotContain(addresses, a => family.Modules.Any(m => m.Address == a));
+        Assert.DoesNotContain(addresses, a => a == 0xDF || a >= 0xF0);
+
+        var car = new VirtualCar("extra", [new VirtualEcu { Address = 0x68, Ident = "9876543 RAD" }]);
+        var backend = new NativeBackend(car, new NativeBackendOptions { Mode = CableMode.DCan });
+        var found = backend.DiscoverAsync(addresses).GetAwaiter().GetResult();
+        var m = Assert.Single(found);
+        Assert.Equal(0x68, m.Address);
+        Assert.Equal("9876543", m.Identity.PartNumber);
+    }
+
     [Theory]
     [MemberData(nameof(AllModels))]
     public async Task EveryModelHasAWorkingDemoCar(string modelId)

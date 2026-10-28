@@ -1,5 +1,52 @@
 {
-  "$comment": "BMW-specific fault codes, keyed by module id then 4-digit hex code. Starts empty on purpose: every entry must be written in your own words and confirmed on a real car (never copied from BMW software or documents). See docs/CONTRIBUTING-DATA.md for the format and an example.",
+  "$comment": "BMW-specific fault codes, keyed by module id then 4-digit hex code. Every text is written in our own words, never copied from BMW software or documents. 'seenOn' lists real cars where the code was read with OpenHood. 'source': 'community' means the meaning comes from owner forums and has not been confirmed against a repair; treat it as a lead, not a verdict. Optional 'component' points at a part in components.json. See docs/CONTRIBUTING-DATA.md.",
   "modules": {
+    "E9x.DSC": {
+      "5E18": {
+        "text": "DSC is not getting the data it expects from the engine computer over the CAN bus. Often logged after a low or disconnected battery or work on the engine computer; clear it and see if it returns.",
+        "source": "community",
+        "seenOn": [
+          "E90 325i 2006"
+        ]
+      }
+    },
+    "E9x.CAS": {
+      "A111": {
+        "text": "Electric steering lock: power supply fault reported by the car access system.",
+        "source": "community",
+        "seenOn": [
+          "E90 325i 2006"
+        ],
+        "component": "steering_lock"
+      }
+    },
+    "E9x.KOMBI": {
+      "9315": {
+        "text": "The mileage stored in the instrument cluster and its backup copy in another module don't agree.",
+        "source": "community",
+        "seenOn": [
+          "E90 325i 2006"
+        ]
+      }
+    },
+    "E9x.JBE": {
+      "A731": {
+        "text": "Power supply fault on terminal 30g_f, a switched battery feed the junction box controls. Commonly logged after low battery voltage or the car sitting for a long time.",
+        "source": "community",
+        "seenOn": [
+          "E90 325i 2006"
+        ]
+      }
+    },
+    "E9x.FZD": {
+      "A670": {
+        "text": "Condensation (fogging) sensor at the base of the rear-view mirror: signal above its expected range. Check the sensor and its connector.",
+        "source": "community",
+        "seenOn": [
+          "E90 325i 2006"
+        ],
+        "component": "mirror_sensors"
+      }
+    }
   }
 }

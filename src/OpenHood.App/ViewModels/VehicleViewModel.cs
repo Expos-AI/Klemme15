@@ -20,14 +20,17 @@ public sealed class VehicleViewModel : PageViewModel
     private string _progressText = "";
     private double _progress;
     private string? _error;
+    private string? _discovery;
+    private bool _isDiscovering;
 
     public VehicleViewModel(SessionState session, IDialogService dialogs)
     {
         _session = session;
         _dialogs = dialogs;
-        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_isScanning, e => Error = e.Message);
+        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
+        DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
         ExportHtmlCommand = new AsyncCommand(() => ExportAsync("html"), () => _session.LastScan is not null);
         ExportMarkdownCommand = new AsyncCommand(() => ExportAsync("md"), () => _session.LastScan is not null);
         ExportJsonCommand = new AsyncCommand(() => ExportAsync("json"), () => _session.LastScan is not null);
@@ -37,6 +40,8 @@ public sealed class VehicleViewModel : PageViewModel
             if (e.PropertyName == nameof(SessionState.Backend))
             {
                 RunCommand.RaiseCanExecuteChanged();
+                DiscoverCommand.RaiseCanExecuteChanged();
+                Discovery = null;
                 Raise(nameof(IsConnected));
                 Raise(nameof(NotConnected));
                 OnUi(Rebuild);
@@ -76,6 +81,7 @@ public sealed class VehicleViewModel : PageViewModel
             if (!Set(ref _isScanning, value)) return;
             RunCommand.RaiseCanExecuteChanged();
             CancelCommand.RaiseCanExecuteChanged();
+            DiscoverCommand.RaiseCanExecuteChanged();
             Raise(nameof(BeforeScan));
         }
     }
@@ -155,6 +161,43 @@ public sealed class VehicleViewModel : PageViewModel
     // ------------------------------------------------------------------ commands
 
     public AsyncCommand RunCommand { get; }
+    public AsyncCommand DiscoverCommand { get; }
+
+    /// <summary>Result of "Find other modules", shown in the side panel.</summary>
+    public string? Discovery
+    {
+        get => _discovery;
+        private set { if (Set(ref _discovery, value)) Raise(nameof(HasDiscovery)); }
+    }
+
+    public bool HasDiscovery => !string.IsNullOrEmpty(_discovery);
+
+    private async Task DiscoverAsync()
+    {
+        if (_session.Backend is not IModuleDiscovery discovery || _session.Vehicle is not { } vehicle) return;
+        var addresses = OpenHood.Data.VehicleDatabase.UnlistedAddresses(vehicle);
+        _isDiscovering = true;
+        DiscoverCommand.RaiseCanExecuteChanged();
+        RunCommand.RaiseCanExecuteChanged();
+        Discovery = $"Asking {addresses.Count} other addresses...";
+        try
+        {
+            var progress = new Progress<int>(n => Discovery = $"Asking other addresses: {n} of {addresses.Count}");
+            var found = await discovery.DiscoverAsync(addresses, progress);
+            Discovery = found.Count == 0
+                ? "No other modules answered. The database already covers everything on this car."
+                : $"{found.Count} more module(s) answered at addresses the database doesn't list yet:\n"
+                  + string.Join("\n", found.Select(m => $"{m.AddressHex}  {m.Identity.Summary}"))
+                  + "\nPlease report these with your traffic log so they can be named and placed on the car.";
+            foreach (var m in found) _session.Log.Note($"Discovered module at {m.AddressHex}: {m.Identity.Summary}");
+        }
+        finally
+        {
+            _isDiscovering = false;
+            DiscoverCommand.RaiseCanExecuteChanged();
+            RunCommand.RaiseCanExecuteChanged();
+        }
+    }
     public RelayCommand CancelCommand { get; }
     public AsyncCommand ExportHtmlCommand { get; }
     public AsyncCommand ExportMarkdownCommand { get; }

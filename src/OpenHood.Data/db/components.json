@@ -37,7 +37,9 @@
     "headlight_right": { "name": "Right headlight", "pos": [74, 120] },
     "taillight_left":  { "name": "Left tail light", "pos": [934, 352] },
     "taillight_right": { "name": "Right tail light", "pos": [934, 108] },
-    "blower":        { "name": "Heater blower and climate flaps", "pos": [338, 280] }
+    "blower":        { "name": "Heater blower and climate flaps", "pos": [338, 280] },
+    "steering_lock": { "name": "Electric steering lock (steering column)", "pos": [430, 318] },
+    "mirror_sensors":{ "name": "Rain, light and condensation sensors at the rear-view mirror", "pos": [440, 212] }
   },
   "rules": [
     { "match": "^P030([1-6])$", "component": "cyl$1" },
