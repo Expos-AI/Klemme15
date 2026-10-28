@@ -13,8 +13,20 @@ public sealed record FaultLocation(SchematicPoint Position, string Title, bool I
 /// Loads the built-in community database, then layers any JSON files found in a user folder on top,
 /// so people can add or fix entries without rebuilding the app.
 /// </summary>
-public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails
+public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber
 {
+    private readonly List<IOfficialFaultSource> _official = [];
+
+    /// <summary>Official fault dictionaries the user has made available (their BMW files, a downloaded database), checked in order.</summary>
+    public IReadOnlyList<IOfficialFaultSource> OfficialSources => _official;
+
+    /// <summary>Replaces the official sources (e.g. after the user downloads a database or picks their BMW folder).</summary>
+    public void SetOfficialSources(IEnumerable<IOfficialFaultSource> sources)
+    {
+        _official.Clear();
+        _official.AddRange(sources);
+    }
+
     private static readonly string[] Files = ["modules.json", "obd-generic.json", "obd-codes.json", "bmw-codes.json", "components.json", "vehicles.json"];
 
     private readonly Dictionary<string, EcuDefinition> _modules = new(StringComparer.OrdinalIgnoreCase);
@@ -38,7 +50,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails
     {
         get
         {
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create);
             var current = Path.Combine(appData, "Klemme15", "db");
             var legacy = Path.Combine(appData, "OpenHood", "db");   // before the rename
             return !Directory.Exists(current) && Directory.Exists(legacy) ? legacy : current;
@@ -110,11 +122,62 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails
         return new CodeInfo(text!, pick.Hint, pick.Confidence, pick.Sources, pick.Component);
     }
 
+    public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity) => Describe(fault, ecu, identity, null);
+
+    /// <summary>
+    /// Fills in what a fault means. Order of preference for the headline text: BMW's own English, our researched
+    /// community meaning, BMW's German put through the glossary, BMW's German as is. BMW's original wording, the
+    /// module variant and community tips are always attached when known, so nothing is hidden.
+    /// </summary>
+    public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity, string? engine, string? fallbackText = null)
+    {
+        if (fault.Source == FaultSource.Obd2)
+        {
+            if (fault.Description is not null) return fault;
+            var obd = DescribeObd(fault.Code);
+            return fault with { Description = obd ?? fallbackText, DescriptionOrigin = obd is null ? null : "obd" };
+        }
+
+        var community = LookupBmw(ecu.Id, fault.Code, engine);
+        var match = OfficialLookup.Find(_official, ecu, identity, engine, fault.Code);
+
+        // EDIABAS mode already read BMW's text live from the car's own SGBD.
+        string? officialText = fault.Confidence == "official" && fault.Description is not null ? fault.Description : null;
+        string? officialEnglish = null;
+        if (match is not null)
+        {
+            officialText ??= OfficialLookup.Clean(match.Entry.Text, fault.Code);
+            if (match.Entry.English is { } en) officialEnglish = GermanGlossary.Polish(OfficialLookup.Clean(en, fault.Code));
+        }
+
+        string? description; string? origin; string? confidence;
+        if (officialEnglish is not null) { description = officialEnglish; origin = "bmw-en"; confidence = "official"; }
+        else if (community is not null) { description = community.Text; origin = "community"; confidence = community.Confidence; }
+        else if (officialText is not null && GermanGlossary.Translate(officialText) is { } approx) { description = approx; origin = "bmw-de-glossary"; confidence = "official"; }
+        else if (officialText is not null) { description = officialText; origin = "bmw-de"; confidence = "official"; }
+        else { description = fault.Description ?? fallbackText; origin = description is null ? null : fault.DescriptionOrigin; confidence = fault.Confidence; }
+
+        return fault with
+        {
+            Description = description,
+            DescriptionOrigin = origin,
+            Confidence = confidence,
+            Hint = fault.Hint ?? community?.Hint,
+            Sources = community?.Sources is { Count: > 0 } src ? src : fault.Sources,
+            OfficialText = officialText,
+            ModuleVariant = match?.Variant ?? (fault.Confidence == "official" ? identity?.Variant : null),
+            VariantConfirmed = match?.VariantConfirmed ?? (fault.Confidence == "official" && identity?.Variant is not null),
+            OfficialSource = match?.SourceName ?? (officialText is not null ? "your BMW files (EDIABAS)" : null),
+            Alternatives = match?.Alternatives ?? [],
+        };
+    }
+
     /// <summary>The same database, with BMW codes read for a specific engine (e.g. "N52").</summary>
     public IFaultCodeDatabase ForEngine(string? engine) => engine is null ? this : new EngineCodes(this, engine);
 
-    private sealed class EngineCodes(VehicleDatabase inner, string engine) : IFaultCodeDatabase, IFaultCodeDetails
+    private sealed class EngineCodes(VehicleDatabase inner, string engine) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber
     {
+        public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity) => inner.Describe(fault, ecu, identity, engine);
         public string? DescribeObd(string code) => inner.DescribeObd(code);
         public string? DescribeBmw(string ecuId, string code) => LookupBmw(ecuId, code)?.Text;
         public CodeInfo? LookupBmw(string ecuId, string code) => inner.LookupBmw(ecuId, code, engine);
@@ -151,8 +214,12 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails
     /// <summary>Fault descriptions for a demo car: the real database plus the demo's own made-up BMW codes.</summary>
     public IFaultCodeDatabase ForDemo(VehicleModel model) => new DemoCodes(this, model);
 
-    private sealed class DemoCodes(VehicleDatabase inner, VehicleModel model) : IFaultCodeDatabase, IFaultCodeDetails
+    private sealed class DemoCodes(VehicleDatabase inner, VehicleModel model) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber
     {
+        public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity) =>
+            inner.Describe(fault, ecu, identity, model.EngineCode,
+                model.DemoFaults.FirstOrDefault(d => d.ModuleId == ecu.Id && d.Code.Equals(fault.Code, StringComparison.OrdinalIgnoreCase))?.Text);
+
         public string? DescribeObd(string code) => inner.DescribeObd(code);
 
         public string? DescribeBmw(string ecuId, string code) => LookupBmw(ecuId, code)?.Text;
@@ -327,6 +394,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails
             Protocol = Enum.Parse<BusProtocol>(Str("protocol") ?? "Obd2", ignoreCase: true),
             Category = Str("category") ?? "Other",
             Sgbd = m.TryGetProperty("sgbd", out var s) ? s.EnumerateArray().Select(x => x.GetString()!).ToList() : [],
+            Variants = m.TryGetProperty("variants", out var vs) ? vs.EnumerateArray().Select(x => x.GetString()!).ToList() : [],
             Chassis = [id.Split('.')[0]],
             IsEngine = Bool("engine"),
             Verified = Bool("verified"),

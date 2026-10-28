@@ -34,6 +34,7 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 - **See where faults are**: a top-view drawing of the car. Each module lights up where it physically sits as the quick test reaches it, and every fault is pinned to the part it points at: a misfire on cylinder 3, lean codes at the intake, a thermostat at the front of the engine, a fuel pump fault at the tank.
 - **Quick test**: checks battery voltage, finds every fitted module with one broadcast, identifies each and reads its fault memory. Covers all 44 known E90-family modules and 23 E46 modules, including options like xDrive, TPMS, alarm, memory seats and the convertible top.
 - **ISTA-grade texts with your own files** (Windows): Klemme15 finds your EDIABAS, INPA or ISTA SGBD files automatically and reads faults the way ISTA does on these cars: official fault text for your exact module version, mileage, frequency, environment conditions, and the info memory.
+- **Official BMW meaning for every code, on any OS**: one click in the Garage downloads the free community fault database [bmw-unified-db](https://github.com/gediz/bmw-unified-db) (13 MB, checksum-verified), or Klemme15 reads the `.prg` files from your own ISTA/INPA install. Klemme15 works out which version of each module your car has (the same code means different things on different versions), shows BMW's English where BMW wrote one, and puts the rest into English with its own glossary, with a Translate button for BMW's original German. See [where meanings come from](docs/FAULT-DATA.md).
 - **Researched meanings without BMW files**: 202 BMW fault codes (106 high confidence) researched from owner forums, shop guides and BMW service bulletins, written in our own words, each with its sources and engine scope; plus all 2,066 standard OBD-II codes.
 - **Faults**: BMW and OBD-II codes, active vs stored vs info memory, plain-English descriptions, practical tips, a "check here" location, and where each meaning comes from (official SGBD text, or community meaning with confidence and clickable sources). Clear per module or all at once.
 - **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
@@ -78,6 +79,14 @@ klemme15 clear --module DME --port COM3
 klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
 ```
 
+Official BMW meanings for every code (optional, see [docs/FAULT-DATA.md](docs/FAULT-DATA.md)):
+
+```bash
+klemme15 db download                             # fetch bmw-unified-db from its GitHub release (13 MB)
+klemme15 code E9x.DSC 5E1A --model 325i          # what does this code mean on my car?
+klemme15 scan --port COM3 --ecu "C:\ISTA\Ediabas\Ecu"   # or read texts from your own ISTA/INPA files
+```
+
 On Windows with EDIABAS mode: add `--ediabas C:\EDIABAS\Ecu`, and run any job with `klemme15 job D_0012 IDENT --ediabas C:\EDIABAS\Ecu --port COM3`.
 
 ## Building from source
@@ -118,6 +127,7 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - The native protocol stack is written from public standards (ISO 14230, ISO 9141-2, SAE J1979) and community knowledge.
 - EDIABAS mode runs files **you already have** from your own installation. They are never bundled or uploaded.
 - Fault descriptions in the database are written by contributors in their own words, with sources. See `tools/research` for how they're researched and merged.
+- BMW's own fault texts are only ever **read from data the user chooses to provide**: their own ISTA/INPA/EDIABAS files, or the third-party [bmw-unified-db](https://github.com/gediz/bmw-unified-db) download, which that project publishes and licenses itself (it states the texts are BMW-derived). Klemme15 links to it and never copies it into this repository. Details: [docs/FAULT-DATA.md](docs/FAULT-DATA.md).
 - Klemme15 never unlocks or reads BMW's protected ISTA databases. The standard OBD-II titles come from python-OBD (GPL-2.0-or-later).
 
 ## Safety
@@ -131,6 +141,7 @@ The fastest way to help is to **test on your car** and send the saved report and
 ## Credits
 
 - [EdiabasLib](https://github.com/uholeschak/ediabaslib) by Ulrich Holeschak (GPLv3), used for EDIABAS mode.
+- [bmw-unified-db](https://github.com/gediz/bmw-unified-db) for the optional BMW fault dictionaries (downloaded by the user, not bundled).
 - [Avalonia UI](https://avaloniaui.net) for the cross-platform interface.
 - [python-OBD](https://github.com/brendan-w/python-OBD) for the standard OBD-II code titles.
 - [Barlow](https://github.com/jpt/barlow) typeface by Jeremy Tribby (SIL Open Font License 1.1, see `src/Klemme15.App/Assets/Fonts/OFL.txt`).

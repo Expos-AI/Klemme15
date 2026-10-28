@@ -62,6 +62,7 @@ public sealed class FaultGroupViewModel : ViewModelBase
                                        .Select(u => new SourceLink(u, _openUrl)).DistinctBy(l => l.Label).ToList(),
             };
             item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
+            item.TranslateCommand = new RelayCommand(() => _openUrl(item.TranslateUrl));
             Faults.Add(item);
         }
         Raise(nameof(CountText));
@@ -72,7 +73,8 @@ public sealed class FaultGroupViewModel : ViewModelBase
         Confirming = false;
         if (_session.Backend is not { } backend) return;
         await backend.ClearFaultsAsync(Ecu);
-        var remaining = new VehicleScanner(backend, _session.Codes).Describe(await backend.ReadFaultsAsync(Ecu));
+        var identity = _session.LastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == Ecu.Id)?.Identity;
+        var remaining = new VehicleScanner(backend, _session.Codes).Describe(await backend.ReadFaultsAsync(Ecu), Ecu, identity);
         Fill(remaining);
         Message = remaining.Count == 0
             ? "Fault memory cleared. Drive the car, then read it again to see which faults come back."
@@ -145,7 +147,7 @@ public sealed class FaultsViewModel : PageViewModel
         {
             if (e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults && e.Note is null)
             {
-                var faults = scanner.Describe(await backend.ReadFaultsAsync(e.Ecu));
+                var faults = scanner.Describe(await backend.ReadFaultsAsync(e.Ecu), e.Ecu, e.Identity);
                 updated.Add(e with { Faults = faults, Status = faults.Count > 0 ? EcuScanStatus.Faults : EcuScanStatus.Ok });
             }
             else updated.Add(e);

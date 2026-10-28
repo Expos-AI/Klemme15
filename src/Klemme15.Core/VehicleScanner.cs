@@ -90,7 +90,7 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
                 string? note = null;
                 if (backend.Capabilities.HasFlag(BackendCapabilities.ReadFaults))
                 {
-                    try { faults = Describe(await backend.ReadFaultsAsync(ecu, ct)); }
+                    try { faults = Describe(await backend.ReadFaultsAsync(ecu, ct), ecu, identity); }
                     catch (NotSupportedException e) { note = e.Message; }
                 }
 
@@ -111,6 +111,13 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
             }
         }
         return new EcuScanResult { Ecu = ecu, Status = EcuScanStatus.Error, Error = last?.Message, Elapsed = sw.Elapsed };
+    }
+
+    /// <summary>Fills in descriptions, tips and sources, using the module's identity to pick the right dictionary.</summary>
+    public IReadOnlyList<Fault> Describe(IReadOnlyList<Fault> faults, EcuDefinition ecu, EcuIdentity? identity)
+    {
+        if (codes is IFaultDescriber describer) return faults.Select(f => describer.Describe(f, ecu, identity)).ToList();
+        return Describe(faults);
     }
 
     /// <summary>Fills in descriptions, tips and sources the backend did not supply.</summary>

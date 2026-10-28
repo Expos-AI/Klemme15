@@ -28,6 +28,12 @@ public sealed record EcuDefinition
     /// <summary>Chassis codes this definition applies to (e.g. "E46", "E90").</summary>
     public IReadOnlyList<string> Chassis { get; init; } = [];
 
+    /// <summary>
+    /// EDIABAS variant names (SGBD file names, e.g. "msv70") this module can be on this chassis, most likely first.
+    /// Used to pick the right official fault dictionary; the exact one is confirmed from the module's own ident when possible.
+    /// </summary>
+    public IReadOnlyList<string> Variants { get; init; } = [];
+
     /// <summary>True once someone has confirmed this entry on a real car.</summary>
     public bool Verified { get; init; }
 
@@ -126,6 +132,27 @@ public sealed record Fault
 
     /// <summary>Extra detail: frequency, symptom, mileage, raw status byte...</summary>
     public IReadOnlyDictionary<string, string> Details { get; init; } = new Dictionary<string, string>();
+
+    /// <summary>
+    /// Where <see cref="Description"/> came from: "bmw-en" (BMW's English), "bmw-de" (BMW's German, untranslated),
+    /// "bmw-de-glossary" (BMW's German put into English with Klemme15's glossary), "community", "obd", or null.
+    /// </summary>
+    public string? DescriptionOrigin { get; init; }
+
+    /// <summary>BMW's own wording for this code (often German), from the user's BMW files or the optional fault database.</summary>
+    public string? OfficialText { get; init; }
+
+    /// <summary>Which module variant the official text belongs to (e.g. "MSV70").</summary>
+    public string? ModuleVariant { get; init; }
+
+    /// <summary>True when the variant was identified from the module itself (variant name or part number), not guessed.</summary>
+    public bool VariantConfirmed { get; init; }
+
+    /// <summary>Where the official text came from ("your BMW files", "bmw-unified-db").</summary>
+    public string? OfficialSource { get; init; }
+
+    /// <summary>Different meanings of the same code on other possible module variants ("MSV80: ...").</summary>
+    public IReadOnlyList<string> Alternatives { get; init; } = [];
 
     public string DisplayDescription => Description ?? "No description in database yet (please contribute one)";
 }

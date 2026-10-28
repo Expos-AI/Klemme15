@@ -95,6 +95,27 @@
           <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
         </StackPanel>
 
+        <!-- Official BMW fault texts: the user's own BMW files and/or the optional third-party download -->
+        <Border Classes="panel" Padding="20">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="section" Text="Official BMW fault meanings" />
+            <TextBlock Classes="muted" TextWrapping="Wrap"
+                       Text="Klemme15 explains codes with its own researched meanings. For BMW's own text on every code of every module, add one of these. Both stay on your computer." />
+            <TextBlock Text="{Binding FaultDataStatus}" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="primary" Content="{Binding DownloadButtonText}" Command="{Binding DownloadFaultDataCommand}" />
+              <Button Content="Use my BMW files (ISTA / INPA)" Command="{Binding ChooseEcuFolderCommand}" />
+            </StackPanel>
+            <TextBlock Classes="lit" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
+            <TextBlock Classes="muted small" TextWrapping="Wrap"
+                       Text="The download is bmw-unified-db, a free community project on GitHub (not part of Klemme15). Its fault texts are derived from BMW's diagnostic data, which BMW owns; that project publishes them for right-to-repair. Klemme15 checks the file's checksum and keeps only the modules for your car family." />
+            <StackPanel Orientation="Horizontal" Spacing="14">
+              <Button Classes="quiet" Content="{Binding FaultDataProject}" Command="{Binding OpenFaultDataPageCommand}" />
+              <Button Classes="quiet" Content="Data sources and licences" Command="{Binding OpenFaultDataLicenseCommand}" />
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
         <!-- Cable setup, shown on request -->
         <Border Classes="panel" Padding="20" IsVisible="{Binding ShowCable}">
           <StackPanel Spacing="14">

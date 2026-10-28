@@ -23,6 +23,11 @@ internal static class Cli
           discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
           job     <sgbd> <job> [args]   Run any EDIABAS job (EDIABAS mode)
+          db status                     Show which official BMW fault texts are available
+          db download                   Download the optional BMW fault database (bmw-unified-db, ~13 MB)
+          db install <json.tar.gz>      Install that database from a file you downloaded yourself
+          code <module> <code>          Look up what a code means, e.g. 'code E9x.DSC 5E1A --model 325i'
+          sgbd <file.prg> [TABLE]       List the tables in one of your BMW files, or print one
 
         Options
           --vehicle <id>     E46 or E9x (default E9x)
@@ -30,6 +35,7 @@ internal static class Cli
           --port <name>      Cable port, e.g. COM3 or /dev/ttyUSB0
           --demo             Use the built-in virtual car instead of a cable
           --ediabas <dir>    Use your own SGBD files from this folder (Windows build)
+          --ecu <dir>        Read official fault texts from this BMW Ecu folder (any OS; auto-detected on Windows)
           --trust-dsr        Your cable reports ignition on DSR; refuse to run with ignition off
           --report <file>    Save the scan as .html, .md or .json
           --csv <file>       Log live data to CSV
@@ -56,6 +62,56 @@ internal static class Cli
         if (rows.Count == 0) return 0;
         Console.WriteLine(string.Join('\t', rows[0].Keys));
         foreach (var r in rows) Console.WriteLine(string.Join('\t', r.Values));
+        return 0;
+    }
+
+    private static async Task<int> Database(VehicleDatabase db, Args a)
+    {
+        switch (a.Positional.FirstOrDefault() ?? "status")
+        {
+            case "status":
+                Console.WriteLine(OfficialSetup.Apply(db, a.Get("ecu")).Summary);
+                Console.WriteLine($"Optional database: {FaultDataDownload.ProjectUrl} (third-party; BMW-derived data, see {FaultDataDownload.LicenseUrl})");
+                return 0;
+            case "download":
+                Console.WriteLine($"Downloading {FaultDataDownload.AssetName} from {FaultDataDownload.ProjectUrl} ...");
+                var last = -1;
+                var m = await FaultDataDownload.DownloadAsync(db, progress: new Progress<double>(p =>
+                {
+                    var pct = (int)(p * 100);
+                    if (pct / 10 != last / 10) { last = pct; Console.Error.Write($"\r{pct,3}%"); }
+                }));
+                Console.Error.WriteLine();
+                Console.WriteLine($"Installed {m.Variants} module dictionaries ({m.Release ?? "latest"}, sha256 {m.Sha256[..12]}...) in {FaultDataDownload.DefaultFolder}");
+                return 0;
+            case "install":
+                if (a.Positional.Count < 2) { Console.Error.WriteLine("usage: klemme15 db install <json.tar.gz>"); return 2; }
+                Console.WriteLine($"Installed {FaultDataDownload.InstallFromFile(a.Positional[1], db)} module dictionaries in {FaultDataDownload.DefaultFolder}");
+                return 0;
+            default:
+                Console.Error.WriteLine("usage: klemme15 db status|download|install <file>");
+                return 2;
+        }
+    }
+
+    /// <summary>klemme15 code E9x.DSC 5E1A [--model 325i] [--variant dsc_87]</summary>
+    private static int LookupCode(VehicleDatabase db, Args a)
+    {
+        if (a.Positional.Count < 2) { Console.Error.WriteLine("usage: klemme15 code <module id> <code> [--model 325i] [--variant name]"); return 2; }
+        var ecu = db.Modules.FirstOrDefault(m => m.Id.Equals(a.Positional[0], StringComparison.OrdinalIgnoreCase));
+        if (ecu is null) { Console.Error.WriteLine($"Unknown module {a.Positional[0]}. See 'klemme15 vehicles'."); return 1; }
+        var model = a.Get("model") is { } mn ? db.FindModel(mn) ?? db.FindVehicle(ecu.Chassis[0])?.Models.FirstOrDefault(x => x.Name.Equals(mn, StringComparison.OrdinalIgnoreCase)) : null;
+        var identity = a.Get("variant") is { } v ? new EcuIdentity { Variant = v } : null;
+        var code = a.Positional[1].ToUpperInvariant();
+        var fault = new Fault { EcuId = ecu.Id, Code = code, Source = code.Length == 5 && char.IsLetter(code[0]) ? FaultSource.Obd2 : FaultSource.Bmw };
+        var f = db.Describe(fault, ecu, identity, model?.EngineCode);
+        Console.WriteLine($"{ecu.Id} {f.Code}: {f.DisplayDescription}");
+        if (f.ModuleVariant is not null) Console.WriteLine($"  module variant: {f.ModuleVariant}{(f.VariantConfirmed ? "" : " (most likely; read the car to confirm)")}");
+        if (f.OfficialText is not null && f.OfficialText != f.Description) Console.WriteLine($"  BMW text: {f.OfficialText}");
+        foreach (var alt in f.Alternatives) Console.WriteLine($"  on other variants: {alt}");
+        if (f.Hint is not null) Console.WriteLine($"  tip: {f.Hint}");
+        if (f.OfficialSource is not null) Console.WriteLine($"  source: {f.OfficialSource}");
+        foreach (var src in f.Sources) Console.WriteLine($"  community source: {src}");
         return 0;
     }
 
@@ -90,7 +146,13 @@ internal static class Cli
                 return 0;
             case "sgbd":
                 return DumpSgbd(a);
+            case "db":
+                return await Database(db, a);
         }
+
+        var official = OfficialSetup.Apply(db, a.Get("ecu"));
+        if (a.Command is "scan" or "faults" or "code") Console.Error.WriteLine(official.Summary);
+        if (a.Command == "code") return LookupCode(db, a);
 
         var vehicle = db.FindVehicle(a.Get("vehicle") ?? "E9x");
         if (vehicle is null)
@@ -228,7 +290,8 @@ internal static class Cli
 
     private static async Task<int> Faults(IDiagnosticBackend backend, IFaultCodeDatabase db, EcuDefinition ecu, CancellationToken ct)
     {
-        var faults = new VehicleScanner(backend, db).Describe(await backend.ReadFaultsAsync(ecu, ct));
+        var identity = await backend.IdentifyAsync(ecu, ct);
+        var faults = new VehicleScanner(backend, db).Describe(await backend.ReadFaultsAsync(ecu, ct), ecu, identity);
         Console.WriteLine($"{ecu.Name}: {faults.Count} fault(s)");
         PrintFaults(faults);
         return 0;

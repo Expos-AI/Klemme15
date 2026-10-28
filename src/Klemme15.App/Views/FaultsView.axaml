@@ -52,6 +52,9 @@
                         <StackPanel Grid.Column="2" Margin="8,14,12,14" Spacing="6">
                           <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="15" />
                           <SelectableTextBlock Classes="lit" Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
+                          <SelectableTextBlock Classes="muted small" Text="{Binding OfficialLine}" TextWrapping="Wrap" IsVisible="{Binding HasOfficialLine}" />
+                          <TextBlock Classes="muted small" Text="{Binding VariantLine}" TextWrapping="Wrap" IsVisible="{Binding HasVariantLine}" />
+                          <SelectableTextBlock Classes="muted small" Text="{Binding AlternativesText}" TextWrapping="Wrap" IsVisible="{Binding HasAlternatives}" />
                           <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Classes="muted small" Text="Check here:" />
                             <TextBlock Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
@@ -59,6 +62,7 @@
                           <TextBlock Classes="muted small" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
                           <WrapPanel>
                             <TextBlock Classes="muted small" FontStyle="Italic" Text="{Binding Provenance}" IsVisible="{Binding HasProvenance}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <Button Classes="quiet" Content="Translate" Command="{Binding TranslateCommand}" IsVisible="{Binding CanTranslate}" ToolTip.Tip="Open BMW's German text in Google Translate" FontSize="12" Padding="4,0" />
                             <ItemsControl ItemsSource="{Binding SourceLinks}" IsVisible="{Binding HasSourceLinks}">
                               <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>

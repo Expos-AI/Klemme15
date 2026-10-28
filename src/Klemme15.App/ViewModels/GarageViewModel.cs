@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Klemme15.App.Services;
 using Klemme15.Core;
+using Klemme15.Data;
 using Klemme15.Serial;
 
 namespace Klemme15.App.ViewModels;
@@ -33,6 +34,9 @@ public sealed class GarageViewModel : PageViewModel
     private string? _error;
     private bool _busy;
     private string _ediabasStatus = "";
+    private string _faultDataStatus = "Checking for official BMW fault texts...";
+    private string? _downloadText;
+    private bool _downloading;
 
     public GarageViewModel(SessionState session, IDialogService dialogs, AppSettings settings, Action onConnected)
     {
@@ -56,6 +60,10 @@ public sealed class GarageViewModel : PageViewModel
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected);
         RefreshPortsCommand = new RelayCommand(RefreshPorts);
         BrowseEdiabasCommand = new AsyncCommand(BrowseEdiabasAsync);
+        DownloadFaultDataCommand = new AsyncCommand(DownloadFaultDataAsync, () => !_downloading, e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed: {e.Message}"; DownloadFaultDataCommand?.RaiseCanExecuteChanged(); });
+        OpenFaultDataPageCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.ProjectUrl));
+        OpenFaultDataLicenseCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.LicenseUrl));
+        ChooseEcuFolderCommand = new AsyncCommand(ChooseEcuFolderAsync);
 
         _session.PropertyChanged += (_, e) =>
         {
@@ -67,6 +75,54 @@ public sealed class GarageViewModel : PageViewModel
         RebuildPreview();
         RefreshPorts();
         if (EdiabasAvailable) _ = FindEdiabasAsync();
+        _ = RefreshFaultDataAsync();
+    }
+
+    // ------------------------------------------------------------------ official fault texts
+
+    /// <summary>Which official BMW fault texts this computer has.</summary>
+    public string FaultDataStatus { get => _faultDataStatus; private set => Set(ref _faultDataStatus, value); }
+
+    /// <summary>Download progress text, or null when not downloading.</summary>
+    public string? DownloadText { get => _downloadText; private set { Set(ref _downloadText, value); Raise(nameof(IsDownloading)); } }
+    public bool IsDownloading => _downloadText is not null;
+    public string DownloadButtonText => FaultDataDownload.ReadManifest() is null ? $"Download fault database ({FaultDataDownload.ApproxSize})" : "Update fault database";
+    public string FaultDataProject => FaultDataDownload.ProjectUrl.Replace("https://", "");
+
+    public AsyncCommand DownloadFaultDataCommand { get; }
+    public AsyncCommand OpenFaultDataPageCommand { get; }
+    public AsyncCommand OpenFaultDataLicenseCommand { get; }
+    public AsyncCommand ChooseEcuFolderCommand { get; }
+
+    private async Task RefreshFaultDataAsync()
+    {
+        var folder = _settings.EcuFolder ?? _settings.EdiabasPath;
+        var status = await Task.Run(() => OfficialSetup.Apply(_session.Database, folder));
+        FaultDataStatus = status.Summary;
+        Raise(nameof(DownloadButtonText));
+    }
+
+    private async Task DownloadFaultDataAsync()
+    {
+        _downloading = true;
+        DownloadFaultDataCommand.RaiseCanExecuteChanged();
+        DownloadText = "Starting download...";
+        var progress = new Progress<double>(p => DownloadText = p < 1 ? $"Downloading... {p:P0}" : "Checking and unpacking...");
+        var manifest = await FaultDataDownload.DownloadAsync(_session.Database, progress: progress);
+        DownloadText = null;
+        _downloading = false;
+        DownloadFaultDataCommand.RaiseCanExecuteChanged();
+        await RefreshFaultDataAsync();
+        FaultDataStatus += $" Installed {manifest.Variants} module dictionaries (checksum verified). Rescan to see the new meanings.";
+    }
+
+    private async Task ChooseEcuFolderAsync()
+    {
+        var folder = await _dialogs.PickFolderAsync("Choose your BMW Ecu folder (from ISTA, INPA or EDIABAS: the one with .prg files)");
+        if (folder is null) return;
+        _settings.EcuFolder = folder;
+        _settings.Save();
+        await RefreshFaultDataAsync();
     }
 
     /// <summary>What we know about the user's SGBD files, shown under the EDIABAS option.</summary>
