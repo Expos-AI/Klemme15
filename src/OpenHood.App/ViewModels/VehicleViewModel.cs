@@ -265,7 +265,11 @@ public sealed class VehicleViewModel : PageViewModel
                     item.ShowCommand = new RelayCommand(() => Select(item.Marker));
                 }
             }
-            foreach (var s in sources.Values) Markers.Add(s);   // fault sources drawn above modules
+            foreach (var s in sources.Values)
+            {
+                s.Label = string.Join("  ", s.Faults.Select(f => f.Code).Distinct());
+                Markers.Add(s);   // fault sources drawn above modules
+            }
         }
 
         // Active faults first, then by module.

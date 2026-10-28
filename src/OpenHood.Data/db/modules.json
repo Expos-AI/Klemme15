@@ -25,7 +25,7 @@
     { "id": "E9x.JBE",  "name": "Junction box (JBE)",           "address": "00", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0000"], "pos": [395, 110], "verified": false },
     { "id": "E9x.IHKA", "name": "Climate control (IHKA)",       "address": "78", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0078"], "pos": [338, 255], "verified": false },
     { "id": "E9x.SZL",  "name": "Steering column switches (SZL)","address": "02", "protocol": "BmwFast", "category": "Chassis",   "sgbd": ["D_0002"], "pos": [418, 300], "verified": false },
-    { "id": "E9x.EKPS", "name": "Fuel pump control (EKPS)",     "address": "17", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0017"], "pos": [620, 312], "verified": false },
+    { "id": "E9x.EKPS", "name": "Fuel pump control (EKPS)",     "address": "17", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0017"], "pos": [596, 334], "verified": false },
     { "id": "E9x.PDC",  "name": "Park distance control (PDC)",  "address": "64", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0064"], "pos": [880, 340], "verified": false },
     { "id": "E9x.CIC",  "name": "Head unit (CCC / CIC)",        "address": "63", "protocol": "BmwFast", "category": "Infotainment","sgbd": ["D_0063"], "pos": [338, 205], "verified": false },
     { "id": "E9x.FZD",  "name": "Roof function centre (FZD)",   "address": "56", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0056"], "pos": [470, 230], "verified": false }

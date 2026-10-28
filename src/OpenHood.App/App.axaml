@@ -71,21 +71,23 @@
     <DataTemplate DataType="vm:MarkerViewModel">
       <Button Classes="marker" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Detail}">
         <Grid ColumnDefinitions="16,Auto">
-          <!-- fault source: dot + halo -->
-          <Panel Width="16" Height="16" IsVisible="{Binding IsFaultSource}">
-            <Ellipse Classes="halo" Width="34" Height="34" Margin="-9" StrokeThickness="1.5"
-                     Classes.active="{Binding IsActive}" Classes.stored="{Binding IsStored}" />
+          <Canvas Width="16" Height="16">
+            <!-- fault source: halo + dot -->
+            <Ellipse Classes="halo" Canvas.Left="-10" Canvas.Top="-10" Width="36" Height="36" StrokeThickness="1.5"
+                     IsVisible="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" Classes.stored="{Binding IsStored}" />
+            <!-- selection ring -->
+            <Ellipse Classes="selring" Canvas.Left="-8" Canvas.Top="-8" Width="32" Height="32" StrokeThickness="2"
+                     IsVisible="{Binding IsSelected}" />
             <Ellipse Classes="srcdot" Width="16" Height="16"
-                     Classes.active="{Binding IsActive}" Classes.stored="{Binding IsStored}" />
-          </Panel>
-          <!-- module: small square -->
-          <Border Classes="module" Width="13" Height="13" CornerRadius="3" BorderThickness="1.5"
-                  HorizontalAlignment="Center" VerticalAlignment="Center" IsVisible="{Binding IsModule}"
-                  Classes.idle="{Binding IsIdle}" Classes.asking="{Binding IsAsking}" Classes.ok="{Binding IsOk}"
-                  Classes.stored="{Binding IsStored}" Classes.active="{Binding IsActive}" Classes.absent="{Binding IsAbsent}" />
-          <!-- selection ring -->
-          <Ellipse Classes="selring" Width="28" Height="28" Margin="-6" StrokeThickness="2" IsVisible="{Binding IsSelected}" />
-          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabel}" Margin="6,0,0,0" />
+                     IsVisible="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" Classes.stored="{Binding IsStored}" />
+            <!-- module: small square -->
+            <Border Classes="module" Canvas.Left="1.5" Canvas.Top="1.5" Width="13" Height="13" CornerRadius="3" BorderThickness="1.5"
+                    IsVisible="{Binding IsModule}"
+                    Classes.idle="{Binding IsIdle}" Classes.asking="{Binding IsAsking}" Classes.ok="{Binding IsOk}"
+                    Classes.stored="{Binding IsStored}" Classes.active="{Binding IsActive}" Classes.absent="{Binding IsAbsent}" />
+          </Canvas>
+          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabel}" Margin="7,0,0,0"
+                     Classes.fault="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" />
         </Grid>
       </Button>
     </DataTemplate>
@@ -212,7 +214,7 @@
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
       <Setter Property="Padding" Value="14,8" />
-      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     </Style>
     <Style Selector="Button.segment.on">
       <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
@@ -275,6 +277,14 @@
       <Setter Property="FontSize" Value="13" />
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="TextBlock.markerlabel.fault">
+      <Setter Property="Foreground" Value="{DynamicResource AmberBrush}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.markerlabel.fault.active">
+      <Setter Property="Foreground" Value="{DynamicResource RedBrush}" />
     </Style>
     <Style Selector="Border.module">
       <Setter Property="BorderBrush" Value="{DynamicResource SteelBrush}" />

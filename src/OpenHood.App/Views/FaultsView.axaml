@@ -51,6 +51,7 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="8,14,12,14" Spacing="6">
                           <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="15" />
+                          <SelectableTextBlock Classes="lit" Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
                           <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Classes="muted small" Text="Check here:" />
                             <TextBlock Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />

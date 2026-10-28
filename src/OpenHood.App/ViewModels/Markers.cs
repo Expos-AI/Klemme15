@@ -26,12 +26,13 @@ public sealed class MarkerViewModel : ViewModelBase
     private MarkerState _state;
     private bool _isSelected;
     private string _detail = "";
+    private string _label;
 
     public MarkerViewModel(MarkerKind kind, string id, string label, SchematicPoint at, Action<MarkerViewModel>? onSelect = null)
     {
         Kind = kind;
         Id = id;
-        Label = label;
+        _label = label;
         X = at.X;
         Y = at.Y;
         SelectCommand = new RelayCommand(() => onSelect?.Invoke(this));
@@ -39,7 +40,7 @@ public sealed class MarkerViewModel : ViewModelBase
 
     public MarkerKind Kind { get; }
     public string Id { get; }
-    public string Label { get; }
+    public string Label { get => _label; set => Set(ref _label, value); }
     public double X { get; }
     public double Y { get; }
 
@@ -71,8 +72,8 @@ public sealed class MarkerViewModel : ViewModelBase
     public bool IsActive => _state == MarkerState.Active;
     public bool IsAbsent => _state == MarkerState.Absent;
 
-    /// <summary>Module labels are hidden for modules that are not there, to keep the drawing calm.</summary>
-    public bool ShowLabel => IsModule && _state != MarkerState.Absent;
+    /// <summary>Modules show their short name unless absent; fault sources show their codes.</summary>
+    public bool ShowLabel => IsFaultSource || _state != MarkerState.Absent;
 
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
 
@@ -88,7 +89,31 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public Fault Fault { get; } = fault;
     public EcuDefinition Ecu { get; } = ecu;
     public string Code => Fault.Code;
-    public string Description => Fault.DisplayDescription;
+    private const string TipMarker = ". Tip: ";
+
+    /// <summary>What the code means (without the practical tip).</summary>
+    public string Description
+    {
+        get
+        {
+            var text = Fault.DisplayDescription;
+            var i = text.IndexOf(TipMarker, StringComparison.Ordinal);
+            return i < 0 ? text : text[..i];
+        }
+    }
+
+    /// <summary>Practical advice from the database, if any.</summary>
+    public string? Tip
+    {
+        get
+        {
+            var text = Fault.DisplayDescription;
+            var i = text.IndexOf(TipMarker, StringComparison.Ordinal);
+            return i < 0 ? null : text[(i + TipMarker.Length)..];
+        }
+    }
+
+    public bool HasTip => Tip is not null;
     public string ModuleName => Ecu.Name;
     public bool IsActive => Fault.State == FaultState.Present;
     public bool IsStored => !IsActive;
