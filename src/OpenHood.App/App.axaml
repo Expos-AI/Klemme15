@@ -86,7 +86,7 @@
                     Classes.idle="{Binding IsIdle}" Classes.asking="{Binding IsAsking}" Classes.ok="{Binding IsOk}"
                     Classes.stored="{Binding IsStored}" Classes.active="{Binding IsActive}" Classes.absent="{Binding IsAbsent}" />
           </Canvas>
-          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabel}" Margin="7,0,0,0"
+          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabel}"
                      Classes.fault="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" />
         </Grid>
       </Button>
@@ -273,6 +273,7 @@
       </Setter>
     </Style>
     <Style Selector="TextBlock.markerlabel">
+      <Setter Property="Margin" Value="7,0,0,0" />
       <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}" />
       <Setter Property="FontWeight" Value="SemiBold" />
       <Setter Property="FontSize" Value="13" />
@@ -280,6 +281,7 @@
       <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
     </Style>
     <Style Selector="TextBlock.markerlabel.fault">
+      <Setter Property="Margin" Value="13,0,0,0" />
       <Setter Property="Foreground" Value="{DynamicResource AmberBrush}" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontSize" Value="14" />
