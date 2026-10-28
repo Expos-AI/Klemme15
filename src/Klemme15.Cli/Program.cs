@@ -28,6 +28,9 @@ internal static class Cli
                                         Choices as options: 'service service-reset --item oil', 'service cylinder-cutout --cyl 3'
                                         (checks the car, asks you to confirm each step; --yes skips the questions)
           live    [--pids rpm,coolant]  Stream live engine data (Ctrl+C to stop)
+          serve   [--http 8080]         Headless telemetry: live data as JSON over HTTP (and MQTT)
+                  [--mqtt host[:port]]  for a Raspberry Pi, Grafana or a home dashboard
+                  [--pids ...] [--interval 1] [--mqtt-topic klemme15] [--mqtt-user u --mqtt-pass p]
           discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
           job     <sgbd> <job> [args]   Run any EDIABAS job (EDIABAS mode)
@@ -247,6 +250,7 @@ internal static class Cli
                 "service" => await Service(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
+                "serve" => await Serve(backend, vehicle, log, a, cts.Token),
                 "discover" => await Discover(backend, vehicle, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
                 "job" => await Job(backend, a, cts.Token),
@@ -575,6 +579,39 @@ internal static class Cli
         }
         catch (OperationCanceledException) { Console.WriteLine("\nStopped."); }
         finally { csv?.Dispose(); }
+        return 0;
+    }
+
+    private static async Task<int> Serve(IDiagnosticBackend backend, VehicleFamily vehicle, TrafficLog log, Args a, CancellationToken ct)
+    {
+        var engine = vehicle.Modules.First(m => m.IsEngine);
+        var available = backend.GetLiveParameters(engine);
+        var wanted = (a.Get("pids") ?? "rpm,speed,coolant,iat,load,throttle,stft1,ltft1,maf,voltage").Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+        var parameters = available.Where(p => wanted.Contains(p.Id, StringComparer.OrdinalIgnoreCase)).ToList();
+        if (parameters.Count == 0)
+        {
+            Console.Error.WriteLine($"None of those values are available. Available: {string.Join(", ", available.Select(p => p.Id))}");
+            return 2;
+        }
+        string? mqttHost = null; var mqttPort = 1883;
+        if (a.Get("mqtt") is { } m)
+        {
+            var parts = m.Split(':', 2);
+            mqttHost = parts[0];
+            if (parts.Length > 1 && int.TryParse(parts[1], out var mp)) mqttPort = mp;
+        }
+        var options = new Klemme15.Telemetry.TelemetryOptions(
+            HttpPort: int.TryParse(a.Get("http"), out var hp) ? hp : 8080,
+            MqttHost: mqttHost, MqttPort: mqttPort,
+            MqttTopic: a.Get("mqtt-topic") ?? "klemme15", MqttUser: a.Get("mqtt-user"), MqttPass: a.Get("mqtt-pass"),
+            IntervalSeconds: double.TryParse(a.Get("interval"), NumberStyles.Float, CultureInfo.InvariantCulture, out var iv) ? iv : 1);
+
+        Console.WriteLine($"Serving {parameters.Count} live values on http://localhost:{options.HttpPort}/  (Ctrl+C to stop)");
+        Console.WriteLine($"  JSON: http://localhost:{options.HttpPort}/live.json   faults: /faults   health: /health");
+        if (mqttHost is not null) Console.WriteLine($"  MQTT: publishing to {mqttHost}:{mqttPort} under topic '{options.MqttTopic}/<value>'");
+        var server = new Klemme15.Telemetry.TelemetryServer(backend, engine, parameters, options, log);
+        try { await server.RunAsync(ct); }
+        catch (OperationCanceledException) { Console.WriteLine("Stopped."); }
         return 0;
     }
 

@@ -7,6 +7,7 @@
       "src/Klemme15.Data/Klemme15.Data.csproj",
       "src/Klemme15.DataImport/Klemme15.DataImport.csproj",
       "src/Klemme15.Serial/Klemme15.Serial.csproj",
+      "src/Klemme15.Telemetry/Klemme15.Telemetry.csproj",
       "src/Klemme15.Cli/Klemme15.Cli.csproj",
       "src/Klemme15.App/Klemme15.App.csproj",
       "tests/Klemme15.Tests/Klemme15.Tests.csproj",
