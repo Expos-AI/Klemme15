@@ -50,6 +50,7 @@ internal static class Cli
           --ecu <dir>        Read official fault texts from this BMW Ecu folder (any OS; auto-detected on Windows)
           --trust-dsr        Your cable reports ignition on DSR; refuse to run with ignition off
           --report <file>    Save the scan as .html, .md or .json
+          --forum            After a scan, print a short summary for a forum post (VIN removed)
           --csv <file>       Log live data to CSV
           --log <file>       Save the raw cable traffic (attach this to bug reports)
 
@@ -332,6 +333,12 @@ internal static class Cli
                 _ => ReportWriter.ToHtml(scan),
             });
             Console.WriteLine($"Report saved to {file}");
+        }
+        if (a.Has("forum"))
+        {
+            Console.WriteLine();
+            Console.WriteLine("----- forum post (VIN removed), copy from here -----");
+            Console.WriteLine(ReportWriter.ToForumPost(scan));
         }
         return 0;
     }
@@ -657,7 +664,7 @@ internal sealed class Args
     public string? Command { get; private set; }
     public List<string> Positional { get; } = [];
 
-    private static readonly HashSet<string> Flags = new(StringComparer.OrdinalIgnoreCase) { "demo", "yes", "trust-dsr", "experimental" };
+    private static readonly HashSet<string> Flags = new(StringComparer.OrdinalIgnoreCase) { "demo", "yes", "trust-dsr", "experimental", "forum" };
 
     public static Args Parse(string[] argv)
     {

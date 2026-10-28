@@ -68,6 +68,7 @@ All functions are **experimental** until confirmed on a real car. Except where n
 | Initialise active steering | AFS | After replacing the active steering unit, a steering angle sensor, or after a wheel alignment on cars with active steering. | 1 |
 | Reset the electric power steering angle | EPS | After a wheel alignment or steering repairs on cars with electric power steering. | 1 |
 | Calibrate the adaptive suspension steering angle | EDC | After a wheel alignment on cars with adaptive dampers (EDC). | 1 |
+| Steering lock: clear the fault counters | CAS | Red steering wheel warning or 'steering lock' faults on an early E90/E91/E92/E93 with a key slot (no Comfort Access), after you have checked the battery. | 1 |
 
 ## Gearbox and drivetrain
 
@@ -116,3 +117,9 @@ All functions are **experimental** until confirmed on a real car. Except where n
 | Restart the passenger seat module (SMBF) | SMBF | When the passenger seat module (SMBF) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
 | Restart the driver seat module (SMFA) | SMFA | When the driver seat module (SMFA) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
 | Restart the antenna tuner (ANTTU) | ANTTU | When the antenna tuner (ANTTU) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+
+## Retrofits and upgrades
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| 3-stage intake manifold: check both flaps | DME | Right after the manifold swap, before the first drive. | 2 |

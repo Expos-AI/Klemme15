@@ -150,6 +150,7 @@ static void WaitUntil(Func<bool> condition, int timeoutMs = 20000)
 
 sealed class NoDialogs : IDialogService
 {
+    public Task<bool> CopyTextAsync(string text) => Task.FromResult(false);
     public Task<bool> SaveTextAsync(string title, string suggestedName, string extension, string content) => Task.FromResult(false);
     public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
     public Task OpenUrlAsync(string url) => Task.CompletedTask;

@@ -57,6 +57,76 @@ public static class ReportWriter
         return sb.ToString();
     }
 
+    /// <summary>
+    /// A short Markdown summary for asking for help on a forum (E90Post, Reddit, Bimmerforums): car, modules that
+    /// answered, what needs attention with BMW's details, battery voltage. The VIN and anything that looks like one
+    /// are left out, so the post can't be traced to the car.
+    /// </summary>
+    public static string ToForumPost(VehicleScanResult scan, string? carName = null)
+    {
+        var sb = new StringBuilder();
+        var title = carName ?? scan.Chassis ?? "BMW";
+        sb.AppendLine($"**{Scrub(title)}: Klemme15 quick test**");
+        sb.AppendLine();
+        var facts = new List<string> { $"{scan.RespondingEcus} of {scan.Ecus.Count} modules answered" };
+        if (scan.BatteryVoltage is { } v) facts.Add($"battery {v:0.0} V");
+        if (scan.IgnitionOn == false) facts.Add("ignition reported off");
+        sb.AppendLine("- " + string.Join(", ", facts));
+        var answered = scan.Ecus.Where(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults).ToList();
+        if (answered.Count > 0)
+            sb.AppendLine("- Modules: " + string.Join(", ", answered.Select(e =>
+                e.Identity?.Variant is { } variant ? $"{ShortName(e.Ecu)} ({variant})" : ShortName(e.Ecu))));
+        sb.AppendLine();
+
+        var all = scan.Ecus.SelectMany(e => e.Faults.Select(f => (Ecu: e.Ecu, Fault: f, Verdict: FaultTriage.Assess(f)))).ToList();
+        void Section(string heading, FaultPriority priority, bool details)
+        {
+            var items = all.Where(x => x.Verdict.Priority == priority).ToList();
+            if (items.Count == 0) return;
+            sb.AppendLine($"**{heading}**");
+            sb.AppendLine();
+            foreach (var (ecu, f, _) in items)
+            {
+                var state = f.IsShadow ? "shadow" : f.IsInfo ? "info" : f.State switch
+                {
+                    FaultState.Present => "active now",
+                    FaultState.Stored => "stored",
+                    FaultState.Intermittent => "intermittent",
+                    _ => "",
+                };
+                sb.AppendLine($"- `{f.Code}` {ShortName(ecu)}{(state.Length > 0 ? $", {state}" : "")}: {Scrub(f.DisplayDescription)}");
+                if (f.OfficialText is { } bmw && bmw != f.Description) sb.AppendLine($"  - BMW: {Scrub(bmw)}");
+                if (details)
+                    foreach (var (k, val) in f.Details.Where(d => ForumDetail(d.Key) && !d.Value.StartsWith("0x", StringComparison.OrdinalIgnoreCase)).Take(6))
+                        sb.AppendLine($"  - {k}: {Scrub(val)}");
+            }
+            sb.AppendLine();
+        }
+        Section("Needs fixing", FaultPriority.FixNow, true);
+        Section("Worth checking", FaultPriority.CheckIt, true);
+        var background = all.Count(x => x.Verdict.Priority == FaultPriority.Background);
+        if (all.Count == 0) sb.AppendLine("No faults stored.");
+        else if (background > 0) sb.AppendLine($"_Plus {background} background entr{(background == 1 ? "y" : "ies")} (info/shadow memory or one-off events) left out._");
+        sb.AppendLine();
+        sb.AppendLine($"_Read with Klemme15 {scan.Started:yyyy-MM-dd} (open-source BMW diagnostics). VIN removed._");
+        return sb.ToString();
+    }
+
+    private static string ShortName(EcuDefinition ecu) => ecu.Id.Contains('.') ? ecu.Id[(ecu.Id.IndexOf('.') + 1)..] : ecu.Name;
+
+    /// <summary>Details worth posting: when, how often, and the conditions (temperatures, voltage, speed, rpm).</summary>
+    private static bool ForumDetail(string key)
+    {
+        var k = key.ToLowerInvariant();
+        return !k.Contains("vin") && !k.Contains("fahrgestell") && !k.StartsWith('_') && !k.Contains("hex") && !k.Contains("raw");
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex VinPattern =
+        new(@"\b[A-HJ-NPR-Z0-9]{17}\b|\b[A-HJ-NPR-Z]{2}[0-9]{5}\b", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    /// <summary>Removes full VINs and BMW's 7-character short VIN ("PT12345") from text.</summary>
+    public static string Scrub(string text) => VinPattern.Replace(text, "[VIN removed]");
+
     public static string ToHtml(VehicleScanResult scan)
     {
         static string H(string? s) => WebUtility.HtmlEncode(s ?? "");
