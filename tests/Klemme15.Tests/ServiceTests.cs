@@ -248,8 +248,9 @@ public class ServiceTests
         Assert.False(outcome.Success);
         Assert.Equal("msv80/STEUERN_ENDE/", failing.Jobs[^1]);
 
-        var cancelled = new FakeCar(_ => null);
-        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+        // Cancel exactly when the first job has run (like pressing Stop while the part is on), however slow the machine.
+        using var cts = new CancellationTokenSource();
+        var cancelled = new FakeCar(_ => null) { OnJob = job => { if (job == "STEUERN_AN") cts.Cancel(); } };
         var stopped = false;
         try { await ServiceRunner.RunAsync(f, plan, cancelled, Dme, ct: cts.Token); }
         catch (OperationCanceledException) { stopped = true; }
@@ -293,10 +294,12 @@ public class ServiceTests
         public Task<IReadOnlyList<string>> ListJobsAsync(string sgbd, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<string>>([]);
 
         public string? FailJob { get; init; }
+        public Action<string>? OnJob { get; init; }
 
         public Task<IReadOnlyList<IReadOnlyDictionary<string, string>>> RunJobAsync(string sgbd, string job, string arguments, CancellationToken ct = default)
         {
             Jobs.Add($"{sgbd}/{job}/{arguments}");
+            OnJob?.Invoke(job);
             if (job == FailJob) throw new DiagnosticException($"{sgbd} {job}: ERROR_ECU_CONDITIONS_NOT_CORRECT");
             IReadOnlyDictionary<string, string> set = new Dictionary<string, string> { ["JOB_STATUS"] = "OKAY", ["STAT_ERGEBNIS_ABGLEICH_ROUTINE_TEXT"] = "Abgleich erfolgreich" };
             return Task.FromResult<IReadOnlyList<IReadOnlyDictionary<string, string>>>([set]);
