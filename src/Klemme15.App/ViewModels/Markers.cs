@@ -173,10 +173,19 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public bool HasSourceLinks => SourceLinks.Count > 0;
     public string ModuleName => Ecu.Name;
     public bool IsActive => Fault.State == FaultState.Present && !Fault.IsInfo;
+
+    /// <summary>Klemme15's answer to "does this need fixing?".</summary>
+    public FaultVerdict Verdict => _verdict ??= FaultTriage.Assess(Fault);
+    private FaultVerdict? _verdict;
+    public string VerdictLabel => Verdict.Label;
+    public string VerdictAdvice => Verdict.Advice;
+    public bool FixNow => Verdict.Priority == FaultPriority.FixNow;
+    public bool CheckIt => Verdict.Priority == FaultPriority.CheckIt;
+    public bool IsBackground => Verdict.Priority == FaultPriority.Background;
     public bool IsStored => !IsActive && !Fault.IsInfo;
     public bool IsInfo => Fault.IsInfo;
 
-    public string StateText => Fault.IsInfo ? "Info memory" : Fault.State switch
+    public string StateText => Fault.IsShadow ? "Shadow memory" : Fault.IsInfo ? "Info memory" : Fault.State switch
     {
         FaultState.Present => "Active now",
         FaultState.Intermittent => "Intermittent",

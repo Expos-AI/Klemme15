@@ -127,8 +127,11 @@ public sealed record Fault
     /// <summary>Where the description comes from (URLs for community entries).</summary>
     public IReadOnlyList<string> Sources { get; init; } = [];
 
-    /// <summary>True for entries from the info (shadow) memory rather than the fault memory.</summary>
+    /// <summary>True for entries from the info or shadow memory rather than the fault memory.</summary>
     public bool IsInfo { get; init; }
+
+    /// <summary>True for entries from the shadow memory (noticed, but never counted as a fault).</summary>
+    public bool IsShadow { get; init; }
 
     /// <summary>Extra detail: frequency, symptom, mileage, raw status byte...</summary>
     public IReadOnlyDictionary<string, string> Details { get; init; } = new Dictionary<string, string>();

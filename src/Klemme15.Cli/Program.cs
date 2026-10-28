@@ -478,8 +478,12 @@ internal static class Cli
 
     private static void PrintFaults(IReadOnlyList<Fault> faults)
     {
-        foreach (var f in faults)
-            Console.WriteLine($"  {f.Code,-6} {f.State,-12} {f.DisplayDescription}");
+        foreach (var f in faults.OrderBy(f => FaultTriage.Assess(f).Priority))
+        {
+            var v = FaultTriage.Assess(f);
+            Console.WriteLine($"  {f.Code,-6} {(f.IsShadow ? "Shadow" : f.IsInfo ? "Info" : f.State.ToString()),-12} {v.Label,-17} {f.DisplayDescription}");
+            Console.WriteLine($"         {v.Advice}");
+        }
     }
 
     private static async Task<int> Clear(IDiagnosticBackend backend, EcuDefinition ecu, bool yes, CancellationToken ct)

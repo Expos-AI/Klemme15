@@ -10,7 +10,12 @@
         <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
         <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
-      <TextBlock Text="{Binding Headline}" Classes="muted" FontSize="16" IsVisible="{Binding !IsEmpty}" />
+      <TextBlock Text="{Binding Headline}" Classes="muted" FontSize="16" />
+      <DockPanel>
+        <CheckBox DockPanel.Dock="Right" Content="Show background entries" IsChecked="{Binding ShowBackground}" IsVisible="{Binding HasBackground}"
+                  ToolTip.Tip="Info and shadow memory, and faults typically left behind by battery work" />
+        <TextBlock Text="{Binding Verdict}" TextWrapping="Wrap" VerticalAlignment="Center" />
+      </DockPanel>
       <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
       <TextBlock Classes="muted" Text="{Binding EmptyText}" IsVisible="{Binding IsEmpty}" TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
     </StackPanel>
@@ -54,6 +59,11 @@
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="8,14,12,14" Spacing="6">
                           <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="15" />
+                          <TextBlock TextWrapping="Wrap" Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}">
+                            <Run Text="{Binding VerdictLabel}" FontWeight="Bold" />
+                            <Run Text=": " />
+                            <Run Text="{Binding VerdictAdvice}" />
+                          </TextBlock>
                           <SelectableTextBlock Classes="lit" Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
                           <SelectableTextBlock Classes="muted small" Text="{Binding OfficialLine}" TextWrapping="Wrap" IsVisible="{Binding HasOfficialLine}" />
                           <TextBlock Classes="muted small" Text="{Binding VariantLine}" TextWrapping="Wrap" IsVisible="{Binding HasVariantLine}" />
