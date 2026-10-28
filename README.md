@@ -37,6 +37,7 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 - **Official BMW meaning for every code, on any OS**: one click in the Garage downloads the free community fault database [bmw-unified-db](https://github.com/gediz/bmw-unified-db) (13 MB, checksum-verified), or Klemme15 reads the `.prg` files from your own ISTA/INPA install. Klemme15 works out which version of each module your car has (the same code means different things on different versions), shows BMW's English where BMW wrote one, and puts the rest into English with its own glossary, with a Translate button for BMW's original German. See [where meanings come from](docs/FAULT-DATA.md).
 - **Researched meanings without BMW files**: 202 BMW fault codes (106 high confidence) researched from owner forums, shop guides and BMW service bulletins, written in our own words, each with its sources and engine scope; plus all 2,066 standard OBD-II codes.
 - **Faults**: BMW and OBD-II codes, active vs stored vs info memory, plain-English descriptions, practical tips, a "check here" location, and where each meaning comes from (official SGBD text, or community meaning with confidence and clickable sources). Clear per module or all at once.
+- **Readings**: every status value each module reports, like INPA's module screens: oxygen sensor voltages and fuel trims per bank, VANOS positions, injectors, knock, throttle and pedal, every wheel speed, steering angle, battery sensor, temperatures, switch states and learned values. Grouped by system, labelled in English, searchable, with auto-refresh and one-click pinning to Live data. Values are computed by BMW's own scripts from your ISTA/INPA/EDIABAS files (Windows, macOS and Linux), and nothing is changed on the car. Try it on any demo car.
 - **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
 - **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
 - **Reports**: one click to save a scan as HTML, Markdown or JSON.
@@ -75,6 +76,7 @@ klemme15 ports                                   # find the cable
 klemme15 scan --vehicle E9x --port COM3 --report scan.html
 klemme15 live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1 --csv drive.csv
 klemme15 faults --module DME --port COM3
+klemme15 readings --module DME --port COM3 --ediabas "C:\\ISTA\\Ediabas\\Ecu" --filter lambda
 klemme15 clear --module DME --port COM3
 klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
 ```

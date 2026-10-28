@@ -51,7 +51,7 @@ aufgrund = due to
 obwohl = although
 waehrend = during
 zwischen = between
-bis = until
+bis = to
 ab = from
 als = as
 pro = per
@@ -1413,3 +1413,15 @@ coding = coding
 cluster = cluster
 pin = pin
 external = external
+
+# ---- readings (status values)
+messwerte = readings
+messwert = reading
+ladezustand = state of charge
+batteriestrom = battery current
+innentemperatur = interior temperature
+betaetigt = pressed
+istwert = actual value
+solldruck = target pressure
+istdruck = actual pressure
+je = per

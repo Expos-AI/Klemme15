@@ -83,6 +83,11 @@ public sealed class GarageViewModel : PageViewModel
     /// <summary>Which official BMW fault texts this computer has.</summary>
     public string FaultDataStatus { get => _faultDataStatus; private set => Set(ref _faultDataStatus, value); }
 
+    private bool _needsFaultData;
+
+    /// <summary>True until the user has official fault texts (download or own files); shows the prompt at the top.</summary>
+    public bool NeedsFaultData { get => _needsFaultData; private set => Set(ref _needsFaultData, value); }
+
     /// <summary>Download progress text, or null when not downloading.</summary>
     public string? DownloadText { get => _downloadText; private set { Set(ref _downloadText, value); Raise(nameof(IsDownloading)); } }
     public bool IsDownloading => _downloadText is not null;
@@ -99,6 +104,7 @@ public sealed class GarageViewModel : PageViewModel
         var folder = _settings.EcuFolder ?? _settings.EdiabasPath;
         var status = await Task.Run(() => OfficialSetup.Apply(_session.Database, folder));
         FaultDataStatus = status.Summary;
+        NeedsFaultData = !status.Any;
         Raise(nameof(DownloadButtonText));
     }
 

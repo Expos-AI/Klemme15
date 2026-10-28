@@ -21,10 +21,11 @@ public sealed class MainViewModel : ViewModelBase
             CurrentPage = Vehicle;
             Vehicle.ShowFault(fault, ecu);
         }, url => _ = dialogs.OpenUrlAsync(url));
+        Readings = new ReadingsViewModel(Session, settings);
         Live = new LiveViewModel(Session, dialogs);
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);
-        Pages = [Garage, Vehicle, Faults, Live, Expert, Log];
+        Pages = [Garage, Vehicle, Faults, Readings, Live, Expert, Log];
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
@@ -42,6 +43,7 @@ public sealed class MainViewModel : ViewModelBase
     public GarageViewModel Garage { get; }
     public VehicleViewModel Vehicle { get; }
     public FaultsViewModel Faults { get; }
+    public ReadingsViewModel Readings { get; }
     public LiveViewModel Live { get; }
     public ExpertViewModel Expert { get; }
     public LogViewModel Log { get; }
@@ -52,7 +54,12 @@ public sealed class MainViewModel : ViewModelBase
         get => _currentPage;
         set
         {
-            if (value is not null && Set(ref _currentPage, value)) value.OnShown();
+            var previous = _currentPage;
+            if (value is not null && Set(ref _currentPage, value))
+            {
+                previous?.OnHidden();
+                value.OnShown();
+            }
         }
     }
 
@@ -87,6 +94,7 @@ public sealed class MainViewModel : ViewModelBase
     public void Shutdown()
     {
         Live.Stop();
+        Readings.OnHidden();
         Settings.Save();
         _ = Session.DisconnectAsync();
     }
