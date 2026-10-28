@@ -4,7 +4,8 @@
              x:Class="Klemme15.App.Controls.LogoMark">
   <Viewbox Stretch="Uniform">
     <Canvas Width="512" Height="512">
-      <Rectangle Width="512" Height="512" RadiusX="112.0" RadiusY="112.0" Fill="#FFFFFF" />
+      <Rectangle Width="512" Height="512" RadiusX="112.0" RadiusY="112.0" Fill="#FFFFFF"
+                 Stroke="{DynamicResource LineBrush}" StrokeThickness="14" />
       <Path Fill="#0B0F14" Data="M88.7 164.0 Q88.7 156.0 96.7 156.0 L156.7 156.0 Q164.7 156.0 164.7 164.0 L164.7 236.0 L152.7 256.0 L152.7 346.0 L142.7 356.0 L110.7 356.0 L100.7 346.0 L100.7 256.0 L88.7 236.0 Z" />
       <Rectangle Canvas.Left="98.7" Canvas.Top="192.0" Width="56.0" Height="8.0" RadiusX="2.0" RadiusY="2.0" Fill="#FFFFFF" />
       <Ellipse Canvas.Left="114.7" Canvas.Top="304.0" Width="24.0" Height="24.0" Fill="#F2A93B" />
