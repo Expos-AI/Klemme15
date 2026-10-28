@@ -27,6 +27,7 @@ internal static class Cli
           job     <sgbd> <job> [args]   Run any EDIABAS job (EDIABAS mode)
           db status                     Show which official BMW fault texts are available
           db download                   Download the optional BMW fault database (bmw-unified-db, ~13 MB)
+          db download-full              Also add engine readings without BMW files (~130 MB once, keeps a few MB)
           db install <json.tar.gz>      Install that database from a file you downloaded yourself
           code <module> <code>          Look up what a code means, e.g. 'code E9x.DSC 5E1A --model 325i'
           sgbd <file.prg> [TABLE]       List the tables in one of your BMW files, or print one
@@ -87,9 +88,30 @@ internal static class Cli
                 Console.WriteLine($"Installed {m.Variants} module dictionaries ({m.Release ?? "latest"}, sha256 {m.Sha256[..12]}...) in {FaultDataDownload.DefaultFolder}");
                 return 0;
             case "install":
-                if (a.Positional.Count < 2) { Console.Error.WriteLine("usage: klemme15 db install <json.tar.gz>"); return 2; }
-                Console.WriteLine($"Installed {FaultDataDownload.InstallFromFile(a.Positional[1], db)} module dictionaries in {FaultDataDownload.DefaultFolder}");
+                if (a.Positional.Count < 2) { Console.Error.WriteLine("usage: klemme15 db install <json.tar.gz | bmw.sqlite.gz>"); return 2; }
+                if (a.Positional[1].Contains(".sqlite", StringComparison.OrdinalIgnoreCase))
+                    Console.WriteLine($"Added measurement tables for {Klemme15.DataImport.FullDatabaseImport.ImportFromFile(a.Positional[1], db)} engine computers.");
+                else
+                    Console.WriteLine($"Installed {FaultDataDownload.InstallFromFile(a.Positional[1], db)} module dictionaries in {FaultDataDownload.DefaultFolder}");
                 return 0;
+            case "download-full":
+            {
+                if (FaultDataDownload.ReadManifest() is null)
+                {
+                    Console.WriteLine("Downloading the fault database first ...");
+                    await FaultDataDownload.DownloadAsync(db);
+                }
+                Console.WriteLine($"Downloading the full database ({Klemme15.DataImport.FullDatabaseImport.ApproxSize}) to extract engine measurement tables ...");
+                var shown = -1;
+                var n = await Klemme15.DataImport.FullDatabaseImport.DownloadAsync(db, progress: new Progress<double>(p =>
+                {
+                    var pct = (int)(p * 100);
+                    if (pct / 10 > shown / 10) { shown = pct; Console.Error.Write($" {pct}%"); }
+                }));
+                Console.Error.WriteLine();
+                Console.WriteLine($"Added measurement tables for {n} engine computers; the large download was deleted again.");
+                return 0;
+            }
             default:
                 Console.Error.WriteLine("usage: klemme15 db status|download|install <file>");
                 return 2;
@@ -209,7 +231,7 @@ internal static class Cli
             {
                 "scan" => await Scan(backend, codes, vehicle, a, cts.Token),
                 "faults" => await Faults(backend, codes, Module(vehicle, a), cts.Token),
-                "readings" => await Readings(backend, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
+                "readings" => await Readings(backend, db, model, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "discover" => await Discover(backend, vehicle, cts.Token),
@@ -298,14 +320,20 @@ internal static class Cli
     }
 
     /// <summary>klemme15 readings --module DME [--job STATUS_X] [--filter lambda]: BMW status values, read-only.</summary>
-    private static async Task<int> Readings(IDiagnosticBackend backend, IModuleReadings? readings, EcuDefinition ecu, Args a, CancellationToken ct)
+    private static async Task<int> Readings(IDiagnosticBackend backend, VehicleDatabase db, VehicleModel? model, IModuleReadings? readings, EcuDefinition ecu, Args a, CancellationToken ct)
     {
-        if (readings is null)
+        var identity = await backend.IdentifyAsync(ecu, ct);
+        if (identity is null) { Console.Error.WriteLine($"{ecu.Name} did not answer."); return 1; }
+        // Without BMW files: Klemme15 reads engine values itself from the downloaded measurement tables.
+        readings ??= backend is IRawRequests raw && db.Measurements is { } tables
+            ? new Klemme15.Protocols.NativeReadings(raw, tables,
+                e => OfficialLookup.ResolveVariant(db.OfficialSources, e, identity, model?.EngineCode, v => tables.Has(v)))
+            : null;
+        if (readings is null || !readings.Supports(ecu))
         {
-            Console.Error.WriteLine("Module readings run BMW's own scripts, so they need your BMW files: add --ediabas <your Ecu folder>.");
+            Console.Error.WriteLine("No readings for this module yet. Engine readings without BMW files: run 'klemme15 db download-full'. Every module: add --ediabas <your BMW Ecu folder>.");
             return 2;
         }
-        if (await backend.IdentifyAsync(ecu, ct) is null) { Console.Error.WriteLine($"{ecu.Name} did not answer."); return 1; }
         var list = await readings.ListReadingsAsync(ecu, ct);
         var filter = a.Get("filter");
         var jobs = list.Where(r => a.Get("job") is { } j ? r.Job.Equals(j, StringComparison.OrdinalIgnoreCase)

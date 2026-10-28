@@ -41,8 +41,21 @@ public sealed class SessionState : ViewModelBase
     public bool SupportsJobs => _backend is IJobRunner;
 
     /// <summary>Module readings (BMW's status jobs) when the connection can run them, or the demo's made-up ones.</summary>
-    public IModuleReadings? Readings => _backend as IModuleReadings ?? (_isDemo && _backend is not null ? _demoReadings ??= new Klemme15.Protocols.Simulation.DemoReadings(_model) : null);
+    public IModuleReadings? Readings =>
+        _backend as IModuleReadings
+        ?? (_isDemo && _backend is not null ? _demoReadings ??= new Klemme15.Protocols.Simulation.DemoReadings(_model)
+        : _backend is IRawRequests raw && Database.Measurements is { } tables
+            ? _demoReadings ??= new Klemme15.Protocols.NativeReadings(raw, tables, VariantForReadings, Log)
+            : null);
     private IModuleReadings? _demoReadings;
+
+    /// <summary>The module version to read native values for: from its part number when the quick test read it, else the engine.</summary>
+    private string? VariantForReadings(EcuDefinition ecu)
+    {
+        var identity = _lastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == ecu.Id)?.Identity;
+        return Klemme15.Data.OfficialLookup.ResolveVariant(Database.OfficialSources, ecu, identity, _model?.EngineCode,
+            v => Database.Measurements?.Has(v) == true);
+    }
     public string Status { get => _status; set => Set(ref _status, value); }
 
     /// <summary>Short connection label for the header, e.g. "Demo car" or "Cable on COM3".</summary>

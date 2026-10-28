@@ -22,6 +22,9 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
 
     private GuideLibrary? _guides;
 
+    /// <summary>Measurement tables from the optional full database download, used for native module readings.</summary>
+    public IMeasurementTables? Measurements { get; set; }
+
     /// <summary>Klemme15's troubleshooting guides (db/guides.json).</summary>
     public GuideLibrary Guides => _guides ??= GuideLibrary.Load();
 

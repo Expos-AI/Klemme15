@@ -161,7 +161,8 @@ public static class FaultDataDownload
         catch (JsonException) { return false; }
     }
 
-    private static async Task<string?> LatestTagAsync(HttpClient http, CancellationToken ct)
+    /// <summary>Tag of the latest bmw-unified-db release (e.g. "v1.2.0"), or null when GitHub can't be asked.</summary>
+    public static async Task<string?> LatestTagAsync(HttpClient http, CancellationToken ct)
     {
         try
         {

@@ -131,6 +131,29 @@ public interface IModuleReadings
 
     /// <summary>Live-data source string for pinning one value to the Live data page.</summary>
     string PinSource(EcuDefinition ecu, string job, string result);
+
+    /// <summary>False for modules this provider has no readings for (they are hidden on the Readings page).</summary>
+    bool Supports(EcuDefinition ecu) => true;
+}
+
+/// <summary>One value an engine computer can report on request, from BMW's measurement table (MESSWERTETAB).</summary>
+/// <param name="Id">Common identifier to ask for (e.g. 0x4200).</param>
+/// <param name="Result">BMW's result name, e.g. STAT_ANSAUGLUFTTEMPERATUR_WERT.</param>
+/// <param name="DataType">"unsigned char", "signed integer", ... or "-" when the size comes from the reply.</param>
+/// <param name="LowHigh">True when BMW's table marks the value as low byte first.</param>
+public sealed record MeasurementDef(ushort Id, string Result, string? Comment, string? Unit, string DataType, bool LowHigh, double Mul, double Div, double Add);
+
+/// <summary>Per-variant measurement tables the user downloaded (see FAULT-DATA.md). Klemme15 ships none.</summary>
+public interface IMeasurementTables
+{
+    bool Has(string variant);
+    IReadOnlyList<MeasurementDef> MeasurementsOf(string variant);
+}
+
+/// <summary>Backends that can send one raw diagnostic request to a module and return its reply (or null on no reply).</summary>
+public interface IRawRequests
+{
+    Task<byte[]?> RequestAsync(EcuDefinition ecu, byte[] request, CancellationToken ct = default);
 }
 
 /// <summary>Fills in a fault's meaning using everything known about the module it came from.</summary>

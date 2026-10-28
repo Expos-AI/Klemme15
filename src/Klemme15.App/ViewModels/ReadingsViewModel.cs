@@ -140,7 +140,9 @@ public sealed class ReadingsViewModel : PageViewModel
     public string ModuleTitle => _module?.Name ?? "";
     public string VariantText => _module is null || _session.Readings?.VariantOf(_module.Ecu) is not { } v ? ""
         : _session.IsDemo ? "Demo values (made up, so you can try the page)"
-        : $"Module version {v}: values computed by BMW's own scripts in your files";
+        : _session.Readings is Klemme15.Protocols.NativeReadings
+            ? $"Module version {v}: values read by Klemme15 using BMW's measurement table from the database you downloaded"
+            : $"Module version {v}: values computed by BMW's own scripts in your files";
 
     public string Filter
     {
@@ -206,8 +208,9 @@ public sealed class ReadingsViewModel : PageViewModel
 
         var scan = _session.LastScan;
         bool Answered(EcuDefinition e) => scan?.Ecus.Any(r => r.Ecu.Id == e.Id && r.Status is EcuScanStatus.Ok or EcuScanStatus.Faults) ?? false;
+        var readings = _session.Readings;
         var modules = vehicle.Modules
-            .Where(m => scan is null || Answered(m))
+            .Where(m => (scan is null || Answered(m)) && readings!.Supports(m))
             .OrderByDescending(m => m.IsEngine).ThenBy(m => m.Category).ThenBy(m => m.Name)
             .Select(m => new ReadingModuleViewModel(m, Answered(m)))
             .ToList();
