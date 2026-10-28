@@ -29,7 +29,7 @@ public sealed class MainViewModel : ViewModelBase
         };
         Faults.GuideActions = new GuideActions(
             (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },
-            () => CurrentPage = Live);
+            () => CurrentPage = Live!);
         Live = new LiveViewModel(Session, dialogs);
         Service = new ServiceViewModel(Session, settings);
         Expert = new ExpertViewModel(Session, settings);
