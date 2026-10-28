@@ -91,3 +91,28 @@ All functions are **experimental** until confirmed on a real car. Except where n
 | Initialise the rain sensor | RLS | After replacing the windscreen or the rain sensor, or refitting the sensor's gel pad. | 1 |
 | Test the parking sensors | PDC | Parking sensor faults or a sensor that beeps constantly. | 1 |
 | Instrument cluster gauge test | KOMBI / IKE | A gauge that sticks or reads wrong, or a warning lamp you think is dead. | 3 |
+
+## Recovery
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Restart the iDrive screen (CIC) | CIC | When the iDrive screen (CIC) has frozen or stopped responding but still answers the diagnostic cable. | 7 |
+| Restart the central information display (CID) | CID | When the central information display (CID) has frozen or stopped responding but still answers the diagnostic cable. | 3 |
+| Restart the Bluetooth/phone module (TEL) | TEL | When the Bluetooth/phone module (TEL) has frozen or stopped responding but still answers the diagnostic cable. | 7 |
+| Restart the amplifier (AMP) | AMP | When the amplifier (AMP) has frozen or stopped responding but still answers the diagnostic cable. | 4 |
+| Restart the climate control (IHKA) | IHKA | When the climate control (IHKA) has frozen or stopped responding but still answers the diagnostic cable. | 5 |
+| Restart the parking sensors (PDC) | PDC | When the parking sensors (PDC) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+| Restart the tyre pressure module (RDC) | RDC | When the tyre pressure module (RDC) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
+| Restart the roof function centre (FZD) | FZD | When the roof function centre (FZD) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+| Restart the sunroof module (SHD) | SHD | When the sunroof module (SHD) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+| Restart the audio module (ASK) | ASK | When the audio module (ASK) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
+| Restart the satellite radio (SDARS) | SDARS | When the satellite radio (SDARS) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+| Restart the MOST gateway (MOSTGW) | MOSTGW | When the MOST gateway (MOSTGW) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
+| Restart the iDrive controller (ZBE) | ZBE | When the iDrive controller (ZBE) has frozen or stopped responding but still answers the diagnostic cable. | 4 |
+| Restart the top-view camera (CCCA) | CCCA | When the top-view camera (CCCA) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+| Restart the trailer module (AHM) | AHM | When the trailer module (AHM) has frozen or stopped responding but still answers the diagnostic cable. | 1 |
+| Restart the convertible-top module (CVM) | CVM | When the convertible-top module (CVM) has frozen or stopped responding but still answers the diagnostic cable. | 9 |
+| Restart the alarm module (DWA) | DWA | When the alarm module (DWA) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
+| Restart the passenger seat module (SMBF) | SMBF | When the passenger seat module (SMBF) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
+| Restart the driver seat module (SMFA) | SMFA | When the driver seat module (SMFA) has frozen or stopped responding but still answers the diagnostic cable. | 2 |
+| Restart the antenna tuner (ANTTU) | ANTTU | When the antenna tuner (ANTTU) has frozen or stopped responding but still answers the diagnostic cable. | 1 |

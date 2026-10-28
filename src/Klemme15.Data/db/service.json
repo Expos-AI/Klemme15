@@ -21,7 +21,8 @@
    ],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -219,7 +220,8 @@
    ],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -482,7 +484,8 @@
    "after": [],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -2082,7 +2085,8 @@
    "after": [],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -2228,7 +2232,8 @@
    ],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -2295,7 +2300,8 @@
    ],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -2458,7 +2464,8 @@
     "engineOff": true,
     "confirm": [
      "The code was copied from the injector fitted to that cylinder."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -2682,7 +2689,8 @@
    "after": [],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -2763,7 +2771,8 @@
     "stationary": true,
     "confirm": [
      "The gearbox is in neutral and the clutch pedal is released."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -2811,7 +2820,8 @@
     "confirm": [
      "The wheels point straight ahead and the steering wheel is centred.",
      "The car is on level ground and nobody will touch the steering wheel."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -2880,7 +2890,8 @@
     "stationary": true,
     "confirm": [
      "Nobody is touching the brake pedal."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -2931,7 +2942,8 @@
     "stationary": true,
     "confirm": [
      "The car is on level ground and nobody is inside or leaning on it."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -2992,7 +3004,8 @@
     "stationary": true,
     "confirm": [
      "The car is on level ground and nobody is inside or leaning on it."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3176,7 +3189,8 @@
     "stationary": true,
     "confirm": [
      "All four tyres are at the correct pressure."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3269,7 +3283,8 @@
     "stationary": true,
     "confirm": [
      "The wheels point straight ahead and the steering wheel is centred."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3314,7 +3329,8 @@
     "stationary": true,
     "confirm": [
      "The wheels point straight ahead and the steering wheel is centred."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3348,7 +3364,8 @@
     "stationary": true,
     "confirm": [
      "The wheels point straight ahead and the steering wheel is centred."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3387,7 +3404,8 @@
     "stationary": true,
     "confirm": [
      "The selector is in P."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3456,7 +3474,8 @@
     "stationary": true,
     "confirm": [
      "The gearbox is in neutral and your foot is on the brake."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3624,7 +3643,8 @@
     "stationary": true,
     "confirm": [
      "The transfer case (or its clutch) is new."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3694,6 +3714,7 @@
    "when": "After the battery was disconnected or flat, or when one-touch window operation stopped working.",
    "risk": "medium",
    "verified": false,
+   "caution": "The footwell module (FRM) can corrupt itself if the voltage sags while it is written to. A charger is strongly recommended, and Klemme15 won't run this below 12.5 V. A corrupted FRM can't be repaired over the cable.",
    "before": [
     "Close all doors. The windows will move on their own: keep hands, pets and objects out of the way."
    ],
@@ -3705,7 +3726,8 @@
     "engineOff": true,
     "confirm": [
      "All doors are closed and nothing is in the way of the windows."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "inputs": [
     {
@@ -3795,7 +3817,8 @@
     "engineOff": true,
     "confirm": [
      "Nothing is in the sunroof opening."
-    ]
+    ],
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3829,7 +3852,8 @@
    ],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -3908,7 +3932,8 @@
    "after": [],
    "checks": {
     "ignition": true,
-    "engineOff": true
+    "engineOff": true,
+    "minVoltage": 12.5
    },
    "implementations": [
     {
@@ -4006,6 +4031,784 @@
        "args": "",
        "wait": 15,
        "say": "Gauges sweeping"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-cic",
+   "title": "Restart the iDrive screen (CIC)",
+   "category": "Recovery",
+   "module": [
+    "CIC"
+   ],
+   "summary": "Sends the iDrive screen (CIC) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the iDrive screen (CIC) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ccc_60",
+      "cicmr",
+      "cicr",
+      "mask60",
+      "rad1",
+      "rad12r",
+      "rad2"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-cid",
+   "title": "Restart the central information display (CID)",
+   "category": "Recovery",
+   "module": [
+    "CID"
+   ],
+   "summary": "Sends the central information display (CID) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the central information display (CID) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "cid_87",
+      "cid_89",
+      "cid_90"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-tel",
+   "title": "Restart the Bluetooth/phone module (TEL)",
+   "category": "Recovery",
+   "module": [
+    "TEL"
+   ],
+   "summary": "Sends the Bluetooth/phone module (TEL) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the Bluetooth/phone module (TEL) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "cmediar",
+      "tele60_2",
+      "tele60_3",
+      "telibus2",
+      "telibus3",
+      "ulf2_60",
+      "ulf_60"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-amp",
+   "title": "Restart the amplifier (AMP)",
+   "category": "Recovery",
+   "module": [
+    "AMP"
+   ],
+   "summary": "Sends the amplifier (AMP) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the amplifier (AMP) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "amp_60",
+      "amph70",
+      "ampt70",
+      "amptlr89"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-ihka",
+   "title": "Restart the climate control (IHKA)",
+   "category": "Recovery",
+   "module": [
+    "IHKA"
+   ],
+   "summary": "Sends the climate control (IHKA) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the climate control (IHKA) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ihka87",
+      "ihka89",
+      "ihkr89",
+      "ihkr90",
+      "ihr_87"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-pdc",
+   "title": "Restart the parking sensors (PDC)",
+   "category": "Recovery",
+   "module": [
+    "PDC"
+   ],
+   "summary": "Sends the parking sensors (PDC) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the parking sensors (PDC) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "pdc_87"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-rdc",
+   "title": "Restart the tyre pressure module (RDC)",
+   "category": "Recovery",
+   "module": [
+    "RDC"
+   ],
+   "summary": "Sends the tyre pressure module (RDC) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the tyre pressure module (RDC) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "rdc_60",
+      "rdckwp"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-fzd",
+   "title": "Restart the roof function centre (FZD)",
+   "category": "Recovery",
+   "module": [
+    "FZD"
+   ],
+   "summary": "Sends the roof function centre (FZD) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the roof function centre (FZD) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "fzd_87"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-shd",
+   "title": "Restart the sunroof module (SHD)",
+   "category": "Recovery",
+   "module": [
+    "SHD"
+   ],
+   "summary": "Sends the sunroof module (SHD) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the sunroof module (SHD) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "sd_kwp"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-ask",
+   "title": "Restart the audio module (ASK)",
+   "category": "Recovery",
+   "module": [
+    "ASK"
+   ],
+   "summary": "Sends the audio module (ASK) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the audio module (ASK) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "asd_89",
+      "ask_60"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-sdars",
+   "title": "Restart the satellite radio (SDARS)",
+   "category": "Recovery",
+   "module": [
+    "SDARS"
+   ],
+   "summary": "Sends the satellite radio (SDARS) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the satellite radio (SDARS) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "sat_rad2"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-mostgw",
+   "title": "Restart the MOST gateway (MOSTGW)",
+   "category": "Recovery",
+   "module": [
+    "MOSTGW"
+   ],
+   "summary": "Sends the MOST gateway (MOSTGW) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the MOST gateway (MOSTGW) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "cccg60",
+      "rad2_gw"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-zbe",
+   "title": "Restart the iDrive controller (ZBE)",
+   "category": "Recovery",
+   "module": [
+    "ZBE"
+   ],
+   "summary": "Sends the iDrive controller (ZBE) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the iDrive controller (ZBE) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "zbe_60_2",
+      "zbeh87",
+      "zbel87",
+      "zbel87_2"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-ccca",
+   "title": "Restart the top-view camera (CCCA)",
+   "category": "Recovery",
+   "module": [
+    "CCCA"
+   ],
+   "summary": "Sends the top-view camera (CCCA) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the top-view camera (CCCA) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ccca60"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-ahm",
+   "title": "Restart the trailer module (AHM)",
+   "category": "Recovery",
+   "module": [
+    "AHM"
+   ],
+   "summary": "Sends the trailer module (AHM) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the trailer module (AHM) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ahm_e65"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-cvm",
+   "title": "Restart the convertible-top module (CVM)",
+   "category": "Recovery",
+   "module": [
+    "CVM"
+   ],
+   "summary": "Sends the convertible-top module (CVM) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the convertible-top module (CVM) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ctm_89",
+      "ctm_93",
+      "ctm_93_2",
+      "ctm_93_3",
+      "ctm_93_4",
+      "ctm_93_5",
+      "ctm_93_6",
+      "cvm_88",
+      "cvm_88_2"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-dwa",
+   "title": "Restart the alarm module (DWA)",
+   "category": "Recovery",
+   "module": [
+    "DWA"
+   ],
+   "summary": "Sends the alarm module (DWA) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the alarm module (DWA) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "dwa_63",
+      "dwa_e65"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-smbf",
+   "title": "Restart the passenger seat module (SMBF)",
+   "category": "Recovery",
+   "module": [
+    "SMBF"
+   ],
+   "summary": "Sends the passenger seat module (SMBF) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the passenger seat module (SMBF) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "bfs_87",
+      "bfs_plx"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-smfa",
+   "title": "Restart the driver seat module (SMFA)",
+   "category": "Recovery",
+   "module": [
+    "SMFA"
+   ],
+   "summary": "Sends the driver seat module (SMFA) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the driver seat module (SMFA) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "fas_87",
+      "fas_plx"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "restart-anttu",
+   "title": "Restart the antenna tuner (ANTTU)",
+   "category": "Recovery",
+   "module": [
+    "ANTTU"
+   ],
+   "summary": "Sends the antenna tuner (ANTTU) a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+   "when": "When the antenna tuner (ANTTU) has frozen or stopped responding but still answers the diagnostic cable.",
+   "risk": "low",
+   "verified": false,
+   "duration": "About 10 seconds",
+   "before": [
+    "The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."
+   ],
+   "after": [
+    "Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."
+   ],
+   "checks": {
+    "ignition": true
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ant_60"
+     ],
+     "steps": [
+      {
+       "job": "STEUERGERAETE_RESET",
+       "args": "",
+       "wait": 8,
+       "say": "Restarting (the module reboots)"
       }
      ]
     }

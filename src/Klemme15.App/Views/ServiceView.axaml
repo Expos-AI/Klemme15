@@ -102,6 +102,9 @@
         <Border Classes.bad="{Binding IsHighRisk}" Classes.good="{Binding !IsHighRisk}">
           <TextBlock TextWrapping="Wrap" Classes="small" Text="{Binding RiskText}" />
         </Border>
+        <Border Classes="bad" IsVisible="{Binding HasCaution}">
+          <TextBlock TextWrapping="Wrap" Classes="small" Text="{Binding Caution}" />
+        </Border>
 
         <StackPanel Spacing="6" IsVisible="{Binding HasBefore}">
           <TextBlock Classes="section" FontSize="16" Text="Before you start" />
