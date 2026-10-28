@@ -3,60 +3,67 @@
              xmlns:vm="using:OpenHood.App.ViewModels"
              x:Class="OpenHood.App.Views.FaultsView"
              x:DataType="vm:FaultsViewModel">
-  <DockPanel Margin="32,28">
-    <StackPanel DockPanel.Dock="Top" Spacing="12" Margin="0,0,0,12">
+  <DockPanel Margin="36,26,36,0">
+    <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,18">
       <DockPanel>
         <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
-        <StackPanel Spacing="4">
-          <TextBlock Classes="h1" Text="Faults" />
-          <TextBlock Classes="muted" Text="Present = active right now. Stored = happened before and is still in memory." />
-        </StackPanel>
+        <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
+      <TextBlock Text="{Binding Headline}" Classes="muted" FontSize="16" IsVisible="{Binding !IsEmpty}" />
       <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
-      <TextBlock Classes="muted" Text="{Binding EmptyText}" IsVisible="{Binding IsEmpty}" />
+      <TextBlock Classes="muted" Text="{Binding EmptyText}" IsVisible="{Binding IsEmpty}" TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
     </StackPanel>
 
     <ScrollViewer>
-      <ItemsControl ItemsSource="{Binding Groups}">
+      <ItemsControl ItemsSource="{Binding Groups}" Margin="0,0,0,32" MaxWidth="980" HorizontalAlignment="Left">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:FaultGroupViewModel">
-            <Border Classes="card" Margin="0,0,0,14">
-              <StackPanel Spacing="8">
-                <DockPanel>
-                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
-                    <Button Content="Clear faults" Command="{Binding AskClearCommand}" IsVisible="{Binding NotConfirming}" />
-                    <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding Confirming}">
-                      <TextBlock Text="Clear this module's fault memory?" VerticalAlignment="Center" />
-                      <Button Classes="accent" Content="Yes, clear" Command="{Binding ClearCommand}" />
-                      <Button Content="No" Command="{Binding CancelClearCommand}" />
-                    </StackPanel>
+            <StackPanel Spacing="4" Margin="0,0,0,26">
+              <!-- module header -->
+              <DockPanel Margin="0,0,0,6">
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                  <Button Classes="quiet" Content="Clear fault memory" Command="{Binding AskClearCommand}" IsVisible="{Binding NotConfirming}" />
+                  <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding Confirming}">
+                    <TextBlock Text="Clear every fault in this module?" VerticalAlignment="Center" />
+                    <Button Classes="primary" Content="Clear" Command="{Binding ClearCommand}" Padding="14,6" />
+                    <Button Content="Keep" Command="{Binding CancelClearCommand}" Padding="12,6" />
                   </StackPanel>
-                  <StackPanel Orientation="Horizontal" Spacing="10">
-                    <TextBlock Classes="h2" Text="{Binding Name}" />
-                    <TextBlock Classes="mono muted" Text="{Binding Address}" VerticalAlignment="Center" />
-                    <TextBlock Classes="muted" Text="{Binding CountText}" VerticalAlignment="Center" />
-                  </StackPanel>
-                </DockPanel>
-                <TextBlock Classes="muted" Text="{Binding Message}" IsVisible="{Binding HasMessage}" TextWrapping="Wrap" />
-                <ItemsControl ItemsSource="{Binding Faults}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:FaultRowViewModel">
-                      <Border Classes="row">
-                        <Grid ColumnDefinitions="80,70,110,*">
-                          <SelectableTextBlock Classes="mono" Text="{Binding Code}" FontWeight="SemiBold" />
-                          <TextBlock Grid.Column="1" Classes="muted" Text="{Binding Source}" />
-                          <TextBlock Grid.Column="2" Text="{Binding State}" Foreground="{Binding StateBrush}" />
-                          <StackPanel Grid.Column="3" Spacing="4">
-                            <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" />
-                            <TextBlock Classes="muted" FontSize="12" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <TextBlock Classes="section" Text="{Binding Name}" />
+                  <TextBlock Classes="muted small" Text="{Binding Address}" VerticalAlignment="Center" />
+                  <TextBlock Classes="muted small" Text="{Binding CountText}" VerticalAlignment="Center" />
+                </StackPanel>
+              </DockPanel>
+              <TextBlock Classes="muted" Text="{Binding Message}" IsVisible="{Binding HasMessage}" TextWrapping="Wrap" Margin="0,0,0,6" />
+
+              <ItemsControl ItemsSource="{Binding Faults}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:FaultItemViewModel">
+                    <Border Classes="panel" Padding="0" Margin="0,0,0,8">
+                      <Grid ColumnDefinitions="4,110,*,Auto">
+                        <Border Classes="faultbar" Classes.active="{Binding IsActive}" CornerRadius="6,0,0,6" />
+                        <StackPanel Grid.Column="1" Margin="18,14,8,14" Spacing="6">
+                          <SelectableTextBlock Classes="code" Text="{Binding Code}" />
+                          <Border Classes="statechip" Classes.active="{Binding IsActive}" HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding StateText}" />
+                          </Border>
+                        </StackPanel>
+                        <StackPanel Grid.Column="2" Margin="8,14,12,14" Spacing="6">
+                          <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="15" />
+                          <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Classes="muted small" Text="Check here:" />
+                            <TextBlock Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
                           </StackPanel>
-                        </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-              </StackPanel>
-            </Border>
+                          <TextBlock Classes="muted small" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
+                        </StackPanel>
+                        <Button Grid.Column="3" Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" VerticalAlignment="Center" Margin="0,0,14,0" />
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>

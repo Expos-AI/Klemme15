@@ -8,7 +8,8 @@
       "src/OpenHood.Serial/OpenHood.Serial.csproj",
       "src/OpenHood.Cli/OpenHood.Cli.csproj",
       "src/OpenHood.App/OpenHood.App.csproj",
-      "tests/OpenHood.Tests/OpenHood.Tests.csproj"
+      "tests/OpenHood.Tests/OpenHood.Tests.csproj",
+      "tools/OpenHood.Screenshots/OpenHood.Screenshots.csproj"
     ]
   }
 }

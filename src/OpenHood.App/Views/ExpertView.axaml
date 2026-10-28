@@ -3,14 +3,14 @@
              xmlns:vm="using:OpenHood.App.ViewModels"
              x:Class="OpenHood.App.Views.ExpertView"
              x:DataType="vm:ExpertViewModel">
-  <DockPanel Margin="32,28">
+  <DockPanel Margin="36,26,36,20">
     <StackPanel DockPanel.Dock="Top" Spacing="12" Margin="0,0,0,12">
       <StackPanel Spacing="4">
-        <TextBlock Classes="h1" Text="Expert: run any job" />
+        <TextBlock Classes="title" Text="Expert: run any job" />
         <TextBlock Classes="muted" TextWrapping="Wrap"
                    Text="Run any job from your SGBD files, like Tool32. Pin numeric results to the Live data page." />
       </StackPanel>
-      <Border Classes="chip" HorizontalAlignment="Left" IsVisible="{Binding NotAvailable}">
+      <Border Classes="panel" HorizontalAlignment="Left" IsVisible="{Binding NotAvailable}">
         <TextBlock TextWrapping="Wrap" Text="Expert mode needs EDIABAS mode: connect with 'Use my EDIABAS files' (Windows build)." />
       </Border>
 
@@ -24,20 +24,20 @@
 
         <TextBlock Grid.Row="2" Text="Args" VerticalAlignment="Center" Margin="0,10,10,0" />
         <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Arguments}" Watermark="optional, ; separated" Margin="0,10,0,0" />
-        <Button Grid.Row="2" Grid.Column="2" Classes="accent" Content="Run job" Command="{Binding RunCommand}" Margin="8,10,0,0" />
+        <Button Grid.Row="2" Grid.Column="2" Classes="primary" Content="Run job" Command="{Binding RunCommand}" Margin="8,10,0,0" />
       </Grid>
       <TextBlock Classes="muted" Text="{Binding Status}" />
       <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
     </StackPanel>
 
-    <Border Classes="card" Padding="12,4">
+    <Border Classes="panel" Padding="12,4">
       <ScrollViewer>
         <ItemsControl ItemsSource="{Binding Results}">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:JobResultRowViewModel">
               <Border Classes="row" Padding="4,6">
                 <Grid ColumnDefinitions="40,300,*,Auto">
-                  <TextBlock Classes="muted mono" Text="{Binding SetIndex}" />
+                  <TextBlock Classes="mono muted" Text="{Binding SetIndex}" />
                   <SelectableTextBlock Grid.Column="1" Classes="mono" Text="{Binding Name}" />
                   <SelectableTextBlock Grid.Column="2" Classes="mono" Text="{Binding Value}" TextWrapping="Wrap" />
                   <Button Grid.Column="3" Content="+ Live" Command="{Binding AddToLiveCommand}" IsVisible="{Binding CanAdd}" Padding="8,2" FontSize="12" />

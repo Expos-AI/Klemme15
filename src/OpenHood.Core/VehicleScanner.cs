@@ -2,7 +2,8 @@ using System.Diagnostics;
 
 namespace OpenHood.Core;
 
-public sealed record ScanProgress(int Done, int Total, EcuScanResult? Latest, string Message);
+/// <summary>Scan progress. <paramref name="Current"/> is the module being asked right now, if any.</summary>
+public sealed record ScanProgress(int Done, int Total, EcuScanResult? Latest, string Message, EcuDefinition? Current = null);
 
 /// <summary>
 /// The "quick test": identify every ECU, then read its fault memory. Absent modules are skipped
@@ -36,7 +37,7 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
         foreach (var ecu in cancelled ? Array.Empty<EcuDefinition>() : ecus)
         {
             if (ct.IsCancellationRequested) { cancelled = true; break; }
-            progress?.Report(new ScanProgress(results.Count, ecus.Count, null, $"Scanning {ecu.Name}"));
+            progress?.Report(new ScanProgress(results.Count, ecus.Count, null, $"Asking {ecu.Name}", ecu));
             EcuScanResult result;
             try
             {

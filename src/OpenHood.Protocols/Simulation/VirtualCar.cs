@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using OpenHood.Core;
 using OpenHood.Protocols.Framing;
 using OpenHood.Protocols.Transport;
 
@@ -48,6 +49,12 @@ public sealed class VirtualCar : ITransport
     public bool IsOpen { get; private set; }
     public bool? IgnitionOn { get; set; } = true;
     public IReadOnlyCollection<VirtualEcu> Ecus => _ecus.Values;
+
+    /// <summary>Idle speed of the simulated engine.</summary>
+    public int IdleRpm { get; set; } = 750;
+
+    /// <summary>Simulate boost pressure under load (twin-turbo engines).</summary>
+    public bool Turbo { get; set; }
 
     /// <summary>Delay before an ECU answers, to make timing code honest.</summary>
     public TimeSpan ResponseDelay { get; set; } = TimeSpan.FromMilliseconds(5);
@@ -180,7 +187,7 @@ public sealed class VirtualCar : ITransport
     private byte[]? ObdMode01(byte pid)
     {
         var t = _clock.Elapsed.TotalSeconds;
-        var rpm = 750 + 1600 * Math.Max(0, Math.Sin(t / 4)) + 15 * Math.Sin(t * 7);
+        var rpm = IdleRpm + 1600 * Math.Max(0, Math.Sin(t / 4)) + 15 * Math.Sin(t * 7);
         var load = 18 + 40 * Math.Max(0, Math.Sin(t / 4));
         var coolant = Math.Min(92, 25 + t * 1.5);
         byte[]? data = pid switch
@@ -192,7 +199,7 @@ public sealed class VirtualCar : ITransport
             0x05 => [(byte)(coolant + 40)],
             0x06 or 0x08 => [(byte)(128 + 4 * Math.Sin(t))],
             0x07 or 0x09 => [(byte)(128 + 9)],                   // +7 %: hint of a vacuum leak
-            0x0B => [(byte)(35 + load * 0.6)],
+            0x0B => [(byte)(Turbo ? 35 + load * 2.6 : 35 + load * 0.6)],
             0x0C => [(byte)((int)(rpm * 4) >> 8), (byte)(int)(rpm * 4)],
             0x0D => [(byte)Math.Max(0, (rpm - 800) / 40)],
             0x0E => [(byte)((12 + 10 * Math.Sin(t / 4) + 64) * 2)],
@@ -261,6 +268,46 @@ public sealed class VirtualCar : ITransport
     }
 
     // ----------------------------------------------------------- ready-made cars
+
+    /// <summary>
+    /// Builds a demo car for a model from the database: its fitted modules answer, and its demo faults
+    /// sit in the right fault memories (BMW-format codes in the module, OBD-II codes in the engine).
+    /// </summary>
+    public static VirtualCar ForModel(VehicleModel model, IEnumerable<EcuDefinition> familyModules)
+    {
+        var ecus = new List<VirtualEcu>();
+        foreach (var def in familyModules.Where(m => model.ModuleIds.Contains(m.Id)))
+        {
+            var faults = model.DemoFaults.Where(f => f.ModuleId == def.Id).ToList();
+            ecus.Add(new VirtualEcu
+            {
+                Address = def.Address,
+                IsEngine = def.IsEngine,
+                Ident = $"{FakePartNumber(model.Id + def.Id)} {def.Id.Split('.').Last()} HW {Stable(def.Id, 1, 9):00} SW {Stable(model.Id + def.Id, 10, 60):X2}",
+                Faults = faults.Where(f => !f.IsObd)
+                               .Select(f => (Convert.ToUInt16(f.Code, 16), (byte)(f.Present ? 0x60 : 0x20)))
+                               .ToList(),
+                ObdCodes = faults.Where(f => f.IsObd).Select(f => ObdCodeToRaw(f.Code)).ToList(),
+            });
+        }
+        return new VirtualCar($"Demo {model.FamilyId} {model.Name}", ecus) { IdleRpm = model.IdleRpm, Turbo = model.Turbo };
+    }
+
+    internal static ushort ObdCodeToRaw(string code)
+    {
+        var system = "PCBU".IndexOf(char.ToUpperInvariant(code[0]));
+        var hi = (system << 6) | ((code[1] - '0') << 4) | Convert.ToInt32(code[2].ToString(), 16);
+        return (ushort)((hi << 8) | Convert.ToInt32(code[3..], 16));
+    }
+
+    private static int Stable(string seed, int min, int max)
+    {
+        var h = 17;
+        foreach (var c in seed) h = unchecked(h * 31 + c);
+        return min + (int)((uint)h % (uint)(max - min));
+    }
+
+    private static string FakePartNumber(string seed) => Stable(seed, 6_900_000, 7_600_000).ToString();
 
     /// <summary>2006 E90 325i (N52) with a couple of typical faults.</summary>
     public static VirtualCar E90_325i() => new("Virtual E90 325i", [

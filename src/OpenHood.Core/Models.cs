@@ -34,6 +34,9 @@ public sealed record EcuDefinition
     /// <summary>True for the engine ECU, which also answers generic OBD-II requests.</summary>
     public bool IsEngine { get; init; }
 
+    /// <summary>Approximate location on the top-view car drawing (1000 x 460, front at left).</summary>
+    public SchematicPoint? Position { get; init; }
+
     public string AddressHex => $"0x{Address:X2}";
     public override string ToString() => $"{Id} ({AddressHex})";
 }
@@ -144,3 +147,50 @@ public sealed record LiveValue(LiveParameter Parameter, double? Value, string? T
 {
     public string Display => Value is { } v ? $"{v:0.##} {Parameter.Unit}".Trim() : Text ?? "--";
 }
+
+/// <summary>A point on the 1000 x 460 top-view car drawing (front at left, driver side at bottom).</summary>
+public readonly record struct SchematicPoint(double X, double Y);
+
+/// <summary>Something on the car a fault can come from, e.g. "Cylinder 3" or "Thermostat".</summary>
+public sealed record CarComponent(string Id, string Name, SchematicPoint Position);
+
+/// <summary>A fault the demo car carries.</summary>
+public sealed record DemoFault
+{
+    public required string ModuleId { get; init; }
+
+    /// <summary>"P0171" for OBD-II, or a 4-digit hex BMW-format code.</summary>
+    public required string Code { get; init; }
+
+    public bool Present { get; init; }
+
+    /// <summary>Description for made-up BMW-format demo codes.</summary>
+    public string? Text { get; init; }
+
+    /// <summary>Component id the fault points at on the drawing.</summary>
+    public string? Component { get; init; }
+
+    public bool IsObd => Code.Length == 5 && char.IsLetter(Code[0]);
+}
+
+/// <summary>One model within a family, e.g. the E90 335i.</summary>
+public sealed record VehicleModel
+{
+    public required string Id { get; init; }
+    public required string FamilyId { get; init; }
+    public required string Name { get; init; }
+    public string Body { get; init; } = "";
+    public string Years { get; init; } = "";
+    public string Engine { get; init; } = "";
+    public string Drive { get; init; } = "";
+
+    /// <summary>Modules the demo car of this model has fitted.</summary>
+    public IReadOnlyList<string> ModuleIds { get; init; } = [];
+
+    public IReadOnlyList<DemoFault> DemoFaults { get; init; } = [];
+    public int IdleRpm { get; init; } = 700;
+    public bool Turbo { get; init; }
+}
+
+/// <summary>A chassis family that shares modules and protocols, e.g. E46 or E9x.</summary>
+public sealed record VehicleFamily(string Id, string Name, string Years, string Cable, IReadOnlyList<EcuDefinition> Modules, IReadOnlyList<VehicleModel> Models);

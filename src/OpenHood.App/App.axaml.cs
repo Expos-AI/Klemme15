@@ -17,6 +17,7 @@ public partial class App : Application
         {
             var window = new MainWindow();
             var main = new MainViewModel(new DialogService(window), AppSettings.Load());
+            main.ApplyTheme();
             window.DataContext = main;
             window.Closing += (_, _) => main.Shutdown();
             desktop.MainWindow = window;

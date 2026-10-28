@@ -42,6 +42,8 @@ public sealed class DialogService(Window owner) : IDialogService
 public sealed class AppSettings
 {
     public string VehicleId { get; set; } = "E9x";
+    public string? ModelId { get; set; }
+    public string Theme { get; set; } = "Dark";
     public string? Port { get; set; }
     public bool UseDemo { get; set; }
     public bool UseEdiabas { get; set; }
