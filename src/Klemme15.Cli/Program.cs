@@ -41,6 +41,24 @@ internal static class Cli
           klemme15 scan --demo --vehicle E9x --model 335i
         """;
 
+    /// <summary>klemme15 sgbd FILE.prg [TABLE]: lists the tables in a local EDIABAS file, or prints one as TSV.</summary>
+    private static int DumpSgbd(Args a)
+    {
+        if (a.Positional.Count == 0) { Console.Error.WriteLine("usage: klemme15 sgbd <file.prg|file.grp> [TABLE]"); return 2; }
+        var f = SgbdFile.Open(a.Positional[0]);
+        if (a.Positional.Count == 1)
+        {
+            foreach (var t in f.TableNames.OrderBy(n => n)) Console.WriteLine($"{t,-32} {f.ReadTable(t)!.Count} rows");
+            return 0;
+        }
+        var rows = f.ReadTable(a.Positional[1]);
+        if (rows is null) { Console.Error.WriteLine($"No table {a.Positional[1]} in {f.Name}."); return 1; }
+        if (rows.Count == 0) return 0;
+        Console.WriteLine(string.Join('\t', rows[0].Keys));
+        foreach (var r in rows) Console.WriteLine(string.Join('\t', r.Values));
+        return 0;
+    }
+
     public static async Task<int> RunAsync(string[] argv)
     {
         var a = Args.Parse(argv);
@@ -70,6 +88,8 @@ internal static class Cli
                         Console.WriteLine($"      {m.Id,-12} {m.AddressHex}  {m.Name}{(m.Verified ? "" : "  [unverified]")}");
                 }
                 return 0;
+            case "sgbd":
+                return DumpSgbd(a);
         }
 
         var vehicle = db.FindVehicle(a.Get("vehicle") ?? "E9x");
