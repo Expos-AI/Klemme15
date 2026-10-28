@@ -43,6 +43,8 @@ public static class BackendFactory
 
         if (!string.IsNullOrWhiteSpace(settings.EdiabasPath) && !settings.Demo)
         {
+            if (NetworkTransport.IsNetworkAddress(settings.Port))
+                throw new DiagnosticException("EDIABAS mode needs a USB cable for now. Untick 'Use my own BMW files' to use a Wi-Fi adapter.");
 #if EDIABAS
             var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
             return new EdiabasBackend(new EdiabasOptions
@@ -62,10 +64,12 @@ public static class BackendFactory
         ITransport transport = settings.Demo
             ? (model is not null ? VirtualCar.ForModel(model, vehicle.Modules)
                : mode == CableMode.KLine ? VirtualCar.E46_325i() : VirtualCar.E90_325i())
-            : new SerialPortTransport(settings.Port ?? throw new DiagnosticException("Choose the cable's port"))
-            {
-                TrustDsrForIgnition = settings.TrustDsr,
-            };
+            : NetworkTransport.IsNetworkAddress(settings.Port)
+                ? new NetworkTransport(settings.Port!)
+                : new SerialPortTransport(settings.Port ?? throw new DiagnosticException("Choose the cable's port"))
+                {
+                    TrustDsrForIgnition = settings.TrustDsr,
+                };
 
         return new NativeBackend(new LoggingTransport(transport, log), new NativeBackendOptions
         {
