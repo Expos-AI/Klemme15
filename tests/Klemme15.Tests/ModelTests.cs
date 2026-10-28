@@ -48,7 +48,7 @@ public class ModelTests
     }
 
     [Fact]
-    public void CodesSeenOnARealE90AreDescribedAndPlaced()
+    public void CasSteeringLockCodeIsDescribedAndPlaced()
     {
         var cas = Db.Modules.Single(m => m.Id == "E9x.CAS");
         Assert.True(cas.Verified);

@@ -322,7 +322,7 @@ public sealed class VirtualCar : ITransport
 
     private static string FakePartNumber(string seed) => Stable(seed, 6_900_000, 7_600_000).ToString();
 
-    /// <summary>2006 E90 325i (N52) with a couple of typical faults.</summary>
+    /// <summary>Demo E90 325i (N52) with a couple of typical faults.</summary>
     public static VirtualCar E90_325i() => new("Virtual E90 325i", [
         new VirtualEcu
         {
