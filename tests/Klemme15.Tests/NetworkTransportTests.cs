@@ -65,21 +65,22 @@ public class NetworkTransportTests
         listener.Start();
         var port = ((IPEndPoint)listener.LocalEndpoint).Port;
         using var stop = new CancellationTokenSource();
-        var bridge = Task.Run(async () =>
+        // One thread does both directions, like a real serial bridge (the virtual car isn't meant for two threads).
+        var bridge = Task.Run(() =>
         {
-            using var client = await listener.AcceptTcpClientAsync();
+            using var client = listener.AcceptTcpClient();
             var s = client.GetStream();
-            var toCar = Task.Run(async () =>
-            {
-                var buf = new byte[1024];
-                int n;
-                while (!stop.IsCancellationRequested && (n = await s.ReadAsync(buf, stop.Token)) > 0) car.Write(buf.AsSpan(0, n));
-            });
-            var fromCar = new byte[1024];
+            var buf = new byte[1024];
             while (!stop.IsCancellationRequested)
             {
-                var n = car.Read(fromCar, TimeSpan.FromMilliseconds(5));
-                if (n > 0) await s.WriteAsync(fromCar.AsMemory(0, n));
+                if (client.Available > 0)
+                {
+                    var n = s.Read(buf, 0, buf.Length);
+                    if (n == 0) break;
+                    car.Write(buf.AsSpan(0, n));
+                }
+                var m = car.Read(buf, TimeSpan.FromMilliseconds(2));
+                if (m > 0) s.Write(buf, 0, m);
             }
         });
 
