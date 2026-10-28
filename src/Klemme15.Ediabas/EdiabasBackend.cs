@@ -25,10 +25,13 @@ public sealed record EdiabasOptions
 /// Runs jobs from the user's own BMW SGBD files through EdiabasLib. Gives the deepest coverage
 /// (every module, BMW fault texts, all status jobs) but needs those files. Runs on Windows, macOS and Linux.
 /// </summary>
-public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner
+public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner, IModuleReadings
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly Dictionary<string, string> _resolved = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _variants = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, IReadOnlyList<ModuleReading>> _readingCache = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, Dictionary<string, string>> _resultComments = new(StringComparer.OrdinalIgnoreCase);
     private EdiabasNet? _ediabas;
     private CancellationToken _jobToken;
 
@@ -86,6 +89,8 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 var sets = await RunJobAsync(sgbd, "IDENT", "", ct);
                 _resolved[ecu.Id] = sgbd;
                 var all = Merge(sets);
+                // Run later jobs against the exact variant file, so EDIABAS doesn't re-identify every time.
+                if (Get(all, "VARIANTE") is { } variant && SgbdExists(variant)) _variants[ecu.Id] = variant;
                 return new EcuIdentity
                 {
                     Variant = Get(all, "VARIANTE"),
@@ -222,6 +227,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     {
         var names = new HashSet<string>(ecu.Sgbd, StringComparer.OrdinalIgnoreCase);
         if (_resolved.TryGetValue(ecu.Id, out var r)) names.Add(r);
+        if (_variants.TryGetValue(ecu.Id, out var v)) names.Add(v);
         return options.LiveFavorites.Where(p => Parse(p) is { } loc && names.Contains(loc.Sgbd)).ToList();
     }
 
@@ -247,6 +253,95 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
         }
         return values;
     }
+
+    // ------------------------------------------------------------------ IModuleReadings
+
+    public string? VariantOf(EcuDefinition ecu) =>
+        _variants.TryGetValue(ecu.Id, out var v) ? v.ToUpperInvariant() : null;
+
+    private string ReadingSgbd(EcuDefinition ecu) => _variants.TryGetValue(ecu.Id, out var v) ? v : SgbdFor(ecu);
+
+    /// <summary>Every STATUS_ job of the module's variant that runs without arguments, with BMW's description.</summary>
+    public async Task<IReadOnlyList<ModuleReading>> ListReadingsAsync(EcuDefinition ecu, CancellationToken ct = default)
+    {
+        var sgbd = ReadingSgbd(ecu);
+        lock (_readingCache)
+            if (_readingCache.TryGetValue(sgbd, out var cached)) return cached;
+
+        var list = new List<ModuleReading>();
+        foreach (var job in await ListJobsAsync(sgbd, ct))
+        {
+            if (!job.StartsWith("STATUS_", StringComparison.OrdinalIgnoreCase)) continue;
+            // The virtual jobs below only read the SGBD file; nothing is sent to the car.
+            var args = await RunJobAsync(sgbd, "_ARGUMENTS", job, ct);
+            if (args.Any(set => set.ContainsKey("ARG"))) continue;
+            var comments = await RunJobAsync(sgbd, "_JOBCOMMENTS", job, ct);
+            var comment = comments.SelectMany(set => set).Where(kv => kv.Key.StartsWith("JOBCOMMENT", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => kv.Value).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+            list.Add(new ModuleReading(job, comment));
+        }
+        lock (_readingCache) _readingCache[sgbd] = list;
+        return list;
+    }
+
+    /// <summary>Runs one reading job and returns its values, pairing each STAT_x_WERT with its STAT_x_EINH unit.</summary>
+    public async Task<IReadOnlyList<ReadingValue>> ReadAsync(EcuDefinition ecu, string job, CancellationToken ct = default)
+    {
+        var sgbd = ReadingSgbd(ecu);
+        var comments = await ResultCommentsAsync(sgbd, job, ct);
+        var sets = await RunJobAsync(sgbd, job, "", ct);
+        var values = new List<ReadingValue>();
+        foreach (var set in sets)
+        {
+            foreach (var (name, text) in set)
+            {
+                if (IsSystemResult(name) || ResultParts.Match(name) is { Success: true } e && e.Groups[2].Value.Equals("EINH", StringComparison.OrdinalIgnoreCase)) continue;
+                // STAT_x_WERT, STAT_x_WERT1 ... pair with STAT_x_EINH1 or the shared STAT_x_EINH.
+                var m = ResultParts.Match(name);
+                var stem = m.Success ? m.Groups[1].Value : name;
+                var index = m.Success ? m.Groups[3].Value : "";
+                var unit = set.GetValueOrDefault(stem + "_EINH" + index) ?? set.GetValueOrDefault(stem + "_EINH");
+                // A _TEXT result next to a _WERT one only describes it in words; keep it when it's the only one.
+                if (m.Success && m.Groups[2].Value.Equals("TEXT", StringComparison.OrdinalIgnoreCase) && set.ContainsKey(stem + "_WERT" + index)) continue;
+                double? number = double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out var d) ? d : null;
+                values.Add(new ReadingValue(name, text, number, string.IsNullOrWhiteSpace(unit) ? null : unit.Trim(), comments.GetValueOrDefault(name)));
+            }
+        }
+        return values;
+    }
+
+    public string PinSource(EcuDefinition ecu, string job, string result) => $"ediabas:{ReadingSgbd(ecu)}/{job}/{result}";
+
+    private async Task<Dictionary<string, string>> ResultCommentsAsync(string sgbd, string job, CancellationToken ct)
+    {
+        var key = sgbd + "/" + job;
+        lock (_resultComments)
+            if (_resultComments.TryGetValue(key, out var cached)) return cached;
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        try
+        {
+            foreach (var set in await RunJobAsync(sgbd, "_RESULTS", job, ct))
+            {
+                if (!set.TryGetValue("RESULT", out var result)) continue;
+                var comment = set.Where(kv => kv.Key.StartsWith("RESULTCOMMENT", StringComparison.OrdinalIgnoreCase))
+                    .OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => kv.Value).FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+                if (comment is not null) map[result] = comment;
+            }
+        }
+        catch (DiagnosticException) { }   // comments are a nicety; readings work without them
+        lock (_resultComments) _resultComments[key] = map;
+        return map;
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex ResultParts =
+        new(@"^(.*)_(WERT|TEXT|EINH)(\d*)$", System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static bool IsSystemResult(string name) =>
+        name.Equals("JOB_STATUS", StringComparison.OrdinalIgnoreCase) || name.Equals("VARIANTE", StringComparison.OrdinalIgnoreCase)
+        || name.StartsWith("_", StringComparison.Ordinal) || name.Equals("SAETZE", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("JOBNAME", StringComparison.OrdinalIgnoreCase) || name.Equals("OBJECT", StringComparison.OrdinalIgnoreCase)
+        || name.Equals("UBATTCURRENT", StringComparison.OrdinalIgnoreCase) || name.Equals("IGNITIONCURRENT", StringComparison.OrdinalIgnoreCase)
+        || name.StartsWith("ID_SGBD", StringComparison.OrdinalIgnoreCase);
 
     // ------------------------------------------------------------------ IJobRunner
 
@@ -322,7 +417,8 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     // ------------------------------------------------------------------ helpers
 
     private string SgbdFor(EcuDefinition ecu) =>
-        _resolved.TryGetValue(ecu.Id, out var s) ? s
+        _variants.TryGetValue(ecu.Id, out var v) ? v
+        : _resolved.TryGetValue(ecu.Id, out var s) ? s
         : ecu.Sgbd.FirstOrDefault(SgbdExists) ?? $"D_{ecu.Address:X4}";
 
     private bool SgbdExists(string name) =>

@@ -53,6 +53,19 @@
           <TextBlock Text="{Binding Engine}" Classes="muted" FontSize="16" />
         </StackPanel>
 
+        <!-- Shown until official fault meanings are set up: the full card is further down -->
+        <Border Classes="panel" Padding="16,12" IsVisible="{Binding NeedsFaultData}">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding DownloadButtonText}" Command="{Binding DownloadFaultDataCommand}" VerticalAlignment="Center" />
+            <StackPanel Spacing="2" Margin="0,0,16,0">
+              <TextBlock Text="Get BMW's own meaning for every fault code" FontWeight="SemiBold" />
+              <TextBlock Classes="muted small" TextWrapping="Wrap"
+                         Text="One-time free download from the community project bmw-unified-db (details further down), or use your own ISTA/INPA files." />
+              <TextBlock Classes="lit small" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
+            </StackPanel>
+          </DockPanel>
+        </Border>
+
         <Viewbox Stretch="Uniform" MaxHeight="400" HorizontalAlignment="Left">
           <Grid Width="1000" Height="460">
             <c:CarDrawing />

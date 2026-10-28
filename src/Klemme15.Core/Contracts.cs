@@ -107,6 +107,32 @@ public interface IOfficialFaultSource
     IReadOnlyCollection<string> PartNumbersOf(string variant);
 }
 
+/// <summary>One status reading a module offers (an EDIABAS STATUS_ job that needs no arguments).</summary>
+/// <param name="Job">BMW's job name, e.g. STATUS_L_SONDE.</param>
+/// <param name="Comment">BMW's description of the job (usually German), if any.</param>
+public sealed record ModuleReading(string Job, string? Comment);
+
+/// <summary>One value a reading returned.</summary>
+/// <param name="Name">BMW's result name, e.g. STAT_LAMBDA_SONDE_WERT.</param>
+/// <param name="Comment">BMW's description of the result, if any.</param>
+public sealed record ReadingValue(string Name, string Text, double? Number, string? Unit, string? Comment);
+
+/// <summary>
+/// Module-specific readings (sensor values, switch states, adaptation values) computed by BMW's own job scripts.
+/// Only backends that can run those scripts (EDIABAS mode with the user's files, or the demo) offer this.
+/// </summary>
+public interface IModuleReadings
+{
+    /// <summary>The module variant the readings come from (e.g. "MSV70").</summary>
+    string? VariantOf(EcuDefinition ecu);
+
+    Task<IReadOnlyList<ModuleReading>> ListReadingsAsync(EcuDefinition ecu, CancellationToken ct = default);
+    Task<IReadOnlyList<ReadingValue>> ReadAsync(EcuDefinition ecu, string job, CancellationToken ct = default);
+
+    /// <summary>Live-data source string for pinning one value to the Live data page.</summary>
+    string PinSource(EcuDefinition ecu, string job, string result);
+}
+
 /// <summary>Fills in a fault's meaning using everything known about the module it came from.</summary>
 public interface IFaultDescriber
 {

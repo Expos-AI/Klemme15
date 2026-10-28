@@ -46,6 +46,8 @@ public static class GermanGlossary
                 continue;
             }
             words++;
+            // In measurement texts a capitalised "Ist" is the actual value ("Ladedruck Soll und Ist"), not the verb.
+            if (t == "Ist" && sb.Length > 0) { sb.Append("actual"); known++; continue; }
             if (dict.TryGetValue(key, out var en)) { sb.Append(en); known++; continue; }
             if (Split(key, dict) is { } parts) { sb.Append(string.Join(' ', parts.Select(p => dict[p]))); known++; continue; }
             sb.Append(t);

@@ -28,6 +28,8 @@ public sealed class SessionState : ViewModelBase
             {
                 Raise(nameof(IsConnected));
                 Raise(nameof(SupportsJobs));
+                _demoReadings = null;
+                Raise(nameof(Readings));
             }
         }
     }
@@ -37,6 +39,10 @@ public sealed class SessionState : ViewModelBase
     public bool IsConnected => _backend is not null;
     public bool IsDemo { get => _isDemo; private set => Set(ref _isDemo, value); }
     public bool SupportsJobs => _backend is IJobRunner;
+
+    /// <summary>Module readings (BMW's status jobs) when the connection can run them, or the demo's made-up ones.</summary>
+    public IModuleReadings? Readings => _backend as IModuleReadings ?? (_isDemo && _backend is not null ? _demoReadings ??= new Klemme15.Protocols.Simulation.DemoReadings(_model) : null);
+    private IModuleReadings? _demoReadings;
     public string Status { get => _status; set => Set(ref _status, value); }
 
     /// <summary>Short connection label for the header, e.g. "Demo car" or "Cable on COM3".</summary>

@@ -75,6 +75,9 @@ public abstract class PageViewModel : ViewModelBase
 
     /// <summary>Called whenever the page becomes visible.</summary>
     public virtual void OnShown() { }
+
+    /// <summary>Called when another page is shown instead.</summary>
+    public virtual void OnHidden() { }
 }
 
 public static class Icons
@@ -85,6 +88,7 @@ public static class Icons
     public static readonly Geometry Connect = StreamGeometry.Parse("M7 2h2v5h6V2h2v5h2v4a7 7 0 0 1-6 6.9V22h-2v-4.1A7 7 0 0 1 5 11V7h2z");
     public static readonly Geometry Scan = StreamGeometry.Parse("M10 2a8 8 0 0 1 6.3 12.9l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z");
     public static readonly Geometry Faults = StreamGeometry.Parse("M12 2 1 21h22zm-1 7h2v6h-2zm0 8h2v2h-2z");
+    public static readonly Geometry Readings = StreamGeometry.Parse("M12 3a10 10 0 0 1 10 10c0 2.4-.8 4.6-2.3 6.3l-1.5-1.3A8 8 0 1 0 5.8 18l-1.5 1.3A10 10 0 0 1 12 3zm4.6 4.6 1.4 1.4-4.3 4.3a2 2 0 1 1-1.4-1.4z");
     public static readonly Geometry Live = StreamGeometry.Parse("M3 20h18v2H3zM5 10h3v8H5zm5-6h3v14h-3zm5 9h3v5h-3z");
     public static readonly Geometry Expert = StreamGeometry.Parse("M2 4h20v16H2zm2 2v12h16V6zM6.4 8 11 12l-4.6 4L5 14.6 8 12 5 9.4zM12 15h6v2h-6z");
     public static readonly Geometry Log = StreamGeometry.Parse("M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z");

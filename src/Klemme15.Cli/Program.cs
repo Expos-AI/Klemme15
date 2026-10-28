@@ -18,6 +18,8 @@ internal static class Cli
           vehicles                      List supported vehicles and their modules
           scan                          Quick test: identify every module and read faults
           faults  --module <id>         Read one module's fault memory
+          readings --module <id>        Read every status value a module offers (needs --ediabas, or --demo)
+                   [--filter lambda] [--job STATUS_X]
           clear   --module <id> [--yes] Clear one module's fault memory
           live    [--pids rpm,coolant]  Stream live engine data (Ctrl+C to stop)
           discover                      Probe every other address for modules the database doesn't list
@@ -201,6 +203,7 @@ internal static class Cli
             {
                 "scan" => await Scan(backend, codes, vehicle, a, cts.Token),
                 "faults" => await Faults(backend, codes, Module(vehicle, a), cts.Token),
+                "readings" => await Readings(backend, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "discover" => await Discover(backend, vehicle, cts.Token),
@@ -284,6 +287,39 @@ internal static class Cli
                 _ => ReportWriter.ToHtml(scan),
             });
             Console.WriteLine($"Report saved to {file}");
+        }
+        return 0;
+    }
+
+    /// <summary>klemme15 readings --module DME [--job STATUS_X] [--filter lambda]: BMW status values, read-only.</summary>
+    private static async Task<int> Readings(IDiagnosticBackend backend, IModuleReadings? readings, EcuDefinition ecu, Args a, CancellationToken ct)
+    {
+        if (readings is null)
+        {
+            Console.Error.WriteLine("Module readings run BMW's own scripts, so they need your BMW files: add --ediabas <your Ecu folder>.");
+            return 2;
+        }
+        if (await backend.IdentifyAsync(ecu, ct) is null) { Console.Error.WriteLine($"{ecu.Name} did not answer."); return 1; }
+        var list = await readings.ListReadingsAsync(ecu, ct);
+        var filter = a.Get("filter");
+        var jobs = list.Where(r => a.Get("job") is { } j ? r.Job.Equals(j, StringComparison.OrdinalIgnoreCase)
+                : filter is null || ReadingLabels.JobTitle(r.Job, r.Comment).Contains(filter, StringComparison.OrdinalIgnoreCase)
+                  || r.Job.Contains(filter, StringComparison.OrdinalIgnoreCase)).ToList();
+        Console.WriteLine($"{ecu.Name}, module version {readings.VariantOf(ecu) ?? "?"}: {list.Count} readings{(jobs.Count != list.Count ? $", showing {jobs.Count}" : "")}");
+        foreach (var group in jobs.GroupBy(r => ReadingLabels.GroupOf(r.Job, r.Comment)).OrderBy(g => ReadingLabels.GroupOrder.ToList().IndexOf(g.Key)))
+        {
+            Console.WriteLine();
+            Console.WriteLine($"== {group.Key}");
+            foreach (var r in group)
+            {
+                Console.WriteLine($"  {ReadingLabels.JobTitle(r.Job, r.Comment)}  [{r.Job}]");
+                try
+                {
+                    foreach (var v in await readings.ReadAsync(ecu, r.Job, ct))
+                        Console.WriteLine($"      {ReadingLabels.ResultLabel(v.Name, v.Comment),-48} {(v.Number is null ? ReadingLabels.ValueText(v.Text) : v.Text)} {v.Unit}".TrimEnd());
+                }
+                catch (DiagnosticException e) { Console.WriteLine($"      ({e.Message})"); }
+            }
         }
         return 0;
     }

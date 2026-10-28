@@ -1,0 +1,122 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             x:Class="Klemme15.App.Views.ReadingsView"
+             x:DataType="vm:ReadingsViewModel">
+  <UserControl.Styles>
+    <Style Selector="Button.module">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="12,9" />
+      <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="Button.module.selected">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="280,*" Margin="36,26,36,0">
+    <!-- Not connected / no module scripts available -->
+    <StackPanel Grid.ColumnSpan="2" Spacing="12" MaxWidth="720" HorizontalAlignment="Left" IsVisible="{Binding !Available}">
+      <TextBlock Classes="title" Text="Readings" />
+      <TextBlock TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
+                 Text="Connect to your car (or open a demo car) in the Garage, run the quick test, then come back here to see every value each module reports: sensor readings, switch states and learned values." />
+      <StackPanel Spacing="10" IsVisible="{Binding NotAvailable}">
+        <TextBlock TextWrapping="Wrap"
+                   Text="Module readings are computed by BMW's own scripts inside each module's file, so they need your BMW files (from ISTA, INPA or EDIABAS)." />
+        <TextBlock TextWrapping="Wrap" Classes="muted"
+                   Text="In the Garage, open the cable setup, tick 'Use my own EDIABAS files' (Klemme15 usually finds them by itself), and connect again. Engine values such as RPM, temperatures and fuel trims are also on the Live data page without BMW files." />
+      </StackPanel>
+    </StackPanel>
+
+    <!-- Module list -->
+    <DockPanel Grid.Column="0" Margin="0,0,24,0" IsVisible="{Binding Available}">
+      <TextBlock DockPanel.Dock="Top" Classes="title" Text="Readings" Margin="0,0,0,14" />
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Modules}" Margin="0,0,0,24">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ReadingModuleViewModel">
+              <Button Classes="module" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Classes="muted small" Text="{Binding Address}" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
+                </DockPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+
+    <!-- Readings of the selected module -->
+    <DockPanel Grid.Column="1" IsVisible="{Binding HasModule}">
+      <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,4,0,14">
+        <TextBlock Classes="section" Text="{Binding ModuleTitle}" />
+        <TextBlock Classes="muted small" Text="{Binding VariantText}" />
+        <DockPanel>
+          <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8">
+            <CheckBox Content="Auto-refresh" IsChecked="{Binding AutoRefresh}" VerticalAlignment="Center" Margin="0,0,6,0"
+                      ToolTip.Tip="Re-read the readings you ticked Watch on (or all you've read) every second" />
+            <Button Content="Stop" Command="{Binding StopCommand}" />
+            <Button Classes="primary" Content="Read all" Command="{Binding ReadAllCommand}" />
+          </StackPanel>
+          <TextBox Text="{Binding Filter}" Watermark="Search readings (e.g. lambda, VANOS, temperature)" MaxWidth="420" HorizontalAlignment="Left" />
+        </DockPanel>
+        <TextBlock Classes="muted small" Text="{Binding Status}" TextWrapping="Wrap" />
+        <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" TextWrapping="Wrap" />
+      </StackPanel>
+
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Groups}" Margin="0,0,0,32">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ReadingGroupViewModel">
+              <StackPanel Spacing="8" Margin="0,6,0,14">
+                <StackPanel Orientation="Horizontal" Spacing="10">
+                  <TextBlock Classes="section" Text="{Binding Name}" FontSize="16" />
+                  <TextBlock Classes="muted small" Text="{Binding Count}" VerticalAlignment="Center" />
+                </StackPanel>
+                <ItemsControl ItemsSource="{Binding Items}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ReadingItemViewModel">
+                      <Border Classes="panel" Padding="16,12" Margin="0,0,0,8">
+                        <StackPanel Spacing="8">
+                          <DockPanel>
+                            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                              <TextBlock Classes="muted small" Text="{Binding Updated}" VerticalAlignment="Center" />
+                              <CheckBox Content="Watch" IsChecked="{Binding Watch}" />
+                              <Button Content="Read" Command="{Binding ReadCommand}" />
+                            </StackPanel>
+                            <StackPanel Spacing="2" ToolTip.Tip="{Binding Tooltip}">
+                              <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                              <TextBlock Classes="mono muted small" Text="{Binding Job}" />
+                            </StackPanel>
+                          </DockPanel>
+                          <TextBlock Classes="error small" Text="{Binding Error}" IsVisible="{Binding HasError}" TextWrapping="Wrap" />
+                          <ItemsControl ItemsSource="{Binding Values}" IsVisible="{Binding HasValues}">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate x:DataType="vm:ReadingValueViewModel">
+                                <Grid ColumnDefinitions="*,Auto,80,Auto" Margin="0,2" ToolTip.Tip="{Binding Name}">
+                                  <TextBlock Grid.Column="0" Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center" Margin="0,0,12,0" />
+                                  <SelectableTextBlock Grid.Column="1" Classes="mono" Text="{Binding Text}" FontWeight="SemiBold" VerticalAlignment="Center" />
+                                  <TextBlock Grid.Column="2" Classes="muted" Text="{Binding Unit}" Margin="8,0,0,0" VerticalAlignment="Center" />
+                                  <Button Grid.Column="3" Classes="quiet" Content="Pin to Live data" Command="{Binding PinCommand}"
+                                          IsVisible="{Binding CanPin}" FontSize="12" Padding="4,0" />
+                                </Grid>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </DockPanel>
+  </Grid>
+</UserControl>
