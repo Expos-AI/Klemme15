@@ -10,7 +10,7 @@ namespace Klemme15.Protocols;
 /// (ReadDataByCommonIdentifier, $22 + the value's id) and scales the reply with the table's type, factor and unit.
 /// The tables come from the database the user downloaded. Read-only: nothing is changed on the car.
 /// </summary>
-public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, Func<EcuDefinition, string?> variantOf, TrafficLog? log = null) : IModuleReadings
+public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, Func<EcuDefinition, string?> variantOf, TrafficLog? log = null) : IModuleReadings, IMeasurementReader
 {
     public const byte ReadDataByCommonIdentifier = 0x22;
 
@@ -52,6 +52,24 @@ public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, 
     }
 
     public string PinSource(EcuDefinition ecu, string job, string result) => $"native:{ecu.Id}/{job}";
+
+    /// <summary>Reads the named values this module's table has, one request each; values it lacks or refuses are left out.</summary>
+    public async Task<IReadOnlyDictionary<string, double>> ReadMeasurementsAsync(EcuDefinition ecu, IReadOnlyList<string> resultNames, CancellationToken ct = default)
+    {
+        var values = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase);
+        if (variantOf(ecu) is not { } v || !tables.Has(v)) return values;
+        var known = tables.MeasurementsOf(v).Select(m => m.Result).ToHashSet(StringComparer.OrdinalIgnoreCase);
+        foreach (var name in resultNames.Where(known.Contains))
+        {
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                if ((await ReadAsync(ecu, name, ct)).FirstOrDefault()?.Number is { } d) values[name] = d;
+            }
+            catch (DiagnosticException) { /* this value isn't available on this car */ }
+        }
+        return values;
+    }
 
     /// <summary>Raw bytes to a scaled value: raw × mul ÷ div + add, with the raw size and sign from BMW's data type.</summary>
     public static double? Decode(MeasurementDef def, ReadOnlySpan<byte> data)

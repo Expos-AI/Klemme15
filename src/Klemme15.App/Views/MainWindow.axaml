@@ -15,6 +15,7 @@
     <DataTemplate DataType="vm:FaultsViewModel"><views:FaultsView /></DataTemplate>
     <DataTemplate DataType="vm:ReadingsViewModel"><views:ReadingsView /></DataTemplate>
     <DataTemplate DataType="vm:ServiceViewModel"><views:ServiceView /></DataTemplate>
+    <DataTemplate DataType="vm:TestsViewModel"><views:TestsView /></DataTemplate>
     <DataTemplate DataType="vm:LiveViewModel"><views:LiveView /></DataTemplate>
     <DataTemplate DataType="vm:ExpertViewModel"><views:ExpertView /></DataTemplate>
     <DataTemplate DataType="vm:LogViewModel"><views:LogView /></DataTemplate>

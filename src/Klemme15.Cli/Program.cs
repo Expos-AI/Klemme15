@@ -21,6 +21,8 @@ internal static class Cli
           readings --module <id>        Read every status value a module offers (needs --ediabas, or --demo)
                    [--filter lambda] [--job STATUS_X]
           clear   --module <id> [--yes] Clear one module's fault memory
+          test                          List guided tests (fuel trims, VANOS, cylinder roughness)
+          test <id>                     Run one: measures while telling you what to do, then explains the result
           service                       List service functions (battery registration, calibrations, tests)
           service <id> [--experimental] Run one, e.g. 'service battery-registration --port COM3 --experimental'
                                         Choices as options: 'service service-reset --item oil', 'service cylinder-cutout --cyl 3'
@@ -168,6 +170,9 @@ internal static class Cli
                 if (ports.Count == 0) Console.WriteLine("No serial ports found. Is the cable plugged in and its driver installed?");
                 foreach (var p in ports) Console.WriteLine($"{p.Name,-22} {p.Description}{(p.LikelyKDCan ? "   <- likely K+DCAN" : "")}");
                 return 0;
+            case "test" when a.Positional.Count == 0:
+                foreach (var t in GuidedTests.All) Console.WriteLine($"  {t.Id,-12} {t.Title}\n               {t.Requirements}");
+                return 0;
             case "service" when a.Positional.Count == 0:
                 return ListService(db);
             case "vehicles":
@@ -238,6 +243,7 @@ internal static class Cli
                 "scan" => await Scan(backend, codes, vehicle, a, cts.Token),
                 "faults" => await Faults(backend, codes, Module(vehicle, a), cts.Token),
                 "readings" => await Readings(backend, db, model, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
+                "test" => await GuidedTest(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "service" => await Service(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
@@ -327,6 +333,44 @@ internal static class Cli
     }
 
     /// <summary>klemme15 readings --module DME [--job STATUS_X] [--filter lambda]: BMW status values, read-only.</summary>
+    private static async Task<int> GuidedTest(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle, VehicleModel? model, bool demo,
+        TrafficLog log, Args a, CancellationToken ct)
+    {
+        var id = a.Positional.ElementAtOrDefault(0);
+        var info = GuidedTests.All.FirstOrDefault(t => t.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+        if (info is null) { Console.Error.WriteLine($"Unknown test '{id}'. See 'klemme15 test'."); return 2; }
+        var engine = vehicle.Modules.First(m => m.IsEngine);
+        IMeasurementReader? measurements = backend as IMeasurementReader;
+        if (demo) measurements = new Klemme15.Protocols.Simulation.DemoReadings(model);
+        else if (measurements is null && backend is IRawRequests raw && db.Measurements is { } tables)
+        {
+            var identity = await backend.IdentifyAsync(engine, ct);
+            measurements = new Klemme15.Protocols.NativeReadings(raw, tables,
+                e => OfficialLookup.ResolveVariant(db.OfficialSources, e, identity, model?.EngineCode, v => tables.Has(v)), log);
+        }
+        ISignalSource signals = demo ? new Klemme15.Protocols.Simulation.DemoSignals(measurements!, engine) : new EngineSignals(backend, engine, measurements);
+        Console.WriteLine();
+        Console.WriteLine(info.Title);
+        Console.WriteLine($"  {info.Requirements}");
+        var last = "";
+        var progress = new Progress<TestProgress>(p =>
+        {
+            if (p.Instruction != last) { Console.WriteLine(); Console.WriteLine($">> {p.Instruction}"); last = p.Instruction; }
+            Console.Write($"\r   {p.Status}".PadRight(60));
+        });
+        var report = await GuidedTests.RunAsync(info.Id, signals, progress, ct, demo ? 8 : 1);
+        Console.WriteLine();
+        Console.WriteLine();
+        foreach (var v in report.Values) Console.WriteLine($"  {v.Key,-28} {v.Value,8:0.0} {report.Unit}");
+        foreach (var f in report.Findings)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"[{f.Severity}] {f.Title}");
+            Console.WriteLine($"  {f.Explanation}");
+        }
+        return report.Findings.Any(f => f.Severity == TestSeverity.Problem) ? 3 : 0;
+    }
+
     private static int ListService(VehicleDatabase db)
     {
         foreach (var group in db.Service.All.GroupBy(f => f.Category))

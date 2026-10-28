@@ -1,0 +1,102 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             x:Class="Klemme15.App.Views.TestsView"
+             x:DataType="vm:TestsViewModel">
+  <UserControl.Styles>
+    <Style Selector="Button.test">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Left" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="12,9" />
+      <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="Button.test.selected">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+    </Style>
+    <Style Selector="Border.finding">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}" />
+    </Style>
+    <Style Selector="Border.finding.problem"><Setter Property="Background" Value="{DynamicResource RedSoftBrush}" /></Style>
+    <Style Selector="Border.finding.watch"><Setter Property="Background" Value="{DynamicResource AmberSoftBrush}" /></Style>
+    <Style Selector="Border.finding.ok"><Setter Property="Background" Value="{DynamicResource LitSoftBrush}" /></Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="300,*" Margin="36,26,36,0">
+    <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="10">
+      <TextBlock Classes="title" Text="Tests" />
+      <TextBlock Classes="muted small" TextWrapping="Wrap"
+                 Text="Klemme15 measures the engine while it tells you what to do, then explains what the numbers mean. Nothing is changed on the car." />
+      <ItemsControl ItemsSource="{Binding Tests}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:GuidedTestViewModel">
+            <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
+              <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
+                 Text="Connect to your car (or open a demo car) in the Garage first." />
+    </StackPanel>
+
+    <ScrollViewer Grid.Column="1">
+      <StackPanel Spacing="14" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32">
+        <TextBlock Classes="section" Text="{Binding TestTitle}" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
+        <StackPanel Spacing="2">
+          <TextBlock Classes="muted small" Text="Before you start" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding Requirements}" TextWrapping="Wrap" />
+          <TextBlock Classes="muted small" Text="{Binding Duration}" />
+        </StackPanel>
+
+        <Border Classes="panel" Padding="18,14">
+          <StackPanel Spacing="10">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Classes="primary" Content="Start" Command="{Binding StartCommand}" />
+              <Button Content="Stop" Command="{Binding StopCommand}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Instruction}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Classes="mono muted" Text="{Binding Status}" />
+            <ProgressBar Value="{Binding Fraction}" Minimum="0" Maximum="100" IsVisible="{Binding IsRunning}" Height="6" />
+          </StackPanel>
+        </Border>
+
+        <StackPanel Spacing="8" IsVisible="{Binding HasResult}">
+          <TextBlock Classes="section" FontSize="16" Text="What it means" />
+          <ItemsControl ItemsSource="{Binding Findings}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TestFindingViewModel">
+                <Border Classes="finding" Classes.problem="{Binding Problem}" Classes.watch="{Binding Watch}" Classes.ok="{Binding Ok}" Margin="0,0,0,8">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <SelectableTextBlock Text="{Binding Explanation}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
+        <StackPanel Spacing="6" IsVisible="{Binding HasValues}">
+          <TextBlock Classes="section" FontSize="16" Text="Measured" />
+          <ItemsControl ItemsSource="{Binding Values}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TestValueViewModel">
+                <Grid ColumnDefinitions="220,90,*" Margin="0,3">
+                  <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
+                  <TextBlock Grid.Column="1" Classes="mono" Text="{Binding Text}" HorizontalAlignment="Right" Margin="0,0,12,0" VerticalAlignment="Center" />
+                  <Border Grid.Column="2" Width="{Binding BarWidth}" Height="12" CornerRadius="3" HorizontalAlignment="Left"
+                          Background="{DynamicResource SteelBrush}" VerticalAlignment="Center" />
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>
