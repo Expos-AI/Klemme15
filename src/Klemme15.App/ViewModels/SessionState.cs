@@ -114,7 +114,7 @@ public sealed class SessionState : ViewModelBase
         Model = model;
         IsDemo = settings.Demo;
         Backend = backend;
-        Connection = settings.Demo ? "Demo car" : $"Cable on {settings.Port}";
+        Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
         Status = $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
     }
 

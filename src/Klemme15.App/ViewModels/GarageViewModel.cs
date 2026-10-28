@@ -55,7 +55,7 @@ public sealed class GarageViewModel : PageViewModel
         _trustDsr = settings.TrustDsr;
 
         OpenDemoCommand = new AsyncCommand(() => ConnectAsync(demo: true), () => !_busy && _model is not null, e => Error = e.Message);
-        ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && _model is not null && _port is not null, e => Error = e.Message);
+        ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && _model is not null && (_port is not null || UsesNetwork), e => Error = e.Message);
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected);
         RefreshPortsCommand = new RelayCommand(RefreshPorts);
@@ -260,7 +260,31 @@ public sealed class GarageViewModel : PageViewModel
         set { if (Set(ref _port, value)) ConnectCarCommand.RaiseCanExecuteChanged(); }
     }
 
-    public bool NoPorts => Ports.Count == 0;
+    public bool NoPorts => Ports.Count == 0 && !UsesNetwork;
+
+    private string _networkAddress = "";
+
+    /// <summary>A Wi-Fi or network cable: rfc2217://192.168.4.1:2217 or tcp://host:port. Takes precedence over the port list.</summary>
+    public string NetworkAddress
+    {
+        get => _networkAddress;
+        set
+        {
+            if (!Set(ref _networkAddress, value?.Trim() ?? "")) return;
+            Raise(nameof(UsesNetwork));
+            Raise(nameof(NetworkHint));
+            Raise(nameof(NoPorts));
+            ConnectCarCommand.RaiseCanExecuteChanged();
+        }
+    }
+
+    public bool UsesNetwork => Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(_networkAddress);
+
+    public string NetworkHint => _networkAddress.Length == 0 ? ""
+        : UsesNetwork ? "Klemme15 will connect over the network instead of USB."
+        : "Use rfc2217://address:port (or tcp://address:port), e.g. rfc2217://192.168.4.1:2217";
+
+    private string? PortName => UsesNetwork ? _networkAddress : _port?.Name;
     public bool EdiabasAvailable => BackendFactory.EdiabasAvailable;
     public bool UseEdiabas { get => _useEdiabas; set => Set(ref _useEdiabas, value); }
     public string? EdiabasPath { get => _ediabasPath; set => Set(ref _ediabasPath, value); }
@@ -330,6 +354,7 @@ public sealed class GarageViewModel : PageViewModel
         {
             Error = $"Couldn't list serial ports: {e.Message}";
         }
+        if (Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(_settings.Port)) NetworkAddress = _settings.Port!;
         Port = Ports.FirstOrDefault(p => p.Name == _settings.Port) ?? Ports.FirstOrDefault(p => p.LikelyKDCan) ?? Ports.FirstOrDefault();
         Raise(nameof(NoPorts));
     }
@@ -351,7 +376,7 @@ public sealed class GarageViewModel : PageViewModel
         {
             VehicleId = _family.Family.Id,
             ModelId = _model.Id,
-            Port = demo ? null : _port?.Name,
+            Port = demo ? null : PortName,
             Demo = demo,
             EdiabasPath = !demo && _useEdiabas ? _ediabasPath : null,
             TrustDsr = _trustDsr,
@@ -376,7 +401,7 @@ public sealed class GarageViewModel : PageViewModel
 
         _settings.VehicleId = _family.Family.Id;
         _settings.ModelId = _model.Id;
-        _settings.Port = _port?.Name ?? _settings.Port;
+        _settings.Port = PortName ?? _settings.Port;
         _settings.UseDemo = demo;
         _settings.UseEdiabas = _useEdiabas;
         _settings.EdiabasPath = _ediabasPath;
