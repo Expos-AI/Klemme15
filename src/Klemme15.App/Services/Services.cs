@@ -57,6 +57,9 @@ public sealed class AppSettings
     public bool UseDemo { get; set; }
     public bool UseEdiabas { get; set; }
     public string? EdiabasPath { get; set; }
+
+    /// <summary>BMW Ecu folder to read official fault texts from (any OS). Null: use EdiabasPath or auto-detect.</summary>
+    public string? EcuFolder { get; set; }
     public bool TrustDsr { get; set; }
     public List<FavoriteParameter> LiveFavorites { get; set; } = [];
 
@@ -70,11 +73,11 @@ public sealed class AppSettings
     }
 
     private static string FilePath =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Klemme15", "settings.json");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "Klemme15", "settings.json");
 
     /// <summary>Folder used before the project was renamed from OpenHood.</summary>
     private static string LegacyFolder =>
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "OpenHood");
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "OpenHood");
 
     public static AppSettings Load()
     {

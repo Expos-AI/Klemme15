@@ -9,5 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="db\**\*.json" LogicalName="Klemme15.Data.%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="db\glossary-de-en.txt" LogicalName="Klemme15.Data.glossary-de-en.txt" />
   </ItemGroup>
 </Project>

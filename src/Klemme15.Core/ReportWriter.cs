@@ -45,7 +45,12 @@ public static class ReportWriter
             sb.AppendLine();
             sb.AppendLine($"## {e.Ecu.Name}");
             foreach (var f in e.Faults)
+            {
                 sb.AppendLine($"- **{f.Code}** ({f.State}) {f.DisplayDescription}");
+                if (f.OfficialText is { } bmw && bmw != f.Description) sb.AppendLine($"  - BMW text: {bmw}");
+                if (f.ModuleVariant is { } mod) sb.AppendLine($"  - Module {mod}{(f.VariantConfirmed ? "" : " (most likely)")}");
+                if (f.Hint is { } tip) sb.AppendLine($"  - Tip: {tip}");
+            }
         }
         return sb.ToString();
     }
@@ -98,7 +103,16 @@ section{margin-top:24px}
                 var details = string.Join(", ", f.Details.Select(kv => $"{kv.Key}: {kv.Value}"));
                 var state = f.IsInfo ? "Info memory" : f.State.ToString();
                 var hint = f.Hint is null ? "" : $"<br><span class=\"muted\">Tip: {H(f.Hint)}</span>";
-                var origin = f.Confidence switch
+                var bmwText = f.OfficialText is { } ot && ot != f.Description ? $"<br><span class=\"muted\">BMW text: {H(ot)}</span>" : "";
+                var variant = f.ModuleVariant is { } mv ? $"<br><span class=\"muted\">Module {H(mv)}{(f.VariantConfirmed ? "" : " (most likely)")}</span>" : "";
+                hint = bmwText + variant + hint;
+                var origin = f.DescriptionOrigin switch
+                {
+                    "bmw-en" => $"<br><span class=\"muted\">BMW's own text ({H(f.OfficialSource)})</span>",
+                    "bmw-de-glossary" => $"<br><span class=\"muted\">BMW's German text, translated with Klemme15's glossary ({H(f.OfficialSource)})</span>",
+                    "bmw-de" => $"<br><span class=\"muted\">BMW's German text ({H(f.OfficialSource)})</span>",
+                    _ => null,
+                } ?? f.Confidence switch
                 {
                     "official" => "<br><span class=\"muted\">Official text from the module's SGBD</span>",
                     "high" or "medium" => $"<br><span class=\"muted\">Community meaning ({f.Confidence} confidence): " +

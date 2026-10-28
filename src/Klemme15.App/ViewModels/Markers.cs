@@ -117,7 +117,15 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public bool HasTip => Tip is not null;
 
     /// <summary>Where the meaning comes from, so people know how far to trust it.</summary>
-    public string Provenance => Fault.Confidence switch
+    public string Provenance => Fault.DescriptionOrigin switch
+    {
+        "bmw-en" => $"BMW's own English text, from {Fault.OfficialSource ?? "your BMW data"}",
+        "bmw-de-glossary" => "BMW's German text, put into English by Klemme15's glossary (approximate)",
+        "bmw-de" => "BMW's German text (no English yet: use Translate)",
+        _ => LegacyProvenance,
+    };
+
+    private string LegacyProvenance => Fault.Confidence switch
     {
         "official" => "Official text from your SGBD file",
         "high" => Fault.Sources.Count == 1 ? "Community meaning, high confidence (1 source)" : $"Community meaning, high confidence ({Fault.Sources.Count} sources)",
@@ -128,6 +136,26 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     };
 
     public bool HasProvenance => Provenance.Length > 0;
+
+    /// <summary>BMW's original wording when the headline is something else (community text or a translation).</summary>
+    public string? OfficialLine => Fault.OfficialText is { } t && t != Fault.Description ? $"BMW text: {t}" : null;
+    public bool HasOfficialLine => OfficialLine is not null;
+
+    /// <summary>Which module version the meaning belongs to, and how sure we are.</summary>
+    public string? VariantLine => Fault.ModuleVariant is not { } v ? null
+        : Fault.VariantConfirmed ? $"Module {v} (identified from the module)"
+        : $"Module {v} (most likely for your car; a scan with the cable confirms it)";
+    public bool HasVariantLine => VariantLine is not null;
+
+    /// <summary>Same code, different meaning on other versions of this module.</summary>
+    public string? AlternativesText => Fault.Alternatives.Count == 0 || Fault.VariantConfirmed ? null
+        : "On other versions of this module the code means: " + string.Join("  |  ", Fault.Alternatives);
+    public bool HasAlternatives => AlternativesText is not null;
+
+    /// <summary>Offered while the headline is still BMW's German or only a glossary translation.</summary>
+    public bool CanTranslate => Fault.OfficialText is not null && Fault.DescriptionOrigin is "bmw-de" or "bmw-de-glossary";
+    public string TranslateUrl => "https://translate.google.com/?sl=de&tl=en&op=translate&text=" + Uri.EscapeDataString(Fault.OfficialText ?? "");
+    public RelayCommand? TranslateCommand { get; set; }
 
     /// <summary>Clickable source links (community entries only).</summary>
     public IReadOnlyList<SourceLink> SourceLinks { get; init; } = [];

@@ -83,6 +83,36 @@ public interface IFaultCodeDetails
     CodeInfo? LookupBmw(string ecuId, string code);
 }
 
+/// <summary>One code's entry in an official (BMW-authored) fault dictionary.</summary>
+/// <param name="Text">BMW's text as stored, usually German.</param>
+/// <param name="English">BMW's own English text, where BMW translated it.</param>
+public sealed record OfficialEntry(string Text, string? English);
+
+/// <summary>
+/// A per-variant fault dictionary the user supplies: their own BMW files, or a fault database they chose to download.
+/// Klemme15 ships none of this data itself.
+/// </summary>
+public interface IOfficialFaultSource
+{
+    /// <summary>Shown to the user next to each text, e.g. "your BMW files".</summary>
+    string Name { get; }
+
+    bool HasVariant(string variant);
+    OfficialEntry? Lookup(string variant, int code);
+
+    /// <summary>Engine codes the variant is for, as BMW writes them (e.g. "N52", "N52KP"), empty if unknown.</summary>
+    IReadOnlyCollection<string> EnginesOf(string variant);
+
+    /// <summary>BMW hardware part numbers (7 digits) known for the variant, empty if unknown.</summary>
+    IReadOnlyCollection<string> PartNumbersOf(string variant);
+}
+
+/// <summary>Fills in a fault's meaning using everything known about the module it came from.</summary>
+public interface IFaultDescriber
+{
+    Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity);
+}
+
 /// <summary>Backends that can find which modules are present in one go (e.g. a functional broadcast).</summary>
 public interface IPresenceProbe
 {

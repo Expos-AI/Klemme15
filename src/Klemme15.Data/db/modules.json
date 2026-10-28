@@ -16,7 +16,24 @@
     285,
     110
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "ms430ds0",
+    "ms450ds0",
+    "ms420ds0",
+    "mss54ds0",
+    "me9n45",
+    "me9k_ng4",
+    "mev9n46",
+    "bms46ds0",
+    "bms46ds1",
+    "bms43ds0",
+    "d50m47a",
+    "d50m47b1",
+    "dde50k47",
+    "d50m57a1",
+    "d50m57e1"
+   ]
   },
   {
    "id": "E46.EGS",
@@ -32,7 +49,17 @@
     415,
     230
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "_gs20",
+    "gs20",
+    "gs30",
+    "gs8600",
+    "gs8601",
+    "gs8604",
+    "_gs834",
+    "_gs860x"
+   ]
   },
   {
    "id": "E46.DSC",
@@ -49,7 +76,13 @@
     250,
     345
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "dsc_e46",
+    "dsc57",
+    "dsc_mk60",
+    "ascmk20"
+   ]
   },
   {
    "id": "E46.MRS",
@@ -65,7 +98,10 @@
     560,
     230
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "mrs4"
+   ]
   },
   {
    "id": "E46.IKE",
@@ -81,7 +117,11 @@
     345,
     300
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "kombi46",
+    "kombi46r"
+   ]
   },
   {
    "id": "E46.GM5",
@@ -97,7 +137,11 @@
     395,
     110
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "zke5",
+    "zke5_s12"
+   ]
   },
   {
    "id": "E46.LCM",
@@ -113,7 +157,11 @@
     400,
     368
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "lsz",
+    "lsz_2"
+   ]
   },
   {
    "id": "E46.IHKA",
@@ -129,7 +177,13 @@
     338,
     255
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "ihka46",
+    "ihka46_2",
+    "ihka46_3",
+    "ihkr46"
+   ]
   },
   {
    "id": "E46.EWS",
@@ -145,7 +199,10 @@
     372,
     330
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "ews3"
+   ]
   },
   {
    "id": "E46.PDC",
@@ -161,7 +218,10 @@
     880,
     340
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "pdcact"
+   ]
   },
   {
    "id": "E46.MFL",
@@ -209,7 +269,10 @@
     458,
     262
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "rls_ds2"
+   ]
   },
   {
    "id": "E9x.DME",
@@ -229,6 +292,33 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "mevd174k",
+    "mevd17kw",
+    "mevd176k",
+    "edme82",
+    "msd80",
+    "msv80",
+    "me17n45",
+    "msv70",
+    "mss60",
+    "mev17n46",
+    "mev9n46l",
+    "me9n45",
+    "d60m47a0",
+    "d60m57a0",
+    "d60m57d0",
+    "d62m57a0",
+    "d62m57b0",
+    "d70n47a0",
+    "d70n47b0",
+    "d71n47a0",
+    "d71n47c0",
+    "d72n47b0",
+    "d73n57b0",
+    "d73n57c0",
+    "d73n57d0"
    ]
   },
   {
@@ -245,7 +335,14 @@
     415,
     230
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "gs1912",
+    "gsb233",
+    "gs19d",
+    "gs19b",
+    "dkg_90"
+   ]
   },
   {
    "id": "E9x.DSC",
@@ -263,6 +360,11 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "dsc_87",
+    "dxc_90",
+    "mriabs2"
    ]
   },
   {
@@ -281,6 +383,11 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "mrs5",
+    "acsm2",
+    "mrs7"
    ]
   },
   {
@@ -299,6 +406,9 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "cas"
    ]
   },
   {
@@ -317,6 +427,9 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "komb87"
    ]
   },
   {
@@ -335,6 +448,10 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "frm_70",
+    "frm_87"
    ]
   },
   {
@@ -353,6 +470,10 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "jbbf70",
+    "jbbf87"
    ]
   },
   {
@@ -371,6 +492,13 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "ihka89",
+    "ihka87",
+    "ihkr89",
+    "ihkr90",
+    "ihr_87"
    ]
   },
   {
@@ -404,6 +532,11 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "ekp360",
+    "ekpm60_2",
+    "ekpm60_3"
    ]
   },
   {
@@ -419,7 +552,10 @@
     880,
     340
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "pdc_87"
+   ]
   },
   {
    "id": "E9x.CIC",
@@ -434,7 +570,16 @@
     338,
     205
    ],
-   "verified": false
+   "verified": false,
+   "variants": [
+    "cicmr",
+    "cicr",
+    "ccc_60",
+    "rad2",
+    "rad1",
+    "mask60",
+    "rad12r"
+   ]
   },
   {
    "id": "E9x.FZD",
@@ -452,6 +597,10 @@
    "verified": true,
    "seenOn": [
     "E90 325i 2006"
+   ],
+   "variants": [
+    "fzd_87",
+    "rls_87"
    ]
   },
   {
@@ -474,6 +623,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "afs_90"
    ]
   },
   {
@@ -496,6 +648,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "vgsg90"
    ]
   },
   {
@@ -518,6 +673,10 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "rdc_60",
+    "rdckwp"
    ]
   },
   {
@@ -540,6 +699,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "acc2"
    ]
   },
   {
@@ -562,6 +724,17 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "cvm_88",
+    "cvm_88_2",
+    "ctm_89",
+    "ctm_93_4",
+    "ctm_93_5",
+    "ctm_93_6",
+    "ctm_93_3",
+    "ctm_93_2",
+    "ctm_93"
    ]
   },
   {
@@ -584,6 +757,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "pgs_e65"
    ]
   },
   {
@@ -605,6 +781,9 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "variants": [
+    "eps_90"
    ]
   },
   {
@@ -645,6 +824,13 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "tele60_3",
+    "ulf_60",
+    "cmediar",
+    "tele60_2",
+    "ulf2_60"
    ]
   },
   {
@@ -667,6 +853,12 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "amp_60",
+    "amph70",
+    "amptlr89",
+    "ampt70"
    ]
   },
   {
@@ -710,6 +902,9 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "edck65"
    ]
   },
   {
@@ -767,6 +962,10 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "variants": [
+    "asd_89",
+    "ask_60"
    ]
   },
   {
@@ -789,6 +988,10 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "dwa_e65",
+    "dwa_63"
    ]
   },
   {
@@ -810,6 +1013,9 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "variants": [
+    "sd_kwp"
    ]
   },
   {
@@ -828,6 +1034,9 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "variants": [
+    "ant_60"
    ]
   },
   {
@@ -850,6 +1059,10 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "tvm2r",
+    "tvm_89"
    ]
   },
   {
@@ -872,6 +1085,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "sine_65"
    ]
   },
   {
@@ -894,6 +1110,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "sat_rad2"
    ]
   },
   {
@@ -933,6 +1152,10 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "variants": [
+    "cccg60",
+    "rad2_gw"
    ]
   },
   {
@@ -955,6 +1178,12 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "zbeh87",
+    "zbel87",
+    "zbe_60_2",
+    "zbel87_2"
    ]
   },
   {
@@ -977,6 +1206,10 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "fas_plx",
+    "fas_87"
    ]
   },
   {
@@ -999,6 +1232,10 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "bfs_plx",
+    "bfs_87"
    ]
   },
   {
@@ -1021,6 +1258,9 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "ahm_e65"
    ]
   },
   {
@@ -1043,6 +1283,11 @@
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "variants": [
+    "cid_89",
+    "cid_90",
+    "cid_87"
    ]
   },
   {
@@ -1083,6 +1328,9 @@
    "sources": [
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
     "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "variants": [
+    "ccca60"
    ]
   },
   {
@@ -1101,6 +1349,10 @@
    "note": "Only with a sunroof.",
    "sources": [
     "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "variants": [
+    "shd46",
+    "shd46_2"
    ]
   },
   {
@@ -1173,6 +1425,10 @@
    "note": "Only with navigation.",
    "sources": [
     "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "variants": [
+    "navmk4",
+    "navmk4_2"
    ]
   },
   {
@@ -1191,6 +1447,9 @@
    "note": "Only on the convertible. wilhelm-docs lists CVM at both 0x9B and 0x9C, so treat as unconfirmed.",
    "sources": [
     "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "variants": [
+    "cvm_ii"
    ]
   },
   {
@@ -1227,6 +1486,12 @@
    "note": "Only with the phone option.",
    "sources": [
     "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "variants": [
+    "telibus",
+    "telibus2",
+    "telibus3",
+    "tel_us"
    ]
   },
   {
@@ -1245,6 +1510,9 @@
    "note": "Only with the TV/video option.",
    "sources": [
     "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "variants": [
+    "vm5ibus"
    ]
   },
   {
