@@ -38,6 +38,7 @@ jobs:
             exit 1
           }
       - name: Test
+        shell: bash
         run: |
           set -o pipefail
           dotnet test tests/Klemme15.Tests -c Release --no-build --logger "console;verbosity=normal" --blame-hang-timeout 3m 2>&1 | tee test.log || {
