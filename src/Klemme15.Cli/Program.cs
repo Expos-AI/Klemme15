@@ -81,7 +81,7 @@ internal static class Cli
                 var m = await FaultDataDownload.DownloadAsync(db, progress: new Progress<double>(p =>
                 {
                     var pct = (int)(p * 100);
-                    if (pct / 10 != last / 10) { last = pct; Console.Error.Write($"\r{pct,3}%"); }
+                    if (pct / 10 > last / 10) { last = pct; Console.Error.Write($" {pct}%"); }
                 }));
                 Console.Error.WriteLine();
                 Console.WriteLine($"Installed {m.Variants} module dictionaries ({m.Release ?? "latest"}, sha256 {m.Sha256[..12]}...) in {FaultDataDownload.DefaultFolder}");
