@@ -5,7 +5,7 @@
   </picture>
 </h1>
 
-*Named after terminal 15 (Klemme 15), the ignition-on line every BMW diagnosis starts with. Formerly OpenHood.*
+*Named after terminal 15 (Klemme 15), the ignition-on line every BMW diagnosis starts with.*
 
 **Open-source BMW diagnostics for everyone.** Scan every module, read and clear faults, watch live engine data and export shareable reports. Use a cheap K+DCAN cable on Windows, macOS or Linux.
 
