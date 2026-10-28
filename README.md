@@ -9,7 +9,7 @@
 
 **Open-source BMW diagnostics for everyone.** Scan every module, read and clear faults, watch live engine data and export shareable reports. Use a cheap K+DCAN cable on Windows, macOS or Linux.
 
-> **Status: early alpha.** Confirmed on a real E90 over D-CAN (VIN and modules read); most other models are so far tested against the built-in demo cars. Read-only functions (scan, faults, readings, live data) are the focus. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
+> **Status: early alpha.** Confirmed on a real E90 over D-CAN (VIN and modules read); most other models are so far tested against the built-in demo cars. Read-only functions (scan, faults, readings, live data) are the focus; service functions are experimental until confirmed on real cars. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
 
 Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.
 
@@ -39,6 +39,7 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 - **Faults**: BMW and OBD-II codes, active vs stored vs info memory, plain-English descriptions, practical tips, a "check here" location, and where each meaning comes from (official SGBD text, or community meaning with confidence and clickable sources). Clear per module or all at once.
 - **Readings**: every status value each module reports, like INPA's module screens: oxygen sensor voltages and fuel trims per bank, VANOS positions, injectors, knock, throttle and pedal, every wheel speed, steering angle, battery sensor, temperatures, switch states and learned values. Grouped by system, labelled in English, searchable, with auto-refresh and one-click pinning to Live data. Values are computed by BMW's own scripts from your ISTA/INPA/EDIABAS files (Windows, macOS and Linux), and nothing is changed on the car. Try it on any demo car.
 - **Troubleshooting guides**: for common problems (mixture, misfires, VANOS/Valvetronic, cooling, fuel pressure, boost, charging, bus faults, wheel speed sensors, steering angle, steering lock, oxygen sensor heaters, secondary air, airbags), a **Troubleshoot** button under the fault gives step-by-step checks, with shortcuts to the readings that confirm each step. Written by contributors in plain words; add your own in `src/Klemme15.Data/db/guides.json`.
+- **Service functions** (experimental): register a new battery, calibrate the steering angle sensor, reset automatic gearbox adaptations, initialise the windows, and component tests (radiator fan, fuel pump, thermostat, electric water pump, secondary air pump, throttle, DISA flap). Each one explains what it does and when to use it, checks the car first (ignition, engine off, battery voltage, car stationary), asks you to confirm every step, runs once and shows the module's answer. They follow BMW's own procedure for your module version; battery registration also works without BMW files on E90-family engines. Off until you switch on experimental functions. See [docs/SERVICE.md](docs/SERVICE.md).
 - **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
 - **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
 - **Reports**: one click to save a scan as HTML, Markdown or JSON.
@@ -79,6 +80,8 @@ klemme15 live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1 -
 klemme15 faults --module DME --port COM3
 klemme15 readings --module DME --port COM3 --ediabas "C:\ISTA\Ediabas\Ecu" --filter lambda
 klemme15 clear --module DME --port COM3
+klemme15 service                                 # list service functions
+klemme15 service battery-registration --port COM3 --experimental
 klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
 ```
 
@@ -135,7 +138,7 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Safety
 
-Diagnostics are read-only by default. Clearing faults asks first. Coding and flashing are **not** included: a failed write can disable a module. Never use Klemme15 while driving; have a passenger watch live data or record it to CSV.
+Diagnostics are read-only by default. Clearing faults asks first. Service functions check the car, ask you to confirm each requirement and only run when you press Run; unverified ones need the experimental switch. Coding, flashing and anything touching the immobiliser are **not** included: a failed write can disable a module. Never use Klemme15 while driving; have a passenger watch live data or record it to CSV.
 
 ## Contributing
 

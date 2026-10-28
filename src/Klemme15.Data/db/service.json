@@ -1,0 +1,201 @@
+{
+ "$comment": "Klemme15 service functions: things that change something in the car (registrations, calibrations, adaptation resets, component tests). Written by contributors in their own words. 'implementations' say how to run a function on each module variant: 'job' + 'args' run BMW's own job from the user's files (EDIABAS mode); 'native' is a request Klemme15 sends itself (hex), allowed only when the request is documented for exactly those variants, with 'expect' the start of the positive reply. 'resultJob'/'resultArgs' read the outcome afterwards. 'checks': requirements Klemme15 verifies before running (ignition, engine off/running, minimum battery voltage, car stationary) plus 'confirm' items the user must tick. 'verified' stays false until the function has been confirmed on a real car; unverified functions only run with 'experimental service functions' switched on. Never add flashing, coding or immobiliser functions here.",
+ "functions": [
+  {
+   "id": "battery-registration",
+   "title": "Register a new battery",
+   "category": "Battery and power",
+   "module": "DME",
+   "summary": "Tells the engine computer a new battery was fitted, so it stops charging as if the old, worn battery were still there.",
+   "when": "After fitting a new battery of the same type and capacity as the old one.",
+   "risk": "low",
+   "verified": false,
+   "before": [
+    "The new battery must match the old one's type (AGM or standard) and capacity. A different type or capacity also needs the car's coding changed, which Klemme15 doesn't do."
+   ],
+   "after": [
+    "Nothing else to do: charging adapts over the next drives.",
+    "Clear the fault memories if fitting the battery left low-voltage faults behind."
+   ],
+   "checks": { "ignition": true, "engineOff": true, "minVoltage": 12.0, "confirm": ["The new battery is the same type and capacity as the old one."] },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80", "mss60", "me17n45", "me9n45", "mev9n46l", "mevd174k", "mevd17kw", "mevd176k", "d60m47a0", "d60m57a0", "d60m57d0", "d62m57a0", "d62m57b0", "d70n47a0", "d70n47b0", "d71n47a0", "d71n47c0", "d72n47b0", "d73n57b0", "d73n57c0", "d73n57d0", "ms450ds0", "mev9n46"],
+      "job": "STEUERN_BATTERIETAUSCH_REGISTRIEREN", "native": "3130001000", "expect": "7130" },
+    { "variants": ["edme82"], "job": "STEUERN_BATTERIETAUSCH_REGISTRIEREN" }
+   ]
+  },
+  {
+   "id": "steering-angle-calibration",
+   "title": "Calibrate the steering angle sensor",
+   "category": "Brakes, DSC and steering",
+   "module": "DSC",
+   "summary": "Teaches the stability control module where 'straight ahead' is.",
+   "when": "After a wheel alignment, steering repairs, or when the steering angle reads off-centre with the wheels straight.",
+   "risk": "high",
+   "verified": false,
+   "before": [
+    "Park on level ground with the wheels pointing exactly straight ahead and the steering wheel centred. Don't touch the wheel during the calibration."
+   ],
+   "after": [
+    "Check on the Readings page that the steering angle now reads close to zero with the wheels straight.",
+    "Clear the DSC fault memory, then test drive carefully: the DSC light should stay off and the car should not brake on its own."
+   ],
+   "checks": { "ignition": true, "stationary": true, "confirm": ["The wheels point straight ahead and the steering wheel is centred.", "The car is on level ground and nobody will touch the steering wheel."] },
+   "implementations": [
+    { "variants": ["dsc_87", "dxc_90"], "job": "LENKWINKEL_DSC_ABGLEICHEN", "args": "", "resultJob": "STAT_ERGEBNIS_ABGLEICH_ROUTINE", "resultArgs": "LWS;R" }
+   ]
+  },
+  {
+   "id": "gearbox-adaptation-reset",
+   "title": "Reset automatic gearbox adaptations",
+   "category": "Gearbox",
+   "module": "EGS",
+   "summary": "Clears what the automatic gearbox has learned about shift timing and pressure, so it relearns from scratch.",
+   "when": "After a gearbox fluid change or a repair, or when shifts have become harsh or slurred.",
+   "risk": "medium",
+   "verified": false,
+   "before": [
+    "Engine off, selector in P."
+   ],
+   "after": [
+    "Shifts may feel firm or soft for a while. Drive gently through all gears, including several light-throttle up- and downshifts, so it relearns."
+   ],
+   "checks": { "ignition": true, "engineOff": true, "stationary": true, "confirm": ["The selector is in P."] },
+   "implementations": [
+    { "variants": ["gs19b", "gs19d"], "job": "STEUERN_ADAPTIONSWERTE_RUECKSETZEN" }
+   ]
+  },
+  {
+   "id": "window-initialisation",
+   "title": "Initialise the windows (one-touch and anti-trap)",
+   "category": "Body",
+   "module": "FRM",
+   "summary": "Teaches the footwell module the windows' end positions, so one-touch up/down and the anti-trap protection work again.",
+   "when": "After the battery was disconnected or flat, or when one-touch window operation stopped working.",
+   "risk": "medium",
+   "verified": false,
+   "before": [
+    "Close all doors. The windows will move on their own: keep hands, pets and objects out of the way."
+   ],
+   "after": [
+    "Try one-touch up and down on each window."
+   ],
+   "checks": { "ignition": true, "engineOff": true, "confirm": ["All doors are closed and nothing is in the way of the windows."] },
+   "implementations": [
+    { "variants": ["frm_70"], "job": "STEUERN_FENSTERHEBER_EINLERNEN", "args": "0x40" }
+   ]
+  },
+  {
+   "id": "test-radiator-fan",
+   "title": "Test the radiator fan",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Runs the electric radiator fan at half speed for 10 seconds.",
+   "when": "When you suspect the fan or its wiring (overheating at idle, fan faults).",
+   "risk": "low",
+   "verified": false,
+   "before": [ "Keep hands, tools and clothing away from the fan." ],
+   "after": [ "If the fan didn't run, check its fuse, connector and wiring before replacing it." ],
+   "checks": { "ignition": true, "engineOff": true, "confirm": ["Nothing is near the fan."] },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80", "me17n45"], "job": "STEUERN_E_LUEFTER", "args": "50;10" }
+   ]
+  },
+  {
+   "id": "test-fuel-pump",
+   "title": "Test the fuel pump",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Switches the in-tank fuel pump on for 10 seconds. Listen under the rear seat.",
+   "when": "Long cranking, no start, or low fuel pressure faults.",
+   "risk": "low",
+   "verified": false,
+   "before": [ "Engine off. No work on the fuel system while testing." ],
+   "after": [ "No sound often means the pump, its fuse/relay, or (on some cars) the fuel pump control module." ],
+   "checks": { "ignition": true, "engineOff": true, "confirm": ["Nobody is working on the fuel lines."] },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80", "me17n45"], "job": "STEUERN_EKP", "args": "1;10" }
+   ]
+  },
+  {
+   "id": "test-thermostat",
+   "title": "Test the map thermostat heater",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Powers the electric heater in the map-controlled thermostat for 30 seconds.",
+   "when": "Thermostat faults, or a coolant temperature that never settles where it should.",
+   "risk": "low",
+   "verified": false,
+   "before": [ "Engine off." ],
+   "after": [ "If the module reports the thermostat circuit faulty, check the connector before replacing the thermostat." ],
+   "checks": { "ignition": true, "engineOff": true },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80"], "job": "STEUERN_KFT", "args": "100;30" }
+   ]
+  },
+  {
+   "id": "test-water-pump",
+   "title": "Test the electric water pump",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Runs the electric coolant pump at half speed for 20 seconds. You may hear it and feel the coolant hoses pulse.",
+   "when": "Water pump faults or overheating warnings.",
+   "risk": "low",
+   "verified": false,
+   "before": [ "The cooling system must be full: never run the pump dry." ],
+   "after": [ "If it doesn't run, check its connector and power supply first." ],
+   "checks": { "ignition": true, "engineOff": true, "confirm": ["The cooling system is full."] },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80"], "job": "STEUERN_EWAP", "args": "50;20" }
+   ]
+  },
+  {
+   "id": "test-secondary-air-pump",
+   "title": "Test the secondary air pump",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Runs the secondary air pump for 10 seconds. It is loud by design.",
+   "when": "Secondary air faults.",
+   "risk": "low",
+   "verified": false,
+   "before": [ "Engine off." ],
+   "after": [ "If it runs but the fault remains, check the hoses and the check valve." ],
+   "checks": { "ignition": true, "engineOff": true },
+   "implementations": [
+    { "variants": ["msv70", "msv80"], "job": "STEUERN_SLP", "args": "100;10" }
+   ]
+  },
+  {
+   "id": "test-throttle",
+   "title": "Test the throttle valve",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Opens the electronic throttle to half for 5 seconds, so you can watch or hear it move.",
+   "when": "Throttle faults, or after cleaning the throttle body.",
+   "risk": "low",
+   "verified": false,
+   "before": [ "Engine off. Keep fingers out of the throttle body." ],
+   "after": [],
+   "checks": { "ignition": true, "engineOff": true, "confirm": ["Nothing is inside the throttle body."] },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80", "me17n45"], "job": "STEUERN_DK", "args": "50;5" }
+   ]
+  },
+  {
+   "id": "test-disa",
+   "title": "Test the intake (DISA) flap",
+   "category": "Component tests",
+   "module": "DME",
+   "summary": "Switches the variable intake flap for 5 seconds. Listen for a click at the intake manifold.",
+   "when": "DISA faults, a flat spot in the mid-range.",
+   "risk": "low",
+   "verified": false,
+   "before": [ "Engine off." ],
+   "after": [],
+   "checks": { "ignition": true, "engineOff": true },
+   "implementations": [
+    { "variants": ["msv70", "msv80", "msd80"], "job": "STEUERN_DISA", "args": "100;5" }
+   ]
+  }
+ ]
+}
