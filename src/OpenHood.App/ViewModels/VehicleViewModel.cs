@@ -106,7 +106,7 @@ public sealed class VehicleViewModel : PageViewModel
 
     public bool HasSelection => _selected is not null;
     public bool NoSelection => _selected is null;
-    public string SelectedTitle => _selected?.Ecu?.Name ?? _selected?.Label ?? "";
+    public string SelectedTitle => _selected is null ? "" : _selected.IsFaultSource ? _selected.Detail : _selected.Ecu?.Name ?? _selected.Label;
     public string SelectedKind => _selected?.Kind == MarkerKind.FaultSource ? "Where the fault points" : "Module";
     public IReadOnlyList<FaultItemViewModel> SelectedFaults => _selected?.Faults ?? [];
     public bool SelectedHasFaults => SelectedFaults.Count > 0;

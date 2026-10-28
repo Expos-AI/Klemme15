@@ -261,13 +261,14 @@
 
     <!-- markers on the car drawing -->
     <Style Selector="Button.marker">
+      <Setter Property="ClipToBounds" Value="False" />
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Padding" Value="0" />
       <Setter Property="Cursor" Value="Hand" />
       <Setter Property="Template">
         <ControlTemplate>
-          <ContentPresenter Content="{TemplateBinding Content}" Background="Transparent" />
+          <ContentPresenter Content="{TemplateBinding Content}" Background="Transparent" ClipToBounds="False" />
         </ControlTemplate>
       </Setter>
     </Style>
