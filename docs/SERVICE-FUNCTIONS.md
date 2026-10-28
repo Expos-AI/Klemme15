@@ -1,0 +1,93 @@
+# Service functions: full list
+
+Generated from `src/Klemme15.Data/db/service.json` by `tools/service-catalog/build_service.py`. See [SERVICE.md](SERVICE.md) for how they run and how they are kept safe.
+
+All functions are **experimental** until confirmed on a real car. Except where noted, they run BMW's own procedure and need your BMW files (EDIABAS mode).
+
+## Service and maintenance
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Reset a service reminder | KOMBI / IKE | After an oil change, new brake pads, a brake fluid change or another service item. | 3 |
+| Register a new battery (also without BMW files) | DME | After fitting a new battery of the same type and capacity as the old one. | 26 |
+| Diesel particulate filter: after service work | DME | After replacing the particulate filter or its pressure sensor, after an oil change on a car that complained about oil dilution, or to clear a power reduction caused by the filter. | 5 |
+
+## Engine
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Reset engine adaptations | DME | After replacing a sensor, injector, throttle body or intake part, or after fixing a vacuum leak, so old corrections don't linger. | 17 |
+| Learn the Valvetronic end stops | DME | After replacing the Valvetronic motor, its sensor or the engine computer, or with Valvetronic faults after repairs. | 10 |
+| Learn the intake (DISA) flap end stops | DME | After replacing the DISA actuator or the intake manifold. | 4 |
+| Cylinder cut-out test (find a misfire) | DME | Rough idle or a misfire that doesn't point clearly at one cylinder. Test each cylinder in turn and compare. | 13 |
+| Fuel tank leak test | DME | Evaporative system leak faults, or after replacing the fuel cap, purge valve or leak-detection pump. | 14 |
+| Secondary air system check | DME | Secondary air faults, or after replacing the pump, valve or hoses. | 13 |
+| Check the oxygen sensor plugs aren't swapped | DME | After replacing oxygen sensors on a six-cylinder with two catalysts, or with mixture faults that appeared right after such work. | 4 |
+| Catalytic converter quick test | DME | Catalyst efficiency faults, or after replacing a catalytic converter. | 4 |
+| Flush the VANOS units | DME | VANOS faults after an oil change with old, dirty oil, or after cleaning or replacing the VANOS solenoids. | 3 |
+| Learn the gearbox neutral sensor | DME | After replacing the neutral position sensor, the gearbox or the engine computer on manual cars with Auto Start-Stop. | 9 |
+
+## Component tests
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Test the radiator fan | DME | When you suspect the fan or its wiring (overheating at idle, fan faults). | 36 |
+| Test the fuel pump | DME | Long cranking, no start, or low fuel pressure faults. | 14 |
+| Test the map thermostat heater | DME | Thermostat faults, or a coolant temperature that never settles where it should. | 16 |
+| Test the electric water pump | DME | Water pump faults or overheating warnings. | 6 |
+| Test the secondary air pump | DME | Secondary air faults. | 12 |
+| Test the throttle valve | DME | Throttle faults, or after cleaning the throttle body. | 7 |
+| Test the intake (DISA) flap | DME | DISA faults, a flat spot in the mid-range, or a rattle from the intake. | 13 |
+| Test the purge valve | DME | Purge or evaporative system faults, a rough idle right after refuelling, or a hard start after refuelling. | 18 |
+| Check the fuel pump control module | EKPS | No start, fuel pump faults, or after replacing the pump or the control module. | 2 |
+
+## Diesel
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Reset the glow plug values | DME | After replacing one or all glow plugs. | 7 |
+| Learn the EGR valve or swirl flap positions | DME | After replacing or cleaning the EGR valve or the swirl flap actuator. | 7 |
+| Reset diesel learned values | DME | After replacing the air mass meter, the oxygen sensor or all injectors. | 15 |
+| Read the injector codes | DME | Before or after replacing an injector, to compare with the codes on the injectors. | 18 |
+| Program a new injector's code | DME | After replacing a diesel injector. | 18 |
+| Cylinder balance test (diesel) | DME | Rough idle or shaking at idle, to see whether one injector is out of line. | 18 |
+| Reset the intercooler efficiency | DME | After cleaning or replacing the intercooler or its hoses. | 3 |
+| Bleed the cooling system | DME | After draining or replacing coolant, the water pump, thermostat or radiator. | 2 |
+
+## Brakes, DSC and steering
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Calibrate the steering angle sensor | DSC | After a wheel alignment, steering repairs, or when the steering angle reads off-centre with the wheels straight. | 4 |
+| Zero the brake pressure sensor | DSC | After replacing the DSC unit or its pressure sensor, or with pressure sensor faults. | 3 |
+| Zero the lateral acceleration sensor | DSC | After replacing the DSC sensor or the DSC unit, or with yaw/lateral sensor faults. | 3 |
+| Zero the longitudinal acceleration sensor | DSC | After replacing the DSC sensor or the DSC unit, or with longitudinal acceleration sensor faults. | 2 |
+| Bleed the ABS/DSC unit | DSC | After replacing the DSC unit, or when air got into the system (a spongy pedal that normal bleeding doesn't fix). | 5 |
+| Reset the flat tyre monitor | DSC | After setting the tyre pressures, changing or rotating tyres, or when the flat tyre warning keeps coming back. | 3 |
+| Test the wheel speed sensors | DSC | ABS or DSC faults for a wheel speed sensor, to find which sensor is dead or erratic. | 1 |
+| Initialise active steering | AFS | After replacing the active steering unit, a steering angle sensor, or after a wheel alignment on cars with active steering. | 1 |
+| Reset the electric power steering angle | EPS | After a wheel alignment or steering repairs on cars with electric power steering. | 1 |
+| Calibrate the adaptive suspension steering angle | EDC | After a wheel alignment on cars with adaptive dampers (EDC). | 1 |
+
+## Gearbox and drivetrain
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Reset automatic gearbox adaptations | EGS | After a gearbox fluid change or a repair, or when shifts have become harsh or slurred. | 10 |
+| SMG: learn the clutch touch point | EGS | After a clutch replacement, SMG pump or actuator work, or when take-off is jerky. | 1 |
+| SMG: learn the gear positions | EGS | After SMG actuator or gearbox work. | 1 |
+| SMG: bleed the clutch hydraulics | EGS | After replacing the clutch slave cylinder, the hydraulic lines or the SMG pump. | 1 |
+| xDrive transfer case: reset and relearn | VGSG | After replacing the transfer case actuator motor, the transfer case or its fluid, or with xDrive clutch faults. | 1 |
+| xDrive transfer case: reset wear counters | VGSG | Only after fitting a new transfer case or new transfer case clutch. | 1 |
+| xDrive transfer case clutch test | DSC | xDrive faults, binding in tight turns, or after transfer case work. | 1 |
+
+## Body and comfort
+
+| Function | Module | When to use it | Module versions |
+|---|---|---|---|
+| Initialise the windows (one-touch and anti-trap) | FRM | After the battery was disconnected or flat, or when one-touch window operation stopped working. | 2 |
+| Initialise the sunroof | FZD | After the battery was disconnected, after sunroof repairs, or when the sunroof stops partway or won't do one-touch. | 1 |
+| Calibrate the climate control flaps | IHKA | After replacing a flap motor or the climate control unit, or when air comes out of the wrong vents or a flap clicks. | 9 |
+| Initialise the rain sensor | RLS | After replacing the windscreen or the rain sensor, or refitting the sensor's gel pad. | 1 |
+| Test the parking sensors | PDC | Parking sensor faults or a sensor that beeps constantly. | 1 |
+| Instrument cluster gauge test | KOMBI / IKE | A gauge that sticks or reads wrong, or a warning lamp you think is dead. | 3 |

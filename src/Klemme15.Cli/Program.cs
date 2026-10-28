@@ -23,6 +23,7 @@ internal static class Cli
           clear   --module <id> [--yes] Clear one module's fault memory
           service                       List service functions (battery registration, calibrations, tests)
           service <id> [--experimental] Run one, e.g. 'service battery-registration --port COM3 --experimental'
+                                        Choices as options: 'service service-reset --item oil', 'service cylinder-cutout --cyl 3'
                                         (checks the car, asks you to confirm each step; --yes skips the questions)
           live    [--pids rpm,coolant]  Stream live engine data (Ctrl+C to stop)
           discover                      Probe every other address for modules the database doesn't list
@@ -332,7 +333,7 @@ internal static class Cli
         {
             Console.WriteLine(group.Key);
             foreach (var f in group)
-                Console.WriteLine($"  {f.Id,-28} {f.Title}{(f.Verified ? "" : "  [experimental]")}");
+                Console.WriteLine($"  {f.Id,-30} {f.Title}{(f.Verified ? "" : "  [experimental]")}");
             Console.WriteLine();
         }
         Console.WriteLine("Run one with: klemme15 service <id> --port <cable port> [--ediabas <BMW Ecu folder>] [--experimental]");
@@ -370,7 +371,35 @@ internal static class Cli
         Console.WriteLine(plan.Reason);
         if (!plan.Available) return 1;
 
-        var state = demo ? new VehicleState(12.6, 0, 0, true) : await ServiceRunner.ReadStateAsync(backend, vehicle.Modules.FirstOrDefault(m => m.IsEngine), ct);
+        // Choices: --item oil, --cyl 3, --code ABC1234, or pick from a list.
+        var values = new Dictionary<string, string>();
+        foreach (var input in f.Inputs)
+        {
+            var offered = input.Choices.Where(c => plan.Mode == ServiceMode.Demo || plan.Implementation!.Supports(input.Id, c.Value)).ToList();
+            var given = a.Get(input.Id);
+            if (given is null && a.Has("yes")) { Console.Error.WriteLine($"Pass --{input.Id} <value> ({input.Label})."); return 2; }
+            if (given is null && input.IsChoice)
+            {
+                Console.WriteLine($"  {input.Label}:");
+                for (var i = 0; i < offered.Count; i++) Console.WriteLine($"    {i + 1}. {offered[i].Label} ({offered[i].Value})");
+                Console.Write("  Number: ");
+                given = int.TryParse(Console.ReadLine(), out var n) && n >= 1 && n <= offered.Count ? offered[n - 1].Value : null;
+            }
+            else if (given is null)
+            {
+                Console.Write($"  {input.Label}{(input.Hint is null ? "" : $" ({input.Hint})")}: ");
+                given = Console.ReadLine();
+            }
+            if (string.IsNullOrWhiteSpace(given)) { Console.WriteLine("Not run."); return 1; }
+            values[input.Id] = given.Trim();
+        }
+        if (ServiceRunner.ValidateInputs(f, plan.Mode == ServiceMode.Demo ? null : plan.Implementation, values) is { } problem)
+        {
+            Console.Error.WriteLine(problem);
+            return 2;
+        }
+
+        var state = demo ? ServiceRunner.DemoState(f.Checks) : await ServiceRunner.ReadStateAsync(backend, vehicle.Modules.FirstOrDefault(m => m.IsEngine), ct);
         var ok = true;
         foreach (var c in ServiceRunner.Evaluate(f.Checks, state))
         {
@@ -383,7 +412,9 @@ internal static class Cli
         if (!ok) { Console.WriteLine("Not run: a requirement isn't met."); return 1; }
         if (!Confirm($"Run '{f.Title}' on {ecu!.Name} now?", a)) { Console.WriteLine("Not run."); return 1; }
 
-        var outcome = await ServiceRunner.RunAsync(f, plan, backend, ecu, log, ct);
+        var progress = new Progress<string>(text => Console.Write($"\r  {text}".PadRight(70)));
+        var outcome = await ServiceRunner.RunAsync(f, plan, backend, ecu, values, progress, log, ct);
+        Console.WriteLine();
         Console.WriteLine(outcome.Success ? outcome.Message : $"Failed: {outcome.Message}");
         foreach (var d in outcome.Details) Console.WriteLine($"  {d}");
         if (outcome.Success) foreach (var s in f.After) Console.WriteLine($"Afterwards: {s}");
