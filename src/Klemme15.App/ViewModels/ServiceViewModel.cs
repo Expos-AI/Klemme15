@@ -30,6 +30,32 @@ public sealed class ServiceConfirmViewModel(string text, Action changed) : ViewM
     public bool Ticked { get => _ticked; set { if (Set(ref _ticked, value)) changed(); } }
 }
 
+/// <summary>A choice or typed value the function needs (service item, cylinder, injector code).</summary>
+public sealed class ServiceInputViewModel : ViewModelBase
+{
+    private readonly Action _changed;
+    private ServiceChoice? _selected;
+    private string _text = "";
+
+    public ServiceInputViewModel(ServiceInput input, IReadOnlyList<ServiceChoice> choices, Action changed)
+    {
+        Input = input;
+        Choices = choices;
+        _changed = changed;
+        _selected = choices.FirstOrDefault();
+    }
+
+    public ServiceInput Input { get; }
+    public string Label => Input.Label;
+    public bool IsChoice => Input.IsChoice;
+    public bool IsText => !Input.IsChoice;
+    public string Hint => Input.Hint ?? "";
+    public IReadOnlyList<ServiceChoice> Choices { get; }
+    public ServiceChoice? Selected { get => _selected; set { if (Set(ref _selected, value)) _changed(); } }
+    public string Text { get => _text; set { if (Set(ref _text, value ?? "")) _changed(); } }
+    public string? Value => IsChoice ? _selected?.Value : _text.Trim();
+}
+
 /// <summary>A service function in the list, with whether it can run on this car.</summary>
 public sealed class ServiceItemViewModel(ServiceFunction function) : ViewModelBase
 {
@@ -75,8 +101,7 @@ public sealed class ServiceViewModel : PageViewModel
         _settings = settings;
         _items = _session.Database.Service.All.Select(f => new ServiceItemViewModel(f)).ToList();
         foreach (var item in _items) item.SelectCommand = new RelayCommand(() => Select(item));
-        foreach (var category in _items.Select(i => i.Category).Distinct())
-            Groups.Add(new ServiceGroupViewModel(category, _items.Where(i => i.Category == category).ToList()));
+        RebuildGroups();
 
         CheckCommand = new AsyncCommand(CheckAsync, () => _selected is { IsAvailable: true } && !_checking && !_running);
         RunCommand = new AsyncCommand(RunAsync, CanRun);
@@ -95,6 +120,56 @@ public sealed class ServiceViewModel : PageViewModel
     public ObservableCollection<ServiceGroupViewModel> Groups { get; } = [];
     public ObservableCollection<ServiceCheckViewModel> Checks { get; } = [];
     public ObservableCollection<ServiceConfirmViewModel> Confirms { get; } = [];
+    public ObservableCollection<ServiceInputViewModel> Inputs { get; } = [];
+    public bool HasInputs => Inputs.Count > 0;
+
+    /// <summary>Why the choices can't be used yet ("Choose or enter: ..."), or empty.</summary>
+    public string InputProblem => _selected is { } item && Inputs.Count > 0
+        ? ServiceRunner.ValidateInputs(item.Function, item.Availability.Mode == ServiceMode.Demo ? null : item.Availability.Implementation, InputValues()) ?? ""
+        : "";
+    public bool HasInputProblem => InputProblem.Length > 0;
+    public string Duration => _selected?.Function.Duration is { } d ? $"Takes: {d}" : "";
+    public bool HasDuration => _selected?.Function.Duration is not null;
+
+    private Dictionary<string, string> InputValues() =>
+        Inputs.Where(i => i.Value is not null).ToDictionary(i => i.Input.Id, i => i.Value!);
+
+    private string _filter = "";
+    private bool _onlyMine = true;
+
+    /// <summary>Searches titles, descriptions and categories ("brake", "oil", "window").</summary>
+    public string Filter { get => _filter; set { if (Set(ref _filter, value ?? "")) RebuildGroups(); } }
+
+    /// <summary>Hide functions this car can't run (when connected).</summary>
+    public bool OnlyMine { get => _onlyMine; set { if (Set(ref _onlyMine, value)) RebuildGroups(); } }
+
+    public string CountText
+    {
+        get
+        {
+            var available = _items.Count(i => i.IsAvailable);
+            return _session.IsConnected ? $"{available} of {_items.Count} functions available for this car" : $"{_items.Count} functions";
+        }
+    }
+
+    private void RebuildGroups()
+    {
+        Groups.Clear();
+        var words = _filter.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        var visible = _items.Where(i =>
+                (!_onlyMine || !_session.IsConnected || i.IsAvailable)
+                && words.All(w => i.Title.Contains(w, StringComparison.OrdinalIgnoreCase)
+                                  || i.Function.Summary.Contains(w, StringComparison.OrdinalIgnoreCase)
+                                  || i.Function.When.Contains(w, StringComparison.OrdinalIgnoreCase)
+                                  || i.Category.Contains(w, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+        foreach (var category in visible.Select(i => i.Category).Distinct())
+            Groups.Add(new ServiceGroupViewModel(category, visible.Where(i => i.Category == category).ToList()));
+        Raise(nameof(CountText));
+        Raise(nameof(NothingShown));
+    }
+
+    public bool NothingShown => Groups.Count == 0;
 
     public bool NotConnected => !_session.IsConnected;
     public bool HasScan => _session.LastScan is not null;
@@ -157,6 +232,7 @@ public sealed class ServiceViewModel : PageViewModel
     private void Refresh()
     {
         foreach (var item in _items) item.Availability = AvailabilityOf(item.Function);
+        RebuildGroups();
         Raise(nameof(NotConnected));
         Raise(nameof(HasScan));
         Raise(nameof(NeedsScan));
@@ -190,11 +266,20 @@ public sealed class ServiceViewModel : PageViewModel
         _checked = false;
         Checks.Clear();
         Confirms.Clear();
+        Inputs.Clear();
         Result = null;
         ResultDetails.Clear();
         if (_selected is { } item)
+        {
             foreach (var c in item.Function.Checks.Confirm)
                 Confirms.Add(new ServiceConfirmViewModel(c, Changed));
+            // Only offer the choices this car's module version supports.
+            var impl = item.Availability.Mode == ServiceMode.Demo ? null : item.Availability.Implementation;
+            foreach (var input in item.Function.Inputs)
+                Inputs.Add(new ServiceInputViewModel(input,
+                    input.Choices.Where(c => impl is null || impl.Supports(input.Id, c.Value)).ToList(), Changed));
+        }
+        Raise(nameof(HasInputs));
         Status = "";
     }
 
@@ -202,13 +287,15 @@ public sealed class ServiceViewModel : PageViewModel
     {
         foreach (var p in new[] { nameof(Selected), nameof(HasSelection), nameof(FunctionTitle), nameof(Summary), nameof(When), nameof(ModuleText),
                      nameof(RiskText), nameof(IsHighRisk), nameof(Unverified), nameof(Before), nameof(After), nameof(HasBefore), nameof(HasAfter),
-                     nameof(AvailabilityText), nameof(IsAvailable), nameof(Blocked), nameof(HasChecks) })
+                     nameof(AvailabilityText), nameof(IsAvailable), nameof(Blocked), nameof(HasChecks), nameof(Duration), nameof(HasDuration) })
             Raise(p);
         Changed();
     }
 
     private void Changed()
     {
+        Raise(nameof(InputProblem));
+        Raise(nameof(HasInputProblem));
         CheckCommand.RaiseCanExecuteChanged();
         RunCommand.RaiseCanExecuteChanged();
         CancelCommand.RaiseCanExecuteChanged();
@@ -217,7 +304,7 @@ public sealed class ServiceViewModel : PageViewModel
     private bool CanRun() =>
         _selected is { IsAvailable: true } item && !_running && !_checking && _checked
         && ServiceRunner.Allowed(item.Function, Experimental)
-        && Checks.All(c => c.Satisfied) && Confirms.All(c => c.Ticked);
+        && Checks.All(c => c.Satisfied) && Confirms.All(c => c.Ticked) && !HasInputProblem;
 
     private async Task CheckAsync()
     {
@@ -228,7 +315,7 @@ public sealed class ServiceViewModel : PageViewModel
         try
         {
             var state = _session.IsDemo
-                ? new VehicleState(12.6, 0, 0, true)
+                ? ServiceRunner.DemoState(item.Function.Checks)
                 : await ServiceRunner.ReadStateAsync(backend, _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine));
             Checks.Clear();
             foreach (var c in ServiceRunner.Evaluate(item.Function.Checks, state))
@@ -261,16 +348,17 @@ public sealed class ServiceViewModel : PageViewModel
         Status = $"Running '{item.Title}'. Don't switch off the ignition or unplug the cable.";
         try
         {
-            var outcome = await ServiceRunner.RunAsync(item.Function, item.Availability, backend, ecu, _session.Log, _cts.Token);
+            var progress = new Progress<string>(text => Status = text);
+            var outcome = await ServiceRunner.RunAsync(item.Function, item.Availability, backend, ecu, InputValues(), progress, _session.Log, _cts.Token);
             ResultOk = outcome.Success;
             foreach (var d in outcome.Details) ResultDetails.Add(d);
             Result = outcome.Success ? outcome.Message : $"Didn't work: {outcome.Message}";
-            Status = outcome.Success ? "Finished. Follow the steps under 'Afterwards'." : "Nothing more was sent. The traffic log has the details.";
+            Status = outcome.Success ? "Finished. Follow the steps under 'Afterwards'." : "Stopped. The part was handed back to the module; the traffic log has the details.";
         }
         catch (OperationCanceledException)
         {
             ResultOk = false;
-            Result = "Cancelled.";
+            Result = "Stopped. The part was handed back to the module.";
             Status = "";
         }
         finally

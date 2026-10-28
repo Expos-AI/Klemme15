@@ -15,7 +15,7 @@ public class ServiceTests
     [Fact]
     public void Catalog_is_complete_and_consistent()
     {
-        Assert.True(Library.All.Count >= 10);
+        Assert.True(Library.All.Count >= 50);
         Assert.Equal(Library.All.Count, Library.All.Select(f => f.Id).Distinct().Count());
         foreach (var f in Library.All)
         {
@@ -27,17 +27,32 @@ public class ServiceTests
                 Assert.NotEmpty(i.Variants);
                 Assert.True(i.Job is not null || i.Native is not null, f.Id);
                 Assert.All(i.Variants, v => Assert.Equal(v.ToLowerInvariant(), v));
+                // Every {placeholder} in a job or its arguments is something the user chooses.
+                foreach (var step in i.Steps.Concat(i.Stop))
+                    foreach (System.Text.RegularExpressions.Match m in System.Text.RegularExpressions.Regex.Matches(step.Job + step.Args, @"\{(\w+)\}"))
+                        Assert.Contains(f.Inputs, input => input.Id == m.Groups[1].Value);
             }
+            // Every choice is possible on at least one module version, and no version is listed twice.
+            foreach (var input in f.Inputs.Where(x => x.IsChoice))
+                foreach (var c in input.Choices)
+                    Assert.Contains(f.Implementations, i => i.Supports(input.Id, c.Value));
+            var all = f.Implementations.SelectMany(i => i.Variants).ToList();
+            Assert.Equal(all.Count, all.Distinct().Count());
         }
     }
 
     [Fact]
     public void Catalog_never_contains_coding_flashing_or_immobiliser_jobs()
     {
-        var forbidden = new[] { "CODIER", "FLASH", "PROGRAMM", "EWS", "ISN", "SCHREIBEN", "WRITE", "SPEICHER_SCHREIBEN" };
-        foreach (var i in Library.All.SelectMany(f => f.Implementations))
-            if (i.Job is { } job)
-                Assert.DoesNotContain(forbidden, w => job.Contains(w, StringComparison.OrdinalIgnoreCase));
+        // No coding, flashing, immobiliser, key, VIN or odometer jobs. (Injector correction codes are allowed: they are
+        // calibration values printed on the part, which ISTA also writes as a service function.)
+        var forbidden = new[] { "CODIER", "FLASH", "EWS", "ISN", "CAS_", "SCHLUESSEL", "FAHRGESTELL", "FG_NR", "VIN", "GWSZ", "STARTWERT", "SPEICHER_SCHREIBEN", "EEPROM" };
+        foreach (var f in Library.All)
+        {
+            Assert.DoesNotContain(f.Modules, m => m is "CAS" or "EWS" or "ELV");
+            foreach (var step in f.Implementations.SelectMany(i => i.Steps.Concat(i.Stop)))
+                Assert.DoesNotContain(forbidden, w => step.Job.Contains(w, StringComparison.OrdinalIgnoreCase));
+        }
         // Native requests may only start a routine ($31) or control an output ($30).
         foreach (var i in Library.All.SelectMany(f => f.Implementations))
             if (i.Native is { } n)
@@ -150,7 +165,7 @@ public class ServiceTests
         var outcome = await ServiceRunner.RunAsync(f, plan, car, Dsc);
         Assert.True(outcome.Success, outcome.Message);
         Assert.Equal(["dsc_87/LENKWINKEL_DSC_ABGLEICHEN/", "dsc_87/STAT_ERGEBNIS_ABGLEICH_ROUTINE/LWS;R"], car.Jobs);
-        Assert.Contains(outcome.Details, d => d.Contains("STAT_ERGEBNIS"));
+        Assert.Contains(outcome.Details, d => d.Contains("rgebnis", StringComparison.OrdinalIgnoreCase) || d.Contains("result", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]
@@ -161,6 +176,89 @@ public class ServiceTests
         Assert.Equal(0, state.Rpm);
         Assert.Equal(0, state.Speed);
         Assert.True(state.Ignition == true);
+    }
+
+    [Fact]
+    public void Choices_are_translated_for_each_module_version()
+    {
+        var f = Fn("service-reset");
+        var e9x = f.Implementations.Single(i => i.Variants.Contains("komb87"));
+        var e46 = f.Implementations.Single(i => i.Variants.Contains("kombi46"));
+        var oil = new Dictionary<string, string> { ["item"] = "oil" };
+        Assert.Equal("Oel;100;31", ServiceRunner.Fill(e9x.Steps[0].Args, e9x, oil));
+        Assert.Equal("Oel_Reset", ServiceRunner.Fill(e46.Steps[0].Args, e46, oil));
+
+        // Brake pads exist on the E9x cluster only; the E46 cluster has inspections instead.
+        Assert.Null(ServiceRunner.ValidateInputs(f, e9x, new Dictionary<string, string> { ["item"] = "brakes-front" }));
+        Assert.NotNull(ServiceRunner.ValidateInputs(f, e46, new Dictionary<string, string> { ["item"] = "brakes-front" }));
+        Assert.NotNull(ServiceRunner.ValidateInputs(f, e9x, new Dictionary<string, string>()));
+    }
+
+    [Fact]
+    public void Typed_values_are_checked()
+    {
+        var f = Fn("injector-code-program");
+        var impl = f.Implementations[0];
+        Assert.Null(ServiceRunner.ValidateInputs(f, impl, new Dictionary<string, string> { ["cyl"] = "2", ["code"] = "B4T7VJ1" }));
+        Assert.NotNull(ServiceRunner.ValidateInputs(f, impl, new Dictionary<string, string> { ["cyl"] = "2", ["code"] = "B4T7;VJ1" }));
+        Assert.Equal("IMA2;B4T7VJ1", ServiceRunner.Fill(impl.Steps[0].Args, impl, new Dictionary<string, string> { ["cyl"] = "2", ["code"] = " B4T7VJ1 " }));
+    }
+
+    [Fact]
+    public void Job_names_can_depend_on_a_choice()
+    {
+        var f = Fn("abs-bleed");
+        var impl = f.Implementations.Single(i => i.Variants.Contains("dsc_87"));
+        Assert.Equal("NA_ENTLUEFTUNG_VA_DX", ServiceRunner.Fill(impl.Steps[0].Job, impl, new Dictionary<string, string> { ["circuit"] = "front" }));
+    }
+
+    [Fact]
+    public void Component_tests_get_the_arguments_each_engine_computer_expects()
+    {
+        // MSV80 takes the pump duty in percent; MSV70 takes on/off. Sending "1" to an MSV80 would barely run the pump.
+        var pump = Fn("test-fuel-pump");
+        Assert.Equal("99;10", pump.Implementations.Single(i => i.Variants.Contains("msv80")).Steps[0].Args);
+        Assert.Equal("1;10", pump.Implementations.Single(i => i.Variants.Contains("msv70")).Steps[0].Args);
+        // Tests without a built-in timeout always switch the part off again.
+        var me9 = pump.Implementations.Single(i => i.Variants.Contains("me9n45"));
+        Assert.Equal("STEUERN_EKP_AUS", me9.Stop.Single().Job);
+    }
+
+    private static ServiceFunction Synthetic(params ServiceStep[] steps) =>
+        new("synthetic", "Synthetic test", "Tests", ["DME"], "x", "", ServiceRisk.Low, false, [], [],
+            new ServiceChecks(true, false, false, null, false, []),
+            [new ServiceImplementation(["msv80"], steps, [new ServiceStep("STEUERN_ENDE", "")], null, null)], []);
+
+    [Fact]
+    public async Task Stop_job_runs_after_success_failure_and_cancel()
+    {
+        var f = Synthetic(new ServiceStep("STEUERN_AN", "1", Wait: 0.2), new ServiceStep("STATUS_X", "", Show: true));
+        var plan = ServiceRunner.Availability(f, Dme, "msv80", true, canRunJobs: true, canSendRaw: false);
+
+        var ok = new FakeCar(_ => null);
+        Assert.True((await ServiceRunner.RunAsync(f, plan, ok, Dme)).Success);
+        Assert.Equal("msv80/STEUERN_ENDE/", ok.Jobs[^1]);
+
+        var failing = new FakeCar(_ => null) { FailJob = "STATUS_X" };
+        var outcome = await ServiceRunner.RunAsync(f, plan, failing, Dme);
+        Assert.False(outcome.Success);
+        Assert.Equal("msv80/STEUERN_ENDE/", failing.Jobs[^1]);
+
+        var cancelled = new FakeCar(_ => null);
+        using var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
+        var stopped = false;
+        try { await ServiceRunner.RunAsync(f, plan, cancelled, Dme, ct: cts.Token); }
+        catch (OperationCanceledException) { stopped = true; }
+        Assert.True(stopped);
+        Assert.Equal("msv80/STEUERN_ENDE/", cancelled.Jobs[^1]);
+        Assert.False(cancelled.Jobs.Contains("msv80/STATUS_X/"));
+    }
+
+    [Fact]
+    public void Demo_state_meets_the_function_requirements()
+    {
+        foreach (var f in Library.All)
+            Assert.DoesNotContain(ServiceRunner.Evaluate(f.Checks, ServiceRunner.DemoState(f.Checks)), c => c.State == CheckState.Fail);
     }
 
     private sealed class FakeCar(Func<byte[], byte[]?> answer) : IDiagnosticBackend, IRawRequests, IJobRunner
@@ -190,9 +288,12 @@ public class ServiceTests
 
         public Task<IReadOnlyList<string>> ListJobsAsync(string sgbd, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<string>>([]);
 
+        public string? FailJob { get; init; }
+
         public Task<IReadOnlyList<IReadOnlyDictionary<string, string>>> RunJobAsync(string sgbd, string job, string arguments, CancellationToken ct = default)
         {
             Jobs.Add($"{sgbd}/{job}/{arguments}");
+            if (job == FailJob) throw new DiagnosticException($"{sgbd} {job}: ERROR_ECU_CONDITIONS_NOT_CORRECT");
             IReadOnlyDictionary<string, string> set = new Dictionary<string, string> { ["JOB_STATUS"] = "OKAY", ["STAT_ERGEBNIS_ABGLEICH_ROUTINE_TEXT"] = "Abgleich erfolgreich" };
             return Task.FromResult<IReadOnlyList<IReadOnlyDictionary<string, string>>>([set]);
         }

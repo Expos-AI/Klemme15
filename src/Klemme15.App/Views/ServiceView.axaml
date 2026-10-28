@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Klemme15.App.ViewModels"
              xmlns:sys="using:System"
+             xmlns:data="using:Klemme15.Data"
              x:Class="Klemme15.App.Views.ServiceView"
              x:DataType="vm:ServiceViewModel">
   <UserControl.Styles>
@@ -38,6 +39,12 @@
     <DockPanel Grid.Column="0" Margin="0,0,24,0">
       <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,14">
         <TextBlock Classes="title" Text="Service" />
+        <TextBox Text="{Binding Filter}" Watermark="Search (oil, brakes, window, injector...)" />
+        <DockPanel>
+          <CheckBox DockPanel.Dock="Right" Content="Only my car" IsChecked="{Binding OnlyMine}" IsVisible="{Binding !NotConnected}" />
+          <TextBlock Classes="muted small" Text="{Binding CountText}" VerticalAlignment="Center" TextWrapping="Wrap" />
+        </DockPanel>
+        <TextBlock Classes="muted small" Text="Nothing matches. Clear the search or untick 'Only my car'." IsVisible="{Binding NothingShown}" TextWrapping="Wrap" />
         <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
                    Text="Connect to your car in the Garage and run the quick test to see which functions your car supports." />
         <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NeedsScan}"
@@ -114,6 +121,28 @@
             <TextBlock Classes="amber small" TextWrapping="Wrap" IsVisible="{Binding Blocked}"
                        Text="This function is experimental. Switch on experimental functions (bottom left) to run it." />
 
+            <TextBlock Classes="muted small" Text="{Binding Duration}" IsVisible="{Binding HasDuration}" />
+
+            <ItemsControl ItemsSource="{Binding Inputs}" IsVisible="{Binding HasInputs}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ServiceInputViewModel">
+                  <StackPanel Spacing="4" Margin="0,0,0,8">
+                    <TextBlock Text="{Binding Label}" FontWeight="SemiBold" />
+                    <ComboBox ItemsSource="{Binding Choices}" SelectedItem="{Binding Selected}" IsVisible="{Binding IsChoice}" MinWidth="280">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="data:ServiceChoice">
+                          <TextBlock Text="{Binding Label}" />
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                    <TextBox Text="{Binding Text}" Watermark="{Binding Hint}" IsVisible="{Binding IsText}" MaxWidth="320" HorizontalAlignment="Left"
+                             FontFamily="{DynamicResource MonoFont}" />
+                  </StackPanel>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="amber small" Text="{Binding InputProblem}" IsVisible="{Binding HasInputProblem}" TextWrapping="Wrap" />
+
             <StackPanel Orientation="Horizontal" Spacing="10">
               <Button Content="1. Check the car" Command="{Binding CheckCommand}" />
               <TextBlock Classes="muted small" Text="{Binding Status}" VerticalAlignment="Center" TextWrapping="Wrap" MaxWidth="520" />
@@ -147,7 +176,7 @@
 
             <StackPanel Orientation="Horizontal" Spacing="10">
               <Button Classes="primary" Content="2. Run" Command="{Binding RunCommand}" />
-              <Button Content="Stop waiting" Command="{Binding CancelCommand}" />
+              <Button Content="Stop" Command="{Binding CancelCommand}" ToolTip.Tip="Stop now: Klemme15 hands the part back to the module" />
             </StackPanel>
 
             <Border Classes.good="{Binding ResultOk}" Classes.bad="{Binding ResultFailed}" IsVisible="{Binding HasResult}">
