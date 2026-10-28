@@ -79,6 +79,9 @@ public abstract class PageViewModel : ViewModelBase
 
 public static class Icons
 {
+    public static readonly Geometry Garage = StreamGeometry.Parse("M12 2 2 9v13h4V12h12v10h4V9zM8 14h8v2H8zm0 4h8v2H8z");
+    public static readonly Geometry Car = StreamGeometry.Parse("M8 1h8a4 4 0 0 1 4 4v14a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V5a4 4 0 0 1 4-4zm-1 6 1 4h8l1-4zm1 10v3h8v-3z");
+    public static readonly Geometry Theme = StreamGeometry.Parse("M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20zm0 2v16a8 8 0 0 1 0-16z");
     public static readonly Geometry Connect = StreamGeometry.Parse("M7 2h2v5h6V2h2v5h2v4a7 7 0 0 1-6 6.9V22h-2v-4.1A7 7 0 0 1 5 11V7h2z");
     public static readonly Geometry Scan = StreamGeometry.Parse("M10 2a8 8 0 0 1 6.3 12.9l5.4 5.4-1.4 1.4-5.4-5.4A8 8 0 1 1 10 2zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12z");
     public static readonly Geometry Faults = StreamGeometry.Parse("M12 2 1 21h22zm-1 7h2v6h-2zm0 8h2v2h-2z");

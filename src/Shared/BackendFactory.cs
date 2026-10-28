@@ -14,6 +14,9 @@ namespace OpenHood;
 public sealed record ConnectionSettings
 {
     public required string VehicleId { get; init; }
+
+    /// <summary>The specific model (e.g. "E9x-335i"). Picks the demo car; optional for a real car.</summary>
+    public string? ModelId { get; init; }
     public string? Port { get; init; }
     public bool Demo { get; init; }
 
@@ -34,7 +37,7 @@ public static class BackendFactory
     public const bool EdiabasAvailable = false;
 #endif
 
-    public static IDiagnosticBackend Create(ConnectionSettings settings, VehicleFamily vehicle, TrafficLog log)
+    public static IDiagnosticBackend Create(ConnectionSettings settings, VehicleFamily vehicle, TrafficLog log, VehicleModel? model = null)
     {
         var mode = vehicle.Cable.Equals("KLine", StringComparison.OrdinalIgnoreCase) ? CableMode.KLine : CableMode.DCan;
 
@@ -55,8 +58,10 @@ public static class BackendFactory
 #endif
         }
 
+        model ??= vehicle.Models.FirstOrDefault(m => m.Id == settings.ModelId) ?? vehicle.Models.FirstOrDefault();
         ITransport transport = settings.Demo
-            ? (mode == CableMode.KLine ? VirtualCar.E46_325i() : VirtualCar.E90_325i())
+            ? (model is not null ? VirtualCar.ForModel(model, vehicle.Modules)
+               : mode == CableMode.KLine ? VirtualCar.E46_325i() : VirtualCar.E90_325i())
             : new SerialPortTransport(settings.Port ?? throw new DiagnosticException("Choose the cable's port"))
             {
                 TrustDsrForIgnition = settings.TrustDsr,

@@ -25,6 +25,7 @@ internal static class Cli
 
         Options
           --vehicle <id>     E46 or E9x (default E9x)
+          --model <name>     e.g. 325i or 335i (picks the demo car; see 'openhood vehicles')
           --port <name>      Cable port, e.g. COM3 or /dev/ttyUSB0
           --demo             Use the built-in virtual car instead of a cable
           --ediabas <dir>    Use your own SGBD files from this folder (Windows build)
@@ -36,7 +37,7 @@ internal static class Cli
         Examples
           openhood scan --vehicle E9x --port COM3 --report scan.html
           openhood live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1
-          openhood scan --demo
+          openhood scan --demo --vehicle E9x --model 335i
         """;
 
     public static async Task<int> RunAsync(string[] argv)
@@ -61,7 +62,9 @@ internal static class Cli
             case "vehicles":
                 foreach (var v in db.Vehicles)
                 {
-                    Console.WriteLine($"{v.Id,-5} {v.Name}  (cable switch: {v.Cable})");
+                    Console.WriteLine($"{v.Id,-5} {v.Name} {v.Years}  (cable switch: {v.Cable})");
+                    foreach (var m in v.Models)
+                        Console.WriteLine($"      model {m.Name,-7} {m.Years,-10} {m.Engine}, {m.Drive}");
                     foreach (var m in v.Modules)
                         Console.WriteLine($"      {m.Id,-12} {m.AddressHex}  {m.Name}{(m.Verified ? "" : "  [unverified]")}");
                 }
@@ -75,9 +78,20 @@ internal static class Cli
             return 2;
         }
 
+        var model = a.Get("model") is { } wanted
+            ? vehicle.Models.FirstOrDefault(m => m.Name.Equals(wanted, StringComparison.OrdinalIgnoreCase) || m.Id.Equals(wanted, StringComparison.OrdinalIgnoreCase))
+            : vehicle.Models.FirstOrDefault(m => m.Name == "325i") ?? vehicle.Models.FirstOrDefault();
+        if (a.Get("model") is { } asked && model is null)
+        {
+            Console.Error.WriteLine($"Unknown model '{asked}' for {vehicle.Id}. Known: {string.Join(", ", vehicle.Models.Select(m => m.Name))}");
+            return 2;
+        }
+        IFaultCodeDatabase codes = a.Has("demo") && model is not null ? db.ForDemo(model) : db;
+
         var settings = new ConnectionSettings
         {
             VehicleId = vehicle.Id,
+            ModelId = model?.Id,
             Port = a.Get("port") ?? (a.Has("demo") ? null : PortDiscovery.List().FirstOrDefault(p => p.LikelyKDCan)?.Name),
             Demo = a.Has("demo"),
             EdiabasPath = a.Get("ediabas"),
@@ -95,15 +109,15 @@ internal static class Cli
 
         try
         {
-            await using var backend = BackendFactory.Create(settings, vehicle, log);
-            Console.WriteLine($"Connecting: {vehicle.Name} via {backend.Name}{(settings.Demo ? " [demo car]" : "")}");
+            await using var backend = BackendFactory.Create(settings, vehicle, log, model);
+            Console.WriteLine($"Connecting: {vehicle.Id} {model?.Name} via {backend.Name}{(settings.Demo ? " [demo car]" : "")}");
             await backend.ConnectAsync(cts.Token);
             if (backend.IgnitionOn is { } ign) Console.WriteLine($"Ignition: {(ign ? "on" : "OFF")}");
 
             return a.Command switch
             {
-                "scan" => await Scan(backend, db, vehicle, a, cts.Token),
-                "faults" => await Faults(backend, db, Module(vehicle, a), cts.Token),
+                "scan" => await Scan(backend, codes, vehicle, a, cts.Token),
+                "faults" => await Faults(backend, codes, Module(vehicle, a), cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
@@ -146,7 +160,7 @@ internal static class Cli
                ?? throw new DiagnosticException($"Unknown module '{id}'. See 'openhood vehicles'.");
     }
 
-    private static async Task<int> Scan(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle, Args a, CancellationToken ct)
+    private static async Task<int> Scan(IDiagnosticBackend backend, IFaultCodeDatabase db, VehicleFamily vehicle, Args a, CancellationToken ct)
     {
         var scanner = new VehicleScanner(backend, db);
         var progress = new Progress<ScanProgress>(p =>
@@ -162,7 +176,7 @@ internal static class Cli
             };
             Console.WriteLine($"  [{mark}] {r.Ecu.Name,-34} {r.Ecu.AddressHex}  {(r.Faults.Count > 0 ? r.Faults.Count + " fault(s)" : "")} {r.Error}");
         });
-        var scan = await scanner.ScanAsync(vehicle.Modules, vehicle.Id, progress, ct);
+        var scan = await scanner.ScanAsync(vehicle.Modules, $"{vehicle.Id} {a.Get("model")}".Trim(), progress, ct);
         await Task.Delay(50, CancellationToken.None);   // let the last progress line print
 
         Console.WriteLine();
@@ -190,7 +204,7 @@ internal static class Cli
         return 0;
     }
 
-    private static async Task<int> Faults(IDiagnosticBackend backend, VehicleDatabase db, EcuDefinition ecu, CancellationToken ct)
+    private static async Task<int> Faults(IDiagnosticBackend backend, IFaultCodeDatabase db, EcuDefinition ecu, CancellationToken ct)
     {
         var faults = new VehicleScanner(backend, db).Describe(await backend.ReadFaultsAsync(ecu, ct));
         Console.WriteLine($"{ecu.Name}: {faults.Count} fault(s)");

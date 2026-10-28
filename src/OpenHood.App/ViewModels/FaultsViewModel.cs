@@ -4,35 +4,19 @@ using OpenHood.Core;
 
 namespace OpenHood.App.ViewModels;
 
-public sealed class FaultRowViewModel(Fault fault) : ViewModelBase
-{
-    public Fault Fault { get; } = fault;
-    public string Code => Fault.Code;
-    public string Source => Fault.Source == FaultSource.Obd2 ? "OBD-II" : "BMW";
-    public string State => Fault.State switch
-    {
-        FaultState.Present => "Present now",
-        FaultState.Stored => "Stored",
-        FaultState.Intermittent => "Intermittent",
-        _ => "",
-    };
-    public IBrush StateBrush => Fault.State == FaultState.Present ? Brush.Parse("#D6463B") : Brush.Parse("#D98A10");
-    public string Description => Fault.DisplayDescription;
-    public string Details => string.Join("   ", Fault.Details.Select(kv => $"{kv.Key}: {kv.Value}"));
-    public bool HasDetails => Fault.Details.Count > 0;
-}
-
 public sealed class FaultGroupViewModel : ViewModelBase
 {
     private readonly SessionState _session;
+    private readonly Action<Fault, EcuDefinition> _showOnCar;
     private bool _confirming;
     private string? _message;
 
-    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults)
+    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar)
     {
         _session = session;
+        _showOnCar = showOnCar;
         Ecu = ecu;
-        Faults = new ObservableCollection<FaultRowViewModel>(faults.Select(f => new FaultRowViewModel(f)));
+        Fill(faults);
         AskClearCommand = new RelayCommand(() => Confirming = true);
         CancelClearCommand = new RelayCommand(() => Confirming = false);
         ClearCommand = new AsyncCommand(ClearAsync, null, e => Message = e.Message);
@@ -41,7 +25,7 @@ public sealed class FaultGroupViewModel : ViewModelBase
     public EcuDefinition Ecu { get; }
     public string Name => Ecu.Name;
     public string Address => Ecu.AddressHex;
-    public ObservableCollection<FaultRowViewModel> Faults { get; }
+    public ObservableCollection<FaultItemViewModel> Faults { get; } = [];
     public string CountText => Faults.Count == 1 ? "1 fault" : $"{Faults.Count} faults";
 
     public bool Confirming
@@ -64,34 +48,47 @@ public sealed class FaultGroupViewModel : ViewModelBase
     public RelayCommand CancelClearCommand { get; }
     public AsyncCommand ClearCommand { get; }
 
+    private void Fill(IEnumerable<Fault> faults)
+    {
+        Faults.Clear();
+        foreach (var f in faults.OrderByDescending(f => f.State == FaultState.Present))
+        {
+            var where = _session.Locate(f, Ecu);
+            var item = new FaultItemViewModel(f, Ecu, where?.Title, where?.IsComponent == true);
+            item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
+            Faults.Add(item);
+        }
+        Raise(nameof(CountText));
+    }
+
     private async Task ClearAsync()
     {
         Confirming = false;
         if (_session.Backend is not { } backend) return;
         await backend.ClearFaultsAsync(Ecu);
-        var remaining = await backend.ReadFaultsAsync(Ecu);
-        Faults.Clear();
-        foreach (var f in remaining) Faults.Add(new FaultRowViewModel(f));
-        Raise(nameof(CountText));
+        var remaining = new VehicleScanner(backend, _session.Codes).Describe(await backend.ReadFaultsAsync(Ecu));
+        Fill(remaining);
         Message = remaining.Count == 0
-            ? "Cleared. Drive the car and read again to see which faults come back."
-            : "Cleared, but these faults returned immediately: they are still present.";
+            ? "Fault memory cleared. Drive the car, then read it again to see which faults come back."
+            : "Cleared, but these came straight back: they are still active.";
     }
 }
 
 public sealed class FaultsViewModel : PageViewModel
 {
     private readonly SessionState _session;
+    private readonly Action<Fault, EcuDefinition> _showOnCar;
     private string? _error;
 
-    public FaultsViewModel(SessionState session)
+    public FaultsViewModel(SessionState session, Action<Fault, EcuDefinition> showOnCar)
     {
         _session = session;
+        _showOnCar = showOnCar;
         RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && _session.LastScan is not null, e => Error = e.Message);
-        _session.ScanUpdated += Rebuild;
+        _session.ScanUpdated += () => OnUi(Rebuild);
         _session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.IsConnected) or nameof(SessionState.LastScan)) RefreshCommand.RaiseCanExecuteChanged();
+            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.LastScan)) RefreshCommand.RaiseCanExecuteChanged();
         };
     }
 
@@ -100,10 +97,13 @@ public sealed class FaultsViewModel : PageViewModel
 
     public ObservableCollection<FaultGroupViewModel> Groups { get; } = [];
     public bool IsEmpty => Groups.Count == 0;
+    public int ActiveCount => Groups.Sum(g => g.Faults.Count(f => f.IsActive));
+    public int StoredCount => Groups.Sum(g => g.Faults.Count(f => !f.IsActive));
+    public string Headline => IsEmpty ? "No faults" : $"{ActiveCount} active now, {StoredCount} stored";
 
     public string EmptyText => _session.LastScan is null
-        ? "Run a quick test first. Faults from every module will appear here."
-        : "No faults stored in any module that answered.";
+        ? "Run a quick test on the Vehicle page. Every fault the modules report will be listed here."
+        : "No faults in any module that answered.";
 
     public string? Error
     {
@@ -116,15 +116,12 @@ public sealed class FaultsViewModel : PageViewModel
 
     private void Rebuild()
     {
-        OnUi(() =>
-        {
-            Groups.Clear();
-            if (_session.LastScan is { } scan)
-                foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
-                    Groups.Add(new FaultGroupViewModel(_session, e.Ecu, e.Faults));
-            Raise(nameof(IsEmpty));
-            Raise(nameof(EmptyText));
-        });
+        Groups.Clear();
+        if (_session.LastScan is { } scan)
+            foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0).OrderByDescending(e => e.Faults.Any(f => f.State == FaultState.Present)))
+                Groups.Add(new FaultGroupViewModel(_session, e.Ecu, e.Faults, _showOnCar));
+        foreach (var p in new[] { nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount) })
+            Raise(p);
     }
 
     /// <summary>Re-read fault memory of every module that answered in the last scan.</summary>
@@ -132,7 +129,7 @@ public sealed class FaultsViewModel : PageViewModel
     {
         Error = null;
         if (_session.Backend is not { } backend || _session.LastScan is not { } scan) return;
-        var scanner = new VehicleScanner(backend, _session.Database);
+        var scanner = new VehicleScanner(backend, _session.Codes);
         var updated = new List<EcuScanResult>();
         foreach (var e in scan.Ecus)
         {

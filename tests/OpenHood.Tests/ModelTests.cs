@@ -1,0 +1,76 @@
+using OpenHood.Core;
+using OpenHood.Data;
+using OpenHood.Protocols;
+using OpenHood.Protocols.Simulation;
+using Xunit;
+
+namespace OpenHood.Tests;
+
+public class ModelTests
+{
+    private static readonly VehicleDatabase Db = VehicleDatabase.Load(Path.Combine(Path.GetTempPath(), "openhood-no-overrides"));
+
+    public static IEnumerable<object[]> AllModels() =>
+        Db.Vehicles.SelectMany(v => v.Models).Select(m => new object[] { m.Id });
+
+    [Fact]
+    public void EveryFamilyHasModelsAndEveryModuleHasAPosition()
+    {
+        Assert.Empty(Db.LoadWarnings);
+        Assert.All(Db.Vehicles, v => Assert.True(v.Models.Count >= 5));
+        Assert.All(Db.Modules, m => Assert.NotNull(m.Position));
+        Assert.All(Db.Components, c => Assert.InRange(c.Position.X, 0, 1000));
+    }
+
+    [Theory]
+    [InlineData("P0303", "cyl3")]
+    [InlineData("P0171", "intake")]
+    [InlineData("P0597", "thermostat")]
+    [InlineData("P0420", "cat")]
+    [InlineData("P0087", "fuel_rail")]
+    [InlineData("P0156", "o2_b2s2")]
+    public void ObdCodesPointAtTheRightComponent(string code, string component)
+    {
+        var dme = Db.Modules.Single(m => m.Id == "E9x.DME");
+        var where = Db.Locate(new Fault { EcuId = dme.Id, Code = code, Source = FaultSource.Obd2 }, dme);
+        Assert.Equal(Db.FindComponent(component)!.Name, where!.Title);
+        Assert.True(where.IsComponent);
+    }
+
+    [Fact]
+    public void UnknownCodesPointAtTheirModule()
+    {
+        var frm = Db.Modules.Single(m => m.Id == "E9x.FRM");
+        var where = Db.Locate(new Fault { EcuId = frm.Id, Code = "ABCD", Source = FaultSource.Bmw }, frm);
+        Assert.Equal(frm.Position, where!.Position);
+        Assert.Equal(frm.Name, where.Title);
+    }
+
+    [Theory]
+    [MemberData(nameof(AllModels))]
+    public async Task EveryModelHasAWorkingDemoCar(string modelId)
+    {
+        var model = Db.FindModel(modelId)!;
+        var family = Db.FamilyOf(model)!;
+        var mode = family.Cable == "KLine" ? CableMode.KLine : CableMode.DCan;
+        await using var backend = new NativeBackend(VirtualCar.ForModel(model, family.Modules),
+            new NativeBackendOptions { Mode = mode, ProbeTimeout = TimeSpan.FromMilliseconds(60) });
+        await backend.ConnectAsync();
+        var codes = Db.ForDemo(model);
+        var scan = await new VehicleScanner(backend, codes).ScanAsync(family.Modules, model.Id);
+
+        // Exactly the fitted modules answer.
+        var answered = scan.Ecus.Where(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults).Select(e => e.Ecu.Id).Order().ToList();
+        Assert.Equal(model.ModuleIds.Order().ToList(), answered);
+
+        // Every demo fault the native backend can read shows up, described and locatable.
+        var found = scan.Ecus.SelectMany(e => e.Faults.Select(f => (e.Ecu, f))).ToList();
+        foreach (var demo in model.DemoFaults.Where(d => d.IsObd || mode == CableMode.DCan))
+        {
+            var (ecu, fault) = Assert.Single(found, x => x.Ecu.Id == demo.ModuleId && x.f.Code == demo.Code);
+            Assert.False(string.IsNullOrWhiteSpace(fault.Description));
+            if (!demo.IsObd) Assert.Equal(demo.Present ? FaultState.Present : FaultState.Stored, fault.State);
+            Assert.NotNull(Db.Locate(fault, ecu, model));
+        }
+    }
+}

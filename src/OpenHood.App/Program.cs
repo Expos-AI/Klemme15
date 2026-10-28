@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Media;
 
 namespace OpenHood.App;
 
@@ -12,6 +13,6 @@ internal static class Program
     public static AppBuilder BuildAvaloniaApp() =>
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
-            .WithInterFont()
+            .With(new FontManagerOptions { DefaultFamilyName = "avares://OpenHood/Assets/Fonts#Barlow" })
             .LogToTrace();
 }

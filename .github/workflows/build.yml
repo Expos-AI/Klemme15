@@ -39,6 +39,39 @@ jobs:
       - name: Demo scan through the CLI
         run: dotnet run --project src/OpenHood.Cli -c Release --no-build -- scan --demo --report demo-scan.html
 
+  screenshots:
+    name: UI screenshots
+    needs: cross-platform
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-dotnet@v5
+        with:
+          dotnet-version: 10.0.x
+      - name: Render the app with the demo cars
+        shell: bash
+        run: |
+          set -eo pipefail
+          dotnet run --project tools/OpenHood.Screenshots -c Release -- "$RUNNER_TEMP/shots" 2>&1 | tee shots.log || {
+            grep -E "(error|warning) [A-Z]+[0-9]+|Exception|   at " shots.log | head -40 | sed 's/^/::error::/'
+            exit 1
+          }
+          if [ -s "$RUNNER_TEMP/shots/ui-warnings.txt" ]; then
+            head -40 "$RUNNER_TEMP/shots/ui-warnings.txt" | sed 's/^/::warning::/'
+          fi
+      - name: Publish to the screenshots branch
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/shots"
+          echo "Screenshots of $GITHUB_SHA, rendered headlessly with the demo cars." > README.md
+          git init -q -b screenshots
+          git add .
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "UI screenshots for $GITHUB_SHA"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" screenshots
+
   windows-ediabas:
     name: Windows build with EDIABAS mode
     runs-on: windows-latest

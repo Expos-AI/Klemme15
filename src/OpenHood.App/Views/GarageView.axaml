@@ -1,0 +1,130 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:OpenHood.App.ViewModels"
+             xmlns:core="using:OpenHood.Core"
+             xmlns:serial="using:OpenHood.Serial"
+             xmlns:c="using:OpenHood.App.Controls"
+             x:Class="OpenHood.App.Views.GarageView"
+             x:DataType="vm:GarageViewModel">
+  <Grid ColumnDefinitions="340,*">
+
+    <!-- Left: pick the car -->
+    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
+      <DockPanel Margin="28,26,20,20">
+        <StackPanel DockPanel.Dock="Top" Spacing="16" Margin="0,0,0,14">
+          <TextBlock Classes="title" Text="Garage" />
+          <ItemsControl ItemsSource="{Binding Families}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><StackPanel Spacing="6" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:FamilyOption">
+                <Button Classes="segment" Classes.on="{Binding IsSelected}" Command="{Binding SelectCommand}" HorizontalAlignment="Stretch">
+                  <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Years}" Classes="muted small" VerticalAlignment="Center" />
+                    <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="16" FontWeight="SemiBold" />
+                  </DockPanel>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+        <ListBox Classes="models" ItemsSource="{Binding Models}" SelectedItem="{Binding Model}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="core:VehicleModel">
+              <StackPanel Spacing="1">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Text="{Binding Years}" Classes="muted small" VerticalAlignment="Center" />
+                  <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" />
+                </DockPanel>
+                <TextBlock Text="{Binding Engine}" Classes="muted small" TextTrimming="CharacterEllipsis" />
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <!-- Right: the selected model -->
+    <ScrollViewer Grid.Column="1">
+      <StackPanel Margin="36,26,36,32" Spacing="22" MaxWidth="1000">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{Binding ModelTitle}" FontFamily="{DynamicResource DisplayFont}" FontSize="44" FontWeight="SemiBold" />
+          <TextBlock Text="{Binding Engine}" Classes="muted" FontSize="16" />
+        </StackPanel>
+
+        <Viewbox Stretch="Uniform" MaxHeight="400" HorizontalAlignment="Left">
+          <Grid Width="1000" Height="460">
+            <c:CarDrawing />
+            <ItemsControl Classes="markers" ItemsSource="{Binding PreviewMarkers}" IsHitTestVisible="False">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><Canvas Width="1000" Height="460" /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.Styles>
+                <Style Selector="ItemsControl.markers > ContentPresenter" x:DataType="vm:MarkerViewModel">
+                  <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                  <Setter Property="Canvas.Top" Value="{Binding Top}" />
+                </Style>
+              </ItemsControl.Styles>
+            </ItemsControl>
+          </Grid>
+        </Viewbox>
+
+        <!-- Specs -->
+        <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
+          <TextBlock Classes="muted small" Text="Drive" />
+          <TextBlock Grid.Row="1" Text="{Binding Drive}" FontWeight="Medium" />
+          <TextBlock Grid.Column="1" Classes="muted small" Text="Body styles" />
+          <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Body}" FontWeight="Medium" TextWrapping="Wrap" Margin="0,0,16,0" />
+          <TextBlock Grid.Column="2" Classes="muted small" Text="Model years" />
+          <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding Years}" FontWeight="Medium" />
+        </Grid>
+
+        <Border Classes="divider" />
+
+        <!-- Actions -->
+        <StackPanel Spacing="12">
+          <WrapPanel>
+            <Button Classes="primary" Content="Open demo car" Command="{Binding OpenDemoCommand}" Margin="0,0,10,8" />
+            <Button Content="Connect to my car" Command="{Binding ShowCableCommand}" IsVisible="{Binding !ShowCable}" Margin="0,0,10,8" />
+            <Button Content="Disconnect" Command="{Binding DisconnectCommand}" IsVisible="{Binding IsConnected}" Margin="0,0,10,8" />
+          </WrapPanel>
+          <TextBlock Text="{Binding DemoSummary}" Classes="muted" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding ConnectedText}" Classes="lit" IsVisible="{Binding IsConnected}" TextWrapping="Wrap" />
+          <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+        </StackPanel>
+
+        <!-- Cable setup, shown on request -->
+        <Border Classes="panel" Padding="20" IsVisible="{Binding ShowCable}">
+          <StackPanel Spacing="14">
+            <TextBlock Classes="section" Text="Connect the K+DCAN cable" />
+            <TextBlock Text="{Binding CableHint}" Classes="muted" TextWrapping="Wrap" />
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <ComboBox ItemsSource="{Binding Ports}" SelectedItem="{Binding Port}" MinWidth="320" PlaceholderText="No cable found">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate x:DataType="serial:PortInfo">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding Name}" FontWeight="SemiBold" />
+                      <TextBlock Text="{Binding Description}" Classes="muted" />
+                      <TextBlock Text="K+DCAN" Classes="lit" IsVisible="{Binding LikelyKDCan}" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <Button Content="Refresh" Command="{Binding RefreshPortsCommand}" />
+            </StackPanel>
+            <TextBlock Classes="muted small" IsVisible="{Binding NoPorts}" TextWrapping="Wrap"
+                       Text="Plug the cable in, wait for its driver to load, then press Refresh." />
+            <CheckBox IsChecked="{Binding TrustDsr}" Content="My cable reports ignition (stop me if the key is off)" />
+            <CheckBox IsChecked="{Binding UseEdiabas}" IsEnabled="{Binding EdiabasAvailable}" Content="Use my own EDIABAS files for full coverage (Windows)" />
+            <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding UseEdiabas}">
+              <TextBox Text="{Binding EdiabasPath}" Watermark="C:\EDIABAS\Ecu" MinWidth="320" />
+              <Button Content="Browse" Command="{Binding BrowseEdiabasCommand}" />
+            </StackPanel>
+            <Button Classes="primary" Content="Connect" Command="{Binding ConnectCarCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>
