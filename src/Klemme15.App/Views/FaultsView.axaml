@@ -22,6 +22,8 @@
               <!-- module header -->
               <DockPanel Margin="0,0,0,6">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                  <Button Classes="quiet" Content="Readings" Command="{Binding ReadingsCommand}" IsVisible="{Binding CanOpenReadings}"
+                          ToolTip.Tip="See this module's live values (sensor readings, switch states, learned values)" />
                   <Button Classes="quiet" Content="Clear fault memory" Command="{Binding AskClearCommand}" IsVisible="{Binding NotConfirming}" />
                   <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding Confirming}">
                     <TextBlock Text="Clear every fault in this module?" VerticalAlignment="Center" />

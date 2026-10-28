@@ -25,6 +25,10 @@ public sealed class FaultGroupViewModel : ViewModelBase
     }
 
     public EcuDefinition Ecu { get; }
+
+    /// <summary>Opens this module on the Readings page (set when readings are available).</summary>
+    public RelayCommand? ReadingsCommand { get; set; }
+    public bool CanOpenReadings => ReadingsCommand is not null && _session.Readings is not null;
     public string Name => Ecu.Name;
     public string Address => Ecu.AddressHex;
     public ObservableCollection<FaultItemViewModel> Faults { get; } = [];
@@ -106,6 +110,10 @@ public sealed class FaultsViewModel : PageViewModel
     public override Geometry Icon => Icons.Faults;
 
     public ObservableCollection<FaultGroupViewModel> Groups { get; } = [];
+
+    /// <summary>Navigates to the Readings page for a module.</summary>
+    public Action<EcuDefinition>? OpenReadings { get; set; }
+
     public bool IsEmpty => Groups.Count == 0;
     public int ActiveCount => Groups.Sum(g => g.Faults.Count(f => f.IsActive));
     public int StoredCount => Groups.Sum(g => g.Faults.Count(f => f.IsStored));
@@ -131,7 +139,13 @@ public sealed class FaultsViewModel : PageViewModel
         Groups.Clear();
         if (_session.LastScan is { } scan)
             foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0).OrderByDescending(e => e.Faults.Any(f => f.State == FaultState.Present)))
-                Groups.Add(new FaultGroupViewModel(_session, e.Ecu, e.Faults, _showOnCar, _openUrl));
+            {
+                var ecu = e.Ecu;
+                Groups.Add(new FaultGroupViewModel(_session, ecu, e.Faults, _showOnCar, _openUrl)
+                {
+                    ReadingsCommand = OpenReadings is { } open ? new RelayCommand(() => open(ecu)) : null,
+                });
+            }
         foreach (var p in new[] { nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount) })
             Raise(p);
     }
