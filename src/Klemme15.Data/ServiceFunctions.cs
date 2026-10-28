@@ -312,6 +312,7 @@ public static class ServiceRunner
                 if (jobs is null) throw new DiagnosticException("This connection can't run BMW's jobs.");
                 for (var i = 0; i < impl.Steps.Count; i++)
                 {
+                    ct.ThrowIfCancellationRequested();
                     var step = impl.Steps[i];
                     var job = Fill(step.Job, impl, inputs);
                     var args = Fill(step.Args, impl, inputs);
@@ -332,6 +333,7 @@ public static class ServiceRunner
                         if (shown == 0) details.Add($"{job}: OKAY");
                     }
                     else details.Add($"{job}: OKAY");
+                    ct.ThrowIfCancellationRequested();
                     if (step.Wait > 0)
                     {
                         var until = DateTime.UtcNow.AddSeconds(step.Wait);
