@@ -9,7 +9,7 @@
 
 **Open-source BMW diagnostics for everyone.** Scan every module, read and clear faults, watch live engine data and export shareable reports. Use a cheap K+DCAN cable on Windows, macOS or Linux.
 
-> **Status: early alpha.** First real-car result: a 2006 E90 325i scanned in 3.6 seconds over D-CAN, with its VIN and 10 modules confirmed. Most other models are so far tested against the built-in demo cars. Read-only functions (scan, faults, live data) are the focus. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
+> **Status: early alpha.** Confirmed on a real E90 over D-CAN (VIN and modules read); most other models are so far tested against the built-in demo cars. Read-only functions (scan, faults, readings, live data) are the focus. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
 
 Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.
 
@@ -85,7 +85,7 @@ Official BMW meanings for every code (optional, see [docs/FAULT-DATA.md](docs/FA
 
 ```bash
 klemme15 db download                             # fetch bmw-unified-db from its GitHub release (13 MB)
-klemme15 code E9x.DSC 5E1A --model 325i          # what does this code mean on my car?
+klemme15 code E9x.DSC 5E1A --model 325i          # what does a code mean on a given model?
 klemme15 scan --port COM3 --ecu "C:\ISTA\Ediabas\Ecu"   # or read texts from your own ISTA/INPA files
 ```
 

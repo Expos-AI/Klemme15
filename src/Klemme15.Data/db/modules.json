@@ -1,5 +1,5 @@
 {
- "$comment": "Diagnostic addresses for E-series modules. protocol: Ds2 | BmwFast | Obd2. sgbd: EDIABAS group/variant names to try in order (only used in EDIABAS mode). pos: approximate location on the top-view car drawing (1000 x 460, front at left, driver side at bottom). Set verified=true only after reading the module on a real car, and say which car in the pull request. optional: fitted only with certain options (scanned, but a missing answer is normal). partOf: lives inside another module (shown with it on the drawing).",
+ "$comment": "Diagnostic addresses for E-series modules. protocol: Ds2 | BmwFast | Obd2. sgbd: EDIABAS group/variant names to try in order (only used in EDIABAS mode). pos: approximate location on the top-view car drawing (1000 x 460, front at left, driver side at bottom). Set verified=true only after reading the module on a real car, and say which model in the pull request (no VIN or personal details). optional: fitted only with certain options (scanned, but a missing answer is normal). partOf: lives inside another module (shown with it on the drawing).",
  "modules": [
   {
    "id": "E46.DME",
@@ -290,9 +290,6 @@
     110
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "mevd174k",
     "mevd17kw",
@@ -358,9 +355,6 @@
     345
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "dsc_87",
     "dxc_90",
@@ -381,9 +375,6 @@
     230
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "mrs5",
     "acsm2",
@@ -404,9 +395,6 @@
     330
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "cas"
    ]
@@ -425,9 +413,6 @@
     300
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "komb87"
    ]
@@ -446,9 +431,6 @@
     368
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "frm_70",
     "frm_87"
@@ -468,9 +450,6 @@
     110
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "jbbf70",
     "jbbf87"
@@ -490,9 +469,6 @@
     255
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "ihka89",
     "ihka87",
@@ -530,9 +506,6 @@
     334
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "ekp360",
     "ekpm60_2",
@@ -595,9 +568,6 @@
     230
    ],
    "verified": true,
-   "seenOn": [
-    "E90 325i 2006"
-   ],
    "variants": [
     "fzd_87",
     "rls_87"

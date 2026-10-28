@@ -1,4 +1,4 @@
-Early alpha. Read-only diagnostics: scan, faults, readings and live data. First real-car result: a 2006 E90 325i over D-CAN; most other models are tested against the built-in demo cars. Please report results from your car: see CONTRIBUTING.md.
+Early alpha. Read-only diagnostics: scan, faults, readings and live data. Confirmed on a real E90 over D-CAN; most other models are tested against the built-in demo cars. Please report results from your car: see CONTRIBUTING.md.
 
 **Official BMW meanings for every code:** in the Garage, download the optional bmw-unified-db fault database (13 MB, third-party) or point Klemme15 at your own ISTA/INPA files. See docs/FAULT-DATA.md.
 

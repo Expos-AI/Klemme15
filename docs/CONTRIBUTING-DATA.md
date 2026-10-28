@@ -41,7 +41,7 @@ Each family lists its models with engine, years, drive, the modules its demo car
 - `engines` when the meaning is engine-specific (engine computers reuse numbers),
 - optional `hint` and `component`.
 
-Add or fix entries in those files (or a new one listed in `merge_codes.py`), then run `python3 tools/research/merge_codes.py` and commit both. If you read a code on your own car, add it to the `SEEN` list in the script with your car.
+Add or fix entries in those files (or a new one listed in `merge_codes.py`), then run `python3 tools/research/merge_codes.py` and commit both. If you read a code on your own car, mention it in your pull request (no VINs or other personal details, please).
 
 ## Describing a BMW fault code (`bmw-codes.json`)
 
