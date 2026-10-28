@@ -1,8 +1,12 @@
 name: build
 
+# The repo is private for now, so Actions minutes count against the free allowance
+# (macOS x10, Windows x2). Docs-only pushes skip CI, and macOS runs only for releases.
 on:
   push:
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
   pull_request:
+    paths-ignore: ["**.md", "docs/**", "LICENSE"]
   workflow_dispatch:
     inputs:
       version:
@@ -19,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: ${{ fromJSON(inputs.version != '' && '["ubuntu-latest","windows-latest","macos-latest"]' || '["ubuntu-latest","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -108,8 +112,8 @@ jobs:
         include:
           - { os: windows-latest, rid: win-x64 }
           - { os: ubuntu-latest, rid: linux-x64 }
-          - { os: macos-latest, rid: osx-arm64 }
-          - { os: macos-latest, rid: osx-x64 }
+          # One Mac job builds both Mac downloads: half the Mac minutes, and one runner to wait for.
+          - { os: macos-latest, rid: osx-arm64 osx-x64 }
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v5
@@ -125,21 +129,23 @@ jobs:
         shell: bash
         run: |
           set -eo pipefail
-          out="publish/Klemme15-${RELEASE_TAG}-${{ matrix.rid }}"
-          common="-c Release -r ${{ matrix.rid }} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None"
-          dotnet publish src/Klemme15.App $common -o "$out"
-          dotnet publish src/Klemme15.Cli $common -o "$out/cli"
-          cp LICENSE README.md "$out/"
-          cd publish
-          if [ "$RUNNER_OS" = "Windows" ]; then
-            7z a -tzip "$(basename "$out").zip" "$(basename "$out")" > /dev/null
-          else
-            zip -qr "$(basename "$out").zip" "$(basename "$out")"
-          fi
-          ls -la
+          for rid in ${{ matrix.rid }}; do
+            out="publish/Klemme15-${RELEASE_TAG}-${rid}"
+            common="-c Release -r ${rid} --self-contained -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -p:DebugType=None"
+            dotnet publish src/Klemme15.App $common -o "$out"
+            dotnet publish src/Klemme15.Cli $common -o "$out/cli"
+            cp LICENSE README.md "$out/"
+            (cd publish
+             if [ "$RUNNER_OS" = "Windows" ]; then
+               7z a -tzip "$(basename "$out").zip" "$(basename "$out")" > /dev/null
+             else
+               zip -qr "$(basename "$out").zip" "$(basename "$out")"
+             fi)
+          done
+          ls -la publish
       - uses: actions/upload-artifact@v5
         with:
-          name: Klemme15-${{ matrix.rid }}
+          name: Klemme15-${{ runner.os }}
           path: publish/*.zip
 
   release:
@@ -162,7 +168,9 @@ jobs:
             --repo "$GITHUB_REPOSITORY" \
             --title "Klemme15 $RELEASE_TAG" \
             --prerelease \
-            --notes "Early alpha. Tested against the built-in demo cars; not yet confirmed on a real vehicle. Read-only diagnostics (scan, faults, live data). Please report results from your car: see CONTRIBUTING.md.
+            --notes "Early alpha. Read-only diagnostics (scan, faults, live data). First real-car result: a 2006 E90 325i over D-CAN; most other models are tested against the built-in demo cars. Please report results from your car: see CONTRIBUTING.md.
+
+          Official BMW meanings for every code: in the Garage, download the optional bmw-unified-db fault database (13 MB, third-party) or point Klemme15 at your own ISTA/INPA files. See docs/FAULT-DATA.md.
 
           Downloads: unzip and run Klemme15 (Klemme15.exe on Windows). The command-line tool is in the cli folder. EDIABAS mode is included in the Windows build.
 
