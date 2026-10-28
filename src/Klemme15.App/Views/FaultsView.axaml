@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="using:System"
              xmlns:vm="using:Klemme15.App.ViewModels"
              x:Class="Klemme15.App.Views.FaultsView"
              x:DataType="vm:FaultsViewModel">
@@ -57,6 +58,39 @@
                           <SelectableTextBlock Classes="muted small" Text="{Binding OfficialLine}" TextWrapping="Wrap" IsVisible="{Binding HasOfficialLine}" />
                           <TextBlock Classes="muted small" Text="{Binding VariantLine}" TextWrapping="Wrap" IsVisible="{Binding HasVariantLine}" />
                           <SelectableTextBlock Classes="muted small" Text="{Binding AlternativesText}" TextWrapping="Wrap" IsVisible="{Binding HasAlternatives}" />
+                          <!-- Troubleshooting guide -->
+                          <Border IsVisible="{Binding GuideOpen}" Padding="14,12" Margin="0,6,0,0" CornerRadius="6"
+                                  Background="{DynamicResource LitSoftBrush}">
+                            <StackPanel Spacing="8" DataContext="{Binding Guide}" x:DataType="vm:GuideViewModel">
+                              <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                              <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" />
+                              <ItemsControl ItemsSource="{Binding Safety}" IsVisible="{Binding HasSafety}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="sys:String">
+                                    <TextBlock Classes="red small" Text="{Binding}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                              <ItemsControl ItemsSource="{Binding Steps}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="vm:GuideStepViewModel">
+                                    <Grid ColumnDefinitions="26,*" Margin="0,3">
+                                      <TextBlock Classes="lit" Text="{Binding Number}" FontWeight="SemiBold" />
+                                      <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                          <Button Classes="quiet" Content="Show readings" Command="{Binding ReadingsCommand}" IsVisible="{Binding HasReadings}" FontSize="12" Padding="4,0" />
+                                          <Button Classes="quiet" Content="Open Live data" Command="{Binding LiveCommand}" IsVisible="{Binding HasLive}" FontSize="12" Padding="4,0" />
+                                        </StackPanel>
+                                      </StackPanel>
+                                    </Grid>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                              <TextBlock Classes="muted small" TextWrapping="Wrap"
+                                         Text="Guides are written by Klemme15 contributors as a starting point. If you're unsure, or a step needs tools you don't have, ask a mechanic." />
+                            </StackPanel>
+                          </Border>
                           <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Classes="muted small" Text="Check here:" />
                             <TextBlock Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
@@ -77,7 +111,11 @@
                             </ItemsControl>
                           </WrapPanel>
                         </StackPanel>
-                        <Button Grid.Column="3" Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" VerticalAlignment="Center" Margin="0,0,14,0" />
+                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,14,0" Spacing="4">
+                          <Button Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" HorizontalAlignment="Right" />
+                          <Button Classes="quiet" Content="{Binding GuideButtonText}" Command="{Binding ToggleGuideCommand}" IsVisible="{Binding HasGuide}" HorizontalAlignment="Right"
+                                  ToolTip.Tip="Step-by-step checks for this kind of fault" />
+                        </StackPanel>
                       </Grid>
                     </Border>
                   </DataTemplate>

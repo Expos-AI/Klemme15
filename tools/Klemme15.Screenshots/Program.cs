@@ -44,6 +44,13 @@ vm.Vehicle.Select(vm.Vehicle.Markers.First(m => m.IsFaultSource));
 Shot("06-vehicle-fault-selected");
 vm.CurrentPage = vm.Faults;
 Shot("07-faults");
+if (vm.Faults.Groups.SelectMany(g => g.Faults).FirstOrDefault(f => f.HasGuide) is { } guided)
+{
+    guided.GuideOpen = true;
+    Shot("17-faults-guide");
+    guided.GuideOpen = false;
+}
+else problems.Add("17-faults-guide: no fault on the demo car has a guide");
 vm.CurrentPage = vm.Readings;
 WaitUntil(() => vm.Readings.Groups.Count > 0);
 vm.Readings.ReadAllCommand.Execute(null);

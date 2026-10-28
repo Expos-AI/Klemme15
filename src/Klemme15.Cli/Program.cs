@@ -112,6 +112,12 @@ internal static class Cli
         if (f.OfficialText is not null && f.OfficialText != f.Description) Console.WriteLine($"  BMW text: {f.OfficialText}");
         foreach (var alt in f.Alternatives) Console.WriteLine($"  on other variants: {alt}");
         if (f.Hint is not null) Console.WriteLine($"  tip: {f.Hint}");
+        if (db.Guides.For(f, ecu) is { } guide)
+        {
+            Console.WriteLine($"  troubleshooting: {guide.Title}");
+            var n = 0;
+            foreach (var step in guide.StepsFor(model?.EngineCode)) Console.WriteLine($"    {++n}. {step.Text}");
+        }
         if (f.OfficialSource is not null) Console.WriteLine($"  source: {f.OfficialSource}");
         foreach (var src in f.Sources) Console.WriteLine($"  community source: {src}");
         return 0;

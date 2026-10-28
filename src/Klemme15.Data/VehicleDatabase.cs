@@ -20,6 +20,11 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>Official fault dictionaries the user has made available (their BMW files, a downloaded database), checked in order.</summary>
     public IReadOnlyList<IOfficialFaultSource> OfficialSources => _official;
 
+    private GuideLibrary? _guides;
+
+    /// <summary>Klemme15's troubleshooting guides (db/guides.json).</summary>
+    public GuideLibrary Guides => _guides ??= GuideLibrary.Load();
+
     /// <summary>Replaces the official sources (e.g. after the user downloads a database or picks their BMW folder).</summary>
     public void SetOfficialSources(IEnumerable<IOfficialFaultSource> sources)
     {

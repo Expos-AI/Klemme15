@@ -181,9 +181,10 @@ public sealed class ReadingsViewModel : PageViewModel
     }
 
     /// <summary>Selects a module by id (used by "Readings" on the Faults page).</summary>
-    public void ShowModule(string ecuId)
+    public void ShowModule(string ecuId, string? filter = null)
     {
         if (Modules.Count == 0) Reload();
+        if (filter is not null) Filter = filter;
         if (Modules.FirstOrDefault(m => m.Ecu.Id == ecuId) is { } module && module != _module) Select(module);
     }
 
