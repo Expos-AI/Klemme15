@@ -31,6 +31,18 @@ If you know where a module or part really sits on your car and the marker is off
 
 Each family lists its models with engine, years, drive, the modules its demo car has fitted, and the demo faults. Demo faults with OBD-II codes use real meanings. BMW-format demo codes are invented for the demo and their text must start with "Demo fault:" so nobody mistakes them for real BMW definitions.
 
+## Researching BMW fault codes (`tools/research`)
+
+`bmw-codes.json` is generated. Researched codes live in `tools/research/*.json`, written to the rules in `tools/research/RESEARCH-BRIEF.md`:
+
+- the meaning in your own words (never pasted from ISTA, INPA, TIS or a website),
+- at least one source URL that discusses that exact code on that chassis,
+- `confidence`: `high` when two or more independent sources agree, `medium` for one specific source,
+- `engines` when the meaning is engine-specific (engine computers reuse numbers),
+- optional `hint` and `component`.
+
+Add or fix entries in those files (or a new one listed in `merge_codes.py`), then run `python3 tools/research/merge_codes.py` and commit both. If you read a code on your own car, add it to the `SEEN` list in the script with your car.
+
 ## Describing a BMW fault code (`bmw-codes.json`)
 
 Key by module id, then the 4-digit hex code as OpenHood displays it:

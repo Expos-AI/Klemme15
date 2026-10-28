@@ -107,6 +107,7 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     {
         get
         {
+            if (Fault.Hint is { Length: > 0 } hint) return hint;
             var text = Fault.DisplayDescription;
             var i = text.IndexOf(TipMarker, StringComparison.Ordinal);
             return i < 0 ? null : text[(i + TipMarker.Length)..];
@@ -114,11 +115,29 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     }
 
     public bool HasTip => Tip is not null;
-    public string ModuleName => Ecu.Name;
-    public bool IsActive => Fault.State == FaultState.Present;
-    public bool IsStored => !IsActive;
 
-    public string StateText => Fault.State switch
+    /// <summary>Where the meaning comes from, so people know how far to trust it.</summary>
+    public string Provenance => Fault.Confidence switch
+    {
+        "official" => "Official text from your SGBD file",
+        "high" => Fault.Sources.Count == 1 ? "Community meaning, high confidence (1 source)" : $"Community meaning, high confidence ({Fault.Sources.Count} sources)",
+        "medium" => "Community meaning, medium confidence: treat as a lead",
+        _ when Fault.Source == FaultSource.Obd2 && Fault.Description is not null => "Standard OBD-II meaning",
+        _ when Fault.Description is null => "No meaning on file yet",
+        _ => "",
+    };
+
+    public bool HasProvenance => Provenance.Length > 0;
+
+    /// <summary>Clickable source links (community entries only).</summary>
+    public IReadOnlyList<SourceLink> SourceLinks { get; init; } = [];
+    public bool HasSourceLinks => SourceLinks.Count > 0;
+    public string ModuleName => Ecu.Name;
+    public bool IsActive => Fault.State == FaultState.Present && !Fault.IsInfo;
+    public bool IsStored => !IsActive && !Fault.IsInfo;
+    public bool IsInfo => Fault.IsInfo;
+
+    public string StateText => Fault.IsInfo ? "Info memory" : Fault.State switch
     {
         FaultState.Present => "Active now",
         FaultState.Intermittent => "Intermittent",
@@ -138,4 +157,12 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
 
     public MarkerViewModel? Marker { get; set; }
     public RelayCommand? ShowCommand { get; set; }
+}
+
+/// <summary>A source URL shown as a short link (its site name).</summary>
+public sealed class SourceLink(string url, Action<string> open)
+{
+    public string Url { get; } = url;
+    public string Label { get; } = Uri.TryCreate(url, UriKind.Absolute, out var u) ? u.Host.Replace("www.", "") : url;
+    public RelayCommand OpenCommand { get; } = new(() => open(url));
 }

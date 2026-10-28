@@ -74,6 +74,22 @@ public interface IFaultCodeDatabase
     string? DescribeBmw(string ecuId, string code);
 }
 
+/// <summary>Everything the database knows about one code.</summary>
+public sealed record CodeInfo(string Text, string? Hint = null, string? Confidence = null, IReadOnlyList<string>? Sources = null, string? Component = null);
+
+/// <summary>Richer lookup than <see cref="IFaultCodeDatabase"/>: tips, confidence and sources.</summary>
+public interface IFaultCodeDetails
+{
+    CodeInfo? LookupBmw(string ecuId, string code);
+}
+
+/// <summary>Backends that can find which modules are present in one go (e.g. a functional broadcast).</summary>
+public interface IPresenceProbe
+{
+    /// <summary>Returns the addresses that answered, or null if the probe isn't supported on this car.</summary>
+    Task<IReadOnlySet<byte>?> ProbePresentAsync(CancellationToken ct = default);
+}
+
 /// <summary>Raised when the diagnostic link fails in a way the user must fix (cable, ignition, port).</summary>
 public sealed class DiagnosticException(string message, Exception? inner = null) : Exception(message, inner);
 

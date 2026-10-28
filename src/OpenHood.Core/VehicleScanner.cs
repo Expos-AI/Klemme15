@@ -25,8 +25,17 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
         var results = new List<EcuScanResult>(ecus.Count);
         var cancelled = false;
 
+        // One broadcast tells us which modules are fitted, so absent ones can be skipped quickly.
+        if (backend is IPresenceProbe probe)
+        {
+            progress?.Report(new ScanProgress(0, ecus.Count, null, "Finding fitted modules"));
+            try { await probe.ProbePresentAsync(ct); }
+            catch (OperationCanceledException) { cancelled = true; }
+            catch (Exception) { /* fall back to asking every module */ }
+        }
+
         string? vin = null;
-        if (backend.Capabilities.HasFlag(BackendCapabilities.ReadVin))
+        if (!cancelled && backend.Capabilities.HasFlag(BackendCapabilities.ReadVin))
         {
             progress?.Report(new ScanProgress(0, ecus.Count, null, "Reading VIN"));
             try { vin = await backend.ReadVinAsync(ct); }
@@ -88,7 +97,7 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
                 return new EcuScanResult
                 {
                     Ecu = ecu,
-                    Status = faults.Count > 0 ? EcuScanStatus.Faults : EcuScanStatus.Ok,
+                    Status = faults.Any(f => !f.IsInfo) ? EcuScanStatus.Faults : EcuScanStatus.Ok,
                     Identity = identity,
                     Faults = faults,
                     Note = note,
@@ -104,13 +113,16 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
         return new EcuScanResult { Ecu = ecu, Status = EcuScanStatus.Error, Error = last?.Message, Elapsed = sw.Elapsed };
     }
 
-    /// <summary>Fills in descriptions the backend did not supply.</summary>
+    /// <summary>Fills in descriptions, tips and sources the backend did not supply.</summary>
     public IReadOnlyList<Fault> Describe(IReadOnlyList<Fault> faults)
     {
         if (codes is null) return faults;
-        return faults.Select(f => f.Description is not null ? f : f with
+        return faults.Select(f =>
         {
-            Description = f.Source == FaultSource.Obd2 ? codes.DescribeObd(f.Code) : codes.DescribeBmw(f.EcuId, f.Code),
+            if (f.Description is not null) return f;
+            if (f.Source == FaultSource.Bmw && codes is IFaultCodeDetails details && details.LookupBmw(f.EcuId, f.Code) is { } info)
+                return f with { Description = info.Text, Hint = info.Hint, Confidence = info.Confidence, Sources = info.Sources ?? [] };
+            return f with { Description = f.Source == FaultSource.Obd2 ? codes.DescribeObd(f.Code) : codes.DescribeBmw(f.EcuId, f.Code) };
         }).ToList();
     }
 }

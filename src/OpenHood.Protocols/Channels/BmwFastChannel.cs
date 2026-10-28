@@ -58,6 +58,26 @@ public sealed class BmwFastChannel(ITransport transport)
         }
     }
 
+    /// <summary>Functional (broadcast) address: every module on D-CAN may answer.</summary>
+    public const byte Functional = 0xDF;
+
+    /// <summary>
+    /// Sends one request to all modules at once and collects every answer that arrives within <paramref name="window"/>.
+    /// Returns source address and payload for each module that answered.
+    /// </summary>
+    public IReadOnlyList<(byte Source, byte[] Data)> RequestFunctional(ReadOnlySpan<byte> data, TimeSpan window, CancellationToken ct = default)
+    {
+        var request = KwpFrame.Build(Functional, TesterAddress, data);
+        transport.DiscardInput();
+        transport.Write(request);
+        var buf = BusReader.ReadUntil(transport, window, _ => false, ct);
+        var answers = new Dictionary<byte, byte[]>();
+        foreach (var f in KwpFrame.ParseAll(Echo.Strip(request, buf)))
+            if (f.Target == TesterAddress && f.Data.Length > 0 && !IsResponsePending(f.Data))
+                answers.TryAdd(f.Source, f.Data);
+        return answers.Select(kv => (kv.Key, kv.Value)).ToList();
+    }
+
     private byte[]? FindResponse(ReadOnlySpan<byte> buf, byte ecu)
     {
         foreach (var f in KwpFrame.ParseAll(buf))

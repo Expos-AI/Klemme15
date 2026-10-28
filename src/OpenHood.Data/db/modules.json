@@ -1,33 +1,1269 @@
 {
-  "$comment": "Diagnostic addresses for E-series modules. protocol: Ds2 | BmwFast | Obd2. sgbd: EDIABAS group/variant names to try in order (only used in EDIABAS mode). pos: approximate location on the top-view car drawing (1000 x 460, front at left, driver side at bottom). Set verified=true only after reading the module on a real car, and say which car in the pull request.",
-  "modules": [
-    { "id": "E46.DME",  "name": "Engine (DME)",                 "address": "12", "protocol": "Ds2", "category": "Powertrain", "engine": true, "sgbd": ["D_MOTOR", "D_0012"], "pos": [285, 110], "verified": false },
-    { "id": "E46.EGS",  "name": "Automatic transmission (EGS)", "address": "32", "protocol": "Ds2", "category": "Powertrain", "sgbd": ["D_EGS", "D_0032"], "pos": [415, 230], "verified": false },
-    { "id": "E46.DSC",  "name": "ABS / ASC / DSC",              "address": "56", "protocol": "Ds2", "category": "Chassis",    "sgbd": ["D_ABSKWP", "D_DSC", "D_0056"], "pos": [250, 345], "verified": false },
-    { "id": "E46.MRS",  "name": "Airbag (MRS)",                 "address": "A4", "protocol": "Ds2", "category": "Safety",     "sgbd": ["D_AIRBAG", "D_00A4"], "pos": [560, 230], "verified": false },
-    { "id": "E46.IKE",  "name": "Instrument cluster (IKE)",     "address": "80", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_KOMBI", "D_0080"], "pos": [345, 300], "verified": false },
-    { "id": "E46.GM5",  "name": "General module (GM5 / ZKE)",   "address": "00", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_ZKE_GM", "D_0000"], "pos": [395, 110], "verified": false },
-    { "id": "E46.LCM",  "name": "Light control module (LCM)",   "address": "D0", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_LSZ", "D_00D0"], "pos": [400, 368], "verified": false },
-    { "id": "E46.IHKA", "name": "Climate control (IHKA)",       "address": "5B", "protocol": "Ds2", "category": "Comfort",    "sgbd": ["D_KLIMA", "D_005B"], "pos": [338, 255], "verified": false },
-    { "id": "E46.EWS",  "name": "Immobilizer (EWS)",            "address": "44", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_EWS", "D_0044"], "pos": [372, 330], "verified": false },
-    { "id": "E46.PDC",  "name": "Park distance control (PDC)",  "address": "60", "protocol": "Ds2", "category": "Comfort",    "sgbd": ["D_PDC", "D_0060"], "pos": [880, 340], "verified": false },
-    { "id": "E46.MFL",  "name": "Steering wheel buttons (MFL)", "address": "50", "protocol": "Ds2", "category": "Comfort",    "sgbd": ["D_MFL", "D_0050"], "pos": [418, 300], "verified": false },
-    { "id": "E46.RAD",  "name": "Radio",                        "address": "68", "protocol": "Ds2", "category": "Infotainment","sgbd": ["D_RADIO", "D_0068"], "pos": [338, 205], "verified": false },
-    { "id": "E46.RLS",  "name": "Rain / light sensor (RLS)",    "address": "E8", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_RLS", "D_00E8"], "pos": [458, 262], "verified": false },
-
-    { "id": "E9x.DME",  "name": "Engine (DME)",                 "address": "12", "protocol": "BmwFast", "category": "Powertrain", "engine": true, "sgbd": ["D_0012", "D_MOTOR"], "pos": [285, 110], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.EGS",  "name": "Automatic transmission (EGS)", "address": "18", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0018", "D_EGS"], "pos": [415, 230], "verified": false },
-    { "id": "E9x.DSC",  "name": "Stability control (DSC)",      "address": "29", "protocol": "BmwFast", "category": "Chassis",    "sgbd": ["D_0029"], "pos": [250, 345], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.ACSM", "name": "Airbag (ACSM)",                "address": "01", "protocol": "BmwFast", "category": "Safety",     "sgbd": ["D_0001"], "pos": [560, 230], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.CAS",  "name": "Car access system (CAS)",      "address": "40", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0040"], "pos": [372, 330], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.KOMBI","name": "Instrument cluster (KOMBI)",   "address": "60", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0060"], "pos": [345, 300], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.FRM",  "name": "Footwell module (FRM)",        "address": "72", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0072"], "pos": [400, 368], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.JBE",  "name": "Junction box (JBE)",           "address": "00", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0000"], "pos": [395, 110], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.IHKA", "name": "Climate control (IHKA)",       "address": "78", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0078"], "pos": [338, 255], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.SZL",  "name": "Steering column switches (SZL)","address": "02", "protocol": "BmwFast", "category": "Chassis",   "sgbd": ["D_0002"], "pos": [418, 300], "verified": false },
-    { "id": "E9x.EKPS", "name": "Fuel pump control (EKPS)",     "address": "17", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0017"], "pos": [596, 334], "verified": true, "seenOn": ["E90 325i 2006"] },
-    { "id": "E9x.PDC",  "name": "Park distance control (PDC)",  "address": "64", "protocol": "BmwFast", "category": "Comfort",    "sgbd": ["D_0064"], "pos": [880, 340], "verified": false },
-    { "id": "E9x.CIC",  "name": "Head unit (CCC / CIC)",        "address": "63", "protocol": "BmwFast", "category": "Infotainment","sgbd": ["D_0063"], "pos": [338, 205], "verified": false },
-    { "id": "E9x.FZD",  "name": "Roof function centre (FZD)",   "address": "56", "protocol": "BmwFast", "category": "Body",       "sgbd": ["D_0056"], "pos": [470, 230], "verified": true, "seenOn": ["E90 325i 2006"] }
-  ]
+ "$comment": "Diagnostic addresses for E-series modules. protocol: Ds2 | BmwFast | Obd2. sgbd: EDIABAS group/variant names to try in order (only used in EDIABAS mode). pos: approximate location on the top-view car drawing (1000 x 460, front at left, driver side at bottom). Set verified=true only after reading the module on a real car, and say which car in the pull request. optional: fitted only with certain options (scanned, but a missing answer is normal). partOf: lives inside another module (shown with it on the drawing).",
+ "modules": [
+  {
+   "id": "E46.DME",
+   "name": "Engine (DME)",
+   "address": "12",
+   "protocol": "Ds2",
+   "category": "Powertrain",
+   "engine": true,
+   "sgbd": [
+    "D_MOTOR",
+    "D_0012"
+   ],
+   "pos": [
+    285,
+    110
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.EGS",
+   "name": "Automatic transmission (EGS)",
+   "address": "32",
+   "protocol": "Ds2",
+   "category": "Powertrain",
+   "sgbd": [
+    "D_EGS",
+    "D_0032"
+   ],
+   "pos": [
+    415,
+    230
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.DSC",
+   "name": "ABS / ASC / DSC",
+   "address": "56",
+   "protocol": "Ds2",
+   "category": "Chassis",
+   "sgbd": [
+    "D_ABSKWP",
+    "D_DSC",
+    "D_0056"
+   ],
+   "pos": [
+    250,
+    345
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.MRS",
+   "name": "Airbag (MRS)",
+   "address": "A4",
+   "protocol": "Ds2",
+   "category": "Safety",
+   "sgbd": [
+    "D_AIRBAG",
+    "D_00A4"
+   ],
+   "pos": [
+    560,
+    230
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.IKE",
+   "name": "Instrument cluster (IKE)",
+   "address": "80",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [
+    "D_KOMBI",
+    "D_0080"
+   ],
+   "pos": [
+    345,
+    300
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.GM5",
+   "name": "General module (GM5 / ZKE)",
+   "address": "00",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [
+    "D_ZKE_GM",
+    "D_0000"
+   ],
+   "pos": [
+    395,
+    110
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.LCM",
+   "name": "Light control module (LCM)",
+   "address": "D0",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [
+    "D_LSZ",
+    "D_00D0"
+   ],
+   "pos": [
+    400,
+    368
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.IHKA",
+   "name": "Climate control (IHKA)",
+   "address": "5B",
+   "protocol": "Ds2",
+   "category": "Comfort",
+   "sgbd": [
+    "D_KLIMA",
+    "D_005B"
+   ],
+   "pos": [
+    338,
+    255
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.EWS",
+   "name": "Immobilizer (EWS)",
+   "address": "44",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [
+    "D_EWS",
+    "D_0044"
+   ],
+   "pos": [
+    372,
+    330
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.PDC",
+   "name": "Park distance control (PDC)",
+   "address": "60",
+   "protocol": "Ds2",
+   "category": "Comfort",
+   "sgbd": [
+    "D_PDC",
+    "D_0060"
+   ],
+   "pos": [
+    880,
+    340
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.MFL",
+   "name": "Steering wheel buttons (MFL)",
+   "address": "50",
+   "protocol": "Ds2",
+   "category": "Comfort",
+   "sgbd": [
+    "D_MFL",
+    "D_0050"
+   ],
+   "pos": [
+    418,
+    300
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.RAD",
+   "name": "Radio",
+   "address": "68",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_RADIO",
+    "D_0068"
+   ],
+   "pos": [
+    338,
+    205
+   ],
+   "verified": false
+  },
+  {
+   "id": "E46.RLS",
+   "name": "Rain / light sensor (RLS)",
+   "address": "E8",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [
+    "D_RLS",
+    "D_00E8"
+   ],
+   "pos": [
+    458,
+    262
+   ],
+   "verified": false
+  },
+  {
+   "id": "E9x.DME",
+   "name": "Engine (DME)",
+   "address": "12",
+   "protocol": "BmwFast",
+   "category": "Powertrain",
+   "engine": true,
+   "sgbd": [
+    "D_0012",
+    "D_MOTOR"
+   ],
+   "pos": [
+    285,
+    110
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.EGS",
+   "name": "Automatic transmission (EGS)",
+   "address": "18",
+   "protocol": "BmwFast",
+   "category": "Powertrain",
+   "sgbd": [
+    "D_0018",
+    "D_EGS"
+   ],
+   "pos": [
+    415,
+    230
+   ],
+   "verified": false
+  },
+  {
+   "id": "E9x.DSC",
+   "name": "Stability control (DSC)",
+   "address": "29",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0029"
+   ],
+   "pos": [
+    250,
+    345
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.ACSM",
+   "name": "Airbag (ACSM)",
+   "address": "01",
+   "protocol": "BmwFast",
+   "category": "Safety",
+   "sgbd": [
+    "D_0001"
+   ],
+   "pos": [
+    560,
+    230
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.CAS",
+   "name": "Car access system (CAS)",
+   "address": "40",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0040"
+   ],
+   "pos": [
+    372,
+    330
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.KOMBI",
+   "name": "Instrument cluster (KOMBI)",
+   "address": "60",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0060"
+   ],
+   "pos": [
+    345,
+    300
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.FRM",
+   "name": "Footwell module (FRM)",
+   "address": "72",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0072"
+   ],
+   "pos": [
+    400,
+    368
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.JBE",
+   "name": "Junction box (JBE)",
+   "address": "00",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0000"
+   ],
+   "pos": [
+    395,
+    110
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.IHKA",
+   "name": "Climate control (IHKA)",
+   "address": "78",
+   "protocol": "BmwFast",
+   "category": "Comfort",
+   "sgbd": [
+    "D_0078"
+   ],
+   "pos": [
+    338,
+    255
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.SZL",
+   "name": "Steering column switches (SZL)",
+   "address": "02",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0002"
+   ],
+   "pos": [
+    418,
+    300
+   ],
+   "verified": false
+  },
+  {
+   "id": "E9x.EKPS",
+   "name": "Fuel pump control (EKPS)",
+   "address": "17",
+   "protocol": "BmwFast",
+   "category": "Powertrain",
+   "sgbd": [
+    "D_0017"
+   ],
+   "pos": [
+    596,
+    334
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.PDC",
+   "name": "Park distance control (PDC)",
+   "address": "64",
+   "protocol": "BmwFast",
+   "category": "Comfort",
+   "sgbd": [
+    "D_0064"
+   ],
+   "pos": [
+    880,
+    340
+   ],
+   "verified": false
+  },
+  {
+   "id": "E9x.CIC",
+   "name": "Head unit (CCC / CIC)",
+   "address": "63",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0063"
+   ],
+   "pos": [
+    338,
+    205
+   ],
+   "verified": false
+  },
+  {
+   "id": "E9x.FZD",
+   "name": "Roof function centre (FZD)",
+   "address": "56",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0056"
+   ],
+   "pos": [
+    470,
+    230
+   ],
+   "verified": true,
+   "seenOn": [
+    "E90 325i 2006"
+   ]
+  },
+  {
+   "id": "E9x.AFS",
+   "name": "Active front steering (AFS)",
+   "address": "16",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0016"
+   ],
+   "optional": true,
+   "pos": [
+    262,
+    318
+   ],
+   "verified": false,
+   "note": "Only with the Active Steering option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.VGSG",
+   "name": "Transfer case control (VGSG)",
+   "address": "19",
+   "protocol": "BmwFast",
+   "category": "Powertrain",
+   "sgbd": [
+    "D_0019"
+   ],
+   "optional": true,
+   "pos": [
+    470,
+    262
+   ],
+   "verified": false,
+   "note": "Only on xDrive (all-wheel-drive) cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.RDC",
+   "name": "Tyre pressure control (RDC)",
+   "address": "20",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0020"
+   ],
+   "optional": true,
+   "pos": [
+    705,
+    175
+   ],
+   "verified": false,
+   "note": "Only with direct TPMS. Many E9x use RPA flat-tyre detection inside the DSC instead, which has no separate module.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.ACC",
+   "name": "Active cruise control radar (ACC)",
+   "address": "21",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0021"
+   ],
+   "optional": true,
+   "pos": [
+    64,
+    268
+   ],
+   "verified": false,
+   "note": "Only with the Active Cruise Control option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.CVM",
+   "name": "Convertible top module (CVM)",
+   "address": "24",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0024"
+   ],
+   "optional": true,
+   "pos": [
+    858,
+    300
+   ],
+   "verified": false,
+   "note": "Only on the E93 convertible.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.PGS",
+   "name": "Passive Go System (PGS)",
+   "address": "27",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0027"
+   ],
+   "optional": true,
+   "pos": [
+    560,
+    140
+   ],
+   "verified": false,
+   "note": "Listed in the E90 group table. A separate unit may not be present on every comfort-access car.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.EPS",
+   "name": "Electric power steering (EPS)",
+   "address": "30",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0030"
+   ],
+   "optional": true,
+   "pos": [
+    262,
+    130
+   ],
+   "verified": false,
+   "note": "Listed in the E90 group table. Most E9x have hydraulic steering, so confirm before use.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.SVS",
+   "name": "Speech processing / voice recognition (SVS)",
+   "address": "35",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0035"
+   ],
+   "optional": true,
+   "partOf": "E9x.CIC",
+   "verified": false,
+   "note": "Only with the voice-control option on CCC cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.TEL",
+   "name": "Telephone / telematics / Bluetooth (TEL)",
+   "address": "36",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0036"
+   ],
+   "optional": true,
+   "pos": [
+    880,
+    270
+   ],
+   "verified": false,
+   "note": "Only with a phone or BMW Assist option. The group table names it TEL/MULF, and the ZUORDNUNGSTABELLE lists ULF_60 here.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.AMP",
+   "name": "Top-HiFi / Logic7 amplifier (AMP)",
+   "address": "37",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0037"
+   ],
+   "optional": true,
+   "pos": [
+    910,
+    300
+   ],
+   "verified": false,
+   "note": "Only with the Top-HiFi option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.EHC",
+   "name": "Rear air suspension / self-levelling (EHC)",
+   "address": "38",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0038"
+   ],
+   "optional": true,
+   "pos": [
+    880,
+    200
+   ],
+   "verified": false,
+   "note": "Listed in the E90 group table. Probably E91 Touring self-levelling only.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.EDC",
+   "name": "Electronic damper control (EDC)",
+   "address": "39",
+   "protocol": "BmwFast",
+   "category": "Chassis",
+   "sgbd": [
+    "D_0039"
+   ],
+   "optional": true,
+   "pos": [
+    760,
+    140
+   ],
+   "verified": false,
+   "note": "Probably M3 EDC option only. Listed in the E89X table, not in the early E90 table.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.NAV",
+   "name": "Navigation part of CCC (NAV)",
+   "address": "3B",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_003B"
+   ],
+   "optional": true,
+   "partOf": "E9x.CIC",
+   "verified": false,
+   "note": "Only on CCC navigation cars. The ZUORDNUNGSTABELLE lists NAV_60 'im CCC'.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.CDC",
+   "name": "CD changer (CDC)",
+   "address": "3C",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_003C"
+   ],
+   "optional": true,
+   "pos": [
+    870,
+    372
+   ],
+   "verified": false,
+   "note": "Only with the CD changer option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.ASK",
+   "name": "Audio system controller (ASK)",
+   "address": "3F",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_003F"
+   ],
+   "optional": true,
+   "partOf": "E9x.CIC",
+   "verified": false,
+   "note": "Only on CCC cars (ASK_60 'im CCC').",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.DWA",
+   "name": "Anti-theft alarm (DWA)",
+   "address": "41",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0041"
+   ],
+   "optional": true,
+   "pos": [
+    470,
+    150
+   ],
+   "verified": false,
+   "note": "Listed in the E90 group table. E9x alarms normally use SINE (0x50).",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.SHD",
+   "name": "Sunroof module (SHD)",
+   "address": "44",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0044"
+   ],
+   "optional": true,
+   "pos": [
+    520,
+    230
+   ],
+   "verified": false,
+   "note": "Listed in the E90 group table. On many E9x the sunroof is driven from the FZD instead.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.ANTTU",
+   "name": "Antenna tuner (ANTTU)",
+   "address": "47",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0047"
+   ],
+   "optional": true,
+   "partOf": "E9x.CIC",
+   "verified": false,
+   "note": "Only on CCC cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.VM",
+   "name": "Video module (VM)",
+   "address": "4B",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_004B"
+   ],
+   "optional": true,
+   "pos": [
+    870,
+    230
+   ],
+   "verified": false,
+   "note": "Only with the TV/video option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.SINE",
+   "name": "Alarm siren with tilt sensor (SINE)",
+   "address": "50",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0050"
+   ],
+   "optional": true,
+   "pos": [
+    108,
+    345
+   ],
+   "verified": false,
+   "note": "Only with the alarm option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.SDARS",
+   "name": "Satellite radio tuner (SDARS)",
+   "address": "54",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0054"
+   ],
+   "optional": true,
+   "pos": [
+    905,
+    170
+   ],
+   "verified": false,
+   "note": "US/Canada satellite-radio option. The group table calls it RADIO, with SAT_60 'Satellitenradio US'.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.DAB",
+   "name": "Digital radio tuner (DAB)",
+   "address": "5B",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_005B"
+   ],
+   "optional": true,
+   "pos": [
+    905,
+    200
+   ],
+   "verified": false,
+   "note": "Only with the digital tuner option. The E89X table also lists IBOC at 0x53, so the US HD Radio address is uncertain.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.MOSTGW",
+   "name": "MOST/CAN gateway (MOSTGW)",
+   "address": "62",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0062"
+   ],
+   "optional": true,
+   "partOf": "E9x.CIC",
+   "verified": false,
+   "note": "Logical gateway inside the head unit.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E9x.ZBE",
+   "name": "iDrive controller (ZBE)",
+   "address": "67",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0067"
+   ],
+   "optional": true,
+   "pos": [
+    505,
+    262
+   ],
+   "verified": false,
+   "note": "Only on iDrive (navigation) cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.SMFA",
+   "name": "Driver seat memory module (SMFA)",
+   "address": "6D",
+   "protocol": "BmwFast",
+   "category": "Comfort",
+   "sgbd": [
+    "D_006D"
+   ],
+   "optional": true,
+   "pos": [
+    515,
+    335
+   ],
+   "verified": false,
+   "note": "Only with memory seats. The group table names it FAS.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.SMBF",
+   "name": "Passenger seat module (SMBF)",
+   "address": "6E",
+   "protocol": "BmwFast",
+   "category": "Comfort",
+   "sgbd": [
+    "D_006E"
+   ],
+   "optional": true,
+   "pos": [
+    515,
+    125
+   ],
+   "verified": false,
+   "note": "Only with passenger memory/power seats. The group table names it BFS.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.AHM",
+   "name": "Trailer module (AHM)",
+   "address": "71",
+   "protocol": "BmwFast",
+   "category": "Body",
+   "sgbd": [
+    "D_0071"
+   ],
+   "optional": true,
+   "pos": [
+    935,
+    230
+   ],
+   "verified": false,
+   "note": "Only with a factory tow hitch.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.CID",
+   "name": "Central information display (CID)",
+   "address": "73",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_0073"
+   ],
+   "optional": true,
+   "pos": [
+    368,
+    230
+   ],
+   "verified": false,
+   "note": "Only with CCC/CIC navigation.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.SHZH",
+   "name": "Auxiliary / parking heater (SHZH)",
+   "address": "7A",
+   "protocol": "BmwFast",
+   "category": "Comfort",
+   "sgbd": [
+    "D_007A"
+   ],
+   "optional": true,
+   "pos": [
+    100,
+    150
+   ],
+   "verified": false,
+   "note": "Only with the park heater option (mainly diesels and Europe).",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ]
+  },
+  {
+   "id": "E9x.CCCA",
+   "name": "CCC application processor (CCCA)",
+   "address": "A0",
+   "protocol": "BmwFast",
+   "category": "Infotainment",
+   "sgbd": [
+    "D_00A0"
+   ],
+   "optional": true,
+   "partOf": "E9x.CIC",
+   "verified": false,
+   "note": "Only on CCC cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ]
+  },
+  {
+   "id": "E46.SHD",
+   "name": "Sunroof module (SHD)",
+   "address": "08",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    520,
+    230
+   ],
+   "verified": false,
+   "note": "Only with a sunroof.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.CDC",
+   "name": "CD changer (CDC)",
+   "address": "18",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    870,
+    372
+   ],
+   "verified": false,
+   "note": "Only with the CD changer option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.LWS",
+   "name": "Steering angle sensor (LWS)",
+   "address": "57",
+   "protocol": "Ds2",
+   "category": "Chassis",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    440,
+    330
+   ],
+   "verified": false,
+   "note": "Probably only with DSC. The source does not tie this address to the E46.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.DSP",
+   "name": "Digital sound processor amplifier (DSP)",
+   "address": "6A",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    910,
+    300
+   ],
+   "verified": false,
+   "note": "Only with the DSP/HiFi option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.NAV",
+   "name": "Navigation computer (NAV)",
+   "address": "7F",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    865,
+    160
+   ],
+   "verified": false,
+   "note": "Only with navigation.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.CVM",
+   "name": "Convertible top module (CVM)",
+   "address": "9C",
+   "protocol": "Ds2",
+   "category": "Body",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    858,
+    300
+   ],
+   "verified": false,
+   "note": "Only on the convertible. wilhelm-docs lists CVM at both 0x9B and 0x9C, so treat as unconfirmed.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.MID",
+   "name": "Multi-information display (MID)",
+   "address": "C0",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    338,
+    180
+   ],
+   "verified": false,
+   "note": "Only on some models with the MID head unit.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.TEL",
+   "name": "Telephone (TEL)",
+   "address": "C8",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    880,
+    270
+   ],
+   "verified": false,
+   "note": "Only with the phone option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.VM",
+   "name": "Video module (VM)",
+   "address": "ED",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    870,
+    230
+   ],
+   "verified": false,
+   "note": "Only with the TV/video option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  },
+  {
+   "id": "E46.BMBT",
+   "name": "Board monitor control panel (BMBT)",
+   "address": "F0",
+   "protocol": "Ds2",
+   "category": "Infotainment",
+   "sgbd": [],
+   "optional": true,
+   "pos": [
+    338,
+    160
+   ],
+   "verified": false,
+   "note": "Only with the navigation board monitor.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ]
+  }
+ ]
 }

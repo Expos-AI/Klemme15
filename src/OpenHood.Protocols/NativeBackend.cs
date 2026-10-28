@@ -29,7 +29,7 @@ public sealed record NativeBackendOptions
 /// Talks to the car with OpenHood's own protocol implementation. Needs no BMW software or files.
 /// What it can decode is limited by the open database; EDIABAS mode covers the rest.
 /// </summary>
-public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery
+public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe
 {
     private readonly ITransport _transport;
     private readonly NativeBackendOptions _options;
@@ -39,6 +39,10 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery
     private readonly KLineObdChannel _obd;
     private enum LineState { Closed, BmwFast, Ds2, Obd }
     private LineState _line = LineState.Closed;
+    private IReadOnlySet<byte>? _present;
+
+    /// <summary>How long to wait for a module the broadcast says isn't there (one quick confirmation).</summary>
+    private static readonly TimeSpan AbsentConfirmTimeout = TimeSpan.FromMilliseconds(100);
 
     public NativeBackend(ITransport transport, NativeBackendOptions? options = null)
     {
@@ -90,6 +94,21 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery
         return Obd2.DecodeVin(_obd.Request([0x09, 0x02], ct));
     }, ct);
 
+    /// <summary>
+    /// D-CAN only: one functional identification request; every fitted module answers with its own address.
+    /// Lets the quick test skip absent option modules fast. Null when nothing answered (not supported on this car).
+    /// </summary>
+    public Task<IReadOnlySet<byte>?> ProbePresentAsync(CancellationToken ct = default) => OnBus<IReadOnlySet<byte>?>(() =>
+    {
+        _present = null;
+        if (_options.Mode != CableMode.DCan) return null;
+        UseFast();
+        var answers = _fast.RequestFunctional([Kwp2000.TesterPresent], TimeSpan.FromMilliseconds(700), ct);
+        if (answers.Count == 0) return null;
+        _present = answers.Select(a => a.Source).ToHashSet();
+        return _present;
+    }, ct);
+
     public Task<EcuIdentity?> IdentifyAsync(EcuDefinition ecu, CancellationToken ct = default) => OnBus(() =>
     {
         switch (ProtocolFor(ecu))
@@ -97,7 +116,8 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery
             case BusProtocol.BmwFast:
             {
                 UseFast();
-                var r = _fast.Request(ecu.Address, [Kwp2000.ReadEcuIdentification, 0x80], _options.ProbeTimeout, ct);
+                var wait = _present is not null && !_present.Contains(ecu.Address) ? AbsentConfirmTimeout : _options.ProbeTimeout;
+                var r = _fast.Request(ecu.Address, [Kwp2000.ReadEcuIdentification, 0x80], wait, ct);
                 if (r is null) return null;
                 if (r[0] == 0x7F)   // answers but refuses ident: still present
                     return new EcuIdentity { Raw = new Dictionary<string, string> { ["negative"] = Convert.ToHexString(r) } };

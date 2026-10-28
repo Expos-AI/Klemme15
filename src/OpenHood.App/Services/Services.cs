@@ -11,6 +11,9 @@ public interface IDialogService
     Task<bool> SaveTextAsync(string title, string suggestedName, string extension, string content);
 
     Task<string?> PickFolderAsync(string title);
+
+    /// <summary>Opens a web page in the user's browser.</summary>
+    Task OpenUrlAsync(string url);
 }
 
 public sealed class DialogService(Window owner) : IDialogService
@@ -29,6 +32,12 @@ public sealed class DialogService(Window owner) : IDialogService
         await using var writer = new StreamWriter(stream);
         await writer.WriteAsync(content);
         return true;
+    }
+
+    public async Task OpenUrlAsync(string url)
+    {
+        if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme is "https" or "http")
+            await owner.Launcher.LaunchUriAsync(uri);
     }
 
     public async Task<string?> PickFolderAsync(string title)

@@ -13,14 +13,16 @@ public sealed record FaultLocation(SchematicPoint Position, string Title, bool I
 /// Loads the built-in community database, then layers any JSON files found in a user folder on top,
 /// so people can add or fix entries without rebuilding the app.
 /// </summary>
-public sealed class VehicleDatabase : IFaultCodeDatabase
+public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails
 {
-    private static readonly string[] Files = ["modules.json", "obd-codes.json", "bmw-codes.json", "components.json", "vehicles.json"];
+    private static readonly string[] Files = ["modules.json", "obd-generic.json", "obd-codes.json", "bmw-codes.json", "components.json", "vehicles.json"];
 
     private readonly Dictionary<string, EcuDefinition> _modules = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, (string Text, string? Hint)> _obd = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, Dictionary<string, string>> _bmw = new(StringComparer.OrdinalIgnoreCase);
-    private readonly Dictionary<string, string> _bmwComponents = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, List<BmwCodeEntry>> _bmw = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>One researched meaning of a BMW code; <see cref="Engines"/> limits it to certain engines.</summary>
+    private sealed record BmwCodeEntry(string Text, string? Hint, string? Component, string? Confidence, IReadOnlyList<string> Sources, IReadOnlyList<string>? Engines);
     private readonly Dictionary<string, CarComponent> _components = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<(Regex Match, string Component)> _rules = [];
     private readonly List<VehicleFamily> _vehicles = [];
@@ -74,8 +76,41 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
         return ObdCodes.Fallback(code);
     }
 
-    public string? DescribeBmw(string ecuId, string code) =>
-        _bmw.TryGetValue(ecuId, out var codes) && codes.TryGetValue(code, out var text) ? text : null;
+    public string? DescribeBmw(string ecuId, string code) => LookupBmw(ecuId, code)?.Text;
+
+    public CodeInfo? LookupBmw(string ecuId, string code) => LookupBmw(ecuId, code, null);
+
+    /// <summary>
+    /// Looks up a BMW code, preferring the meaning recorded for this engine. If the only meaning on file
+    /// is for a different engine, it is returned with a warning, because engine computers reuse numbers.
+    /// </summary>
+    public CodeInfo? LookupBmw(string ecuId, string code, string? engine)
+    {
+        if (!_bmw.TryGetValue($"{ecuId}/{code}", out var list) || list.Count == 0) return null;
+        static bool Matches(BmwCodeEntry e, string eng) => e.Engines!.Any(x => eng.StartsWith(x, StringComparison.OrdinalIgnoreCase) || x.StartsWith(eng, StringComparison.OrdinalIgnoreCase));
+        var pick = engine is not null ? list.FirstOrDefault(e => e.Engines is not null && Matches(e, engine)) : null;
+        pick ??= list.FirstOrDefault(e => e.Engines is null);
+        var text = pick?.Text;
+        if (pick is null)
+        {
+            pick = list[0];
+            var engines = string.Join("/", pick.Engines!);
+            text = engine is null
+                ? $"{pick.Text} (meaning recorded for {engines} engines)"
+                : $"{pick.Text} (meaning recorded for {engines}; may differ on your {engine})";
+        }
+        return new CodeInfo(text!, pick.Hint, pick.Confidence, pick.Sources, pick.Component);
+    }
+
+    /// <summary>The same database, with BMW codes read for a specific engine (e.g. "N52").</summary>
+    public IFaultCodeDatabase ForEngine(string? engine) => engine is null ? this : new EngineCodes(this, engine);
+
+    private sealed class EngineCodes(VehicleDatabase inner, string engine) : IFaultCodeDatabase, IFaultCodeDetails
+    {
+        public string? DescribeObd(string code) => inner.DescribeObd(code);
+        public string? DescribeBmw(string ecuId, string code) => LookupBmw(ecuId, code)?.Text;
+        public CodeInfo? LookupBmw(string ecuId, string code) => inner.LookupBmw(ecuId, code, engine);
+    }
 
     /// <summary>
     /// Where to point on the drawing for a fault: the component the code implicates when we know it,
@@ -86,8 +121,8 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
         string? componentId = null;
         if (demoModel is not null)
             componentId = demoModel.DemoFaults.FirstOrDefault(d => d.ModuleId == ecu.Id && d.Code.Equals(fault.Code, StringComparison.OrdinalIgnoreCase))?.Component;
-        if (componentId is null && fault.Source == FaultSource.Bmw)
-            componentId = _bmwComponents.GetValueOrDefault($"{ecu.Id}/{fault.Code}");
+        if (componentId is null && fault.Source == FaultSource.Bmw && _bmw.TryGetValue($"{ecu.Id}/{fault.Code}", out var known))
+            componentId = known.Select(k => k.Component).FirstOrDefault(c => c is not null);
         if (componentId is null && fault.Source == FaultSource.Obd2)
         {
             foreach (var (match, component) in _rules)
@@ -98,19 +133,26 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
         }
         if (componentId is not null && _components.TryGetValue(componentId, out var c))
             return new FaultLocation(c.Position, c.Name, true);
-        return ecu.Position is { } p ? new FaultLocation(p, ecu.Name, false) : null;
+        if (ecu.Position is { } p) return new FaultLocation(p, ecu.Name, false);
+        // Modules inside another one (e.g. navigation inside the head unit) point at their host.
+        if (ecu.PartOf is { } host && _modules.TryGetValue(host, out var parent) && parent.Position is { } pp)
+            return new FaultLocation(pp, $"{parent.Name} ({ecu.Name})", false);
+        return null;
     }
 
     /// <summary>Fault descriptions for a demo car: the real database plus the demo's own made-up BMW codes.</summary>
     public IFaultCodeDatabase ForDemo(VehicleModel model) => new DemoCodes(this, model);
 
-    private sealed class DemoCodes(VehicleDatabase inner, VehicleModel model) : IFaultCodeDatabase
+    private sealed class DemoCodes(VehicleDatabase inner, VehicleModel model) : IFaultCodeDatabase, IFaultCodeDetails
     {
         public string? DescribeObd(string code) => inner.DescribeObd(code);
 
-        public string? DescribeBmw(string ecuId, string code) =>
-            model.DemoFaults.FirstOrDefault(d => d.ModuleId == ecuId && d.Code.Equals(code, StringComparison.OrdinalIgnoreCase))?.Text
-            ?? inner.DescribeBmw(ecuId, code);
+        public string? DescribeBmw(string ecuId, string code) => LookupBmw(ecuId, code)?.Text;
+
+        public CodeInfo? LookupBmw(string ecuId, string code) =>
+            model.DemoFaults.FirstOrDefault(d => d.ModuleId == ecuId && d.Code.Equals(code, StringComparison.OrdinalIgnoreCase)) is { Text: { } t }
+                ? new CodeInfo(t)
+                : inner.LookupBmw(ecuId, code, model.EngineCode);
     }
 
     // ------------------------------------------------------------------ loading
@@ -136,22 +178,26 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
                     _modules[def.Id] = def;
                 }
                 break;
+            case "obd-generic.json":
+                foreach (var c in root.GetProperty("codes").EnumerateObject())
+                    _obd.TryAdd(c.Name, (c.Value.GetString()!, null));
+                break;
             case "obd-codes.json":
                 foreach (var c in root.GetProperty("codes").EnumerateObject())
                     _obd[c.Name] = (c.Value.GetProperty("text").GetString()!, c.Value.TryGetProperty("hint", out var h) ? h.GetString() : null);
                 break;
             case "bmw-codes.json":
                 foreach (var module in root.GetProperty("modules").EnumerateObject())
-                {
-                    if (!_bmw.TryGetValue(module.Name, out var map))
-                        _bmw[module.Name] = map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var c in module.Value.EnumerateObject())
                     {
-                        map[c.Name] = c.Value.ValueKind == JsonValueKind.String ? c.Value.GetString()! : c.Value.GetProperty("text").GetString()!;
-                        if (c.Value.ValueKind == JsonValueKind.Object && c.Value.TryGetProperty("component", out var comp))
-                            _bmwComponents[$"{module.Name}/{c.Name}"] = comp.GetString()!;
+                        var key = $"{module.Name}/{c.Name}";
+                        var list = new List<BmwCodeEntry>();
+                        if (c.Value.ValueKind == JsonValueKind.Array)
+                            list.AddRange(c.Value.EnumerateArray().Select(ParseCode));
+                        else
+                            list.Add(ParseCode(c.Value));
+                        _bmw[key] = list;   // later files (user overrides) replace earlier entries
                     }
-                }
                 break;
             case "components.json":
                 if (root.TryGetProperty("components", out var comps))
@@ -245,6 +291,15 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
         };
     }
 
+    private static BmwCodeEntry ParseCode(JsonElement e)
+    {
+        if (e.ValueKind == JsonValueKind.String) return new BmwCodeEntry(e.GetString()!, null, null, null, [], null);
+        string? Str(string p) => e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+        List<string>? List(string p) => e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Array
+            ? v.EnumerateArray().Select(x => x.GetString()!).ToList() : null;
+        return new BmwCodeEntry(Str("text") ?? "", Str("hint"), Str("component"), Str("confidence"), List("sources") ?? [], List("engines"));
+    }
+
     private static SchematicPoint ParsePoint(JsonElement e)
     {
         var a = e.EnumerateArray().Select(x => x.GetDouble()).ToArray();
@@ -268,6 +323,9 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
             IsEngine = Bool("engine"),
             Verified = Bool("verified"),
             Position = m.TryGetProperty("pos", out var pos) ? ParsePoint(pos) : null,
+            Optional = Bool("optional"),
+            PartOf = Str("partOf"),
+            Note = Str("note"),
         };
     }
 }

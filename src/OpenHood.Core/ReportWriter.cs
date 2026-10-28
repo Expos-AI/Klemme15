@@ -34,7 +34,7 @@ public static class ReportWriter
         sb.AppendLine();
         sb.AppendLine($"- Vehicle: {scan.Chassis ?? "unknown"}  VIN: {scan.Vin ?? "not read"}");
         sb.AppendLine($"- Backend: {scan.Backend}  Duration: {scan.Elapsed.TotalSeconds:0.0}s{(scan.Cancelled ? " (cancelled)" : "")}");
-        sb.AppendLine($"- Modules answering: {scan.RespondingEcus}/{scan.Ecus.Count}  Faults: {scan.TotalFaults}");
+        sb.AppendLine($"- Modules answering: {scan.RespondingEcus}/{scan.Ecus.Count}  Faults: {scan.TotalFaults}{(scan.InfoEntries > 0 ? $"  Info memory: {scan.InfoEntries}" : "")}{(scan.BatteryVoltage is { } v ? $"  Battery: {v:0.0} V" : "")}");
         sb.AppendLine();
         sb.AppendLine("| Module | Address | Status | Faults | Identification |");
         sb.AppendLine("|---|---|---|---|---|");
@@ -81,6 +81,7 @@ section{margin-top:24px}
         sb.Append($"<div class=\"stat\"><b>{scan.RespondingEcus}/{scan.Ecus.Count}</b>modules answering</div>");
         sb.Append($"<div class=\"stat\"><b>{scan.TotalFaults}</b>faults</div>");
         sb.Append($"<div class=\"stat\"><b>{scan.Elapsed.TotalSeconds:0.0}s</b>scan time</div>");
+        if (scan.BatteryVoltage is { } v) sb.Append($"<div class=\"stat\"><b>{v:0.0} V</b>battery</div>");
         sb.Append("</div>");
         sb.Append("<div class=\"table-wrap\"><table><tr><th>Module</th><th>Address</th><th>Status</th><th>Faults</th><th>Identification</th></tr>");
         foreach (var e in scan.Ecus)
@@ -92,7 +93,16 @@ section{margin-top:24px}
             foreach (var f in e.Faults)
             {
                 var details = string.Join(", ", f.Details.Select(kv => $"{kv.Key}: {kv.Value}"));
-                sb.Append($"<tr><td><code>{H(f.Code)}</code></td><td>{f.State}</td><td>{H(f.DisplayDescription)}</td><td class=\"muted\">{H(details)}</td></tr>");
+                var state = f.IsInfo ? "Info memory" : f.State.ToString();
+                var hint = f.Hint is null ? "" : $"<br><span class=\"muted\">Tip: {H(f.Hint)}</span>";
+                var origin = f.Confidence switch
+                {
+                    "official" => "<br><span class=\"muted\">Official text from the module's SGBD</span>",
+                    "high" or "medium" => $"<br><span class=\"muted\">Community meaning ({f.Confidence} confidence): " +
+                        string.Join(", ", f.Sources.Take(3).Select(u => $"<a href=\"{H(u)}\">{H(Uri.TryCreate(u, UriKind.Absolute, out var x) ? x.Host : u)}</a>")) + "</span>",
+                    _ => "",
+                };
+                sb.Append($"<tr><td><code>{H(f.Code)}</code></td><td>{state}</td><td>{H(f.DisplayDescription)}{hint}{origin}</td><td class=\"muted\">{H(details)}</td></tr>");
             }
             sb.Append("</table></div></section>");
         }

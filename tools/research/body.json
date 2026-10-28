@@ -1,0 +1,991 @@
+[
+ {
+  "module": "E9x.CAS",
+  "code": "A0A9",
+  "text": "The CAS module has detected an internal fault in its own electronics.",
+  "hint": "Often logged together with terminal 15 output faults (A0BE/A0BF/A0C0) and no-start or no-ignition symptoms; common cause is a failing CAS unit, but check battery voltage and CAS power/ground first.",
+  "confidence": "high",
+  "sources": [
+   "https://www.sinspeed.co.uk/blog/bmw-cas-failure-wont-start/",
+   "https://www.articlecity.com/blog/bmw-cas-module-repairs-common-fault-codes-and-how-to-repair-them/"
+  ],
+  "notes": "Sources describe BMW/MINI CAS (CAS3 is used in E9x) rather than a specific E90 thread. Not tied to a single component."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0AA",
+  "text": "CAS internal register-monitoring fault; if it keeps recurring the CAS can block engine start and the steering lock.",
+  "hint": "An E90 forum post links it to low voltage during cranking. Clear it, start with a charger/14 V supply connected and see if it returns; then check battery and main cables. Shops reset it with a CAS/ELV reset function.",
+  "component": "steering_lock",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90-forum.de/forum/thread/63494-cas-steuerger%C3%A4t-problem-codierer-gesucht-elv-gest%C3%B6rt-z%C3%BCndung-geht-nicht/?pageNo=2",
+   "http://blog.obdii365.com/2020/06/30/solve-bmw-a0aa-fault-by-resetting-cas-elv-steering-lock/",
+   "https://www.youtube.com/watch?v=1RrGZzJrAzA"
+  ],
+  "notes": "One E90 tool readout labels it simply as a CAS control-unit fault. OBDII365 and YouTube sources were attributed via titles."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0B1",
+  "text": "CAS sees an implausible gear-selector position (Park/Neutral) input.",
+  "hint": "Often stored without symptoms. If the car won't crank in P/N, check the selector/gearbox P-N signal and wiring to the CAS.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf",
+   "https://www.e90-forum.de/forum/thread/46072-cas-fehler/",
+   "https://www.e90post.com/forums/showthread.php?t=1757718"
+  ],
+  "notes": "Seen on an E90 335i and an E87 120d (same CAS family); e90-forum.de shows it as the P/N input fault in CAS.PRG."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0B2",
+  "text": "CAS reports a problem with its own supply voltage (terminal 30 feed).",
+  "hint": "Check battery condition, CAS fuses and the main positive cable connections before suspecting the CAS.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf",
+   "https://www.justanswer.com/bmw/d00n2-cas-car-access-system-cas-fem-bdc-a0b2-cas-supply.html"
+  ],
+  "notes": "Dekra report is from an E87 120d (shared CAS3 family); JustAnswer title attributes A0B2 to CAS supply on an E90 320d."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0B3",
+  "text": "CAS sees a missing or faulty starter (terminal 50) signal.",
+  "hint": "Check the starter solenoid wire, starter and battery cables; low battery voltage while cranking can also set it.",
+  "confidence": "high",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ],
+  "notes": "Source 1 and the e90-forum thread 69649 are the same owner's readout; Dekra report is from an E87 120d."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0B5",
+  "text": "CAS is not getting a valid road-speed signal.",
+  "hint": "The speed comes over the CAN bus from the DSC; look for DSC or CAN faults stored at the same time.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf",
+   "https://www.e90-forum.de/forum/thread/63494-cas-steuerger%C3%A4t-problem-codierer-gesucht-elv-gest%C3%B6rt-z%C3%BCndung-geht-nicht/?pageNo=2",
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2"
+  ]
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A118",
+  "text": "CAS finds the road-speed signal implausible (its different inputs disagree).",
+  "hint": "Usually a side effect of DSC/CAN or low-voltage problems; check for speed-related faults in other modules.",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90-forum.de/forum/thread/63494-cas-steuerger%C3%A4t-problem-codierer-gesucht-elv-gest%C3%B6rt-z%C3%BCndung-geht-nicht/?pageNo=6",
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ]
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0B4",
+  "text": "CAS reports a fault in the engine start (starter control) function.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.articlecity.com/blog/bmw-cas-module-repairs-common-fault-codes-and-how-to-repair-them/",
+   "https://www.sinspeed.co.uk/blog/bmw-cas-failure-wont-start/"
+  ],
+  "notes": "Both sources are general BMW/MINI CAS repair articles, not an E90 readout; wording is vague so kept at medium."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0BE",
+  "text": "CAS reports a fault on one of its terminal 15 (ignition) outputs (output 1).",
+  "hint": "Common pattern with A0A9 on a failing CAS, often when warm; check fuses and loads on the terminal 15 circuits first.",
+  "confidence": "high",
+  "sources": [
+   "https://www.articlecity.com/blog/bmw-cas-module-repairs-common-fault-codes-and-how-to-repair-them/",
+   "https://www.sinspeed.co.uk/blog/bmw-cas-failure-wont-start/"
+  ],
+  "notes": "Generic BMW/MINI CAS sources."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0BF",
+  "text": "CAS reports a fault on one of its terminal 15 (ignition) outputs (output 2).",
+  "confidence": "high",
+  "sources": [
+   "https://www.articlecity.com/blog/bmw-cas-module-repairs-common-fault-codes-and-how-to-repair-them/",
+   "https://www.sinspeed.co.uk/blog/bmw-cas-failure-wont-start/"
+  ],
+  "notes": "Generic BMW/MINI CAS sources."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A0C0",
+  "text": "CAS reports a fault on one of its terminal 15 (ignition) outputs (output 3).",
+  "confidence": "high",
+  "sources": [
+   "https://www.articlecity.com/blog/bmw-cas-module-repairs-common-fault-codes-and-how-to-repair-them/",
+   "https://www.sinspeed.co.uk/blog/bmw-cas-failure-wont-start/"
+  ],
+  "notes": "Generic BMW/MINI CAS sources."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A119",
+  "text": "CAS reports a problem with the power supply to the electric steering lock.",
+  "hint": "Check the steering lock fuse/feed and connector; a weak battery can also trigger steering lock faults.",
+  "component": "steering_lock",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ],
+  "notes": "From an Autel scan report of a real E90 320i. This may overlap with the previously listed A111; I could not find any source confirming A111 as the steering-lock supply, so check that entry."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "A114",
+  "text": "CAS reports a wiring/line fault to the electric steering lock.",
+  "component": "steering_lock",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ],
+  "notes": "Seen on an E87 120d report (same CAS/ELV family). A114 is also named in a German E91 steering-lock no-start thread, without text."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "D907",
+  "text": "CAS reports its K-CAN bus controller went bus-off.",
+  "hint": "Usually one of many bus-off codes after a K-CAN wiring short or a failing module; check for the same code in other modules.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ],
+  "notes": "Carly report, E93."
+ },
+ {
+  "module": "E9x.CAS",
+  "code": "D904",
+  "text": "CAS reports a K-CAN low-wire physical bus fault.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ],
+  "notes": "Carly report, E93."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3B2",
+  "text": "The cluster got a faulty terminal-status (ignition state) message from the CAS on the CAN bus.",
+  "hint": "Usually a side effect of low battery voltage, a CAS problem or a bus fault; check battery and main power connections and look for CAS faults.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/",
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic381735_Motor_Startet_nicht_mehr_Fehler_CAS_Anlasser_3er_BMW_-_E90___E91___E92___E93.html"
+  ],
+  "notes": "CAN message 0x130, sender CAS."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3B9",
+  "text": "The cluster got a faulty or missing stability-control (DSC) status message on the CAN bus.",
+  "hint": "Look at the DSC fault memory and its supply/CAN wiring; often appears with other DSC message faults.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mini2.info/printthread.php?tid=50608",
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic358995_diverse_Fehlermeldungen__Elektronikprobleme_3er_BMW_-_E90___E91___E92___E93.html"
+  ],
+  "notes": "mini2.info gives message 0x19E from DSC; bmw-syndikat E90 thread (generic tool wording) says ABS/ESP message missing. One other E90 readout showed only generic text."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3BB",
+  "text": "The cluster got a faulty door-status message from the CAS.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3AE",
+  "text": "The cluster got a faulty engine-speed (RPM) message from the engine computer.",
+  "confidence": "high",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/",
+   "https://www.mini2.info/printthread.php?tid=50608"
+  ],
+  "notes": "CAN message 0x0AA, sender DME/DDE."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3AD",
+  "text": "The cluster got a faulty engine-data message from the engine computer.",
+  "confidence": "high",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.mini2.info/printthread.php?tid=50608"
+  ],
+  "notes": "CAN message 0x1D0, sender DME/DDE."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3AF",
+  "text": "The cluster got a faulty speed set-point (cruise control) message from the engine side.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html"
+  ],
+  "notes": "CAN message 0x200. The e90-forum 69649 thread is the same owner's list."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3AC",
+  "text": "The cluster got a faulty or missing distance-travelled message from the DSC.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mini2.info/printthread.php?tid=50608",
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic358995_diverse_Fehlermeldungen__Elektronikprobleme_3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A550",
+  "text": "The cluster got a faulty or missing vehicle-speed message from the DSC.",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.mini2.info/printthread.php?tid=50608",
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic358995_diverse_Fehlermeldungen__Elektronikprobleme_3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3BD",
+  "text": "The cluster got a faulty message from the junction box (JBE).",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ],
+  "notes": "CAN message 0x0C0."
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3C0",
+  "text": "The cluster got a faulty message from the trailer module.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A560",
+  "text": "The cluster got a faulty or missing gear-shift indicator message from the engine computer.",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.mini2.info/printthread.php?tid=50608"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A54B",
+  "text": "The cluster got a faulty electric power steering message.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A562",
+  "text": "The cluster got a faulty auto start-stop (MSA) status message from the engine computer.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3B4",
+  "text": "The cluster got a faulty lighting-status message from the footwell module (FRM).",
+  "hint": "Commonly appears with A3C1 when the FRM has failed or lost its coding/data (lights, indicators and windows dead).",
+  "confidence": "high",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic391542_Bmw_e90_Frm_defekt__3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.ecutesting.com/common-faults/bmw/bmw-and-mini-footwell-module-fault/",
+   "https://centralitasecu.com/2024/02/07/como-reparar-el-fallo-del-modulo-frm-bmw-y-mini",
+   "https://www.youtube.com/watch?v=iLi-LzB_GsU"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A3C1",
+  "text": "The cluster is not receiving a valid message from the footwell module (FRM).",
+  "hint": "Check FRM fuses and power; a failed or corrupted FRM is a common cause.",
+  "confidence": "high",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic391542_Bmw_e90_Frm_defekt__3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.ecutesting.com/common-faults/bmw/bmw-and-mini-footwell-module-fault/",
+   "https://centralitasecu.com/2024/02/07/como-reparar-el-fallo-del-modulo-frm-bmw-y-mini",
+   "https://www.youtube.com/watch?v=iLi-LzB_GsU"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "A559",
+  "text": "The instrument cluster logged that its power supply was switched off or interrupted.",
+  "hint": "Check battery voltage and the cluster supply; often logged after battery disconnects or low voltage.",
+  "confidence": "high",
+  "sources": [
+   "https://www.ecutesting.com/common-faults/bmw/bmw-and-mini-footwell-module-fault/",
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "931D",
+  "text": "The instrument cluster saw supply voltage that was too high or too low.",
+  "hint": "Common cause: weak battery or charging problem.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "931B",
+  "text": "The cluster reports a fault with the outside temperature sensor.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "9319",
+  "text": "The cluster reports a fault with the left fuel level sender.",
+  "component": "fuel_tank",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "931A",
+  "text": "The cluster reports a fault with the right fuel level sender.",
+  "component": "fuel_tank",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "E104",
+  "text": "The cluster reports a K-CAN low-wire fault.",
+  "hint": "Usually logged by many modules at once; look for a K-CAN short or a faulty module dragging the bus down.",
+  "confidence": "high",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.KOMBI",
+  "code": "E107",
+  "text": "The cluster's CAN controller went bus-off.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8AE",
+  "text": "Footwell module reports the left front fog light circuit faulty (left daytime running light on M3).",
+  "hint": "Check the bulb and connector first.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8AF",
+  "text": "Footwell module reports the right front fog light circuit faulty (right daytime running light on M3).",
+  "hint": "Check the bulb and connector first.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8C5",
+  "text": "Footwell module reports the left daytime running light faulty.",
+  "hint": "On cars with angel-eye DRLs check the ring bulb/LED and its connector.",
+  "component": "headlight_left",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ],
+  "notes": "A8C5 also listed (no text) in an E90 readout on e90-forum.de."
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8C6",
+  "text": "Footwell module reports the right daytime running light faulty.",
+  "component": "headlight_right",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8AC",
+  "text": "Footwell module reports the front left side-marker/parking light faulty (open circuit).",
+  "component": "headlight_left",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf",
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2"
+  ],
+  "notes": "One source calls it side marker, the other front left parking light."
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8B7",
+  "text": "Footwell module reports the right brake light faulty.",
+  "component": "taillight_right",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8B6",
+  "text": "Footwell module reports the left brake light faulty.",
+  "component": "taillight_left",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8B2",
+  "text": "Footwell module reports the left rear turn signal faulty.",
+  "component": "taillight_left",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8C3",
+  "text": "Footwell module reports the third brake light / left adaptive brake light faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "A8C4",
+  "text": "Footwell module reports the third brake light / right adaptive brake light faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CB6",
+  "text": "Footwell module found an open circuit in a headlight height (vertical aim) adjuster motor.",
+  "hint": "Check the headlight leveling motor and its connector.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CB5",
+  "text": "Footwell module logged a flat/exhausted battery condition.",
+  "hint": "Charge or test the battery; usually set after the car sat or was jump-started.",
+  "component": "battery",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CB8",
+  "text": "Footwell module switched off the parking/side lights to protect a discharging battery.",
+  "component": "battery",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CAF",
+  "text": "Footwell module reports a fault on light switch position 1.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CB0",
+  "text": "Footwell module reports a fault on light switch position 2.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CBA",
+  "text": "Footwell module lost communication with a LIN-bus control unit (such as the light switch).",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CAB",
+  "text": "Footwell module reports the terminal 15 (ignition on) signal is missing.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CC3",
+  "text": "Footwell module lost communication with the driver-side mirror.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CC4",
+  "text": "Footwell module lost communication with the passenger-side mirror.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CC5",
+  "text": "Footwell module reports the driver-side mirror heater faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CCD",
+  "text": "Footwell module reports the driver-side mirror adjustment motor faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "9CCE",
+  "text": "Footwell module reports the passenger-side mirror adjustment motor faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "931D",
+  "text": "Footwell module reports the steering column left turn-signal switch input faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ],
+  "notes": "Same number as a KOMBI code with a different meaning; module matters."
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "931E",
+  "text": "Footwell module reports the steering column right turn-signal switch input faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "931F",
+  "text": "Footwell module reports the steering column high-beam/flasher switch input faulty.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "E594",
+  "text": "Footwell module is not receiving the steering-angle message.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "E597",
+  "text": "Footwell module is not receiving messages from the DSC.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "E599",
+  "text": "Footwell module is not receiving the road-speed message from the DSC.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.FRM",
+  "code": "E584",
+  "text": "Footwell module reports a K-CAN low-wire fault.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "A731",
+  "text": "Junction box reports a problem with the terminal 30g_f supply circuit.",
+  "hint": "Terminal 30g_f feeds modules like the head unit; check the relay/fuses and battery state.",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90post.com/forums/showthread.php?t=1757718",
+   "https://cartechnology.co.uk/showthread.php?tid=90262"
+  ],
+  "notes": "Both sources attributed via thread titles."
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "A738",
+  "text": "Junction box reports that its power supply was interrupted.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ],
+  "notes": "Seen on E87 120d report (same JBE family)."
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "C91E",
+  "text": "Junction box is not receiving the terminal-status message from the CAS.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "C90B",
+  "text": "Junction box reports a PT-CAN communication fault.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf"
+  ]
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "C907",
+  "text": "Junction box reports its K-CAN controller went bus-off.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "C908",
+  "text": "Junction box reports PT-CAN bus-off / K-CAN running on a single wire.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "A6D0",
+  "text": "Junction box reports a fault in the A/C compressor control valve circuit.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html"
+  ],
+  "notes": "Owner listed it under central body (JBE); the e90-forum 69649 thread is the same owner's list."
+ },
+ {
+  "module": "E9x.FZD",
+  "code": "A670",
+  "text": "Roof function centre reports a fault with the windscreen condensation (fogging) sensor.",
+  "hint": "Often the sensor behind the mirror has come loose or its connector is bad; replacing the FZD or rain sensor alone may not fix it.",
+  "confidence": "high",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic401274_Fehler_Beschlagsensor_-_werde_ich_einfach_nicht_lo_3er_BMW_-_E90___E91___E92___E93.html",
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/",
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html"
+  ]
+ },
+ {
+  "module": "E9x.FZD",
+  "code": "A669",
+  "text": "Roof function centre reports a fault in the front interior light circuit.",
+  "hint": "Check the front interior/reading lamps and their wiring in the roof console.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ],
+  "notes": "Only source is an Autel scan report of an E87 120d (same FZD family as E9x); no E90-specific confirmation found."
+ },
+ {
+  "module": "E9x.FZD",
+  "code": "A090",
+  "text": "Roof function centre reports a sunroof mechanism fault.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ],
+  "notes": "E87 120d report, shared FZD."
+ },
+ {
+  "module": "E9x.FZD",
+  "code": "A088",
+  "text": "Roof function centre reports a fault with the sunroof switch.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ],
+  "notes": "E87 120d report, shared FZD."
+ },
+ {
+  "module": "E9x.FZD",
+  "code": "A092",
+  "text": "Sunroof needs or failed its normalization (initialization).",
+  "hint": "Common after battery disconnects; re-initialize the sunroof by holding the switch.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ]
+ },
+ {
+  "module": "E9x.IHKA",
+  "code": "9C6C",
+  "text": "Climate control reports a fault on the 12 V supply to the centre console switch centre.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAKD52060E492315.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.IHKA",
+  "code": "E714",
+  "text": "Climate control got a faulty or missing terminal-status message from the CAS.",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.IHKA",
+  "code": "E704",
+  "text": "Climate control reports a K-CAN wiring fault.",
+  "confidence": "high",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.IHKA",
+  "code": "E707",
+  "text": "Climate control's CAN controller went bus-off.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.PDC",
+  "code": "E204",
+  "text": "Park distance control reports a K-CAN low-wire or interruption fault.",
+  "confidence": "high",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611",
+   "https://www.e90-forum.de/forum/thread/72587-elektrik-fehler/"
+  ]
+ },
+ {
+  "module": "E9x.PDC",
+  "code": "E207",
+  "text": "Park distance control reports its CAN controller went bus-off.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ]
+ },
+ {
+  "module": "E9x.CIC",
+  "code": "E18F",
+  "text": "Head unit's stored list of fitted modules doesn't match the car's target configuration.",
+  "hint": "Often appears after retrofits or coding; usually harmless if nothing is missing.",
+  "confidence": "high",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611",
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ],
+  "notes": "Seen on CCC-equipped cars."
+ },
+ {
+  "module": "E9x.CIC",
+  "code": "E18D",
+  "text": "Head unit failed to wake the bus/network after three attempts.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ],
+  "notes": "CCC, E93."
+ },
+ {
+  "module": "E9x.CIC",
+  "code": "E187",
+  "text": "Head unit reports a K-CAN bus-off/communication fault.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ],
+  "notes": "CCC, E93."
+ },
+ {
+  "module": "E9x.CIC",
+  "code": "E184",
+  "text": "Head unit reports a K-CAN low-wire fault.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.m3post.com/forums/attachment.php?attachmentid=2113310&d=1564885611"
+  ],
+  "notes": "CCC, E93."
+ },
+ {
+  "module": "E9x.ACSM",
+  "code": "93FB",
+  "text": "Airbag module is not receiving the vehicle-speed message from the DSC.",
+  "confidence": "high",
+  "sources": [
+   "https://www.e90-forum.de/forum/user-post-list/73910-keidos/?pageNo=2",
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.RLS",
+  "code": "A12B",
+  "text": "Rain/light sensor saw supply voltage that was too high or too low.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf"
+  ],
+  "notes": "Logged as a separate RLS entry on an E90 335i report; address not known."
+ },
+ {
+  "module": "E9x.DME",
+  "code": "2DEC",
+  "text": "Engine computer's power management logged a battery problem.",
+  "hint": "Test the battery and make sure a replacement was registered with the right type/capacity.",
+  "component": "battery",
+  "confidence": "high",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ]
+ },
+ {
+  "module": "E9x.DME",
+  "code": "2E8E",
+  "text": "Engine computer lost communication with the intelligent battery sensor (IBS).",
+  "hint": "Check the IBS on the battery negative terminal and its wire.",
+  "component": "battery",
+  "confidence": "medium",
+  "sources": [
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ]
+ },
+ {
+  "module": "E9x.DME",
+  "code": "2E98",
+  "text": "Engine computer reports a communication problem with the alternator.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ]
+ },
+ {
+  "module": "E9x.DME",
+  "code": "2DED",
+  "text": "Power management detected too much current draw while the car was asleep (parasitic drain).",
+  "hint": "Look for a module keeping the car awake; in that thread the tailgate wiring harness was damaged.",
+  "component": "battery",
+  "confidence": "medium",
+  "sources": [
+   "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html"
+  ]
+ }
+]

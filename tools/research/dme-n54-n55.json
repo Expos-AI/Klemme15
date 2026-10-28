@@ -1,0 +1,653 @@
+[
+  {
+    "module": "E9x.DME",
+    "code": "29CD",
+    "text": "The engine computer detected combustion misfires on cylinder 1.",
+    "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
+    "component": "cyl1",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://www.e90post.com/forums/showthread.php?t=1447449"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29CE",
+    "text": "The engine computer detected combustion misfires on cylinder 2.",
+    "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
+    "component": "cyl2",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.youtube.com/shorts/OxHnxOXbKec"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29CF",
+    "text": "The engine computer detected combustion misfires on cylinder 3.",
+    "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
+    "component": "cyl3",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://www.jb4tech.com/forum/model-specific-engine-tuning-modification-discussion/n54/support-log-review-ab/28285-",
+      "https://static.nhtsa.gov/odi/tsbs/2013/SB-10029104-4598.pdf"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D0",
+    "text": "The engine computer detected combustion misfires on cylinder 4.",
+    "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
+    "component": "cyl4",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://static.nhtsa.gov/odi/tsbs/2013/SB-10029104-4598.pdf"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D1",
+    "text": "The engine computer detected combustion misfires on cylinder 5.",
+    "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
+    "component": "cyl5",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://www.bimmerfest.com/threads/29d1-combustion-misfires-cylinder-5.1424372/",
+      "https://www.bimmerfest.com/threads/persistent-misfire-on-cylinder-5-n54-code-29d1.1279448/",
+      "https://static.nhtsa.gov/odi/tsbs/2013/SB-10029104-4598.pdf"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D2",
+    "text": "The engine computer detected combustion misfires on cylinder 6.",
+    "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
+    "component": "cyl6",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://static.nhtsa.gov/odi/tsbs/2013/SB-10029104-4598.pdf"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29CC",
+    "text": "The engine computer detected misfires on more than one cylinder.",
+    "hint": "Check plugs and coils first; on N54 a cold-start misfire across one bank can point to leaking injectors (BMW SI B13 04 09) and general misfires to intake-valve carbon (SI B12 02 12). Read the per-cylinder codes stored alongside.",
+    "component": "engine",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1999674",
+      "https://static.nhtsa.gov/odi/tsbs/2013/SB-10029104-4598.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2014/MC-10149286-9999.pdf"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D9",
+    "text": "Misfires were detected while the fuel tank was nearly empty.",
+    "hint": "Refuel and clear the code before chasing ignition or injector faults.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29DC",
+    "text": "Fuel injection on one or more cylinders was cut because high-pressure fuel rail pressure was too low.",
+    "hint": "Classic N54 high-pressure fuel pump (HPFP) code, but a weak in-tank low-pressure pump or clogged filter can cause it too; check low-side pressure before buying an HPFP. BMW extended HPFP coverage on many N54 cars (SI B12 55 06).",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2013/MC-10149587-9999.pdf",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing",
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29F2",
+    "text": "High-pressure fuel rail pressure dropped below the target the engine computer asked for.",
+    "hint": "Common cause: failing HPFP; also check the low-pressure supply (in-tank pump, filter) since either side can trigger it.",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2013/MC-10149587-9999.pdf",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing",
+      "https://www.go-parts.com/garage/fuel-pump-bmw-328i-bmw-x1-bmw-335i-2007-2015"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29F1",
+    "text": "Measured high-pressure fuel rail pressure does not make sense compared with what the pump control expects.",
+    "hint": "Often stored together with 29F2 or 29DC; diagnose the fuel supply (HPFP, low-pressure pump, rail pressure sensor) as a whole.",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2013/MC-10149587-9999.pdf",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing",
+      "https://spoolstreet.com/threads/code-29f1-dme-fuel-pressure-plausibility.5124/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2FBF",
+    "text": "Fuel rail pressure was too low at the moment injection was enabled during start-up.",
+    "hint": "Usually shows as long cranking. BMW's first fix was a DME software update; persistent cases point to the HPFP or low-pressure supply.",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2013/MC-10149587-9999.pdf",
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://bmwtuning.co/bmw-n54-high-pressure-fuel-pump-failure/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2FBE",
+    "text": "Fuel rail pressure fell away abnormally after the engine was switched off.",
+    "hint": "A single occurrence is often harmless and can be cleared; if it returns with long cranks, suspect the HPFP or a leaking injector.",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29E2",
+    "text": "The fuel rail pressure sensor signal is faulty or implausible.",
+    "hint": "Can be the rail pressure sensor or wiring, but often logged alongside 29DC when rail pressure genuinely collapses from a failing pump.",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2FBC",
+    "text": "Problem with the signal to the volume control valve on the high-pressure fuel pump.",
+    "hint": "Not a pressure code itself; check the valve's connector and wiring on the HPFP before replacing parts.",
+    "component": "fuel_rail",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ],
+    "notes": "Owner threads also show 2FBC stored with HPFP failures (e.g. https://www.e90post.com/forums/showthread.php?t=640139), but only one source states the meaning."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2AAF",
+    "text": "The low-pressure (in-tank) fuel supply did not reach the pressure the engine computer requested.",
+    "hint": "Common on tuned cars. If it appears with other fuel codes, check the in-tank fuel pump, fuel filter and the fuel pump control module (EKPS).",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29F3",
+    "text": "Electrical fault in the low-pressure fuel sensor circuit.",
+    "hint": "This is a wiring/sensor fault, not a pressure problem: check the low-pressure sensor and its plug first.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29E0",
+    "text": "Fuel mixture control on bank 1 (cylinders 1-3) is outside its limits.",
+    "hint": "Common causes: air leaks, oxygen sensor faults, injectors or tuning. If 29E1 is also stored, suspect a cause affecting both banks.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29E1",
+    "text": "Fuel mixture control on bank 2 (cylinders 4-6) is outside its limits.",
+    "hint": "Common causes: air leaks, oxygen sensor faults, injectors or tuning. If 29E0 is also stored, suspect a cause affecting both banks.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://onefastshop.com/blogs/blog/bmw-low-fuel-pressure-codes-29f2-29dc-lpfp-failing"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "30BE",
+    "text": "Injector calibration values stored in the engine computer are implausible.",
+    "hint": "Typical after injector replacement: the new injectors' calibration (IMA) codes must be entered into the DME.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.e90post.com/forums/showthread.php?t=1302685",
+      "https://www.youtube.com/watch?v=1tLzreg9grs"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "30FF",
+    "text": "Boost (charge-air) pressure is lower than the engine computer expects (underboost).",
+    "hint": "Common causes: boost leaks in charge pipe/intercooler/diverter valves, cracked wastegate vacuum lines, faulty boost solenoids, worn or rattling wastegates, or a failing turbo.",
+    "component": "turbo",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://automotivetechinfo.com/2021/08/curing-the-bmw-n54-30ff-fault-code/",
+      "https://bmwtuning.co/bmw-n54-30ff-engine-fault-code-30ff-diagnosis-repair-guide/",
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://www.fightchaos.com/2020/09/bmw-n54-twin-turbo-diagnosis-and-repair.html"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "30FE",
+    "text": "Boost (charge-air) pressure is higher than the engine computer expects (overboost).",
+    "hint": "Common causes: tuning, or boost solenoids/vacuum control letting the wastegates close too much.",
+    "component": "turbo",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/",
+      "https://g42.bimmerpost.com/forums/showthread.php?t=870095"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "3100",
+    "text": "Boost pressure control has been switched off, so the engine runs without boost.",
+    "hint": "Usually a follow-on fault: read the other stored codes (VANOS, overheating, boost faults) and fix those first; alone it may just need clearing.",
+    "component": "turbo",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2012/SB-10032779-8218.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2020/MC-10175267-9999.pdf",
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "30CF",
+    "text": "Problem with the wastegate control input signal.",
+    "hint": "Most often an unplugged wastegate/boost solenoid connector or loose wiring, sometimes caused by a piggyback tuning module.",
+    "component": "turbo",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://bmwtuning.co/bmw-n54-common-fault-codes/"
+    ],
+    "notes": "Owner threads show 30CF with 3100 after tuner installs (e.g. https://www.e90post.com/forums/showthread.php?t=1168149) but do not state the meaning."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A82",
+    "text": "Intake camshaft VANOS is sluggish or stuck and does not reach its target position.",
+    "hint": "BMW bulletins point to low oil pressure at the VANOS, clogged or failed VANOS solenoids, or a missing oil filter cap insert; often fixed by replacing both solenoids and changing the oil.",
+    "component": "vanos",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2012/SB-10032779-8218.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2020/MC-10175267-9999.pdf",
+      "https://bmwtuning.co/vanos-problems-symptoms-repairs/"
+    ],
+    "notes": "Same code and meaning also used on N51/N52 MSV DMEs per the bulletins. N55 (MEVD17.2) reports VANOS faults under different codes (2D5A etc.)."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A87",
+    "text": "Exhaust camshaft VANOS is sluggish or stuck and does not reach its target position.",
+    "hint": "BMW bulletins point to low oil pressure at the VANOS, clogged or failed VANOS solenoids, or a missing oil filter cap insert; often fixed by replacing both solenoids and changing the oil.",
+    "component": "vanos",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2012/SB-10032779-8218.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2020/MC-10175267-9999.pdf",
+      "https://bmwtuning.co/vanos-problems-symptoms-repairs/"
+    ],
+    "notes": "Same code and meaning also used on N51/N52 MSV DMEs per the bulletins. N55 (MEVD17.2) reports VANOS faults under different codes (2D60 etc.)."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A9A",
+    "text": "Crankshaft and intake camshaft positions are not synchronised as expected.",
+    "hint": "Common causes: intake VANOS solenoid or oil supply problems, camshaft or crank sensor signal faults, or timing problems; can cause crank-no-start.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://g42.bimmerpost.com/forums/showthread.php?t=2176110",
+      "https://www.justanswer.com/bmw/pelaf-2009-bmw-335i-that-s-giving-2a9a-code.html",
+      "https://obdthink.com/en/blog/bmw-2a9a-intake-camshaft-synchronization-fault"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A99",
+    "text": "Crankshaft and exhaust camshaft positions do not correlate as expected.",
+    "hint": "Check exhaust VANOS solenoid, VANOS unit and its bolts, and the exhaust cam sensor before suspecting timing.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.ifixit.com/Answers/View/456480/Fault+code+2A99,+crankshaft+-exhaust+camshaft+correlation",
+      "https://www.justanswer.com/bmw/exek6-2a99-2a87-code-occasionally-2a9a-crank-car.html"
+    ],
+    "notes": "Meaning agrees across sources for E9x, but N54-specific attribution rests on a single 335i Q&A thread."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E81",
+    "text": "The electric coolant pump is not running at the speed the engine computer asked for.",
+    "hint": "Common cause on N54/N55: the electric water pump is failing (typical at 60k-100k miles); check its connector and wiring first.",
+    "engines": [
+      "N54",
+      "N55"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://ultimatebimmerservice.com/blog/bmw-n55-water-pump-2e81-fault/",
+      "https://xbimmers.com/forums/showthread.php?t=2077579",
+      "https://www.youtube.com/watch?v=Y587ko4mFUc"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E82",
+    "text": "The electric coolant pump has shut itself off.",
+    "hint": "Treat as urgent: stop driving if the temperature warning comes on. Common cause on N54/N55: the electric water pump is failing (typical at 60k-100k miles); check its connector and wiring first.",
+    "engines": [
+      "N54",
+      "N55"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://ultimatebimmerservice.com/blog/bmw-n55-water-pump-2e81-fault/",
+      "https://www.youtube.com/watch?v=Y587ko4mFUc"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E83",
+    "text": "The electric coolant pump is running in a reduced-power mode.",
+    "hint": "Early warning of pump trouble; also check coolant level and bleed air from the system.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://autoexplain.com/2e83-bmw-code/",
+      "https://www.justanswer.com/bmw/c1x0h-135i-n54-twin-turbo-model-currently-codes.html"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E84",
+    "text": "The engine computer cannot communicate with the electric coolant pump over its data line (BSD).",
+    "hint": "Check the pump connector, wiring and fuse for corrosion or damage before replacing the pump.",
+    "engines": [
+      "N54"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://www.jb4tech.com/forum/model-specific-engine-tuning-modification-discussion/n54/33838-",
+      "https://www.babybmw.net/threads/2e84-water-pump-communication.69103/",
+      "https://www.youtube.com/watch?v=xum_dTA_eYY"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D5A",
+    "text": "Intake VANOS control fault: the intake camshaft is sticking.",
+    "hint": "BMW bulletin cause on early N55 (2010 build): failed VANOS adjuster units or loose/broken adjuster bolts; also check oil level and the VANOS solenoids.",
+    "component": "vanos",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D5B",
+    "text": "Intake VANOS control fault: the intake camshaft does not reach its target position.",
+    "hint": "BMW bulletin cause on early N55 (2010 build): failed VANOS adjuster units or loose/broken adjuster bolts; also check oil level and the VANOS solenoids.",
+    "component": "vanos",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D60",
+    "text": "Exhaust VANOS control fault: the exhaust camshaft is sticking.",
+    "hint": "BMW bulletin cause on early N55 (2010 build): failed VANOS adjuster units or loose/broken adjuster bolts; also check oil level and the VANOS solenoids.",
+    "component": "vanos",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf",
+      "https://www.justanswer.com/car/i9l31-2011-335xi-code-2d60-2c58-just-on-vanos-bank-one.html",
+      "https://www.jb4tech.com/forum/non-engine-related/general-tech-support-tuning-advice-logs-and-help-me-posts/16070-2d60-and-2c58-bad-vanos"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D61",
+    "text": "Exhaust VANOS control fault: the exhaust camshaft does not reach its target position.",
+    "hint": "BMW bulletin cause on early N55 (2010 build): failed VANOS adjuster units or loose/broken adjuster bolts; also check oil level and the VANOS solenoids.",
+    "component": "vanos",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D9F",
+    "text": "Intake camshaft position sensor signal is implausible.",
+    "hint": "BMW bulletin cause on early N55 (2010 build): failed VANOS adjuster units or loose/broken adjuster bolts; also check oil level and the VANOS solenoids.",
+    "component": "cam_sensor",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2DA1",
+    "text": "Exhaust camshaft position sensor signal is implausible.",
+    "hint": "BMW bulletin cause on early N55 (2010 build): failed VANOS adjuster units or loose/broken adjuster bolts; also check oil level and the VANOS solenoids.",
+    "component": "cam_sensor",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "300C",
+    "text": "Intake camshaft position sensor signal is too high (electrical).",
+    "hint": "Check the sensor connector and wiring; the BMW bulletin links it to VANOS adjuster failure on early N55.",
+    "component": "cam_sensor",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "300D",
+    "text": "Intake camshaft position sensor signal is too low (electrical).",
+    "hint": "Check the sensor connector and wiring; the BMW bulletin links it to VANOS adjuster failure on early N55.",
+    "component": "cam_sensor",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "300E",
+    "text": "Exhaust camshaft position sensor signal is too high (electrical).",
+    "hint": "Check the sensor connector and wiring; the BMW bulletin links it to VANOS adjuster failure on early N55.",
+    "component": "cam_sensor",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "300F",
+    "text": "Exhaust camshaft position sensor signal is too low (electrical).",
+    "hint": "Check the sensor connector and wiring; the BMW bulletin links it to VANOS adjuster failure on early N55.",
+    "component": "cam_sensor",
+    "engines": [
+      "N55"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/SB-10045283-4524.pdf"
+    ],
+    "notes": "E9x N55 (MEVD17.2) code per BMW SI B12 14 12, which also covers E82/E88 135i and E70/E71; F-series N55 uses 6-digit codes instead."
+  }
+]
