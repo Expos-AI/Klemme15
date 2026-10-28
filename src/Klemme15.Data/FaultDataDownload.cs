@@ -63,6 +63,7 @@ public static class FaultDataDownload
             response.EnsureSuccessStatusCode();
             var total = response.Content.Headers.ContentLength;
             var buffer = new MemoryStream();
+            var lastPct = -1;
             await using (var body = await response.Content.ReadAsStreamAsync(ct))
             {
                 var chunk = new byte[81920];
@@ -70,17 +71,20 @@ public static class FaultDataDownload
                 while ((n = await body.ReadAsync(chunk, ct)) > 0)
                 {
                     buffer.Write(chunk, 0, n);
-                    if (total > 0) progress?.Report(Math.Min(0.99, (double)buffer.Length / total.Value));
+                    // Report whole percents only, so the UI isn't flooded with thousands of updates.
+                    var pct = total > 0 ? (int)(Math.Min(0.99, (double)buffer.Length / total.Value) * 100) : -1;
+                    if (pct > lastPct) { lastPct = pct; progress?.Report(pct / 100.0); }
                 }
             }
 
-            var actual = Convert.ToHexString(SHA256.HashData(buffer.GetBuffer().AsSpan(0, (int)buffer.Length))).ToLowerInvariant();
+            progress?.Report(1);
+            var actual = await Task.Run(() => Convert.ToHexString(SHA256.HashData(buffer.GetBuffer().AsSpan(0, (int)buffer.Length))).ToLowerInvariant(), ct).ConfigureAwait(false);
             if (!actual.Equals(expected, StringComparison.OrdinalIgnoreCase))
                 throw new DiagnosticException("The downloaded fault database failed its checksum, so it was not used. Please try again.");
 
-            progress?.Report(1);
             buffer.Position = 0;
-            var count = Unpack(buffer, folder, db);
+            // Checksum and unpacking take a second or two: keep them off the caller's (UI) thread.
+            var count = await Task.Run(() => Unpack(buffer, folder, db), ct).ConfigureAwait(false);
             var manifest = new Manifest(assetUrl, release, actual, DateTimeOffset.Now, count);
             File.WriteAllText(Path.Combine(folder, "klemme15-download.json"), JsonSerializer.Serialize(manifest, new JsonSerializerOptions { WriteIndented = true }));
             return manifest;

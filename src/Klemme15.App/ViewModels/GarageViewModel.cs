@@ -113,9 +113,23 @@ public sealed class GarageViewModel : PageViewModel
         _downloading = true;
         DownloadFaultDataCommand.RaiseCanExecuteChanged();
         DownloadText = "Starting download...";
-        var progress = new Progress<double>(p => DownloadText = p < 1 ? $"Downloading... {p:P0}" : "Checking and unpacking...");
-        var manifest = await FaultDataDownload.DownloadAsync(_session.Database, progress: progress);
-        DownloadText = null;
+        // Progress updates are posted to the UI thread and can arrive after the download has finished;
+        // once it's done they're ignored, so the status can't get stuck on "Checking and unpacking...".
+        var finished = false;
+        var progress = new Progress<double>(p =>
+        {
+            if (!finished) DownloadText = p < 1 ? $"Downloading... {p:P0}" : "Checking and unpacking...";
+        });
+        FaultDataDownload.Manifest manifest;
+        try
+        {
+            manifest = await FaultDataDownload.DownloadAsync(_session.Database, progress: progress);
+        }
+        finally
+        {
+            finished = true;
+            DownloadText = null;
+        }
         _downloading = false;
         DownloadFaultDataCommand.RaiseCanExecuteChanged();
         await RefreshFaultDataAsync();
