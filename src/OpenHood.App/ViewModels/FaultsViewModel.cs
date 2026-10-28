@@ -8,13 +8,15 @@ public sealed class FaultGroupViewModel : ViewModelBase
 {
     private readonly SessionState _session;
     private readonly Action<Fault, EcuDefinition> _showOnCar;
+    private readonly Action<string> _openUrl;
     private bool _confirming;
     private string? _message;
 
-    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar)
+    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar, Action<string> openUrl)
     {
         _session = session;
         _showOnCar = showOnCar;
+        _openUrl = openUrl;
         Ecu = ecu;
         Fill(faults);
         AskClearCommand = new RelayCommand(() => Confirming = true);
@@ -51,10 +53,13 @@ public sealed class FaultGroupViewModel : ViewModelBase
     private void Fill(IEnumerable<Fault> faults)
     {
         Faults.Clear();
-        foreach (var f in faults.OrderByDescending(f => f.State == FaultState.Present))
+        foreach (var f in faults.OrderBy(f => f.IsInfo).ThenByDescending(f => f.State == FaultState.Present))
         {
             var where = _session.Locate(f, Ecu);
-            var item = new FaultItemViewModel(f, Ecu, where?.Title, where?.IsComponent == true);
+            var item = new FaultItemViewModel(f, Ecu, where?.Title, where?.IsComponent == true)
+            {
+                SourceLinks = f.Sources.Where(u => u.StartsWith("http", StringComparison.Ordinal)).Select(u => new SourceLink(u, _openUrl)).ToList(),
+            };
             item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
             Faults.Add(item);
         }
@@ -78,12 +83,14 @@ public sealed class FaultsViewModel : PageViewModel
 {
     private readonly SessionState _session;
     private readonly Action<Fault, EcuDefinition> _showOnCar;
+    private readonly Action<string> _openUrl;
     private string? _error;
 
-    public FaultsViewModel(SessionState session, Action<Fault, EcuDefinition> showOnCar)
+    public FaultsViewModel(SessionState session, Action<Fault, EcuDefinition> showOnCar, Action<string> openUrl)
     {
         _session = session;
         _showOnCar = showOnCar;
+        _openUrl = openUrl;
         RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && _session.LastScan is not null, e => Error = e.Message);
         _session.ScanUpdated += () => OnUi(Rebuild);
         _session.PropertyChanged += (_, e) =>
@@ -98,8 +105,10 @@ public sealed class FaultsViewModel : PageViewModel
     public ObservableCollection<FaultGroupViewModel> Groups { get; } = [];
     public bool IsEmpty => Groups.Count == 0;
     public int ActiveCount => Groups.Sum(g => g.Faults.Count(f => f.IsActive));
-    public int StoredCount => Groups.Sum(g => g.Faults.Count(f => !f.IsActive));
-    public string Headline => IsEmpty ? "No faults" : $"{ActiveCount} active now, {StoredCount} stored";
+    public int StoredCount => Groups.Sum(g => g.Faults.Count(f => f.IsStored));
+    public int InfoCount => Groups.Sum(g => g.Faults.Count(f => f.IsInfo));
+    public string Headline => IsEmpty ? "No faults"
+        : $"{ActiveCount} active now, {StoredCount} stored" + (InfoCount > 0 ? $", {InfoCount} in info memory" : "");
 
     public string EmptyText => _session.LastScan is null
         ? "Run a quick test on the Vehicle page. Every fault the modules report will be listed here."
@@ -119,7 +128,7 @@ public sealed class FaultsViewModel : PageViewModel
         Groups.Clear();
         if (_session.LastScan is { } scan)
             foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0).OrderByDescending(e => e.Faults.Any(f => f.State == FaultState.Present)))
-                Groups.Add(new FaultGroupViewModel(_session, e.Ecu, e.Faults, _showOnCar));
+                Groups.Add(new FaultGroupViewModel(_session, e.Ecu, e.Faults, _showOnCar, _openUrl));
         foreach (var p in new[] { nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount) })
             Raise(p);
     }

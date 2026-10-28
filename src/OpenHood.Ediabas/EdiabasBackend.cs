@@ -111,35 +111,108 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
         return null;
     }
 
-    public async Task<IReadOnlyList<Fault>> ReadFaultsAsync(EcuDefinition ecu, CancellationToken ct = default)
-    {
-        var sets = await RunJobAsync(SgbdFor(ecu), "FS_LESEN", "", ct);
-        var faults = new List<Fault>();
-        foreach (var set in sets.Where(s => s.ContainsKey("F_ORT_NR")))
+    /// <summary>
+    /// Reads fault memory the way ISTA does on E-series cars: FS_LESEN for the list, FS_LESEN_DETAIL for each
+    /// fault's details (mileage, frequency, environment conditions), then the info memory with IS_LESEN.
+    /// Texts come from the car's own SGBD, matched to the module variant that answered.
+    /// </summary>
+    public Task<IReadOnlyList<Fault>> ReadFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) =>
+        Locked<IReadOnlyList<Fault>>(() =>
         {
-            var code = long.TryParse(set["F_ORT_NR"], NumberStyles.Integer, CultureInfo.InvariantCulture, out var n)
-                ? n.ToString("X4", CultureInfo.InvariantCulture)
-                : set["F_ORT_NR"];
-            var present = set.FirstOrDefault(kv => kv.Key.Contains("VORHANDEN") && kv.Key.EndsWith("TEXT")).Value;
-            var state = present switch
+            var sgbd = SgbdFor(ecu);
+            var faults = new List<Fault>();
+            faults.AddRange(ReadMemory(ecu, sgbd, "FS_LESEN", "FS_LESEN_DETAIL", isInfo: false, ct));
+            try
             {
-                null => FaultState.Unknown,
-                _ when present.Contains("nicht", StringComparison.OrdinalIgnoreCase) => FaultState.Stored,
-                _ when present.Contains("sporadisch", StringComparison.OrdinalIgnoreCase) => FaultState.Intermittent,
-                _ => FaultState.Present,
-            };
-            faults.Add(new Fault
+                if (JobExists("IS_LESEN"))
+                    faults.AddRange(ReadMemory(ecu, sgbd, "IS_LESEN", "IS_LESEN_DETAIL", isInfo: true, ct));
+            }
+            catch (DiagnosticException) { /* info memory is a bonus */ }
+            return faults;
+        }, ct);
+
+    private const int MaxDetailReads = 25;
+
+    private IEnumerable<Fault> ReadMemory(EcuDefinition ecu, string sgbd, string listJob, string detailJob, bool isInfo, CancellationToken ct)
+    {
+        var sets = RunJobCore(sgbd, listJob, "", ct);
+        var variant = sets.SelectMany(x => x).FirstOrDefault(kv => kv.Key == "VARIANTE").Value ?? sgbd;
+        var withDetail = JobExists(detailJob);
+        var detailsRead = 0;
+        foreach (var set in sets.Where(x => x.ContainsKey("F_ORT_NR")))
+        {
+            ct.ThrowIfCancellationRequested();
+            var hasNumber = long.TryParse(set["F_ORT_NR"], NumberStyles.Integer, CultureInfo.InvariantCulture, out var number);
+            var code = hasNumber ? number.ToString("X4", CultureInfo.InvariantCulture) : set["F_ORT_NR"];
+
+            var all = new Dictionary<string, string>(set.ToDictionary(kv => kv.Key, kv => kv.Value), StringComparer.OrdinalIgnoreCase);
+            if (withDetail && hasNumber && detailsRead < MaxDetailReads)
+            {
+                try
+                {
+                    foreach (var kv in Merge(RunJobCore(sgbd, detailJob, $"0x{number:X}", ct))) all[kv.Key] = kv.Value;
+                    detailsRead++;
+                }
+                catch (DiagnosticException) { /* details are optional */ }
+            }
+
+            yield return new Fault
             {
                 EcuId = ecu.Id,
                 Code = code,
                 Source = FaultSource.Bmw,
-                State = state,
-                Description = set.TryGetValue("F_ORT_TEXT", out var text) && !string.IsNullOrWhiteSpace(text) ? text : null,
-                Details = set.Where(kv => kv.Key.StartsWith("F_") && kv.Key is not "F_ORT_NR" and not "F_ORT_TEXT")
-                             .Take(12).ToDictionary(kv => kv.Key, kv => kv.Value),
-            });
+                State = isInfo ? FaultState.Stored : StateFrom(all.GetValueOrDefault("F_VORHANDEN_TEXT")),
+                IsInfo = isInfo,
+                Description = all.TryGetValue("F_ORT_TEXT", out var text) && !string.IsNullOrWhiteSpace(text) ? text.Trim() : null,
+                Confidence = "official",
+                Sources = [$"Your SGBD file for this module ({variant})"],
+                Details = DetailsFrom(all),
+            };
         }
-        return faults;
+    }
+
+    private static FaultState StateFrom(string? present)
+    {
+        if (string.IsNullOrWhiteSpace(present)) return FaultState.Unknown;
+        var p = present.ToLowerInvariant();
+        if (p.Contains("nicht") || p.Contains("not ")) return FaultState.Stored;
+        if (p.Contains("sporad") || p.Contains("intermit")) return FaultState.Intermittent;
+        return FaultState.Present;
+    }
+
+    /// <summary>The fault details ISTA shows: mileage, frequency, fault type and environment conditions.</summary>
+    private static Dictionary<string, string> DetailsFrom(Dictionary<string, string> r)
+    {
+        var d = new Dictionary<string, string>();
+        static bool Useful(string? v) => !string.IsNullOrWhiteSpace(v) && v.Trim() is not "--" and not "-" and not "0xFFFF";
+        void Add(string label, string? value, string? unit = null)
+        {
+            if (Useful(value)) d[label] = unit is null ? value!.Trim() : $"{value!.Trim()} {unit}";
+        }
+
+        Add("Mileage", r.GetValueOrDefault("F_UW_KM"), "km");
+        Add("Occurrences", r.GetValueOrDefault("F_HFK"));
+        Add("Logged", r.GetValueOrDefault("F_LZ"));
+        Add("Status", r.GetValueOrDefault("F_VORHANDEN_TEXT"));
+        Add("Warning lamp", r.GetValueOrDefault("F_WARNUNG_TEXT"));
+        Add("OBD code", r.GetValueOrDefault("F_PCODE_STRING") ?? r.GetValueOrDefault("F_SAE_CODE_STRING"));
+
+        var types = new List<string>();
+        var typeCount = int.TryParse(r.GetValueOrDefault("F_ART_ANZ"), out var tc) ? tc : 6;
+        for (var i = 1; i <= Math.Min(typeCount, 9); i++)
+            if (r.GetValueOrDefault($"F_ART{i}_TEXT") is { } t && Useful(t)) types.Add(t.Trim());
+        if (types.Count > 0) d["Fault type"] = string.Join("; ", types.Distinct());
+
+        var envCount = int.TryParse(r.GetValueOrDefault("F_UW_ANZ"), out var ec) ? ec : 0;
+        for (var i = 1; i <= Math.Min(envCount, 12); i++)
+        {
+            var name = r.GetValueOrDefault($"F_UW{i}_TEXT");
+            var value = r.GetValueOrDefault($"F_UW{i}_WERT");
+            if (!Useful(name) || !Useful(value)) continue;
+            var unit = r.GetValueOrDefault($"F_UW{i}_EINH");
+            d[name!.Trim()] = Useful(unit) && unit!.Trim() != "1" ? $"{value!.Trim()} {unit.Trim()}" : value!.Trim();
+        }
+        return d;
     }
 
     public Task ClearFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) =>
@@ -184,8 +257,18 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     }
 
     public Task<IReadOnlyList<IReadOnlyDictionary<string, string>>> RunJobAsync(string sgbd, string job, string arguments, CancellationToken ct = default) =>
-        Locked<IReadOnlyList<IReadOnlyDictionary<string, string>>>(() =>
-        {
+        Locked<IReadOnlyList<IReadOnlyDictionary<string, string>>>(() => RunJobCore(sgbd, job, arguments, ct), ct);
+
+    /// <summary>True if the currently resolved SGBD has this job.</summary>
+    private bool JobExists(string job)
+    {
+        try { return _ediabas?.IsJobExisting(job) == true; }
+        catch (Exception) { return false; }
+    }
+
+    /// <summary>Runs one job. Caller must hold the lock.</summary>
+    private IReadOnlyList<IReadOnlyDictionary<string, string>> RunJobCore(string sgbd, string job, string arguments, CancellationToken ct)
+    {
             var ediabas = _ediabas ?? throw new DiagnosticException("Not connected");
             _jobToken = ct;
             try
@@ -221,7 +304,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 options.Log?.Note($"  -> {text}");
                 throw new DiagnosticException($"{sgbd} {job}: {text}", e);
             }
-        }, ct);
+    }
 
     public async ValueTask DisposeAsync()
     {

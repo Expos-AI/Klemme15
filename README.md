@@ -25,8 +25,10 @@ OpenHood is an independent project. It is not affiliated with or endorsed by BMW
 
 - **Garage**: pick your exact model (E46 323i through E90 335i). Every model has its own **demo car** with the modules it actually has and the faults it's known for, so you can try everything without a cable.
 - **See where faults are**: a top-view drawing of the car. Each module lights up where it physically sits as the quick test reaches it, and every fault is pinned to the part it points at: a misfire on cylinder 3, lean codes at the intake, a thermostat at the front of the engine, a fuel pump fault at the tank.
-- **Quick test**: identifies every module and reads its fault memory, with progress and cancel.
-- **Faults**: BMW and OBD-II codes, active vs stored, plain-English descriptions, practical tips and a "check here" location; clear per module with confirmation.
+- **Quick test**: checks battery voltage, finds every fitted module with one broadcast, identifies each and reads its fault memory. Covers all 44 known E90-family modules and 23 E46 modules, including options like xDrive, TPMS, alarm, memory seats and the convertible top.
+- **ISTA-grade texts with your own files** (Windows): OpenHood finds your EDIABAS, INPA or ISTA SGBD files automatically and reads faults the way ISTA does on these cars: official fault text for your exact module version, mileage, frequency, environment conditions, and the info memory.
+- **Researched meanings without BMW files**: 202 BMW fault codes (106 high confidence) researched from owner forums, shop guides and BMW service bulletins, written in our own words, each with its sources and engine scope; plus all 2,066 standard OBD-II codes.
+- **Faults**: BMW and OBD-II codes, active vs stored vs info memory, plain-English descriptions, practical tips, a "check here" location, and where each meaning comes from (official SGBD text, or community meaning with confidence and clickable sources). Clear per module or all at once.
 - **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
 - **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
 - **Reports**: one click to save a scan as HTML, Markdown or JSON.
@@ -108,7 +110,8 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 - OpenHood **contains no BMW software, SGBD files, fault texts, documents or wiring diagrams**, and contributions must not add any.
 - The native protocol stack is written from public standards (ISO 14230, ISO 9141-2, SAE J1979) and community knowledge.
 - EDIABAS mode runs files **you already have** from your own installation. They are never bundled or uploaded.
-- Fault descriptions in the database are written by contributors in their own words.
+- Fault descriptions in the database are written by contributors in their own words, with sources. See `tools/research` for how they're researched and merged.
+- OpenHood never unlocks or reads BMW's protected ISTA databases. The standard OBD-II titles come from python-OBD (GPL-2.0-or-later).
 
 ## Safety
 
@@ -122,6 +125,7 @@ The fastest way to help is to **test on your car** and send the saved report and
 
 - [EdiabasLib](https://github.com/uholeschak/ediabaslib) by Ulrich Holeschak (GPLv3), used for EDIABAS mode.
 - [Avalonia UI](https://avaloniaui.net) for the cross-platform interface.
+- [python-OBD](https://github.com/brendan-w/python-OBD) for the standard OBD-II code titles.
 - [Barlow](https://github.com/jpt/barlow) typeface by Jeremy Tribby (SIL Open Font License 1.1, see `src/OpenHood.App/Assets/Fonts/OFL.txt`).
 
 ## License

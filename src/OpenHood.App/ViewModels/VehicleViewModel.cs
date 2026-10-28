@@ -22,6 +22,8 @@ public sealed class VehicleViewModel : PageViewModel
     private string? _error;
     private string? _discovery;
     private bool _isDiscovering;
+    private string? _warning;
+    private bool _confirmClearAll;
 
     public VehicleViewModel(SessionState session, IDialogService dialogs)
     {
@@ -30,6 +32,9 @@ public sealed class VehicleViewModel : PageViewModel
         RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
+        AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasFaults);
+        CancelClearAllCommand = new RelayCommand(() => ConfirmClearAll = false);
+        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_isScanning, e => Error = e.Message);
         DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
         ExportHtmlCommand = new AsyncCommand(() => ExportAsync("html"), () => _session.LastScan is not null);
         ExportMarkdownCommand = new AsyncCommand(() => ExportAsync("md"), () => _session.LastScan is not null);
@@ -69,7 +74,8 @@ public sealed class VehicleViewModel : PageViewModel
         {
             if (_session.LastScan is not { } s) return "";
             var faults = s.TotalFaults == 1 ? "1 fault" : $"{s.TotalFaults} faults";
-            return $"{s.RespondingEcus} of {s.Ecus.Count} modules answered in {s.Elapsed.TotalSeconds:0.0} s. {faults}.";
+            var battery = s.BatteryVoltage is { } v ? $" Battery {v:0.0} V." : "";
+            return $"{s.RespondingEcus} of {s.Ecus.Count} modules answered in {s.Elapsed.TotalSeconds:0.0} s. {faults}.{battery}";
         }
     }
 
@@ -161,6 +167,68 @@ public sealed class VehicleViewModel : PageViewModel
     // ------------------------------------------------------------------ commands
 
     public AsyncCommand RunCommand { get; }
+    public RelayCommand AskClearAllCommand { get; }
+    public RelayCommand CancelClearAllCommand { get; }
+    public AsyncCommand ClearAllCommand { get; }
+
+    /// <summary>Shown above the drawing, e.g. a low battery before a scan.</summary>
+    public string? Warning
+    {
+        get => _warning;
+        private set { if (Set(ref _warning, value)) Raise(nameof(HasWarning)); }
+    }
+
+    public bool HasWarning => !string.IsNullOrEmpty(_warning);
+
+    public bool ConfirmClearAll
+    {
+        get => _confirmClearAll;
+        set { if (Set(ref _confirmClearAll, value)) Raise(nameof(NotConfirmClearAll)); }
+    }
+
+    public bool NotConfirmClearAll => !_confirmClearAll;
+
+    public string ClearAllQuestion =>
+        $"Clear the fault memory of {(_session.LastScan?.Ecus.Count(e => e.Faults.Count > 0) ?? 0)} modules? Read them again after a drive to see what returns.";
+
+    /// <summary>Clears every module that reported faults, then runs the quick test again.</summary>
+    private async Task ClearAllAsync()
+    {
+        ConfirmClearAll = false;
+        if (_session.Backend is not { } backend || _session.LastScan is not { } scan) return;
+        var failed = new List<string>();
+        foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
+        {
+            try { await backend.ClearFaultsAsync(e.Ecu); }
+            catch (Exception ex) when (ex is DiagnosticException or NotSupportedException) { failed.Add(e.Ecu.Name); }
+        }
+        await RunAsync();
+        if (failed.Count > 0) Error = "Couldn't clear: " + string.Join(", ", failed);
+    }
+
+    /// <summary>
+    /// Low voltage makes modules log false faults, which is why dealer tools want a charger connected.
+    /// Reads the battery voltage through the engine computer when the car reports it.
+    /// </summary>
+    private async Task<double?> CheckBatteryAsync(IDiagnosticBackend backend, VehicleFamily vehicle)
+    {
+        var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
+        var voltage = engine is null ? null : backend.GetLiveParameters(engine).FirstOrDefault(p => p.Id == "voltage");
+        if (engine is null || voltage is null) return null;
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3));
+            var v = (await backend.ReadLiveAsync(engine, [voltage], cts.Token)).FirstOrDefault()?.Value;
+            Warning = v switch
+            {
+                < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then scan again.",
+                > 15.2 => $"Voltage is {v:0.0} V, higher than normal. Check the charger or alternator before trusting new faults.",
+                _ => null,
+            };
+            return v;
+        }
+        catch (Exception) { return null; }
+    }
     public AsyncCommand DiscoverCommand { get; }
 
     /// <summary>Result of "Find other modules", shown in the side panel.</summary>
@@ -216,10 +284,13 @@ public sealed class VehicleViewModel : PageViewModel
         if (backend is null || vehicle is null) return;
 
         Error = null;
+        Warning = null;
         Select(null);
         _session.PublishScan(null);
         IsScanning = true;
         _cts = new CancellationTokenSource();
+        ProgressText = "Checking battery voltage";
+        var battery = await CheckBatteryAsync(backend, vehicle);
         var progress = new Progress<ScanProgress>(p =>
         {
             Progress = p.Total == 0 ? 0 : 100.0 * p.Done / p.Total;
@@ -234,7 +305,7 @@ public sealed class VehicleViewModel : PageViewModel
                 vehicle.Modules, $"{vehicle.Id} {_session.Model?.Name}".Trim(), progress, _cts.Token);
             Progress = 100;
             ProgressText = scan.Cancelled ? "Quick test stopped." : "";
-            _session.PublishScan(scan);
+            _session.PublishScan(scan with { BatteryVoltage = battery });
         }
         finally
         {
@@ -247,7 +318,7 @@ public sealed class VehicleViewModel : PageViewModel
     private static MarkerState StateOf(EcuScanResult r) => r.Status switch
     {
         EcuScanStatus.Ok => MarkerState.Ok,
-        EcuScanStatus.Faults => r.Faults.Any(f => f.State == FaultState.Present) ? MarkerState.Active : MarkerState.Stored,
+        EcuScanStatus.Faults => r.Faults.Any(f => f.State == FaultState.Present && !f.IsInfo) ? MarkerState.Active : MarkerState.Stored,
         EcuScanStatus.NoResponse => MarkerState.Absent,
         EcuScanStatus.Error => MarkerState.Stored,
         _ => MarkerState.Idle,
@@ -282,7 +353,7 @@ public sealed class VehicleViewModel : PageViewModel
             foreach (var result in scan.Ecus)
             {
                 if (_moduleMarkers.TryGetValue(result.Ecu.Id, out var mm)) mm.State = StateOf(result);
-                foreach (var fault in result.Faults)
+                foreach (var fault in result.Faults.Where(f => !f.IsInfo))
                 {
                     var where = _session.Locate(fault, result.Ecu);
                     var item = new FaultItemViewModel(fault, result.Ecu, where?.Title, where?.IsComponent == true);
@@ -320,8 +391,9 @@ public sealed class VehicleViewModel : PageViewModel
         Faults.Clear();
         foreach (var f in ordered) Faults.Add(f);
 
-        foreach (var p in new[] { nameof(HasScan), nameof(HasFaults), nameof(NoFaultsAfterScan), nameof(BeforeScan), nameof(Summary) })
+        foreach (var p in new[] { nameof(HasScan), nameof(HasFaults), nameof(NoFaultsAfterScan), nameof(BeforeScan), nameof(Summary), nameof(ClearAllQuestion) })
             Raise(p);
+        AskClearAllCommand.RaiseCanExecuteChanged();
         ExportHtmlCommand.RaiseCanExecuteChanged();
         ExportMarkdownCommand.RaiseCanExecuteChanged();
         ExportJsonCommand.RaiseCanExecuteChanged();

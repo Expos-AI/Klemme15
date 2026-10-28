@@ -1,0 +1,19 @@
+[
+  {"module": "E9x.KOMBI", "code": "9315", "text": "The mileage stored in the instrument cluster and its backup copy in another module don't agree.",
+   "confidence": "high", "seenOn": ["E90 325i 2006"],
+   "sources": ["https://www.justanswer.com/bmw/kxhe6-car-error-code-9315-kombi-odometer-difference-bmw.html",
+               "https://www.babybmw.net/threads/009315-odometer-difference-fault-code.109271/",
+               "https://community.myautoaid.com/vehicle/bmw-3-e90-316-i-2006-116hp-85kw-1596ccm/ecu-type/dashboard/faultcode/9315"]},
+  {"module": "E9x.DSC", "code": "5E18", "text": "DSC is not getting the data it expects from the engine computer over the CAN bus.",
+   "hint": "Often logged after a low or disconnected battery or engine computer work; clear it and see if it returns.",
+   "confidence": "medium", "seenOn": ["E90 325i 2006"],
+   "sources": ["https://www.minitorque.com/threads/5e18-can-data-fault-from-dme-dde.202938/"]},
+  {"module": "E9x.JBE", "code": "A731", "text": "Power supply fault on terminal 30g_f, a switched battery feed the junction box controls.",
+   "hint": "Commonly logged after low battery voltage or the car sitting for a long time.",
+   "confidence": "medium", "seenOn": ["E90 325i 2006"],
+   "sources": ["https://www.e90post.com/forums/showthread.php?t=1757718"]},
+  {"module": "E9x.FZD", "code": "A670", "text": "Condensation (fogging) sensor at the base of the rear-view mirror reports a fault.",
+   "hint": "Check the sensor and its connector behind the mirror cover.", "component": "mirror_sensors",
+   "confidence": "medium", "seenOn": ["E90 325i 2006"],
+   "sources": ["https://autoexplain.com/a670-bmw-code/"]}
+]

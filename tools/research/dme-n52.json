@@ -1,0 +1,853 @@
+[
+  {
+    "module": "E9x.DME",
+    "code": "29CC",
+    "text": "Misfires were detected on more than one cylinder.",
+    "hint": "Check the single-cylinder misfire codes stored with it; common causes are worn plugs, coils, vacuum leaks or Valvetronic/injector problems.",
+    "component": "engine",
+    "confidence": "high",
+    "sources": [
+      "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
+      "https://www.e90post.com/forums/showthread.php?t=2215252"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME. Snap-on source is an E90 with N43."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29CD",
+    "text": "The engine computer detected misfiring on cylinder 1.",
+    "hint": "Swap the cylinder 1 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
+    "component": "cyl1",
+    "confidence": "high",
+    "sources": [
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
+      "https://www.youtube.com/watch?v=TMXa9I4b1lo&vl=en"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29CE",
+    "text": "The engine computer detected misfiring on cylinder 2.",
+    "hint": "Swap the cylinder 2 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
+    "component": "cyl2",
+    "confidence": "high",
+    "sources": [
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://e89.zpost.com/forums/showthread.php?t=1388977"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29CF",
+    "text": "The engine computer detected misfiring on cylinder 3.",
+    "hint": "Swap the cylinder 3 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
+    "component": "cyl3",
+    "confidence": "medium",
+    "sources": [
+      "https://www.youtube.com/shorts/OxHnxOXbKec"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D0",
+    "text": "The engine computer detected misfiring on cylinder 4.",
+    "hint": "Swap the cylinder 4 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
+    "component": "cyl4",
+    "confidence": "high",
+    "sources": [
+      "https://www.youtube.com/shorts/OxHnxOXbKec",
+      "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
+      "https://www.e90post.com/forums/showthread.php?t=1795417"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D1",
+    "text": "The engine computer detected misfiring on cylinder 5.",
+    "hint": "Swap the cylinder 5 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
+    "component": "cyl5",
+    "confidence": "medium",
+    "sources": [
+      "https://www.youtube.com/shorts/OxHnxOXbKec"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29D2",
+    "text": "The engine computer detected misfiring on cylinder 6.",
+    "hint": "Swap the cylinder 6 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
+    "component": "cyl6",
+    "confidence": "medium",
+    "sources": [
+      "https://www.youtube.com/shorts/OxHnxOXbKec"
+    ],
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29E0",
+    "text": "Fuel mixture control for cylinders 1-3 is out of range, usually because the engine is running lean.",
+    "hint": "Common causes are unmetered air (crankcase vent valve, oil filler cap, intake gaskets), a weak fuel supply or a dirty air-mass sensor.",
+    "component": "engine",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1917374",
+      "https://www.justanswer.com/bmw/axnb8-29e0-29e1-mixture-control-codes-try.html",
+      "https://bimmerprofs.com/fuel-mixture-rich-lean/"
+    ],
+    "notes": "BMW splits the inline-six into two banks for mixture control: bank 1 = cylinders 1-3, bank 2 = cylinders 4-6."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "29E1",
+    "text": "Fuel mixture control for cylinders 4-6 is out of range, usually because the engine is running lean.",
+    "hint": "Usually appears together with 29E0; look for vacuum leaks (crankcase vent valve is a common cause) before replacing sensors.",
+    "component": "engine",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1917374",
+      "https://www.justanswer.com/bmw/axnb8-29e0-29e1-mixture-control-codes-try.html",
+      "https://bimmerprofs.com/fuel-mixture-rich-lean/"
+    ],
+    "notes": "Bank 2 = cylinders 4-6 on the inline-six."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A2E",
+    "text": "Fuel mixture adaptation for cylinders 1-3 has reached its limit (reported generically as P0172).",
+    "hint": "Often logged together with 2A2F and the air-mass code 2D06; check for intake leaks and the air-mass sensor.",
+    "component": "engine",
+    "engines": [
+      "N52"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1304563",
+      "https://www.justanswer.com/bmw/b7n5l-2006-bmw-525xi-code-2a2e-2a2f-mixture-control.html"
+    ],
+    "notes": "Both sources agree it is a mixture-control code; the bank assignment comes from the P-code pairing in the e90post thread title. The 525xi source is an E60 with the same N52 engine family."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A2F",
+    "text": "Fuel mixture adaptation for cylinders 4-6 has reached its limit (reported generically as P0175).",
+    "hint": "Usually seen with 2A2E; check for intake leaks and the air-mass sensor.",
+    "component": "engine",
+    "engines": [
+      "N52"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1304563",
+      "https://www.justanswer.com/bmw/b7n5l-2006-bmw-525xi-code-2a2e-2a2f-mixture-control.html"
+    ],
+    "notes": "Bank assignment from the P-code pairing in the e90post thread title."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A37",
+    "text": "The Valvetronic eccentric shaft position sensor reports values that do not make sense.",
+    "hint": "Unplug the eccentric shaft sensor under the valve cover and check for engine oil in the connector; an oil-soaked harness (and sometimes DME connector) is a known cause.",
+    "engines": [
+      "N51",
+      "N52",
+      "N52N"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2016/SB-10076476-5448.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2016/MC-10151247-9999.pdf",
+      "https://www.e90post.com/forums/showthread.php?p=24559140"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A47",
+    "text": "The Valvetronic eccentric shaft position signal is implausible.",
+    "hint": "Same known cause as 2A37: oil leaking past the eccentric shaft sensor gasket into its wiring; the valve cover gasket is often leaking too.",
+    "engines": [
+      "N51",
+      "N52",
+      "N52N"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2016/SB-10076476-5448.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2016/MC-10151247-9999.pdf",
+      "https://www.youtube.com/watch?v=dV6slQsuZwk"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A38",
+    "text": "The Valvetronic motor is moving sluggishly or its circuit appears open.",
+    "hint": "Check the Valvetronic motor wiring and connector; a failed or seized Valvetronic motor (or a sticking eccentric shaft) is the common cause.",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.justanswer.com/bmw/awpd7-2a38-code-set-valvetronic-sluggish-open-circuit.html",
+      "https://www.bimmerfest.com/threads/error-code-2a38-valvetronic-monitoring-sluggish-movement-need-help-please.1453137/",
+      "https://www.e90post.com/forums/showthread.php?t=1752843"
+    ],
+    "notes": "Also seen written as 002A38."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A3F",
+    "text": "The Valvetronic servo motor is not getting a proper power supply.",
+    "hint": "Usually causes limp mode. Check battery/charging voltage and the Valvetronic power feed (relay, fuse, wiring) before replacing the motor.",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1719979",
+      "https://www.e90post.com/forums/showthread.php?t=1916916",
+      "https://www.youtube.com/watch?v=j-YfCmzkdKY"
+    ],
+    "notes": "One thread pairs it with the generic code P1056 (VVT supply voltage)."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A80",
+    "text": "Activation fault on the intake VANOS solenoid circuit.",
+    "hint": "Check the intake VANOS solenoid connector and wiring, then the solenoid itself.",
+    "component": "vanos",
+    "engines": [
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.justanswer.com/bmw/ofwhe-you-2011-328xi-n51-code.html"
+    ],
+    "notes": "Source is a 2011 328xi with N51."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A82",
+    "text": "The intake VANOS (camshaft timing) unit is stiff or mechanically stuck.",
+    "hint": "Common cause: a sticking or dirty intake VANOS solenoid; BMW's service bulletin also called for a DME software update on affected cars. Check oil level and condition too.",
+    "component": "vanos",
+    "engines": [
+      "N51",
+      "N52",
+      "N52N"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2020/MC-10175267-9999.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2012/SB-10032779-2821.pdf",
+      "https://fscbmwcca.com/2007-bmw-328-camshaft-code/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A87",
+    "text": "The exhaust VANOS (camshaft timing) unit is stiff or mechanically stuck.",
+    "hint": "Common cause: a sticking or dirty exhaust VANOS solenoid; swapping intake and exhaust solenoids shows whether the fault follows the part.",
+    "component": "vanos",
+    "engines": [
+      "N51",
+      "N52",
+      "N52N"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2020/MC-10175267-9999.pdf",
+      "https://static.nhtsa.gov/odi/tsbs/2012/SB-10032779-2821.pdf",
+      "https://fscbmwcca.com/2007-bmw-328-camshaft-code/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A98",
+    "text": "The intake camshaft position relative to the crankshaft is outside the expected range.",
+    "hint": "Common causes are a sticking intake VANOS solenoid or low/dirty oil; on high-mileage engines also consider timing chain stretch.",
+    "component": "vanos",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://fscbmwcca.com/2007-bmw-328-camshaft-code/",
+      "https://www.e90post.com/forums/showthread.php?t=1900875",
+      "https://www.youtube.com/watch?v=BO_gUoVTv6g"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A99",
+    "text": "The exhaust camshaft position relative to the crankshaft is outside the expected range.",
+    "hint": "Common cause is a sticking exhaust VANOS solenoid; low oil level and timing chain wear are other possibilities.",
+    "component": "vanos",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://fscbmwcca.com/2007-bmw-328-camshaft-code/",
+      "https://www.e90post.com/forums/showthread.php?t=1964315",
+      "https://bmwtuning.co/vanos-problems-symptoms-repairs/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A9A",
+    "text": "The intake camshaft sensor signal cannot be used to synchronise the engine.",
+    "hint": "Can cause long cranking or no-start. Check the intake camshaft sensor and its wiring; a stuck intake VANOS solenoid can also set it.",
+    "component": "cam_sensor",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://fscbmwcca.com/2007-bmw-328-camshaft-code/",
+      "https://www.e90post.com/forums/showthread.php?t=1175904",
+      "https://obdthink.com/en/blog/bmw-2a9a-intake-camshaft-synchronization-fault"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A9B",
+    "text": "The exhaust camshaft sensor signal cannot be used to synchronise the engine.",
+    "hint": "Check the exhaust camshaft sensor and wiring; a stuck exhaust VANOS solenoid is another known cause.",
+    "component": "cam_sensor",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://fscbmwcca.com/2007-bmw-328-camshaft-code/",
+      "https://www.youtube.com/watch?v=Iy8s2FK02Lk"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2A94",
+    "text": "The engine computer reports a problem with the crankshaft position sensor signal.",
+    "hint": "Check the crankshaft sensor connector and wiring at the back of the block before replacing the sensor.",
+    "component": "crank_sensor",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=993063"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2AA9",
+    "text": "Activation fault on DISA intake-manifold flap servo motor 2.",
+    "hint": "Check the DISA valve connector and wiring, then the DISA valve itself before considering the intake manifold.",
+    "component": "intake",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.bimmerfest.com/threads/code-2aa9-variable-intake-system-servo-motor-2-activation.1382655/",
+      "https://www.bimmerfest.com/threads/help-code-002aa9-variable-intake-system-servomotor-2.1264376/",
+      "https://www.youtube.com/watch?v=72nMfIZX3GA"
+    ],
+    "notes": "Also seen written as 002AA9."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2AAB",
+    "text": "The DME's self-test of the DISA variable intake system failed.",
+    "hint": "Common cause: a worn or broken DISA valve (flap rattling or stuck); symptoms include rough idle and low power.",
+    "component": "intake",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.justanswer.com/bmw/gsufk-2007-bmw-x5-3-0l-code-stored-2aab-variable-intake-system.html",
+      "https://www.bimmerfest.com/threads/2aab-variable-intake-system-self-diagnosis.882556/",
+      "https://www.youtube.com/watch?v=sKqfdi3-cQ4"
+    ],
+    "notes": "X5 source is an E70 with the same N52 family."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2AAC",
+    "text": "The DME's self-test of DISA variable intake system 2 failed.",
+    "hint": "Common cause: a failed DISA valve; owners often find both valves worn when one code appears.",
+    "component": "intake",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1827961",
+      "https://z4-forum.com/threads/n52-disa-valve-error.156207/",
+      "https://www.youtube.com/watch?v=VmhFAIcoYwE"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2C2B",
+    "text": "The pre-catalyst oxygen sensor for cylinders 1-3 failed its plausibility/system check.",
+    "hint": "Check for exhaust leaks ahead of the sensor and intake air leaks before replacing the sensor.",
+    "component": "o2_b1s1",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://motorschmiede.com/bmw-fehlercode-2c7e-2c2b-2c31/",
+      "https://www.e90post.com/forums/showthread.php?t=1962752"
+    ],
+    "notes": "Meaning from motorschmiede (German, not engine-specific); the e90post thread confirms the code on an E90."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2C31",
+    "text": "The pre-catalyst oxygen sensor for cylinders 1-3 has reached its control/trim limit.",
+    "hint": "Check for intake or exhaust leaks; an ageing sensor is another common cause.",
+    "component": "o2_b1s1",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://motorschmiede.com/bmw-fehlercode-2c7e-2c2b-2c31/"
+    ],
+    "notes": "Single source, not engine-specific; also reported on N52 in https://www.bimmerfest.com/threads/help-error-codes-2c31-2c32-2c2b-2c6c-n52.1408721/"
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2C7E",
+    "text": "The post-catalyst oxygen sensor for cylinders 1-3 reports a trim/plausibility problem.",
+    "hint": "The DME could not correct the front sensor using the rear one; check for exhaust leaks and the front sensor as well as the rear sensor.",
+    "component": "o2_b1s2",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.youtube.com/watch?v=Mh2x4bnMT9k",
+      "https://motorschmiede.com/bmw-fehlercode-2c7e-2c2b-2c31/",
+      "https://www.e90post.com/forums/showthread.php?t=608174",
+      "https://bimmerprofs.com/defect-of-the-lambda-probe/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2C7F",
+    "text": "The post-catalyst oxygen sensor for cylinders 4-6 reports a trim/plausibility problem.",
+    "hint": "Same diagnosis as 2C7E but for the rear sensor on cylinders 4-6.",
+    "component": "o2_b2s2",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://z4-forum.com/forum/viewtopic.php?t=140350",
+      "https://motorschmiede.com/bmw-lambda-fehlercodes/"
+    ],
+    "notes": "z4-forum source is a Z4 (E85/E86) with the same N52 DME family."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2C78",
+    "text": "The post-catalyst oxygen sensor for cylinders 4-6 shows no activity (generic P0160).",
+    "hint": "Test the sensor heater and signal wiring before replacing the sensor.",
+    "component": "o2_b2s2",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.youtube.com/watch?v=zcS4CtkUKQ4",
+      "https://www.1addicts.com/forums/showthread.php?t=617181"
+    ],
+    "notes": "Meaning from the P0160 pairing in the YouTube title; 1addicts source is an E82 128i (N52)."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D06",
+    "text": "The air-mass (intake air metering) system reports implausible values.",
+    "hint": "Common cause is unmetered air (vacuum leak, crankcase vent valve, intake boot) rather than the air-mass sensor itself.",
+    "component": "intake",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.bimmerfest.com/threads/codes-for-air-mass-system-air-mass-sensor-signal-2d06-2d0f.1289907/",
+      "https://www.e90post.com/forums/showthread.php?t=1475923",
+      "https://www.justanswer.com/bmw/n6syt-2008-bmw-328i-air-mass-system-code.html"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2D0F",
+    "text": "The air-mass sensor signal is faulty or out of range.",
+    "hint": "Check the air-mass sensor connector and for intake leaks; replace the sensor if wiring is good.",
+    "component": "intake",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.bimmerfest.com/threads/codes-for-air-mass-system-air-mass-sensor-signal-2d06-2d0f.1289907/",
+      "https://www.youtube.com/watch?v=GL8I6uVw2Ro",
+      "https://www.justanswer.com/bmw/topics/bmw-e90-325i-2006-maf-sensor-code-002d0f-persistent-issue"
+    ],
+    "notes": "Also seen written as 002D0F."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2DEB",
+    "text": "Power management in the engine computer logged an on-board electrical system (voltage) fault.",
+    "hint": "Check battery condition and alternator output; one video ties it to alternator over-voltage.",
+    "component": "battery",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.justanswer.com/bmw/oc1nk-error-code-hex-2deb-power-management-elect-system.html",
+      "https://www.youtube.com/watch?v=QOuo1hd8oBw"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2DEC",
+    "text": "Power management in the engine computer logged a battery/voltage problem.",
+    "hint": "Often follows a flat battery; check battery, charging and loose power connections (one owner found a loose junction-box wire).",
+    "component": "battery",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=576060",
+      "https://www.bimmerforums.co.uk/threads/i-almost-die-2dec-fault-code-voltage-issue-loose-wire-connection-on-junction-box.583474/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E81",
+    "text": "The electric coolant pump is not running at the speed the engine computer asked for.",
+    "hint": "Usually the electric water pump is failing; low coolant or air in the system can also set it. Bleed the system before condemning the pump.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://bimmerprofs.com/electric-waterpump/",
+      "https://www.youtube.com/watch?v=Y587ko4mFUc"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E82",
+    "text": "The engine computer has switched the electric coolant pump off.",
+    "hint": "Commonly means the electric water pump has failed (e.g. drawing too much current); replacing pump and thermostat together is common practice.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=601250",
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://bimmerprofs.com/electric-waterpump/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E83",
+    "text": "The electric coolant pump is running in reduced-power mode.",
+    "hint": "Early sign of a failing electric water pump; also check coolant level and air in the system.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.bimmerfest.com/threads/2e83-electric-cooling-pump-power-reduced.1347677/",
+      "https://www.youtube.com/watch?v=l7tY0kqw3vY",
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E84",
+    "text": "The engine computer cannot communicate with the electric coolant pump.",
+    "hint": "Check the pump's connector (corroded pins are common) and the data wire; otherwise the pump is likely faulty.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.babybmw.net/threads/2e84-water-pump-communication.69103/",
+      "https://www.justanswer.com/bmw/3s5hn-2e84-electrick-coolant-pump-communication.html",
+      "https://raceorly.com/bmw-electric-water-pump-failure-diagnosis-guide/",
+      "https://bimmerprofs.com/electric-waterpump/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E85",
+    "text": "Communication with the electric coolant pump failed, possibly due to its power supply.",
+    "hint": "Check the pump's fuse, power and ground wiring and connector; if they are good, the pump is the usual culprit.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://carsoftos.com/obd2-error-codes/6802-2e85-bmw-fault-code-explained-electric-coolant-pump-communication-failure.html",
+      "https://autoexplain.com/bmw-2e85-fault-code/",
+      "https://bimmerprofs.com/electric-waterpump/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E8B",
+    "text": "The engine computer is not getting a valid signal from the intelligent battery sensor (IBS).",
+    "hint": "Check the IBS on the battery negative terminal and its wiring; it often appears after battery work.",
+    "component": "battery",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/MC-10148034-9999.pdf",
+      "https://carsoftos.com/obd2-error-codes/6865-bmw-code-2e8b-ibs-sensor-communication-fault-full-guide.html",
+      "https://www.bimmerfest.com/threads/n52-ibs-and-water-pump-errors-2e8b-2e81-etc.952377/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E8C",
+    "text": "The intelligent battery sensor (IBS) reports an internal function fault.",
+    "hint": "Check the IBS connector and wiring at the battery negative terminal before replacing the sensor.",
+    "component": "battery",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/MC-10148034-9999.pdf"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E8D",
+    "text": "Signal transmission from the intelligent battery sensor (IBS) is faulty.",
+    "hint": "Check the IBS data wire and connector at the battery negative terminal.",
+    "component": "battery",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/MC-10148034-9999.pdf",
+      "https://www.bimmerfest.com/threads/error-ox2e8d-intelligent-battery-sensor-signal-transmission.1394185/"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E8E",
+    "text": "The engine computer has lost communication with the intelligent battery sensor (IBS).",
+    "hint": "Check the IBS and its wiring; a weak battery or poor connection at the terminal is a common trigger.",
+    "component": "battery",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://static.nhtsa.gov/odi/tsbs/2014/MC-10148034-9999.pdf",
+      "https://www.e90post.com/forums/showthread.php?t=829252"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E98",
+    "text": "The engine computer cannot communicate properly with the alternator.",
+    "hint": "Often logged after battery or alternator work; check the alternator's data connector and wiring, then the alternator voltage regulator.",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://5series.net/forums/e60-discussion-2/2e98-generator-communication-bus-error-147212/",
+      "https://www.e90post.com/forums/showthread.php?t=1575688",
+      "https://www.m3post.com/forums/showthread/2216140/2e98-code-after-replacing-alternator"
+    ],
+    "notes": "5series.net source is an E60 (same N52 DME family)."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2E9F",
+    "text": "Fault with the oil condition (level/quality) sensor.",
+    "hint": "Check the sensor's connector and wiring at the bottom of the oil pan; the sensor itself fails often. Verify oil level with a manual reading since the dash level reading will be unreliable.",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1301308",
+      "https://www.bimmerfest.com/threads/0x2e9f-code-oil-condition-sensor.1218977/",
+      "https://www.bmw-sg.com/forums/threads/fault-code-2e9f-oil-condition-sensor.64615/"
+    ],
+    "notes": "Also seen written as 0x2E9F."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2EF4",
+    "text": "The map-controlled (electrically heated) thermostat has a mechanical fault, e.g. stuck open.",
+    "hint": "Usual fix is a new thermostat; engine running cold or slow warm-up is the typical symptom.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=647001",
+      "https://obdthink.com/en/blog/bmw-2a9a-intake-camshaft-synchronization-fault",
+      "https://www.youtube.com/watch?v=V5YevQN4tus"
+    ],
+    "notes": "obdthink page only lists 2EF4 by title in its related-articles list."
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2EF8",
+    "text": "Activation fault on the map-controlled thermostat's heating element.",
+    "hint": "Check the thermostat connector and wiring; if the code returns after a new thermostat, suspect the harness.",
+    "component": "thermostat",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.bimmerfest.com/threads/2ef8-map-thermostat-activation-code-related-to-poor-fuel-economy.1446574/",
+      "https://www.justanswer.com/bmw/eerri-code-2ef8-keeps-occuring-replaced-thermostat.html"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2EFE",
+    "text": "Activation fault on the electric radiator cooling fan.",
+    "hint": "Check the fan's fuse and large power connector; the fan motor or its built-in controller is the usual failure.",
+    "component": "fan",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "high",
+    "sources": [
+      "https://www.justanswer.com/bmw/c7olc-2006-e90-330i-fault-code-2efe-electric-fan.html",
+      "https://www.bimmerfest.com/threads/electric-fan-not-operating-code-2efe.1397401/",
+      "https://www.youtube.com/shorts/exCjeddw0fY"
+    ]
+  },
+  {
+    "module": "E9x.DME",
+    "code": "2EFF",
+    "text": "The electric cooling fan failed its self-diagnosis.",
+    "hint": "A fan stuck at full speed is a typical symptom; the fan/controller assembly usually needs replacing.",
+    "component": "fan",
+    "engines": [
+      "N52",
+      "N52N",
+      "N51"
+    ],
+    "confidence": "medium",
+    "sources": [
+      "https://www.e90post.com/forums/showthread.php?t=1538266",
+      "https://www.bimmerfest.com/threads/2007-n52-cooling-fan-running-full-speed-2eff.1361961/"
+    ]
+  }
+]

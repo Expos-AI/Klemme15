@@ -10,6 +10,9 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\src\OpenHood.Data\db\bmw-codes.json" CopyToOutputDirectory="PreserveNewest" Link="bmw-codes.json" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\src\OpenHood.Core\OpenHood.Core.csproj" />
     <ProjectReference Include="..\..\src\OpenHood.Protocols\OpenHood.Protocols.csproj" />
     <ProjectReference Include="..\..\src\OpenHood.Data\OpenHood.Data.csproj" />

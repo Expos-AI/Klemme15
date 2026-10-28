@@ -57,6 +57,19 @@
                             <TextBlock Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
                           </StackPanel>
                           <TextBlock Classes="muted small" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
+                          <WrapPanel>
+                            <TextBlock Classes="muted small" FontStyle="Italic" Text="{Binding Provenance}" IsVisible="{Binding HasProvenance}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                            <ItemsControl ItemsSource="{Binding SourceLinks}" IsVisible="{Binding HasSourceLinks}">
+                              <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                              </ItemsControl.ItemsPanel>
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:SourceLink">
+                                  <Button Classes="quiet" Content="{Binding Label}" Command="{Binding OpenCommand}" ToolTip.Tip="{Binding Url}" FontSize="12" Padding="4,0" />
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </WrapPanel>
                         </StackPanel>
                         <Button Grid.Column="3" Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" VerticalAlignment="Center" Margin="0,0,14,0" />
                       </Grid>

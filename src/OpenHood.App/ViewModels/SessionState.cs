@@ -43,7 +43,7 @@ public sealed class SessionState : ViewModelBase
     public string Connection { get => _connection; private set => Set(ref _connection, value); }
 
     /// <summary>Fault texts for this session (demo cars add their own made-up BMW codes).</summary>
-    public IFaultCodeDatabase Codes => _isDemo && _model is not null ? Database.ForDemo(_model) : Database;
+    public IFaultCodeDatabase Codes => _isDemo && _model is not null ? Database.ForDemo(_model) : Database.ForEngine(_model?.EngineCode);
 
     /// <summary>Latest quick test, shared with the fault and report pages.</summary>
     public VehicleScanResult? LastScan { get => _lastScan; private set => Set(ref _lastScan, value); }

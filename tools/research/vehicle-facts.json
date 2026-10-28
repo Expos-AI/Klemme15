@@ -1,0 +1,841 @@
+{
+ "_meta": {
+  "generated": "2026-10-28",
+  "notes": [
+   "E9x addresses come mainly from public Markdown renderings of BMW EDIABAS group SGBDs (E89X.PRG 'Funktionale Jobs fuer E87, E90', rev 1.79, and e90.prg rev 0.16), corroborated by a community CAN-ID list and an E87 owner's tool. These are EDIABAS files, not ISTA data. Check the licensing before redistributing.",
+   "E46 addresses are I/K-bus or D-bus device addresses from wilhelm-docs. That source says the address pool is unique across the I, K and D buses, with the IKE acting as diagnostic gateway, so the DS2 diagnostic address equals the bus address.",
+   "IBS has no diagnostic address of its own on E9x. Its data is read through the DME.",
+   "No E9x address for AL (adaptive light) could be sourced, so it is omitted."
+  ]
+ },
+ "modules": [
+  {
+   "family": "E9x",
+   "short": "JBE",
+   "name": "Junction box electronics (JBBF, passenger-side junction box)",
+   "address": "00",
+   "notes": "Always fitted. Listed as JBBF in EDIABAS group tables.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "ACSM",
+   "name": "Airbag / crash safety module (MRS5 on early cars, ACSM later)",
+   "address": "01",
+   "notes": "Always fitted. Group tables call it MRS.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "SZL",
+   "name": "Steering column switch cluster",
+   "address": "02",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "DME/DDE",
+   "name": "Engine control unit (petrol DME or diesel DDE)",
+   "address": "12",
+   "notes": "Always fitted. Diesel DDE uses the same address.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "AFS",
+   "name": "Active front steering",
+   "address": "16",
+   "notes": "Only with the Active Steering option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "EKPS",
+   "name": "Electric fuel pump control",
+   "address": "17",
+   "notes": "Always fitted (fuel pump control module).",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "EGS",
+   "name": "Transmission control (automatic, or the DCT/DKG on M3 and 335is)",
+   "address": "18",
+   "notes": "Only with automatic or dual-clutch gearboxes. kmalinich lists DCT and SMG at 0x18 too.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "VGSG",
+   "name": "Transfer case control (VTG, xDrive)",
+   "address": "19",
+   "notes": "Only on xDrive (all-wheel-drive) cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "RDC",
+   "name": "Tyre pressure control (direct sensors)",
+   "address": "20",
+   "notes": "Only with direct TPMS. Many E9x use RPA flat-tyre detection inside the DSC instead, which has no separate module.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "ACC",
+   "name": "Active cruise control radar",
+   "address": "21",
+   "notes": "Only with the Active Cruise Control option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "CVM",
+   "name": "Convertible top module",
+   "address": "24",
+   "notes": "Only on the E93 convertible.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "PGS",
+   "name": "Passive Go System (comfort access)",
+   "address": "27",
+   "notes": "Listed in the E90 group table. A separate unit may not be present on every comfort-access car.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "DSC",
+   "name": "Dynamic stability control (ABS/DSC unit)",
+   "address": "29",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "EPS",
+   "name": "Electric power steering",
+   "address": "30",
+   "notes": "Listed in the E90 group table. Most E9x have hydraulic steering, so confirm before use.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "SVS",
+   "name": "Speech processing / voice recognition (inside CCC)",
+   "address": "35",
+   "notes": "Only with the voice-control option on CCC cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "TEL/TCU/ULF",
+   "name": "Telephone / telematics / Bluetooth hands-free (TCU, ULF, MULF, Combox)",
+   "address": "36",
+   "notes": "Only with a phone or BMW Assist option. The group table names it TEL/MULF, and the ZUORDNUNGSTABELLE lists ULF_60 here.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "AMP",
+   "name": "Top-HiFi / Logic7 amplifier",
+   "address": "37",
+   "notes": "Only with the Top-HiFi option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "EHC",
+   "name": "Rear air suspension / self-levelling",
+   "address": "38",
+   "notes": "Listed in the E90 group table. Probably E91 Touring self-levelling only.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "EDC",
+   "name": "Electronic damper control (EDC-K)",
+   "address": "39",
+   "notes": "Probably M3 EDC option only. Listed in the E89X table, not in the early E90 table.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "NAV",
+   "name": "Navigation part of CCC",
+   "address": "3B",
+   "notes": "Only on CCC navigation cars. The ZUORDNUNGSTABELLE lists NAV_60 'im CCC'.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "CDC",
+   "name": "CD changer",
+   "address": "3C",
+   "notes": "Only with the CD changer option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "ASK",
+   "name": "Audio system controller (inside CCC)",
+   "address": "3F",
+   "notes": "Only on CCC cars (ASK_60 'im CCC').",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "CAS",
+   "name": "Car Access System",
+   "address": "40",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "DWA",
+   "name": "Anti-theft alarm",
+   "address": "41",
+   "notes": "Listed in the E90 group table. E9x alarms normally use SINE (0x50).",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "SHD/MDS",
+   "name": "Sunroof module",
+   "address": "44",
+   "notes": "Listed in the E90 group table. On many E9x the sunroof is driven from the FZD instead.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "ANTTU",
+   "name": "Antenna tuner (in CCC)",
+   "address": "47",
+   "notes": "Only on CCC cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "VM",
+   "name": "Video module (TV)",
+   "address": "4B",
+   "notes": "Only with the TV/video option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "SINE",
+   "name": "Alarm siren with tilt sensor",
+   "address": "50",
+   "notes": "Only with the alarm option.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "SDARS",
+   "name": "Satellite radio tuner (US)",
+   "address": "54",
+   "notes": "US/Canada satellite-radio option. The group table calls it RADIO, with SAT_60 'Satellitenradio US'.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "FZD",
+   "name": "Roof function centre (interior lights, sunroof, DWA functions)",
+   "address": "56",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "DAB/IBOC",
+   "name": "Digital radio tuner (DAB in Europe, IBOC/HD Radio in the US)",
+   "address": "5B",
+   "notes": "Only with the digital tuner option. The E89X table also lists IBOC at 0x53, so the US HD Radio address is uncertain.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "KOMBI",
+   "name": "Instrument cluster",
+   "address": "60",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "MOSTGW",
+   "name": "MOST/CAN gateway (inside CCC, M-ASK or RAD2)",
+   "address": "62",
+   "notes": "Logical gateway inside the head unit.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "CCC/CIC/M-ASK/RAD",
+   "name": "Head unit (CCC or CIC navigation, M-ASK, or the base radio RAD1/RAD2)",
+   "address": "63",
+   "notes": "Always fitted, whichever head unit the car has. The ZUORDNUNGSTABELLE lists CCC_60, MASK60, RAD1 and RAD2 at 0x63. Note: garagediag mislabels 0x63 as a steering column module.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "PDC",
+   "name": "Park distance control",
+   "address": "64",
+   "notes": "Only with PDC.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "ZBE/CON",
+   "name": "iDrive controller",
+   "address": "67",
+   "notes": "Only on iDrive (navigation) cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "SMFA",
+   "name": "Driver seat memory module",
+   "address": "6D",
+   "notes": "Only with memory seats. The group table names it FAS.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "SMBF",
+   "name": "Passenger seat module",
+   "address": "6E",
+   "notes": "Only with passenger memory/power seats. The group table names it BFS.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "AHM",
+   "name": "Trailer module",
+   "address": "71",
+   "notes": "Only with a factory tow hitch.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "FRM",
+   "name": "Footwell module (lights, windows, mirrors)",
+   "address": "72",
+   "notes": "Always fitted. The ZUORDNUNGSTABELLE lists FRM_87 at 0x72.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "CID",
+   "name": "Central information display",
+   "address": "73",
+   "notes": "Only with CCC/CIC navigation.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "IHKA",
+   "name": "Climate control (IHKA automatic, IHKR/IHR manual)",
+   "address": "78",
+   "notes": "Always fitted. Every climate variant shares 0x78.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv",
+    "https://github.com/tooming/garagediag"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E9x",
+   "short": "SHZH",
+   "name": "Auxiliary / parking heater",
+   "address": "7A",
+   "notes": "Only with the park heater option (mainly diesels and Europe).",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/kmalinich/node-bmw-ref/blob/master/canbus/e90-tool32-ids.csv"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E9x",
+   "short": "CCC-A",
+   "name": "CCC application processor",
+   "address": "A0",
+   "notes": "Only on CCC cars.",
+   "sources": [
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/e90.md",
+    "https://github.com/emdzej/ediabasx-docs-sgbd/blob/main/docs/sgbd/E89X.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "GM5",
+   "name": "General module (ZKE5 body electronics)",
+   "address": "00",
+   "notes": "Always fitted. K-bus device address, also used for DS2 diagnostics.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "SHD",
+   "name": "Sunroof module",
+   "address": "08",
+   "notes": "Only with a sunroof.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "DME",
+   "name": "Engine control unit",
+   "address": "12",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md",
+    "https://github.com/oleavr/bmw-coding/blob/master/ds2.py",
+    "https://github.com/0xDevDav/EWSync"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "CDC",
+   "name": "CD changer",
+   "address": "18",
+   "notes": "Only with the CD changer option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "EGS/SMG",
+   "name": "Transmission control (automatic or SMG)",
+   "address": "32",
+   "notes": "Only on automatic or SMG cars.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md",
+    "https://github.com/oleavr/bmw-coding/blob/master/ds2.py"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "EWS",
+   "name": "Immobiliser (EWS3)",
+   "address": "44",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md",
+    "https://github.com/0xDevDav/EWSync"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "MFL",
+   "name": "Multifunction steering wheel",
+   "address": "50",
+   "notes": "Only with a multifunction wheel.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "DSC/ASC/ABS",
+   "name": "ABS/ASC/DSC unit",
+   "address": "56",
+   "notes": "Always fitted. wilhelm-docs lists 0x56 as 'ABS/ASC/DSC (DS2)'.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "LWS",
+   "name": "Steering angle sensor",
+   "address": "57",
+   "notes": "Probably only with DSC. The source does not tie this address to the E46.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "IHKA",
+   "name": "Climate control",
+   "address": "5B",
+   "notes": "Always fitted (automatic climate, or IHKR on some models).",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "PDC",
+   "name": "Park distance control",
+   "address": "60",
+   "notes": "Only with PDC.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "RAD",
+   "name": "Radio",
+   "address": "68",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "DSP",
+   "name": "Digital sound processor amplifier",
+   "address": "6A",
+   "notes": "Only with the DSP/HiFi option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "NAV",
+   "name": "Navigation computer",
+   "address": "7F",
+   "notes": "Only with navigation.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "IKE",
+   "name": "Instrument cluster and gateway",
+   "address": "80",
+   "notes": "Always fitted. Gateways diagnostics between the D-bus and the K/I-bus.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md",
+    "https://github.com/oleavr/bmw-coding/blob/master/ds2.py"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "CVM",
+   "name": "Convertible top module",
+   "address": "9C",
+   "notes": "Only on the convertible. wilhelm-docs lists CVM at both 0x9B and 0x9C, so treat as unconfirmed.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "MRS",
+   "name": "Airbag (multiple restraint system)",
+   "address": "A4",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "MID",
+   "name": "Multi-information display",
+   "address": "C0",
+   "notes": "Only on some models with the MID head unit.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "TEL",
+   "name": "Telephone",
+   "address": "C8",
+   "notes": "Only with the phone option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "LCM",
+   "name": "Light check module",
+   "address": "D0",
+   "notes": "Always fitted.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md",
+    "https://github.com/oleavr/bmw-coding/blob/master/ds2.py"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "RLS",
+   "name": "Rain / light sensor",
+   "address": "E8",
+   "notes": "Only with automatic wipers/headlights.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "high"
+  },
+  {
+   "family": "E46",
+   "short": "VM",
+   "name": "Video module",
+   "address": "ED",
+   "notes": "Only with the TV/video option.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  },
+  {
+   "family": "E46",
+   "short": "BMBT",
+   "name": "Board monitor control panel",
+   "address": "F0",
+   "notes": "Only with the navigation board monitor.",
+   "sources": [
+    "https://github.com/piersholt/wilhelm-docs/blob/master/address.md"
+   ],
+   "confidence": "medium"
+  }
+ ],
+ "vinTypeCodes": []
+}

@@ -18,7 +18,8 @@ public class ModelTests
     {
         Assert.Empty(Db.LoadWarnings);
         Assert.All(Db.Vehicles, v => Assert.True(v.Models.Count >= 5));
-        Assert.All(Db.Modules, m => Assert.NotNull(m.Position));
+        Assert.All(Db.Modules, m => Assert.True(m.Position is not null || m.PartOf is not null, $"{m.Id} has no position"));
+        Assert.All(Db.Vehicles, v => Assert.Equal(v.Modules.Count, v.Modules.Select(m => m.Address).Distinct().Count()));
         Assert.All(Db.Components, c => Assert.InRange(c.Position.X, 0, 1000));
     }
 
@@ -51,8 +52,8 @@ public class ModelTests
     {
         var cas = Db.Modules.Single(m => m.Id == "E9x.CAS");
         Assert.True(cas.Verified);
-        Assert.Contains("steering lock", Db.DescribeBmw("E9x.CAS", "A111"));
-        var where = Db.Locate(new Fault { EcuId = cas.Id, Code = "A111", Source = FaultSource.Bmw }, cas);
+        Assert.Contains("steering lock", Db.DescribeBmw("E9x.CAS", "A119"));
+        var where = Db.Locate(new Fault { EcuId = cas.Id, Code = "A119", Source = FaultSource.Bmw }, cas);
         Assert.True(where!.IsComponent);
         Assert.Equal(Db.FindComponent("steering_lock")!.Name, where.Title);
     }
@@ -71,6 +72,60 @@ public class ModelTests
         var m = Assert.Single(found);
         Assert.Equal(0x68, m.Address);
         Assert.Equal("9876543", m.Identity.PartNumber);
+    }
+
+    [Fact]
+    public void ResearchedCodesAreSourcedAndEngineAware()
+    {
+        var json = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "bmw-codes.json")));
+        var count = 0;
+        foreach (var module in json.RootElement.GetProperty("modules").EnumerateObject())
+        {
+            Assert.Contains(Db.Modules, m => m.Id == module.Name);
+            foreach (var code in module.Value.EnumerateObject())
+            {
+                count++;
+                Assert.Matches("^[0-9A-F]{4}$", code.Name);
+                Assert.True(code.Value.GetProperty("sources").GetArrayLength() > 0, $"{module.Name} {code.Name} has no source");
+                Assert.Contains(code.Value.GetProperty("confidence").GetString(), new[] { "high", "medium" });
+            }
+        }
+        Assert.True(count >= 150, $"only {count} researched codes");
+
+        // N54-only meaning read on an N52 car comes with a warning; on an N54 it doesn't.
+        Assert.Contains("may differ on your N52", Db.LookupBmw("E9x.DME", "30FF", "N52")!.Text);
+        Assert.DoesNotContain("may differ", Db.LookupBmw("E9x.DME", "30FF", "N54")!.Text);
+        var misfire = Db.LookupBmw("E9x.DME", "29CF", "N52")!;
+        Assert.Equal("high", misfire.Confidence);
+        Assert.Equal("cyl3", misfire.Component);
+        Assert.NotEmpty(misfire.Sources!);
+    }
+
+    [Fact]
+    public void FullGenericObdSetIsLoaded()
+    {
+        Assert.Contains("Lost Communication", Db.DescribeObd("U0100"));
+        Assert.StartsWith("System too lean, bank 1", Db.DescribeObd("P0171"));   // our own entry wins
+        Assert.DoesNotContain("manufacturer-specific", Db.DescribeObd("P0442"));
+    }
+
+    [Fact]
+    public async Task BroadcastFindsFittedModulesAndScanStillWorksWithoutIt()
+    {
+        var model = Db.FindModel("E9x-325i")!;
+        var family = Db.FamilyOf(model)!;
+        foreach (var broadcast in new[] { true, false })
+        {
+            var car = VirtualCar.ForModel(model, family.Modules);
+            car.AnswersFunctional = broadcast;
+            await using var backend = new NativeBackend(car, new NativeBackendOptions { Mode = CableMode.DCan, ProbeTimeout = TimeSpan.FromMilliseconds(80) });
+            await backend.ConnectAsync();
+            var present = await backend.ProbePresentAsync();
+            if (broadcast) Assert.Equal(car.Ecus.Select(e => e.Address).Order(), present!.Order());
+            else Assert.Null(present);
+            var scan = await new VehicleScanner(backend, Db).ScanAsync(family.Modules, model.Id);
+            Assert.Equal(model.ModuleIds.Count, scan.RespondingEcus);
+        }
     }
 
     [Theory]

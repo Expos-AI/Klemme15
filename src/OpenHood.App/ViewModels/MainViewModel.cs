@@ -20,7 +20,7 @@ public sealed class MainViewModel : ViewModelBase
         {
             CurrentPage = Vehicle;
             Vehicle.ShowFault(fault, ecu);
-        });
+        }, url => _ = dialogs.OpenUrlAsync(url));
         Live = new LiveViewModel(Session, dialogs);
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);

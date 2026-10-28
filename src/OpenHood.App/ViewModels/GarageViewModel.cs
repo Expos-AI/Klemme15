@@ -32,6 +32,7 @@ public sealed class GarageViewModel : PageViewModel
     private bool _trustDsr;
     private string? _error;
     private bool _busy;
+    private string _ediabasStatus = "";
 
     public GarageViewModel(SessionState session, IDialogService dialogs, AppSettings settings, Action onConnected)
     {
@@ -65,6 +66,30 @@ public sealed class GarageViewModel : PageViewModel
         };
         RebuildPreview();
         RefreshPorts();
+        if (EdiabasAvailable) _ = FindEdiabasAsync();
+    }
+
+    /// <summary>What we know about the user's SGBD files, shown under the EDIABAS option.</summary>
+    public string EdiabasStatus { get => _ediabasStatus; private set => Set(ref _ediabasStatus, value); }
+
+    /// <summary>Looks for the user's EDIABAS/ISTA SGBD files and switches EDIABAS mode on when found.</summary>
+    private async Task FindEdiabasAsync()
+    {
+        if (!string.IsNullOrWhiteSpace(_ediabasPath) && EdiabasLocator.CountPrg(_ediabasPath) > 0)
+        {
+            EdiabasStatus = $"Using {EdiabasLocator.CountPrg(_ediabasPath)} SGBD files in {_ediabasPath}.";
+            return;
+        }
+        EdiabasStatus = "Looking for EDIABAS, INPA or ISTA files on this computer...";
+        var found = await Task.Run(EdiabasLocator.Find);
+        if (found is null)
+        {
+            EdiabasStatus = "No EDIABAS files found. OpenHood will use its own protocol stack; choose a folder if you have them elsewhere.";
+            return;
+        }
+        EdiabasPath = found.Path;
+        UseEdiabas = true;
+        EdiabasStatus = $"Found {found.PrgCount} SGBD files from {found.Origin} in {found.Path}. Fault texts will match ISTA's for your exact modules.";
     }
 
     public override string Title => "Garage";

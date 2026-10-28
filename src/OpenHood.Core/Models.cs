@@ -37,6 +37,15 @@ public sealed record EcuDefinition
     /// <summary>Approximate location on the top-view car drawing (1000 x 460, front at left).</summary>
     public SchematicPoint? Position { get; init; }
 
+    /// <summary>Fitted only with certain options; not answering is normal.</summary>
+    public bool Optional { get; init; }
+
+    /// <summary>Id of the module this one lives inside (e.g. navigation inside the head unit).</summary>
+    public string? PartOf { get; init; }
+
+    /// <summary>When it's fitted, other names, caveats.</summary>
+    public string? Note { get; init; }
+
     public string AddressHex => $"0x{Address:X2}";
     public override string ToString() => $"{Id} ({AddressHex})";
 }
@@ -103,6 +112,18 @@ public sealed record Fault
     public FaultState State { get; init; } = FaultState.Unknown;
     public string? Description { get; init; }
 
+    /// <summary>Practical advice (where to look, common causes), if the database has any.</summary>
+    public string? Hint { get; init; }
+
+    /// <summary>How sure the description is: "official" (from the car's own SGBD), "high", "medium", or null for generic OBD-II text.</summary>
+    public string? Confidence { get; init; }
+
+    /// <summary>Where the description comes from (URLs for community entries).</summary>
+    public IReadOnlyList<string> Sources { get; init; } = [];
+
+    /// <summary>True for entries from the info (shadow) memory rather than the fault memory.</summary>
+    public bool IsInfo { get; init; }
+
     /// <summary>Extra detail: frequency, symptom, mileage, raw status byte...</summary>
     public IReadOnlyDictionary<string, string> Details { get; init; } = new Dictionary<string, string>();
 
@@ -136,8 +157,12 @@ public sealed record VehicleScanResult
     public TimeSpan Elapsed { get; init; }
     public bool Cancelled { get; init; }
 
+    /// <summary>Battery voltage measured before the scan, if the car reports it.</summary>
+    public double? BatteryVoltage { get; init; }
+
     public int RespondingEcus => Ecus.Count(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults);
-    public int TotalFaults => Ecus.Sum(e => e.Faults.Count);
+    public int TotalFaults => Ecus.Sum(e => e.Faults.Count(f => !f.IsInfo));
+    public int InfoEntries => Ecus.Sum(e => e.Faults.Count(f => f.IsInfo));
 }
 
 /// <summary>A value that can be read live (RPM, coolant temperature, ...).</summary>
@@ -199,6 +224,11 @@ public sealed record VehicleModel
     public IReadOnlyList<string> ModuleIds { get; init; } = [];
 
     public IReadOnlyList<DemoFault> DemoFaults { get; init; } = [];
+
+    /// <summary>Engine code from <see cref="Engine"/>, e.g. "N52", "N54", "M54".</summary>
+    public string? EngineCode =>
+        System.Text.RegularExpressions.Regex.Match(Engine, @"^[NMS]\d{2}[A-Z]{0,2}") is { Success: true } m ? m.Value : null;
+
     public int IdleRpm { get; init; } = 700;
     public bool Turbo { get; init; }
 }

@@ -126,6 +126,7 @@ sealed class NoDialogs : IDialogService
 {
     public Task<bool> SaveTextAsync(string title, string suggestedName, string extension, string content) => Task.FromResult(false);
     public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
+    public Task OpenUrlAsync(string url) => Task.CompletedTask;
 }
 
 /// <summary>Collects binding errors and other warnings so CI can report them.</summary>

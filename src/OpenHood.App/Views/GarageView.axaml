@@ -122,6 +122,7 @@
               <TextBox Text="{Binding EdiabasPath}" Watermark="C:\EDIABAS\Ecu" MinWidth="320" />
               <Button Content="Browse" Command="{Binding BrowseEdiabasCommand}" />
             </StackPanel>
+            <TextBlock Classes="muted small" Text="{Binding EdiabasStatus}" TextWrapping="Wrap" IsVisible="{Binding EdiabasAvailable}" />
             <Button Classes="primary" Content="Connect" Command="{Binding ConnectCarCommand}" HorizontalAlignment="Left" />
           </StackPanel>
         </Border>

@@ -87,7 +87,7 @@ internal static class Cli
             Console.Error.WriteLine($"Unknown model '{asked}' for {vehicle.Id}. Known: {string.Join(", ", vehicle.Models.Select(m => m.Name))}");
             return 2;
         }
-        IFaultCodeDatabase codes = a.Has("demo") && model is not null ? db.ForDemo(model) : db;
+        IFaultCodeDatabase codes = a.Has("demo") && model is not null ? db.ForDemo(model) : db.ForEngine(model?.EngineCode);
 
         var settings = new ConnectionSettings
         {

@@ -50,6 +50,9 @@ public sealed class VirtualCar : ITransport
     public bool? IgnitionOn { get; set; } = true;
     public IReadOnlyCollection<VirtualEcu> Ecus => _ecus.Values;
 
+    /// <summary>Whether modules answer the functional (broadcast) address 0xDF.</summary>
+    public bool AnswersFunctional { get; set; } = true;
+
     /// <summary>Idle speed of the simulated engine.</summary>
     public int IdleRpm { get; set; } = 750;
 
@@ -136,7 +139,17 @@ public sealed class VirtualCar : ITransport
     private byte[]? HandleBmwFast(ReadOnlySpan<byte> data)
     {
         var frames = KwpFrame.ParseAll(data);
-        if (frames.Count == 0 || !_ecus.TryGetValue(frames[0].Target, out var ecu)) return null;
+        if (frames.Count == 0) return null;
+        if (frames[0].Target == 0xDF && AnswersFunctional)
+        {
+            // Functional request: every module answers in turn.
+            var all = new List<byte>();
+            foreach (var e in _ecus.Values.OrderBy(e => e.Address))
+                if (KwpService(e, frames[0].Data, canStyleObd: true) is { } r)
+                    all.AddRange(KwpFrame.Build(frames[0].Source, e.Address, r));
+            return all.Count > 0 ? all.ToArray() : null;
+        }
+        if (!_ecus.TryGetValue(frames[0].Target, out var ecu)) return null;
         var req = frames[0].Data;
         var resp = KwpService(ecu, req, canStyleObd: true);
         return resp is null ? null : KwpFrame.Build(frames[0].Source, ecu.Address, resp);
