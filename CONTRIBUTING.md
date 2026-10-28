@@ -4,7 +4,7 @@ Thanks for helping make car diagnostics open.
 
 ## Report a test drive
 
-The most valuable contribution right now is confirming OpenHood on real cars.
+The most valuable contribution right now is confirming Klemme15 on real cars.
 
 1. Connect, run a quick test, and if you can, read live data with the engine running.
 2. Save the report (Quick test page > Save report) and the traffic log (Log page > Save log).
@@ -14,7 +14,7 @@ Traffic logs contain your VIN. Remove it if you prefer.
 
 ## Code
 
-- .NET 10, C# latest, nullable enabled. Run `dotnet test tests/OpenHood.Tests` before opening a PR.
+- .NET 10, C# latest, nullable enabled. Run `dotnet test tests/Klemme15.Tests` before opening a PR.
 - Protocol changes need a test against `VirtualCar`, ideally replaying traffic captured from a real car.
 - Keep the layering in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): Core and Protocols must not reference UI or BMW files.
 - Anything that writes to a module (coding, adaptations, flashing) needs an issue and a design discussion first.

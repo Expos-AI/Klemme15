@@ -1,18 +1,18 @@
 # Architecture
 
-OpenHood is split so that each layer can be tested without the one below it, and so that the protocol stack never depends on BMW files.
+Klemme15 is split so that each layer can be tested without the one below it, and so that the protocol stack never depends on BMW files.
 
 ## Projects
 
 | Project | Depends on | Purpose |
 |---|---|---|
-| `OpenHood.Core` | nothing | Models (`EcuDefinition`, `Fault`, `EcuScanResult`...), `IDiagnosticBackend`, `VehicleScanner`, `ReportWriter`, `TrafficLog` |
-| `OpenHood.Protocols` | Core | Framing (KWP2000/BMW-FAST, DS2, ISO 9141-2), channels, OBD-II PIDs, `NativeBackend`, `VirtualCar` simulator |
-| `OpenHood.Data` | Core | The open database (embedded JSON) plus per-user overrides |
-| `OpenHood.Serial` | Protocols | `SerialPortTransport` for the real K+DCAN cable, port discovery |
-| `OpenHood.Ediabas` | Core, EdiabasLib | `EdiabasBackend`: runs the user's SGBDs. Windows only |
-| `OpenHood.Cli` | all above | Command-line tool |
-| `OpenHood.App` | all above | Avalonia desktop app (MVVM) |
+| `Klemme15.Core` | nothing | Models (`EcuDefinition`, `Fault`, `EcuScanResult`...), `IDiagnosticBackend`, `VehicleScanner`, `ReportWriter`, `TrafficLog` |
+| `Klemme15.Protocols` | Core | Framing (KWP2000/BMW-FAST, DS2, ISO 9141-2), channels, OBD-II PIDs, `NativeBackend`, `VirtualCar` simulator |
+| `Klemme15.Data` | Core | The open database (embedded JSON) plus per-user overrides |
+| `Klemme15.Serial` | Protocols | `SerialPortTransport` for the real K+DCAN cable, port discovery |
+| `Klemme15.Ediabas` | Core, EdiabasLib | `EdiabasBackend`: runs the user's SGBDs. Windows only |
+| `Klemme15.Cli` | all above | Command-line tool |
+| `Klemme15.App` | all above | Avalonia desktop app (MVVM) |
 | `src/Shared` | | `BackendFactory`, compiled into App and CLI |
 
 ## The layers
@@ -34,7 +34,7 @@ OpenHood is split so that each layer can be tested without the one below it, and
 
 ## Adding a vehicle
 
-1. Add modules to `src/OpenHood.Data/db/modules.json` (address, protocol, SGBD names).
+1. Add modules to `src/Klemme15.Data/db/modules.json` (address, protocol, SGBD names).
 2. Add the family to `vehicles.json` with the cable switch position.
 3. Optionally add a `VirtualCar` profile and a test.
 

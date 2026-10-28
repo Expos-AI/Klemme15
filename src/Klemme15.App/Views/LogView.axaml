@@ -1,0 +1,29 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:sys="using:System"
+             x:Class="Klemme15.App.Views.LogView"
+             x:DataType="vm:LogViewModel">
+  <DockPanel Margin="36,26,36,20">
+    <DockPanel DockPanel.Dock="Top" Margin="0,0,0,12">
+      <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <ToggleButton Content="Pause" IsChecked="{Binding Paused}" />
+        <Button Content="Clear" Command="{Binding ClearCommand}" />
+        <Button Content="Save log..." Command="{Binding SaveCommand}" />
+      </StackPanel>
+      <StackPanel Spacing="4">
+        <TextBlock Classes="title" Text="Traffic log" />
+        <TextBlock Classes="muted" Text="Every byte sent to and received from the car. Attach a saved log to bug reports." />
+      </StackPanel>
+    </DockPanel>
+    <Border Classes="panel" Padding="8">
+      <ListBox x:Name="LogList" ItemsSource="{Binding Lines}" Background="Transparent">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="sys:String">
+            <TextBlock Classes="mono" FontSize="12" Text="{Binding}" />
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </Border>
+  </DockPanel>
+</UserControl>

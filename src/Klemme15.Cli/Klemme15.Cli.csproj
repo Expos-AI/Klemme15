@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <Import Project="..\..\build\Ediabas.props" />
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <AssemblyName>klemme15</AssemblyName>
+    <RootNamespace>Klemme15.Cli</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Klemme15.Core\Klemme15.Core.csproj" />
+    <ProjectReference Include="..\Klemme15.Protocols\Klemme15.Protocols.csproj" />
+    <ProjectReference Include="..\Klemme15.Data\Klemme15.Data.csproj" />
+    <ProjectReference Include="..\Klemme15.Serial\Klemme15.Serial.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,52 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             x:Class="Klemme15.App.Views.ExpertView"
+             x:DataType="vm:ExpertViewModel">
+  <DockPanel Margin="36,26,36,20">
+    <StackPanel DockPanel.Dock="Top" Spacing="12" Margin="0,0,0,12">
+      <StackPanel Spacing="4">
+        <TextBlock Classes="title" Text="Expert: run any job" />
+        <TextBlock Classes="muted" TextWrapping="Wrap"
+                   Text="Run any job from your SGBD files, like Tool32. Pin numeric results to the Live data page." />
+      </StackPanel>
+      <Border Classes="panel" HorizontalAlignment="Left" IsVisible="{Binding NotAvailable}">
+        <TextBlock TextWrapping="Wrap" Text="Expert mode needs EDIABAS mode: connect with 'Use my EDIABAS files' (Windows build)." />
+      </Border>
+
+      <Grid ColumnDefinitions="Auto,240,Auto,*" RowDefinitions="Auto,Auto,Auto" IsEnabled="{Binding Available}">
+        <TextBlock Text="SGBD" VerticalAlignment="Center" Margin="0,0,10,0" />
+        <AutoCompleteBox Grid.Column="1" Text="{Binding Sgbd}" ItemsSource="{Binding KnownSgbds}" Watermark="e.g. D_0012" FilterMode="StartsWith" />
+        <Button Grid.Column="2" Content="List jobs" Command="{Binding ListJobsCommand}" Margin="8,0" />
+
+        <TextBlock Grid.Row="1" Text="Job" VerticalAlignment="Center" Margin="0,10,10,0" />
+        <AutoCompleteBox Grid.Row="1" Grid.Column="1" Text="{Binding Job}" ItemsSource="{Binding Jobs}" Watermark="e.g. IDENT" FilterMode="Contains" Margin="0,10,0,0" />
+
+        <TextBlock Grid.Row="2" Text="Args" VerticalAlignment="Center" Margin="0,10,10,0" />
+        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Arguments}" Watermark="optional, ; separated" Margin="0,10,0,0" />
+        <Button Grid.Row="2" Grid.Column="2" Classes="primary" Content="Run job" Command="{Binding RunCommand}" Margin="8,10,0,0" />
+      </Grid>
+      <TextBlock Classes="muted" Text="{Binding Status}" />
+      <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+    </StackPanel>
+
+    <Border Classes="panel" Padding="12,4">
+      <ScrollViewer>
+        <ItemsControl ItemsSource="{Binding Results}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:JobResultRowViewModel">
+              <Border Classes="row" Padding="4,6">
+                <Grid ColumnDefinitions="40,300,*,Auto">
+                  <TextBlock Classes="mono muted" Text="{Binding SetIndex}" />
+                  <SelectableTextBlock Grid.Column="1" Classes="mono" Text="{Binding Name}" />
+                  <SelectableTextBlock Grid.Column="2" Classes="mono" Text="{Binding Value}" TextWrapping="Wrap" />
+                  <Button Grid.Column="3" Content="+ Live" Command="{Binding AddToLiveCommand}" IsVisible="{Binding CanAdd}" Padding="8,2" FontSize="12" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+  </DockPanel>
+</UserControl>

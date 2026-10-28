@@ -1,21 +1,21 @@
 <Project>
   <!--
     EDIABAS mode is compiled in on Windows when EdiabasLib is present in external/ediabaslib
-    (run scripts/get-ediabaslib.ps1 once). Everywhere else OpenHood builds with the native backend only.
+    (run scripts/get-ediabaslib.ps1 once). Everywhere else Klemme15 builds with the native backend only.
   -->
   <PropertyGroup>
-    <OpenHoodEdiabas Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildThisFileDirectory)..\external\ediabaslib\EdiabasLib\EdiabasLib\EdiabasLib.csproj')">true</OpenHoodEdiabas>
+    <Klemme15Ediabas Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildThisFileDirectory)..\external\ediabaslib\EdiabasLib\EdiabasLib\EdiabasLib.csproj')">true</Klemme15Ediabas>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OpenHoodEdiabas)' == 'true'">
+  <PropertyGroup Condition="'$(Klemme15Ediabas)' == 'true'">
     <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <DefineConstants>$(DefineConstants);EDIABAS</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(OpenHoodEdiabas)' != 'true'">
+  <PropertyGroup Condition="'$(Klemme15Ediabas)' != 'true'">
     <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
-  <ItemGroup Condition="'$(OpenHoodEdiabas)' == 'true'">
-    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\OpenHood.Ediabas\OpenHood.Ediabas.csproj" />
+  <ItemGroup Condition="'$(Klemme15Ediabas)' == 'true'">
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\Klemme15.Ediabas\Klemme15.Ediabas.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)..\src\Shared\*.cs" LinkBase="Shared" />

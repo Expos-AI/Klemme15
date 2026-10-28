@@ -1,6 +1,6 @@
-# Research brief: BMW fault code meanings for OpenHood
+# Research brief: BMW fault code meanings for Klemme15
 
-OpenHood is an open-source (GPLv3) BMW diagnostic app. When it reads a module's fault memory it gets a module (e.g. the DSC at address 0x29 on an E90) and a 4-digit hex BMW fault code (e.g. 5E18). We need a database that tells the owner what each code means and where to look. The project must stay legally clean and trustworthy.
+Klemme15 is an open-source (GPLv3) BMW diagnostic app. When it reads a module's fault memory it gets a module (e.g. the DSC at address 0x29 on an E90) and a 4-digit hex BMW fault code (e.g. 5E18). We need a database that tells the owner what each code means and where to look. The project must stay legally clean and trustworthy.
 
 ## Rules (non-negotiable)
 

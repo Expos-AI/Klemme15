@@ -1,0 +1,375 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             x:Class="Klemme15.App.App"
+             RequestedThemeVariant="Dark">
+
+  <!--
+    Klemme15 visual system: "workshop manual meets instrument cluster".
+    Steel blue is the drawing ink, pale "lit" blue means a module answered,
+    amber means attention (stored fault), red means a fault is active right now.
+  -->
+  <Application.Resources>
+    <ResourceDictionary>
+      <FontFamily x:Key="UiFont">avares://Klemme15/Assets/Fonts#Barlow</FontFamily>
+      <FontFamily x:Key="DisplayFont">avares://Klemme15/Assets/Fonts#Barlow Semi Condensed</FontFamily>
+      <FontFamily x:Key="MonoFont">Cascadia Mono,Consolas,Menlo,DejaVu Sans Mono</FontFamily>
+
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="SystemAccentColor">#8CCBEA</Color>
+          <Color x:Key="SystemAccentColorDark1">#76B4D4</Color>
+          <Color x:Key="SystemAccentColorDark2">#5E8FB5</Color>
+          <Color x:Key="SystemAccentColorLight1">#A6D8F0</Color>
+          <SolidColorBrush x:Key="CanvasBrush" Color="#121A23" />
+          <SolidColorBrush x:Key="RailBrush" Color="#0F161E" />
+          <SolidColorBrush x:Key="SurfaceBrush" Color="#18222D" />
+          <SolidColorBrush x:Key="RaisedBrush" Color="#202C39" />
+          <SolidColorBrush x:Key="LineBrush" Color="#2A3746" />
+          <SolidColorBrush x:Key="InkBrush" Color="#DCE3EA" />
+          <SolidColorBrush x:Key="MutedBrush" Color="#8796A5" />
+          <SolidColorBrush x:Key="SteelBrush" Color="#5E8FB5" />
+          <SolidColorBrush x:Key="SteelFaintBrush" Color="#33485C" />
+          <SolidColorBrush x:Key="LitBrush" Color="#8CCBEA" />
+          <SolidColorBrush x:Key="OnLitBrush" Color="#0D1620" />
+          <SolidColorBrush x:Key="AmberBrush" Color="#F2A93B" />
+          <SolidColorBrush x:Key="RedBrush" Color="#EF5B4C" />
+          <SolidColorBrush x:Key="AmberSoftBrush" Color="#33291A" />
+          <SolidColorBrush x:Key="RedSoftBrush" Color="#3A2124" />
+          <SolidColorBrush x:Key="LitSoftBrush" Color="#1C3242" />
+          <SolidColorBrush x:Key="CarBodyBrush" Color="#16202B" />
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Light">
+          <Color x:Key="SystemAccentColor">#1F6E9E</Color>
+          <Color x:Key="SystemAccentColorDark1">#1A5F88</Color>
+          <Color x:Key="SystemAccentColorDark2">#154F72</Color>
+          <Color x:Key="SystemAccentColorLight1">#3A86B3</Color>
+          <SolidColorBrush x:Key="CanvasBrush" Color="#E9ECE8" />
+          <SolidColorBrush x:Key="RailBrush" Color="#DFE3DE" />
+          <SolidColorBrush x:Key="SurfaceBrush" Color="#F5F6F3" />
+          <SolidColorBrush x:Key="RaisedBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="LineBrush" Color="#D2D8D2" />
+          <SolidColorBrush x:Key="InkBrush" Color="#1B2632" />
+          <SolidColorBrush x:Key="MutedBrush" Color="#5D6A77" />
+          <SolidColorBrush x:Key="SteelBrush" Color="#3E6E94" />
+          <SolidColorBrush x:Key="SteelFaintBrush" Color="#AFC0CF" />
+          <SolidColorBrush x:Key="LitBrush" Color="#1F6E9E" />
+          <SolidColorBrush x:Key="OnLitBrush" Color="#FFFFFF" />
+          <SolidColorBrush x:Key="AmberBrush" Color="#B26A00" />
+          <SolidColorBrush x:Key="RedBrush" Color="#C2392C" />
+          <SolidColorBrush x:Key="AmberSoftBrush" Color="#F6E7CB" />
+          <SolidColorBrush x:Key="RedSoftBrush" Color="#F6DCD7" />
+          <SolidColorBrush x:Key="LitSoftBrush" Color="#DCE8F1" />
+          <SolidColorBrush x:Key="CarBodyBrush" Color="#F7F8F6" />
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>
+    </ResourceDictionary>
+  </Application.Resources>
+
+  <Application.DataTemplates>
+    <!-- One marker on the car drawing. The 16x16 first cell is centred on the marker's point. -->
+    <DataTemplate DataType="vm:MarkerViewModel">
+      <Button Classes="marker" Command="{Binding SelectCommand}" ToolTip.Tip="{Binding Detail}">
+        <Grid ColumnDefinitions="16,Auto">
+          <Canvas Width="16" Height="16">
+            <!-- fault source: halo + dot -->
+            <Ellipse Classes="halo" Canvas.Left="-10" Canvas.Top="-10" Width="36" Height="36" StrokeThickness="1.5"
+                     IsVisible="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" Classes.stored="{Binding IsStored}" />
+            <!-- selection ring -->
+            <Ellipse Classes="selring" Canvas.Left="-8" Canvas.Top="-8" Width="32" Height="32" StrokeThickness="2"
+                     IsVisible="{Binding IsSelected}" />
+            <Ellipse Classes="srcdot" Width="16" Height="16"
+                     IsVisible="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" Classes.stored="{Binding IsStored}" />
+            <!-- module: small square -->
+            <Border Classes="module" Canvas.Left="1.5" Canvas.Top="1.5" Width="13" Height="13" CornerRadius="3" BorderThickness="1.5"
+                    IsVisible="{Binding IsModule}"
+                    Classes.idle="{Binding IsIdle}" Classes.asking="{Binding IsAsking}" Classes.ok="{Binding IsOk}"
+                    Classes.stored="{Binding IsStored}" Classes.active="{Binding IsActive}" Classes.absent="{Binding IsAbsent}" />
+          </Canvas>
+          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabel}"
+                     Classes.fault="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" />
+        </Grid>
+      </Button>
+    </DataTemplate>
+  </Application.DataTemplates>
+
+  <Application.Styles>
+    <FluentTheme />
+
+    <!-- base -->
+    <Style Selector="Window">
+      <Setter Property="Background" Value="{DynamicResource CanvasBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+      <Setter Property="FontFamily" Value="{DynamicResource UiFont}" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+
+    <!-- type scale (Barlow body, Barlow Semi Condensed display) -->
+    <Style Selector=":is(TextBlock).title">
+      <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}" />
+      <Setter Property="FontSize" Value="30" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector=":is(TextBlock).section">
+      <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}" />
+      <Setter Property="FontSize" Value="19" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector=":is(TextBlock).figure">
+      <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}" />
+      <Setter Property="FontSize" Value="40" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector=":is(TextBlock).code">
+      <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}" />
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="FontWeight" Value="Bold" />
+    </Style>
+    <Style Selector=":is(TextBlock).muted">
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+    </Style>
+    <Style Selector=":is(TextBlock).small">
+      <Setter Property="FontSize" Value="12.5" />
+    </Style>
+    <Style Selector=":is(TextBlock).mono">
+      <Setter Property="FontFamily" Value="{DynamicResource MonoFont}" />
+      <Setter Property="FontSize" Value="12" />
+    </Style>
+    <Style Selector=":is(TextBlock).error">
+      <Setter Property="Foreground" Value="{DynamicResource RedBrush}" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+    <Style Selector=":is(TextBlock).amber">
+      <Setter Property="Foreground" Value="{DynamicResource AmberBrush}" />
+    </Style>
+    <Style Selector=":is(TextBlock).red">
+      <Setter Property="Foreground" Value="{DynamicResource RedBrush}" />
+    </Style>
+    <Style Selector=":is(TextBlock).lit">
+      <Setter Property="Foreground" Value="{DynamicResource LitBrush}" />
+    </Style>
+
+    <!-- surfaces -->
+    <Style Selector="Border.panel">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+    </Style>
+    <Style Selector="Border.row">
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="0,0,0,1" />
+      <Setter Property="Padding" Value="4,8" />
+    </Style>
+    <Style Selector="Border.divider">
+      <Setter Property="Height" Value="1" />
+      <Setter Property="Background" Value="{DynamicResource LineBrush}" />
+    </Style>
+
+    <!-- buttons: plain, primary (lit), quiet (text only) -->
+    <Style Selector="Button">
+      <Setter Property="FontFamily" Value="{DynamicResource UiFont}" />
+      <Setter Property="FontWeight" Value="Medium" />
+      <Setter Property="CornerRadius" Value="5" />
+      <Setter Property="Padding" Value="14,7" />
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SteelBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="Button.primary">
+      <Setter Property="Background" Value="{DynamicResource LitBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LitBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource OnLitBrush}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Padding" Value="18,9" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SteelBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource SteelBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource OnLitBrush}" />
+    </Style>
+    <Style Selector="Button.quiet">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource LitBrush}" />
+      <Setter Property="Padding" Value="6,4" />
+    </Style>
+    <Style Selector="Button.quiet:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource LitBrush}" />
+    </Style>
+    <Style Selector="Button:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Opacity" Value="0.45" />
+    </Style>
+
+    <!-- segmented family switch -->
+    <Style Selector="Button.segment">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="Padding" Value="14,8" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="Button.segment.on">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LitBrush}" />
+    </Style>
+
+    <!-- navigation rail -->
+    <Style Selector="ListBox.rail">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Padding" Value="0" />
+    </Style>
+    <Style Selector="ListBox.rail ListBoxItem">
+      <Setter Property="Padding" Value="0,12" />
+      <Setter Property="Margin" Value="8,2" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
+    </Style>
+    <Style Selector="ListBox.rail ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    </Style>
+    <Style Selector="ListBox.rail ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+    </Style>
+    <Style Selector="ListBox.rail ListBoxItem:selected">
+      <Setter Property="Foreground" Value="{DynamicResource LitBrush}" />
+    </Style>
+
+    <!-- model list in the garage -->
+    <Style Selector="ListBox.models">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ListBox.models ListBoxItem">
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Margin" Value="0,0,0,2" />
+      <Setter Property="CornerRadius" Value="5" />
+    </Style>
+    <Style Selector="ListBox.models ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+    </Style>
+    <Style Selector="ListBox.models ListBoxItem:selected /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+    </Style>
+
+    <!-- markers on the car drawing -->
+    <Style Selector="Button.marker">
+      <Setter Property="ClipToBounds" Value="False" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <ContentPresenter Content="{TemplateBinding Content}" Background="Transparent" ClipToBounds="False" />
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="TextBlock.markerlabel">
+      <Setter Property="Margin" Value="7,0,0,0" />
+      <Setter Property="FontFamily" Value="{DynamicResource DisplayFont}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="TextBlock.markerlabel.fault">
+      <Setter Property="Margin" Value="13,0,0,0" />
+      <Setter Property="Foreground" Value="{DynamicResource AmberBrush}" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.markerlabel.fault.active">
+      <Setter Property="Foreground" Value="{DynamicResource RedBrush}" />
+    </Style>
+    <Style Selector="Border.module">
+      <Setter Property="BorderBrush" Value="{DynamicResource SteelBrush}" />
+      <Setter Property="Background" Value="{DynamicResource CarBodyBrush}" />
+    </Style>
+    <Style Selector="Border.module.asking">
+      <Setter Property="BorderBrush" Value="{DynamicResource LitBrush}" />
+      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
+      <Style.Animations>
+        <Animation Duration="0:0:0.6" IterationCount="Infinite" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%"><Setter Property="Opacity" Value="1" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="Opacity" Value="0.3" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="Border.module.ok">
+      <Setter Property="BorderBrush" Value="{DynamicResource LitBrush}" />
+      <Setter Property="Background" Value="{DynamicResource LitBrush}" />
+    </Style>
+    <Style Selector="Border.module.stored">
+      <Setter Property="BorderBrush" Value="{DynamicResource AmberBrush}" />
+      <Setter Property="Background" Value="{DynamicResource AmberBrush}" />
+    </Style>
+    <Style Selector="Border.module.active">
+      <Setter Property="BorderBrush" Value="{DynamicResource RedBrush}" />
+      <Setter Property="Background" Value="{DynamicResource RedBrush}" />
+    </Style>
+    <Style Selector="Border.module.absent">
+      <Setter Property="BorderBrush" Value="{DynamicResource SteelFaintBrush}" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Opacity" Value="0.55" />
+    </Style>
+    <Style Selector="Ellipse.srcdot.stored">
+      <Setter Property="Fill" Value="{DynamicResource AmberBrush}" />
+    </Style>
+    <Style Selector="Ellipse.srcdot.active">
+      <Setter Property="Fill" Value="{DynamicResource RedBrush}" />
+    </Style>
+    <Style Selector="Ellipse.halo">
+      <Setter Property="Opacity" Value="0.55" />
+    </Style>
+    <Style Selector="Ellipse.halo.stored">
+      <Setter Property="Stroke" Value="{DynamicResource AmberBrush}" />
+    </Style>
+    <!-- the one deliberate motion: an active fault breathes -->
+    <Style Selector="Ellipse.halo.active">
+      <Setter Property="Stroke" Value="{DynamicResource RedBrush}" />
+      <Style.Animations>
+        <Animation Duration="0:0:1.4" IterationCount="Infinite">
+          <KeyFrame Cue="0%"><Setter Property="Opacity" Value="0.9" /><Setter Property="ScaleTransform.ScaleX" Value="0.7" /><Setter Property="ScaleTransform.ScaleY" Value="0.7" /></KeyFrame>
+          <KeyFrame Cue="100%"><Setter Property="Opacity" Value="0" /><Setter Property="ScaleTransform.ScaleX" Value="1.4" /><Setter Property="ScaleTransform.ScaleY" Value="1.4" /></KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="Ellipse.selring">
+      <Setter Property="Stroke" Value="{DynamicResource InkBrush}" />
+    </Style>
+
+    <!-- fault rows -->
+    <Style Selector="Border.faultbar">
+      <Setter Property="Width" Value="4" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Background" Value="{DynamicResource AmberBrush}" />
+    </Style>
+    <Style Selector="Border.faultbar.active">
+      <Setter Property="Background" Value="{DynamicResource RedBrush}" />
+    </Style>
+    <Style Selector="Border.statechip">
+      <Setter Property="CornerRadius" Value="3" />
+      <Setter Property="Padding" Value="6,1" />
+      <Setter Property="Background" Value="{DynamicResource AmberSoftBrush}" />
+    </Style>
+    <Style Selector="Border.statechip.active">
+      <Setter Property="Background" Value="{DynamicResource RedSoftBrush}" />
+    </Style>
+    <Style Selector="Border.statechip TextBlock">
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource AmberBrush}" />
+    </Style>
+    <Style Selector="Border.statechip.active TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource RedBrush}" />
+    </Style>
+  </Application.Styles>
+</Application>
