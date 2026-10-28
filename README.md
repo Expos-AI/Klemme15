@@ -23,20 +23,29 @@ OpenHood is an independent project. It is not affiliated with or endorsed by BMW
 
 ## Features
 
-- **Quick test**: identifies every module on the car and reads its fault memory, with progress and cancel.
-- **Faults**: BMW and OBD-II codes, present vs stored, plain-English descriptions and practical hints; clear per module with confirmation.
-- **Live data**: RPM, temperatures, fuel trims, load, MAF, voltage and more, with sparklines, min/max and CSV recording.
+- **Garage**: pick your exact model (E46 323i through E90 335i). Every model has its own **demo car** with the modules it actually has and the faults it's known for, so you can try everything without a cable.
+- **See where faults are**: a top-view drawing of the car. Each module lights up where it physically sits as the quick test reaches it, and every fault is pinned to the part it points at: a misfire on cylinder 3, lean codes at the intake, a thermostat at the front of the engine, a fuel pump fault at the tank.
+- **Quick test**: identifies every module and reads its fault memory, with progress and cancel.
+- **Faults**: BMW and OBD-II codes, active vs stored, plain-English descriptions, practical tips and a "check here" location; clear per module with confirmation.
+- **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
 - **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
 - **Reports**: one click to save a scan as HTML, Markdown or JSON.
 - **Traffic log**: every byte sent and received, savable for bug reports.
-- **Command line** for scripting and headless use.
+- Dark and light themes. Command line for scripting and headless use.
+
+| Vehicle | Faults |
+|---|---|
+| ![Vehicle view](https://github.com/Expos-AI/OpenHood/raw/screenshots/11-e90-325i-vehicle.png) | ![Faults](https://github.com/Expos-AI/OpenHood/raw/screenshots/07-faults.png) |
+| ![Garage](https://github.com/Expos-AI/OpenHood/raw/screenshots/02-garage-335i.png) | ![Live data](https://github.com/Expos-AI/OpenHood/raw/screenshots/08-live.png) |
+
+Screenshots are rendered automatically by CI from the demo cars on every push, so they always show the current build.
 
 ## Supported cars (v0.1)
 
 | Family | Cable switch | Native mode | EDIABAS mode |
 |---|---|---|---|
-| E46 3 Series (1998-2006): 320i, 325i, 330i... | K-line | Module ident (DS2), engine OBD-II faults and live data | Full fault memory of every module |
-| E90/E91/E92/E93 3 Series (2005-2013) | D-CAN | Ident and fault memory of every module (KWP2000), engine OBD-II live data | Full, with BMW fault texts |
+| E46 3 Series: 323i, 325i, 325xi, 328i, 330i, 330xi | K-line | Module ident (DS2), engine OBD-II faults and live data | Full fault memory of every module |
+| E90/E91/E92/E93 3 Series: 323i, 325i, 325xi, 328i, 328xi, 330i, 335i | D-CAN | Ident and fault memory of every module (KWP2000), engine OBD-II live data | Full, with BMW fault texts |
 
 Other E-series cars that share these protocols (E39, E53, E60, E70, E87...) mostly need only a module list in the [open database](src/OpenHood.Data/db). F- and G-series (ENET cable) are on the [roadmap](docs/ROADMAP.md).
 
@@ -47,7 +56,7 @@ Other E-series cars that share these protocols (E39, E53, E60, E70, E87...) most
 3. Ignition on (key position 2, engine off) for scans; engine running for live data.
 4. Start OpenHood, choose your car and port, press **Connect**, then **Run quick test**.
 
-No car nearby? Tick **Demo car**.
+No car nearby? Pick any model in the garage and press **Open demo car**.
 
 ### Command line
 
@@ -57,7 +66,7 @@ openhood scan --vehicle E9x --port COM3 --report scan.html
 openhood live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1 --csv drive.csv
 openhood faults --module DME --port COM3
 openhood clear --module DME --port COM3
-openhood scan --demo                             # try it without a car
+openhood scan --demo --vehicle E9x --model 335i # try it without a car
 ```
 
 On Windows with EDIABAS mode: add `--ediabas C:\EDIABAS\Ecu`, and run any job with `openhood job D_0012 IDENT --ediabas C:\EDIABAS\Ecu --port COM3`.
@@ -113,6 +122,7 @@ The fastest way to help is to **test on your car** and send the saved report and
 
 - [EdiabasLib](https://github.com/uholeschak/ediabaslib) by Ulrich Holeschak (GPLv3), used for EDIABAS mode.
 - [Avalonia UI](https://avaloniaui.net) for the cross-platform interface.
+- [Barlow](https://github.com/jpt/barlow) typeface by Jeremy Tribby (SIL Open Font License 1.1, see `src/OpenHood.App/Assets/Fonts/OFL.txt`).
 
 ## License
 

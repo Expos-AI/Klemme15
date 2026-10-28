@@ -13,7 +13,7 @@
     { "id": "E46.PDC",  "name": "Park distance control (PDC)",  "address": "60", "protocol": "Ds2", "category": "Comfort",    "sgbd": ["D_PDC", "D_0060"], "pos": [880, 340], "verified": false },
     { "id": "E46.MFL",  "name": "Steering wheel buttons (MFL)", "address": "50", "protocol": "Ds2", "category": "Comfort",    "sgbd": ["D_MFL", "D_0050"], "pos": [418, 300], "verified": false },
     { "id": "E46.RAD",  "name": "Radio",                        "address": "68", "protocol": "Ds2", "category": "Infotainment","sgbd": ["D_RADIO", "D_0068"], "pos": [338, 205], "verified": false },
-    { "id": "E46.RLS",  "name": "Rain / light sensor (RLS)",    "address": "E8", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_RLS", "D_00E8"], "pos": [440, 230], "verified": false },
+    { "id": "E46.RLS",  "name": "Rain / light sensor (RLS)",    "address": "E8", "protocol": "Ds2", "category": "Body",       "sgbd": ["D_RLS", "D_00E8"], "pos": [458, 262], "verified": false },
 
     { "id": "E9x.DME",  "name": "Engine (DME)",                 "address": "12", "protocol": "BmwFast", "category": "Powertrain", "engine": true, "sgbd": ["D_0012", "D_MOTOR"], "pos": [285, 110], "verified": false },
     { "id": "E9x.EGS",  "name": "Automatic transmission (EGS)", "address": "18", "protocol": "BmwFast", "category": "Powertrain", "sgbd": ["D_0018", "D_EGS"], "pos": [415, 230], "verified": false },

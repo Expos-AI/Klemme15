@@ -17,6 +17,20 @@ Run a quick test on your car. For every module that answers, set `"verified": tr
   "category": "Body", "sgbd": ["D_0040"], "verified": true }
 ```
 
+## Placing things on the car drawing (`components.json`, `pos`)
+
+The Vehicle page draws the car from above in a 1000 x 460 grid: **front at the left, driver's side (left-hand drive) at the bottom**. Every module in `modules.json` has a `"pos": [x, y]` for where it sits. `components.json` lists parts faults can come from (cylinders, thermostat, O2 sensors...) with their positions, plus `rules` that map OBD-II codes to a part with a regular expression:
+
+```json
+{ "match": "^P030([1-6])$", "component": "cyl$1" }
+```
+
+If you know where a module or part really sits on your car and the marker is off, move it and say which car you checked.
+
+## Models and demo cars (`vehicles.json`)
+
+Each family lists its models with engine, years, drive, the modules its demo car has fitted, and the demo faults. Demo faults with OBD-II codes use real meanings. BMW-format demo codes are invented for the demo and their text must start with "Demo fault:" so nobody mistakes them for real BMW definitions.
+
 ## Describing a BMW fault code (`bmw-codes.json`)
 
 Key by module id, then the 4-digit hex code as OpenHood displays it:

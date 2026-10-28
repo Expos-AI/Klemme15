@@ -1,19 +1,25 @@
 # Roadmap
 
-## 0.1 — foundation (this release)
+## 0.1 — foundation
 - Native protocol stack: DS2, KWP2000/BMW-FAST on D-CAN, OBD-II on K-line
 - EDIABAS backend (Windows) using the user's own SGBDs
 - Quick test, faults, live data, expert job runner, traffic log, reports
 - Desktop app (Windows, macOS, Linux) and CLI
 - Virtual E46 and E90 for development and demos
 
-## 0.2 — proven on real cars
+## 0.2 — see the car (this release)
+- Garage with every E46 and E9x model, each with its own demo car
+- Top-view car drawing: modules light up where they sit, faults pinned to the part they point at
+- New visual design with dark and light themes
+- Automatic UI screenshots in CI
+
+## 0.3 — proven on real cars
 - Verify module addresses on E46 and E90 cars from community test reports
 - Replay real captured traffic in tests
 - Ident layouts per module family (part number, HW/SW, coding index)
-- More vehicle families: E39, E53, E60/E61, E70, E8x
+- More vehicle families: E39, E53, E60/E61, E70, E8x, each with its own drawing
 
-## 0.3 — deeper diagnostics
+## 0.4 — deeper diagnostics
 - DS2 fault-memory decoders for common E46 modules
 - Freeze-frame / environment data for faults
 - Guided checks: "lean codes" walkthrough using live fuel trims, misfire counters, VANOS checks
