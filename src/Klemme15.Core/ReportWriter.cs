@@ -73,8 +73,11 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
 code{font:13px ui-monospace,Consolas,monospace}
 section{margin-top:24px}
 .table-wrap{overflow-x:auto}
+.brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-weight:600;font-size:17px}.brand svg{width:32px;height:32px;flex:none}
+@media (prefers-color-scheme:light){.brand svg rect:first-child{stroke:var(--line);stroke-width:8}}
 </style></head><body><main>
 """);
+        sb.Append($"<div class=\"brand\">{Logo.Svg}<span>Klemme15</span></div>");
         sb.Append($"<h1>Scan report: {H(scan.Chassis ?? "Vehicle")}</h1>");
         sb.Append($"<div class=\"muted\">{scan.Started:yyyy-MM-dd HH:mm} &middot; VIN {H(scan.Vin ?? "not read")} &middot; {H(scan.Backend)}</div>");
         sb.Append("<div class=\"stats\">");

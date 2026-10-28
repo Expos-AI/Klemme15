@@ -2,9 +2,11 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Klemme15.App.ViewModels"
         xmlns:views="using:Klemme15.App.Views"
+        xmlns:controls="using:Klemme15.App.Controls"
         x:Class="Klemme15.App.Views.MainWindow"
         x:DataType="vm:MainViewModel"
         Title="Klemme15"
+        Icon="avares://Klemme15/Assets/Logo/klemme15.ico"
         Width="1320" Height="840" MinWidth="980" MinHeight="620">
 
   <Window.DataTemplates>
@@ -20,10 +22,8 @@
     <!-- Navigation rail -->
     <Border Background="{DynamicResource RailBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Margin="0,18,0,22" HorizontalAlignment="Center" Spacing="2">
-          <!-- mark: a bonnet seen from the front -->
-          <Path Data="M2 18 C6 8 26 8 30 18 L27 20 C23 13 9 13 5 20 Z M9 22 H23 V24 H9 Z" Fill="{DynamicResource LitBrush}"
-                Width="32" Height="26" Stretch="Uniform" HorizontalAlignment="Center" />
+        <StackPanel DockPanel.Dock="Top" Margin="0,18,0,22" HorizontalAlignment="Center" Spacing="6">
+          <controls:LogoMark Width="44" Height="44" HorizontalAlignment="Center" />
           <TextBlock Text="Klemme15" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold" FontSize="13" HorizontalAlignment="Center" />
         </StackPanel>
         <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,16" Spacing="6">
