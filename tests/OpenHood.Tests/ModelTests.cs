@@ -58,7 +58,7 @@ public class ModelTests
     }
 
     [Fact]
-    public void DiscoveryFindsModulesTheDatabaseDoesNotList()
+    public async Task DiscoveryFindsModulesTheDatabaseDoesNotList()
     {
         var family = Db.FindVehicle("E9x")!;
         var addresses = VehicleDatabase.UnlistedAddresses(family);
@@ -66,8 +66,8 @@ public class ModelTests
         Assert.DoesNotContain(addresses, a => a == 0xDF || a >= 0xF0);
 
         var car = new VirtualCar("extra", [new VirtualEcu { Address = 0x68, Ident = "9876543 RAD" }]);
-        var backend = new NativeBackend(car, new NativeBackendOptions { Mode = CableMode.DCan });
-        var found = backend.DiscoverAsync(addresses).GetAwaiter().GetResult();
+        await using var backend = new NativeBackend(car, new NativeBackendOptions { Mode = CableMode.DCan });
+        var found = await backend.DiscoverAsync(addresses);
         var m = Assert.Single(found);
         Assert.Equal(0x68, m.Address);
         Assert.Equal("9876543", m.Identity.PartNumber);
