@@ -20,7 +20,7 @@ public sealed record ConnectionSettings
     public string? Port { get; init; }
     public bool Demo { get; init; }
 
-    /// <summary>Folder with the user's SGBD files. Set to use EDIABAS mode (Windows build).</summary>
+    /// <summary>Folder with the user's SGBD files. Set to use EDIABAS mode.</summary>
     public string? EdiabasPath { get; init; }
 
     /// <summary>The cable's DSR line really reports ignition (genuine K+DCAN designs do; some clones don't).</summary>
@@ -54,7 +54,7 @@ public static class BackendFactory
                 Log = log,
             });
 #else
-            throw new DiagnosticException("EDIABAS mode is only included in the Windows build of Klemme15.");
+            throw new DiagnosticException("This build of Klemme15 was made without EDIABAS mode (EdiabasLib was not fetched). Download a release build to use your BMW files.");
 #endif
         }
 

@@ -1,14 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <!-- Must match a target framework EdiabasLib builds for. -->
-    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Klemme15.Ediabas</RootNamespace>
-    <Description>EDIABAS backend: runs the user's own SGBD files through EdiabasLib (GPLv3, by Ulrich Holeschak).</Description>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <Description>EDIABAS backend: runs the user's own SGBD files through EdiabasLib (GPLv3, by Ulrich Holeschak), on every OS.</Description>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Klemme15.Core\Klemme15.Core.csproj" />
-    <!-- fetched by scripts/get-ediabaslib.ps1 into external/ediabaslib (https://github.com/uholeschak/ediabaslib) -->
-    <ProjectReference Include="..\..\external\ediabaslib\EdiabasLib\EdiabasLib\EdiabasLib.csproj" />
+    <!-- EdiabasLib sources fetched by scripts/get-ediabaslib.* into external/ediabaslib, built for net10.0 -->
+    <ProjectReference Include="..\Klemme15.EdiabasCore\Klemme15.EdiabasCore.csproj" />
   </ItemGroup>
 </Project>

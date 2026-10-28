@@ -1,18 +1,15 @@
 <Project>
   <!--
-    EDIABAS mode is compiled in on Windows when EdiabasLib is present in external/ediabaslib
-    (run scripts/get-ediabaslib.ps1 once). Everywhere else Klemme15 builds with the native backend only.
+    EDIABAS mode (BMW's own module programs, run through EdiabasLib) is compiled in on every OS when the
+    EdiabasLib sources are present in external/ediabaslib (run scripts/get-ediabaslib.sh or .ps1 once).
+    Without them Klemme15 builds with its native protocol stack only.
   -->
   <PropertyGroup>
-    <Klemme15Ediabas Condition="'$(OS)' == 'Windows_NT' And Exists('$(MSBuildThisFileDirectory)..\external\ediabaslib\EdiabasLib\EdiabasLib\EdiabasLib.csproj')">true</Klemme15Ediabas>
+    <Klemme15Ediabas Condition="Exists('$(MSBuildThisFileDirectory)..\external\ediabaslib\EdiabasLib\EdiabasLib\EdiabasNet.cs')">true</Klemme15Ediabas>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Klemme15Ediabas)' == 'true'">
-    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
-    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <DefineConstants>$(DefineConstants);EDIABAS</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Klemme15Ediabas)' != 'true'">
-    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup Condition="'$(Klemme15Ediabas)' == 'true'">
     <ProjectReference Include="$(MSBuildThisFileDirectory)..\src\Klemme15.Ediabas\Klemme15.Ediabas.csproj" />
