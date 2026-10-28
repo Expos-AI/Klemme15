@@ -77,8 +77,9 @@ jobs:
           git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" screenshots
 
   windows-ediabas:
-    name: Windows build with EDIABAS mode
-    runs-on: windows-latest
+    # EdiabasLib is built for every OS now; Linux is the cheapest place to prove it compiles in.
+    name: Build with EDIABAS mode
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - name: Fetch EdiabasLib
@@ -86,9 +87,7 @@ jobs:
         run: ./scripts/get-ediabaslib.sh
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: |
-            8.0.x
-            10.0.x
+          dotnet-version: 10.0.x
       - name: Build app and CLI with EdiabasLib
         shell: bash
         run: |
@@ -100,8 +99,8 @@ jobs:
             }
           done
           # Prove EDIABAS mode was compiled in, not silently skipped.
-          ls src/Klemme15.App/bin/Release/net10.0-windows10.0.26100.0/Klemme15.Ediabas.dll
-          ls src/Klemme15.App/bin/Release/net10.0-windows10.0.26100.0/EdiabasLib.dll
+          ls src/Klemme15.App/bin/Release/net10.0/Klemme15.Ediabas.dll src/Klemme15.App/bin/Release/net10.0/EdiabasLib.dll
+          ls src/Klemme15.Cli/bin/Release/net10.0/Klemme15.Ediabas.dll
 
   publish:
     name: Publish ${{ matrix.rid }}
@@ -122,9 +121,7 @@ jobs:
         run: ./scripts/get-ediabaslib.sh
       - uses: actions/setup-dotnet@v5
         with:
-          dotnet-version: |
-            8.0.x
-            10.0.x
+          dotnet-version: 10.0.x
       - name: Publish app and command-line tool
         shell: bash
         run: |
@@ -172,6 +169,6 @@ jobs:
 
           Official BMW meanings for every code: in the Garage, download the optional bmw-unified-db fault database (13 MB, third-party) or point Klemme15 at your own ISTA/INPA files. See docs/FAULT-DATA.md.
 
-          Downloads: unzip and run Klemme15 (Klemme15.exe on Windows). The command-line tool is in the cli folder. EDIABAS mode is included in the Windows build.
+          Downloads: unzip and run Klemme15 (Klemme15.exe on Windows). The command-line tool is in the cli folder. EDIABAS mode (your own BMW files) is included in every build.
 
           macOS: the app is unsigned, so right-click > Open the first time. Linux: chmod +x Klemme15, and add yourself to the dialout group for serial access."

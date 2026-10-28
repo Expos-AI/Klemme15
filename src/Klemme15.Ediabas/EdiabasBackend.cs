@@ -23,7 +23,7 @@ public sealed record EdiabasOptions
 
 /// <summary>
 /// Runs jobs from the user's own BMW SGBD files through EdiabasLib. Gives the deepest coverage
-/// (every module, BMW fault texts, all status jobs) but needs those files. Windows only for now.
+/// (every module, BMW fault texts, all status jobs) but needs those files. Runs on Windows, macOS and Linux.
 /// </summary>
 public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner
 {
