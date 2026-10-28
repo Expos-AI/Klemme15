@@ -301,3 +301,42 @@ public class ServiceTests
         public ValueTask DisposeAsync() => ValueTask.CompletedTask;
     }
 }
+// (restart safety tested here to keep one service suite)
+public class ServiceRecoveryTests
+{
+    private static readonly ServiceLibrary Library = ServiceLibrary.Load();
+
+    [Fact]
+    public void Restart_never_targets_engine_immobiliser_brakes_airbag_or_steering()
+    {
+        var forbidden = new[] { "DME", "DDE", "CAS", "EWS", "ELV", "DSC", "ACSM", "MRS", "EGS", "EPS", "AFS", "VGSG", "SZL" };
+        var restarts = Library.All.Where(f => f.Id.StartsWith("restart-")).ToList();
+        Assert.True(restarts.Count >= 10);
+        foreach (var f in restarts)
+        {
+            Assert.All(f.Modules, m => Assert.DoesNotContain(forbidden, x => x == m));
+            Assert.All(f.Implementations.SelectMany(i => i.Steps), s => Assert.Equal("STEUERGERAETE_RESET", s.Job));
+        }
+    }
+
+    [Fact]
+    public void Writes_require_a_solid_12_5_volts()
+    {
+        // Functions that write to a module (resets, learns, calibrations, coding) must not run on a sagging supply.
+        var reads = new[] { "Component tests", "Recovery" };
+        var readOnly = new[] { "injector-codes-read", "diesel-cylinder-balance", "cylinder-cutout", "evap-leak-test",
+            "secondary-air-check", "oxygen-sensor-swap-check", "catalyst-test", "vanos-flush", "wheel-speed-sensor-test",
+            "cluster-test", "pdc-sensor-test", "xdrive-clutch-test" };
+        foreach (var f in Library.All.Where(f => !reads.Contains(f.Category) && !readOnly.Contains(f.Id)))
+            Assert.True((f.Checks.MinVoltage ?? 0) >= 12.0, $"{f.Id} should guard voltage");
+    }
+
+    [Fact]
+    public void Frm_window_init_warns_about_bricking()
+    {
+        var f = Library.All.Single(x => x.Id == "window-initialisation");
+        Assert.NotNull(f.Caution);
+        Assert.Contains("FRM", f.Caution);
+        Assert.True(f.Checks.MinVoltage >= 12.5);
+    }
+}

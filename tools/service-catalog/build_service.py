@@ -57,14 +57,16 @@ def checks(ignition=True, engineOff=False, engineRunning=False, minVoltage=None,
     return c
 
 FUNCTIONS = []
-def F(id, title, category, module, summary, when, risk, recipes, before=(), after=(), checks=None, inputs=(), duration=None):
+def F(id, title, category, module, summary, when, risk, recipes, before=(), after=(), checks=None, inputs=(), duration=None, writes=True, caution=None):
     FUNCTIONS.append(dict(id=id, title=title, category=category, module=module, summary=summary, when=when, risk=risk,
-                          before=list(before), after=list(after), checks=checks, inputs=list(inputs), duration=duration, recipes=recipes))
+                          before=list(before), after=list(after), checks=checks, inputs=list(inputs), duration=duration,
+                          recipes=recipes, writes=writes, caution=caution))
 
 ENGINE_OFF = dict(ignition=True, engineOff=True)
 NOTHING_NEAR = "Hands, tools and loose clothing are clear of moving parts."
 
 # Small helper for component tests that need a stop job. `on` is the job, `off` hands control back.
+WRITES=True
 def timed(job, args, sig, seconds, say, off=None, off_args=""):
     return R(job, args, sig, wait=seconds if off else 0, say=say, stop=[S(off, off_args)] if off else [])
 
@@ -347,7 +349,7 @@ F("test-fuel-pump-module", "Check the fuel pump control module", CT, ["EKPS"],
   "No start, fuel pump faults, or after replacing the pump or the control module.",
   "low",
   [R("STEUERN_TEST_PUMPE_VORHANDEN", show=True)],
-  checks=checks(**ENGINE_OFF))
+  checks=checks(**ENGINE_OFF), writes=False)
 
 # ============================================================================ Diesel
 # Four-cylinder diesels (M47, N47); the others in the list are six-cylinder (M57, N57).
@@ -644,6 +646,7 @@ F("window-initialisation", "Initialise the windows (one-touch and anti-trap)", B
   before=["Close all doors. The windows will move on their own: keep hands, pets and objects out of the way."],
   after=["Try one-touch up and down on each window."],
   checks=checks(engineOff=True, confirm=["All doors are closed and nothing is in the way of the windows."]),
+  caution="The footwell module (FRM) can corrupt itself if the voltage sags while it is written to. A charger is strongly recommended, and Klemme15 won't run this below 12.5 V. A corrupted FRM can't be repaired over the cable.",
   inputs=[choice("window", "Windows", [("both", "Both front windows"), ("driver", "Driver's window"), ("passenger", "Passenger's window"),
                                        ("all", "All windows")])])
 
@@ -689,6 +692,30 @@ F("cluster-test", "Instrument cluster gauge test", BODY, ["KOMBI", "IKE"],
   [R("STEUERN_SELBSTTEST_EIN", "1", sig=["BYTE0"], wait=15, say="Gauges sweeping", stop=[S("STEUERN_SELBSTTEST_AUS")]),
    R("STEUERN_SELBSTTEST", wait=15, say="Gauges sweeping")],
   checks=checks(**ENGINE_OFF), duration="About 15 seconds")
+
+
+# ============================================================================ Recovery
+# A frozen infotainment or comfort module can often be restarted with BMW's own reset job, instead of pulling the
+# battery for 20 minutes. Engine, immobiliser, brakes, airbag, steering and gearbox modules are deliberately NOT here.
+RESTARTABLE = {
+    "CIC": "the iDrive screen (CIC)", "CID": "the central information display (CID)", "TEL": "the Bluetooth/phone module (TEL)",
+    "AMP": "the amplifier (AMP)", "IHKA": "the climate control (IHKA)", "PDC": "the parking sensors (PDC)",
+    "RDC": "the tyre pressure module (RDC)", "FZD": "the roof function centre (FZD)", "SHD": "the sunroof module (SHD)",
+    "ASK": "the audio module (ASK)", "SDARS": "the satellite radio (SDARS)", "MOSTGW": "the MOST gateway (MOSTGW)",
+    "ZBE": "the iDrive controller (ZBE)", "CCCA": "the top-view camera (CCCA)", "AHM": "the trailer module (AHM)",
+    "CVM": "the convertible-top module (CVM)", "DWA": "the alarm module (DWA)",
+    "SMBF": "the passenger seat module (SMBF)", "SMFA": "the driver seat module (SMFA)", "ANTTU": "the antenna tuner (ANTTU)",
+}
+for _mod, _name in RESTARTABLE.items():
+    F(f"restart-{_mod.lower()}", f"Restart {_name}", "Recovery", [_mod],
+      f"Sends {_name} a power-on reset, the same as disconnecting and reconnecting its power, but over the cable. "
+      "Use it when the module has frozen (a black or stuck iDrive screen, Bluetooth that won't connect, a crashed display).",
+      f"When {_name} has frozen or stopped responding but still answers the diagnostic cable.",
+      "low",
+      [R("STEUERGERAETE_RESET", wait=8, say="Restarting (the module reboots)")],
+      before=["The module goes dark for a few seconds while it reboots. Don't switch off the ignition during the reset."],
+      after=["Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."],
+      checks=checks(), writes=False, duration="About 10 seconds")
 
 # ============================================================================ build
 def build():
@@ -741,8 +768,18 @@ def build():
         entry = {k: f[k] for k in ("id", "title", "category", "module", "summary", "when", "risk")}
         entry["verified"] = False
         if f["duration"]: entry["duration"] = f["duration"]
+        if f["caution"]: entry["caution"] = f["caution"]
         entry["before"], entry["after"] = f["before"], f["after"]
-        entry["checks"] = f["checks"] or {"ignition": True}
+        chk = dict(f["checks"] or {"ignition": True})
+        # Anything that writes to a module (not a component test or a read) needs a solid 12.5 V, so a sagging
+        # supply can't corrupt a module mid-write. This is the FRM anti-brick rule, applied to every write.
+        read_only_ids = {"injector-codes-read", "diesel-cylinder-balance", "cylinder-cutout", "evap-leak-test",
+                         "secondary-air-check", "oxygen-sensor-swap-check", "catalyst-test", "vanos-flush",
+                         "wheel-speed-sensor-test", "xdrive-clutch-test", "cluster-test", "pdc-sensor-test"}
+        writes = f["writes"] and f["category"] != "Component tests" and f["id"] not in read_only_ids
+        if writes and "minVoltage" not in chk:
+            chk["minVoltage"] = 12.5
+        entry["checks"] = chk
         if inputs: entry["inputs"] = inputs
         entry["implementations"] = impls
         out.append(entry)

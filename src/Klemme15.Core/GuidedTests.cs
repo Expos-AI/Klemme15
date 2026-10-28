@@ -140,6 +140,10 @@ public static class GuidedTests
             "Reads how smoothly each cylinder fires at idle and shows them side by side, so a weak cylinder stands out before it sets a misfire fault.",
             "Warm engine, idling, in P or neutral, all consumers (air conditioning, lights) off.",
             "20 seconds"),
+        new("no-start", "Why won't it start? (read-only check)",
+            "For a car that cranks but won't fire, or won't crank. Klemme15 checks the things it can see over the cable — battery voltage, whether the engine is actually turning, and the faults the modules logged during the failed start — and tells you what to check next. It never touches the immobiliser or keys.",
+            "Ignition on. To check cranking too, turn the key to start (or press start with the brake) while this runs.",
+            "20 seconds"),
     ];
 
     private static readonly TimeSpan Tick = TimeSpan.FromMilliseconds(500);
@@ -149,6 +153,7 @@ public static class GuidedTests
         "fuel-trims" => FuelTrimsAsync(signals, progress, ct, speed),
         "vanos" => VanosAsync(signals, progress, ct, speed),
         "roughness" => RoughnessAsync(signals, progress, ct, speed),
+        "no-start" => NoStartAsync(signals, progress, ct, speed),
         _ => throw new ArgumentException($"Unknown test {id}"),
     };
 
@@ -226,6 +231,41 @@ public static class GuidedTests
         if (intake.Count > 0) values.Add(new("Intake average deviation", intake.Average(s => Math.Abs(s.Item1 - s.Item2))));
         if (exhaust.Count > 0) values.Add(new("Exhaust average deviation", exhaust.Average(s => Math.Abs(s.Item1 - s.Item2))));
         return new TestReport(findings, values, "°");
+    }
+
+    /// <summary>Reads a short "does the start chain work?" picture. Faults come from the optional reader; the immobiliser is never queried.</summary>
+    public static async Task<TestReport> NoStartAsync(ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1)
+    {
+        double minV = 99, maxRpm = 0; var ticks = 40;
+        for (var tick = 0; tick < ticks; tick++)
+        {
+            var v = await signals.ReadAsync(["voltage", "rpm"], ct);
+            if (v.TryGetValue("voltage", out var volt) && volt > 1) minV = Math.Min(minV, volt);
+            if (v.TryGetValue("rpm", out var rpm)) maxRpm = Math.Max(maxRpm, rpm);
+            progress?.Report(new("Turn the key to start now (crank it) if you can, while this runs.", $"lowest voltage {(minV < 99 ? minV.ToString("0.0") : "?")} V, highest rpm {maxRpm:0}", (double)tick / ticks));
+            await Wait(speed, ct);
+        }
+
+        var findings = new List<TestFinding>();
+        var values = new List<KeyValuePair<string, double>>();
+        if (minV < 99) values.Add(new("Lowest voltage seen", minV));
+        values.Add(new("Highest engine speed seen", maxRpm));
+
+        if (minV >= 99)
+            findings.Add(new(TestSeverity.Unknown, "Battery voltage couldn't be read", "Klemme15 couldn't read the control-module voltage. Measure the battery with a meter: below about 12.2 V at rest, or dropping under 9-10 V while cranking, is the first thing to fix."));
+        else if (minV < 11.5)
+            findings.Add(new(TestSeverity.Problem, $"Battery voltage is low ({minV:0.0} V)", "This alone can stop a car cranking or firing, and it throws confusing faults in other modules. Charge or replace the battery and test again before chasing anything else."));
+        else
+            findings.Add(new(TestSeverity.Ok, $"Battery voltage looks healthy ({minV:0.0} V)", "If it didn't drop while cranking, the battery and its main connections are probably fine."));
+
+        if (maxRpm > 200)
+            findings.Add(new(TestSeverity.Ok, "The engine is turning over", $"It reached {maxRpm:0} rpm, so the starter and its circuit work. A crank-but-no-start is then about spark, fuel or air: check the next item, read the faults below, and test the fuel pump (Service > Test the fuel pump)."));
+        else
+            findings.Add(new(TestSeverity.Watch, "No cranking was seen", "Either you didn't crank during the test, or the engine isn't turning. If it won't crank: check the battery (above), the starter and its wiring, and — on cars with a gear selector — that it's in P or N. A steering lock that hasn't released also blocks starting; that's a job for a workshop, Klemme15 doesn't touch it."));
+
+        findings.Add(new(TestSeverity.Unknown, "Read the fault memory next",
+            "Open the Faults page and look at the 'fix now' faults on the engine and fuel modules: a crank sensor, fuel pressure or ignition fault logged during the failed start usually names the cause. If the battery, cranking and faults are all fine, what's left is usually the immobiliser or the key — and that needs a dealer or an auto locksmith, which this tool deliberately leaves alone."));
+        return new TestReport(findings, values, "");
     }
 
     public static async Task<TestReport> RoughnessAsync(ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1)
