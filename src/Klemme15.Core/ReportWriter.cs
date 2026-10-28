@@ -46,7 +46,9 @@ public static class ReportWriter
             sb.AppendLine($"## {e.Ecu.Name}");
             foreach (var f in e.Faults)
             {
-                sb.AppendLine($"- **{f.Code}** ({f.State}) {f.DisplayDescription}");
+                var verdict = FaultTriage.Assess(f);
+                sb.AppendLine($"- **{f.Code}** ({(f.IsShadow ? "Shadow memory" : f.IsInfo ? "Info memory" : f.State.ToString())}, {verdict.Label.ToLowerInvariant()}) {f.DisplayDescription}");
+                sb.AppendLine($"  - {verdict.Advice}");
                 if (f.OfficialText is { } bmw && bmw != f.Description) sb.AppendLine($"  - BMW text: {bmw}");
                 if (f.ModuleVariant is { } mod) sb.AppendLine($"  - Module {mod}{(f.VariantConfirmed ? "" : " (most likely)")}");
                 if (f.Hint is { } tip) sb.AppendLine($"  - Tip: {tip}");
@@ -101,8 +103,9 @@ section{margin-top:24px}
             foreach (var f in e.Faults)
             {
                 var details = string.Join(", ", f.Details.Select(kv => $"{kv.Key}: {kv.Value}"));
-                var state = f.IsInfo ? "Info memory" : f.State.ToString();
-                var hint = f.Hint is null ? "" : $"<br><span class=\"muted\">Tip: {H(f.Hint)}</span>";
+                var state = (f.IsShadow ? "Shadow memory" : f.IsInfo ? "Info memory" : f.State.ToString()) + $"<br><b>{H(FaultTriage.Assess(f).Label)}</b>";
+                var hint = $"<br><span class=\"muted\">{H(FaultTriage.Assess(f).Advice)}</span>"
+                           + (f.Hint is null ? "" : $"<br><span class=\"muted\">Tip: {H(f.Hint)}</span>");
                 var bmwText = f.OfficialText is { } ot && ot != f.Description ? $"<br><span class=\"muted\">BMW text: {H(ot)}</span>" : "";
                 var variant = f.ModuleVariant is { } mv ? $"<br><span class=\"muted\">Module {H(mv)}{(f.VariantConfirmed ? "" : " (most likely)")}</span>" : "";
                 hint = bmwText + variant + hint;

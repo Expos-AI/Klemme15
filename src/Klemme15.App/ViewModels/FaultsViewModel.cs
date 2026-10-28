@@ -17,8 +17,11 @@ public sealed class FaultGroupViewModel : ViewModelBase
     private bool _confirming;
     private string? _message;
 
-    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar, Action<string> openUrl, GuideActions? guideActions = null)
+    private readonly Func<FaultVerdict, bool> _visible;
+
+    public FaultGroupViewModel(SessionState session, EcuDefinition ecu, IReadOnlyList<Fault> faults, Action<Fault, EcuDefinition> showOnCar, Action<string> openUrl, GuideActions? guideActions = null, Func<FaultVerdict, bool>? visible = null)
     {
+        _visible = visible ?? (_ => true);
         _guideActions = guideActions;
         _session = session;
         _showOnCar = showOnCar;
@@ -32,13 +35,18 @@ public sealed class FaultGroupViewModel : ViewModelBase
 
     public EcuDefinition Ecu { get; }
 
+    /// <summary>Every fault of the module, including hidden background entries.</summary>
+    public IReadOnlyList<Fault> All { get; private set; } = [];
+
     /// <summary>Opens this module on the Readings page (set when readings are available).</summary>
     public RelayCommand? ReadingsCommand { get; set; }
     public bool CanOpenReadings => ReadingsCommand is not null && _session.Readings is not null;
     public string Name => Ecu.Name;
     public string Address => Ecu.AddressHex;
     public ObservableCollection<FaultItemViewModel> Faults { get; } = [];
-    public string CountText => Faults.Count == 1 ? "1 fault" : $"{Faults.Count} faults";
+    public string CountText => Faults.Count == All.Count
+        ? (Faults.Count == 1 ? "1 entry" : $"{Faults.Count} entries")
+        : $"{Faults.Count} of {All.Count} entries shown";
 
     public bool Confirming
     {
@@ -63,7 +71,8 @@ public sealed class FaultGroupViewModel : ViewModelBase
     private void Fill(IEnumerable<Fault> faults)
     {
         Faults.Clear();
-        foreach (var f in faults.OrderBy(f => f.IsInfo).ThenByDescending(f => f.State == FaultState.Present))
+        All = faults.ToList();
+        foreach (var f in faults.Where(f => _visible(FaultTriage.Assess(f))).OrderBy(f => FaultTriage.Assess(f).Priority).ThenBy(f => f.IsInfo))
         {
             var where = _session.Locate(f, Ecu);
             var item = new FaultItemViewModel(f, Ecu, where?.Title, where?.IsComponent == true)
@@ -139,15 +148,30 @@ public sealed class FaultsViewModel : PageViewModel
     /// <summary>Navigation for the buttons in troubleshooting guides.</summary>
     public GuideActions? GuideActions { get; set; }
 
+    private bool _showBackground;
+
+    /// <summary>Show info/shadow memory and typical leftovers of battery work too.</summary>
+    public bool ShowBackground { get => _showBackground; set { if (Set(ref _showBackground, value)) Rebuild(); } }
+
+    private IEnumerable<Fault> AllFaults => _session.LastScan?.Ecus.SelectMany(e => e.Faults) ?? [];
     public bool IsEmpty => Groups.Count == 0;
-    public int ActiveCount => Groups.Sum(g => g.Faults.Count(f => f.IsActive));
-    public int StoredCount => Groups.Sum(g => g.Faults.Count(f => f.IsStored));
-    public int InfoCount => Groups.Sum(g => g.Faults.Count(f => f.IsInfo));
-    public string Headline => IsEmpty ? "No faults"
-        : $"{ActiveCount} active now, {StoredCount} stored" + (InfoCount > 0 ? $", {InfoCount} in info memory" : "");
+    public int FixNowCount => AllFaults.Count(f => FaultTriage.Assess(f).Priority == FaultPriority.FixNow);
+    public int CheckCount => AllFaults.Count(f => FaultTriage.Assess(f).Priority == FaultPriority.CheckIt);
+    public int BackgroundCount => AllFaults.Count(f => FaultTriage.Assess(f).Priority == FaultPriority.Background);
+    public int ActiveCount => FixNowCount;
+    public int StoredCount => CheckCount;
+    public int InfoCount => BackgroundCount;
+    public bool HasBackground => BackgroundCount > 0;
+    public string Headline => !AllFaults.Any() ? "No faults"
+        : $"{FixNowCount} to fix now · {CheckCount} worth checking · {BackgroundCount} background";
+    public string Verdict => !AllFaults.Any() ? ""
+        : FixNowCount > 0 ? "Start with the red ones: they are active right now."
+        : CheckCount > 0 ? "Nothing is active right now. Clear the stored faults, drive a few days and read again: only what comes back needs fixing."
+        : "Nothing needs fixing: only background entries (info memory and leftovers of battery work).";
 
     public string EmptyText => _session.LastScan is null
         ? "Run a quick test on the Vehicle page. Every fault the modules report will be listed here."
+        : AllFaults.Any() ? "Only background entries: tick 'Show background entries' to see them."
         : "No faults in any module that answered.";
 
     public string? Error
@@ -166,12 +190,15 @@ public sealed class FaultsViewModel : PageViewModel
             foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0).OrderByDescending(e => e.Faults.Any(f => f.State == FaultState.Present)))
             {
                 var ecu = e.Ecu;
-                Groups.Add(new FaultGroupViewModel(_session, ecu, e.Faults, _showOnCar, _openUrl, GuideActions)
+                var group = new FaultGroupViewModel(_session, ecu, e.Faults, _showOnCar, _openUrl, GuideActions,
+                    v => _showBackground || v.Priority != FaultPriority.Background)
                 {
                     ReadingsCommand = OpenReadings is { } open ? new RelayCommand(() => open(ecu)) : null,
-                });
+                };
+                if (group.Faults.Count > 0) Groups.Add(group);
             }
-        foreach (var p in new[] { nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount) })
+        foreach (var p in new[] { nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount), nameof(Verdict),
+                     nameof(FixNowCount), nameof(CheckCount), nameof(BackgroundCount), nameof(HasBackground) })
             Raise(p);
     }
 

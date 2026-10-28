@@ -133,16 +133,26 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                     faults.AddRange(ReadMemory(ecu, sgbd, "IS_LESEN", "IS_LESEN_DETAIL", isInfo: true, ct));
             }
             catch (DiagnosticException) { /* info memory is a bonus */ }
+            foreach (var shadowJob in new[] { "FS_LESEN_SHADOW", "FS_SHADOW_LESEN" })
+            {
+                try
+                {
+                    if (!JobExists(shadowJob)) continue;
+                    faults.AddRange(ReadMemory(ecu, sgbd, shadowJob, "", isInfo: true, ct, shadow: true));
+                    break;
+                }
+                catch (DiagnosticException) { /* shadow memory is a bonus */ }
+            }
             return faults;
         }, ct);
 
     private const int MaxDetailReads = 25;
 
-    private IEnumerable<Fault> ReadMemory(EcuDefinition ecu, string sgbd, string listJob, string detailJob, bool isInfo, CancellationToken ct)
+    private IEnumerable<Fault> ReadMemory(EcuDefinition ecu, string sgbd, string listJob, string detailJob, bool isInfo, CancellationToken ct, bool shadow = false)
     {
         var sets = RunJobCore(sgbd, listJob, "", ct);
         var variant = sets.SelectMany(x => x).FirstOrDefault(kv => kv.Key == "VARIANTE").Value ?? sgbd;
-        var withDetail = JobExists(detailJob);
+        var withDetail = detailJob.Length > 0 && JobExists(detailJob);
         var detailsRead = 0;
         foreach (var set in sets.Where(x => x.ContainsKey("F_ORT_NR")))
         {
@@ -168,6 +178,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 Source = FaultSource.Bmw,
                 State = isInfo ? FaultState.Stored : StateFrom(all.GetValueOrDefault("F_VORHANDEN_TEXT")),
                 IsInfo = isInfo,
+                IsShadow = shadow,
                 Description = all.TryGetValue("F_ORT_TEXT", out var text) && !string.IsNullOrWhiteSpace(text) ? text.Trim() : null,
                 Confidence = "official",
                 Sources = [$"Your SGBD file for this module ({variant})"],
