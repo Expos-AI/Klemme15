@@ -28,6 +28,5 @@
     <Path Data="M 96 92 C 160 98 250 100 318 104 M 96 368 C 160 362 250 360 318 356" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
     <Path Data="M 800 108 C 850 112 900 116 940 124 M 800 352 C 850 348 900 344 940 336" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
     <Path Data="M 330 70 L 340 52 L 354 52 L 352 70 Z M 330 390 L 340 408 L 354 408 L 352 390 Z" Stroke="{DynamicResource SteelBrush}" StrokeThickness="2" StrokeJoin="Round" />
-    <TextBlock Canvas.Left="14" Canvas.Top="436" Classes="muted small" Text="Front" />
   </Canvas>
 </UserControl>

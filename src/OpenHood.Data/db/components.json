@@ -26,7 +26,7 @@
     "secondary_air": { "name": "Secondary air pump and valve", "pos": [98, 122] },
     "turbo":         { "name": "Turbochargers, wastegates and charge pipes", "pos": [230, 158] },
     "evap":          { "name": "Fuel cap and evaporative emission system", "pos": [690, 82] },
-    "fuel_tank":     { "name": "Fuel tank and level sender", "pos": [645, 312] },
+    "fuel_tank":     { "name": "Fuel tank and level sender", "pos": [676, 292] },
     "battery":       { "name": "Battery (trunk) and charging system", "pos": [880, 114] },
     "transmission":  { "name": "Transmission", "pos": [440, 250] },
     "wheel_fl":      { "name": "Front left wheel: speed sensor, brakes", "pos": [211, 374] },

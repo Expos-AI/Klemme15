@@ -27,7 +27,7 @@ public sealed class LiveParameterViewModel(LiveParameter parameter) : ViewModelB
 
     public void Update(LiveValue v)
     {
-        Value = v.Value is { } d ? d.ToString("0.##", CultureInfo.CurrentCulture) : v.Text ?? "--";
+        Value = v.Value is { } d ? d.ToString(Math.Abs(d) >= 100 ? "0" : "0.#", CultureInfo.CurrentCulture) : v.Text ?? "--";
         Latest = v.Value;
         if (v.Value is not { } x) return;
         _min = _min is null ? x : Math.Min(_min.Value, x);
