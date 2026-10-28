@@ -76,7 +76,7 @@ klemme15 ports                                   # find the cable
 klemme15 scan --vehicle E9x --port COM3 --report scan.html
 klemme15 live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1 --csv drive.csv
 klemme15 faults --module DME --port COM3
-klemme15 readings --module DME --port COM3 --ediabas "C:\\ISTA\\Ediabas\\Ecu" --filter lambda
+klemme15 readings --module DME --port COM3 --ediabas "C:\ISTA\Ediabas\Ecu" --filter lambda
 klemme15 clear --module DME --port COM3
 klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
 ```
