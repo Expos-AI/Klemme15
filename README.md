@@ -39,7 +39,14 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 - **Faults**: BMW and OBD-II codes, active vs stored vs info memory, plain-English descriptions, practical tips, a "check here" location, and where each meaning comes from (official SGBD text, or community meaning with confidence and clickable sources). Clear per module or all at once.
 - **Readings**: every status value each module reports, like INPA's module screens: oxygen sensor voltages and fuel trims per bank, VANOS positions, injectors, knock, throttle and pedal, every wheel speed, steering angle, battery sensor, temperatures, switch states and learned values. Grouped by system, labelled in English, searchable, with auto-refresh and one-click pinning to Live data. Values are computed by BMW's own scripts from your ISTA/INPA/EDIABAS files (Windows, macOS and Linux), and nothing is changed on the car. Try it on any demo car.
 - **Troubleshooting guides**: for common problems (mixture, misfires, VANOS/Valvetronic, cooling, fuel pressure, boost, charging, bus faults, wheel speed sensors, steering angle, steering lock, oxygen sensor heaters, secondary air, airbags), a **Troubleshoot** button under the fault gives step-by-step checks, with shortcuts to the readings that confirm each step. Written by contributors in plain words; add your own in `src/Klemme15.Data/db/guides.json`.
-- **Service functions** (experimental): 53 workshop functions for E46 and E90-family cars. **Service reminder reset** (oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check; E46 oil and inspection), **battery registration**, **engine adaptation reset**, **Valvetronic and DISA learning**, **cylinder cut-out test** to find a misfire, fuel tank leak test, secondary air and catalyst checks, VANOS flush; **component tests** (radiator fan, fuel pump, thermostat, water pump, secondary air pump, throttle, DISA, purge valve); **diesel**: particulate filter service, glow plug reset, EGR/swirl flap learning, injector code programming, cylinder balance, cooling system bleed; **DSC**: steering angle and sensor calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test; **gearbox**: automatic adaptation reset, SMG clutch and gear learning and bleeding, xDrive transfer case relearn; **body**: windows, sunroof, climate flaps, rain sensor, parking sensors, gauge test. Each one checks the car first, asks you to confirm each requirement, runs BMW's own procedure for your module version and shows the result; tests always switch the part off again. See the [full list](docs/SERVICE-FUNCTIONS.md) and [how they are kept safe](docs/SERVICE.md).
+- **Service functions** (experimental): 75 workshop functions. **Service reminder reset** (oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check; E46 oil and inspection), **battery registration**, **engine adaptation reset**, **Valvetronic and DISA learning**, **cylinder cut-out test** to find a misfire, fuel tank leak test, secondary air and catalyst checks, VANOS flush; **component tests** (radiator fan, fuel pump, thermostat, water pump, secondary air pump, throttle, DISA, purge valve); **diesel**: particulate filter service, glow plug reset, EGR/swirl flap learning, injector code programming, cylinder balance, cooling system bleed; **DSC**: steering angle and sensor calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test; **gearbox**: automatic adaptation reset, SMG clutch and gear learning and bleeding, xDrive transfer case relearn; **body**: windows, sunroof, climate flaps, rain sensor, parking sensors, gauge test; **steering lock** (early E90 with a key slot): read why the lock complained and clear its counters, without touching keys or immobiliser codes; **retrofits**: check both flaps after fitting the three-stage intake manifold to an N52. Each one checks the car first, asks you to confirm each requirement, runs BMW's own procedure for your module version and shows the result; tests always switch the part off again. See the [full list](docs/SERVICE-FUNCTIONS.md) and [how they are kept safe](docs/SERVICE.md).
+- **Guided tests with a verdict** (Tests page): a **fuel trim test** (idle, then 2,500 rpm: vacuum leak or fuel delivery?), a **VANOS test** (target vs actual camshaft angle while you blip the throttle), a **cylinder roughness chart** to spot a weak cylinder before it sets a misfire, and **"Why won't it start?"**, a read-only check of battery, cranking and the faults logged during the failed start. With or without BMW files.
+- **Faults sorted by what matters**: fix now, worth checking, and background (info and shadow memory, one-off events after battery work), so ten codes don't turn into ten parts.
+- **Restart a frozen module** (iDrive screen, Bluetooth, amplifier, climate, parking sensors and more) with BMW's own reset, instead of disconnecting the battery. Never offered for the engine, brakes, airbag, steering, gearbox or key modules.
+- **Safety gates for writes**: every function that changes something in the car needs a solid 12.5 V (connect a charger), and footwell modules (FRM3) known for corrupting are flagged before anything is written to them.
+- **Copy for a forum post**: a short summary of the car, its modules and what needs fixing, with the VIN removed, ready for E90Post, Reddit or Bimmerforums (`klemme15 scan --forum`).
+- **Wi-Fi and network cables**: a K+DCAN cable behind ser2net, an ESP32 bridge or any adapter that shares the serial port on the network (`rfc2217://192.168.4.1:2217` or `tcp://host:port`). Best on D-CAN cars.
+- **Headless mode for a Raspberry Pi**: `klemme15 serve` publishes live data as JSON over HTTP (with a phone-friendly page) and to MQTT for Grafana, Home Assistant or a custom dashboard. See [docs/HEADLESS.md](docs/HEADLESS.md).
 - **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
 - **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
 - **Reports**: one click to save a scan as HTML, Markdown or JSON.
@@ -53,14 +60,16 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 
 Screenshots are rendered automatically by CI from the demo cars on every push, so they always show the current build.
 
-## Supported cars (v0.1)
+## Supported cars
 
 | Family | Cable switch | Native mode | EDIABAS mode |
 |---|---|---|---|
-| E46 3 Series: 323i, 325i, 325xi, 328i, 330i, 330xi | K-line | Module ident (DS2), engine OBD-II faults and live data | Full fault memory of every module |
-| E90/E91/E92/E93 3 Series: 323i, 325i, 325xi, 328i, 328xi, 330i, 335i | D-CAN | Ident and fault memory of every module (KWP2000), engine OBD-II live data | Full, with BMW fault texts |
+| E46 3 Series (1999-2006) | K-line | Module ident (DS2), engine OBD-II faults and live data | Full fault memory of every module |
+| E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Ident and fault memory of every module (KWP2000), engine readings, OBD-II live data | Full, with BMW fault texts |
+| E81/E82/E87/E88 1 Series (2007 on), E60/E61 5 Series and E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E89 Z4 | D-CAN | Like the E90 family | Full |
+| E39 5 Series, E53 X5, E38 7 Series | K-line | Like the E46 | Full |
 
-Other E-series cars that share these protocols (E39, E53, E60, E70, E87...) mostly need only a module list in the [open database](src/Klemme15.Data/db). F- and G-series (ENET cable) are on the [roadmap](docs/ROADMAP.md).
+The E90 family is confirmed on a real car; the others are built from BMW's module data and tested against demo cars, so please [report a test drive](CONTRIBUTING.md#report-a-test-drive). E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode. F- and G-series (Ethernet cable) are on the [roadmap](docs/ROADMAP.md).
 
 ## Quick start
 
@@ -84,6 +93,9 @@ klemme15 service                                 # list service functions
 klemme15 service battery-registration --port COM3 --experimental
 klemme15 service service-reset --item oil --port COM3 --ediabas "C:\ISTA\Ediabas\Ecu" --experimental
 klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
+klemme15 scan --port COM3 --forum                # summary for a forum post, VIN removed
+klemme15 test fuel-trims --port COM3             # guided test with a verdict
+klemme15 serve --port rfc2217://192.168.4.1:2217 --mqtt 192.168.1.10   # headless, over Wi-Fi
 ```
 
 Official BMW meanings for every code (optional, see [docs/FAULT-DATA.md](docs/FAULT-DATA.md)):
@@ -139,7 +151,7 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Safety
 
-Diagnostics are read-only by default. Clearing faults asks first. Service functions check the car, ask you to confirm each requirement and only run when you press Run; unverified ones need the experimental switch. Coding, flashing and anything touching the immobiliser are **not** included: a failed write can disable a module. Never use Klemme15 while driving; have a passenger watch live data or record it to CSV.
+Diagnostics are read-only by default. Clearing faults asks first. Service functions check the car, ask you to confirm each requirement and only run when you press Run; unverified ones need the experimental switch. Coding, flashing, keys and anything touching the immobiliser codes are **not** included: a failed write can disable a module. Never use Klemme15 while driving; have a passenger watch live data or record it to CSV.
 
 ## Contributing
 
