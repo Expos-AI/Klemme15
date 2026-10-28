@@ -40,8 +40,9 @@ jobs:
       - name: Test
         run: |
           set -o pipefail
-          dotnet test tests/Klemme15.Tests -c Release --no-build --logger "console;verbosity=normal" 2>&1 | tee test.log || {
-            grep -E "^\s+Failed |Assert\.|Exception|Expected|Actual|at Klemme15" test.log | head -40 | sed 's/^/::error::/'
+          dotnet test tests/Klemme15.Tests -c Release --no-build --logger "console;verbosity=normal" --blame-hang-timeout 3m 2>&1 | tee test.log || {
+            grep -E "^\s+Failed |Assert\.|Exception|Expected|Actual|at Klemme15|Aborted|crash|hang|blame" test.log | head -40 | sed 's/^/::error::/'
+            tail -n 15 test.log | sed 's/^/::error::tail: /'
             exit 1
           }
       - name: Demo scan through the CLI
