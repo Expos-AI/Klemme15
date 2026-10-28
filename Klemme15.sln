@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Data", "src\Klemme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Serial", "src\Klemme15.Serial\Klemme15.Serial.csproj", "{EE9DF714-43FC-443E-A7CB-A36D54E232D8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Telemetry", "src\Klemme15.Telemetry\Klemme15.Telemetry.csproj", "{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Ediabas", "src\Klemme15.Ediabas\Klemme15.Ediabas.csproj", "{13F5B0CF-8566-4606-81E9-762437CCBB4D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
@@ -85,6 +87,10 @@ Global
 		{EE9DF714-43FC-443E-A7CB-A36D54E232D8}.Debug|x86.Build.0 = Debug|Any CPU
 		{EE9DF714-43FC-443E-A7CB-A36D54E232D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE9DF714-43FC-443E-A7CB-A36D54E232D8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EE9DF714-43FC-443E-A7CB-A36D54E232D8}.Release|x64.ActiveCfg = Release|Any CPU
 		{EE9DF714-43FC-443E-A7CB-A36D54E232D8}.Release|x64.Build.0 = Release|Any CPU
 		{EE9DF714-43FC-443E-A7CB-A36D54E232D8}.Release|x86.ActiveCfg = Release|Any CPU
