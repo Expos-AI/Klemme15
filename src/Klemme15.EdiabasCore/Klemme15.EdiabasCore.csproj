@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    EdiabasLib (GPLv3, github.com/uholeschak/ediabaslib) built for every OS (net10.0), so EDIABAS mode
+    runs BMW's own module programs on Windows, macOS and Linux. Same sources as the upstream project,
+    fetched by scripts/get-ediabaslib.*; only the Windows Bluetooth LE adapter is replaced by a stub here.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>EdiabasLib</AssemblyName>
+    <RootNamespace>EdiabasLib</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS0168;CS0219;CS0162;CS0414;CS0649;CS0169;CS0618;CS0612;CS8981;CA1416;SYSLIB0014;SYSLIB0021;SYSLIB0023;SYSLIB0057</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EdiabasSrc>$(MSBuildThisFileDirectory)..\..\external\ediabaslib\EdiabasLib\EdiabasLib\</EdiabasSrc>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(EdiabasSrc)*.cs" LinkBase="EdiabasLib" />
+    <Compile Remove="$(EdiabasSrc)*Android.cs" />
+    <Compile Remove="$(EdiabasSrc)BtLeGattSpp.cs" />
+    <Compile Include="BtLeGattSppStub.cs" />
+    <None Include="$(EdiabasSrc)EdiabasLib.config" Link="EdiabasLib.config" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
+    <PackageReference Include="InTheHand.Net.Bluetooth" Version="4.2.5" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.0" />
+  </ItemGroup>
+</Project>
