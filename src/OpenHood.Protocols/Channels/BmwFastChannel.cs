@@ -101,13 +101,14 @@ public static class Kwp2000
     };
 
     /// <summary>
-    /// ISO 14230 statusOfDTC: bits 5-6 hold the storage state (00 none, 01 stored, 10 maturing, 11 present).
+    /// ISO 14230 statusOfDTC: bits 5-6 hold the storage state (01 stored, 10 maturing, 11 present).
+    /// Real E90 modules also report entries with state 00; they are in fault memory, so treat them as stored.
+    /// The BMW meaning of every bit is not confirmed yet, so the raw byte is always shown too.
     /// </summary>
     public static FaultState StateFromStatus(byte status) => ((status >> 5) & 0x03) switch
     {
         0b11 => FaultState.Present,
         0b10 => FaultState.Intermittent,
-        0b01 => FaultState.Stored,
-        _ => FaultState.Unknown,
+        _ => FaultState.Stored,
     };
 }

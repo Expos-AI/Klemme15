@@ -48,6 +48,8 @@
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="10">
           <Button Classes="primary" Content="Run quick test" Command="{Binding RunCommand}" />
           <Button Content="Stop" Command="{Binding CancelCommand}" IsVisible="{Binding IsScanning}" />
+          <Button Classes="quiet" Content="Find other modules" Command="{Binding DiscoverCommand}"
+                  ToolTip.Tip="Asks every address the database doesn't list (read-only). Takes about half a minute." />
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" IsVisible="{Binding HasScan}">
           <TextBlock Classes="muted small" Text="Save report" VerticalAlignment="Center" Margin="0,0,4,0" />
@@ -111,6 +113,9 @@
       <Grid>
         <!-- Nothing selected: all faults -->
         <DockPanel IsVisible="{Binding NoSelection}" Margin="18,20,18,0">
+          <Border DockPanel.Dock="Top" Classes="panel" Background="{DynamicResource RaisedBrush}" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDiscovery}">
+            <SelectableTextBlock Text="{Binding Discovery}" TextWrapping="Wrap" FontSize="13" LineHeight="19" />
+          </Border>
           <TextBlock DockPanel.Dock="Top" Classes="section" Text="Faults" Margin="6,0,0,10" />
           <TextBlock DockPanel.Dock="Top" Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" Margin="6,0,0,10" />
           <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Margin="6,0"

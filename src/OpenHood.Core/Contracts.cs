@@ -43,6 +43,18 @@ public interface IDiagnosticBackend : IAsyncDisposable
     Task<IReadOnlyList<LiveValue>> ReadLiveAsync(EcuDefinition ecu, IReadOnlyList<LiveParameter> parameters, CancellationToken ct = default);
 }
 
+/// <summary>A module that answered at an address, found by probing the bus.</summary>
+public sealed record DiscoveredModule(byte Address, EcuIdentity Identity)
+{
+    public string AddressHex => $"0x{Address:X2}";
+}
+
+/// <summary>Probes diagnostic addresses to find modules the database doesn't know about yet. Read-only.</summary>
+public interface IModuleDiscovery
+{
+    Task<IReadOnlyList<DiscoveredModule>> DiscoverAsync(IReadOnlyList<byte> addresses, IProgress<int>? progress = null, CancellationToken ct = default);
+}
+
 /// <summary>Expert mode: run any job from an SGBD, like Tool32.</summary>
 public interface IJobRunner
 {

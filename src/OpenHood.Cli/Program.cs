@@ -20,6 +20,7 @@ internal static class Cli
           faults  --module <id>         Read one module's fault memory
           clear   --module <id> [--yes] Clear one module's fault memory
           live    [--pids rpm,coolant]  Stream live engine data (Ctrl+C to stop)
+          discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
           job     <sgbd> <job> [args]   Run any EDIABAS job (EDIABAS mode)
 
@@ -120,6 +121,7 @@ internal static class Cli
                 "faults" => await Faults(backend, codes, Module(vehicle, a), cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
                 "live" => await Live(backend, vehicle, a, cts.Token),
+                "discover" => await Discover(backend, vehicle, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
                 "job" => await Job(backend, a, cts.Token),
                 _ => Unknown(a.Command),
@@ -263,6 +265,19 @@ internal static class Cli
         }
         catch (OperationCanceledException) { Console.WriteLine("\nStopped."); }
         finally { csv?.Dispose(); }
+        return 0;
+    }
+
+    private static async Task<int> Discover(IDiagnosticBackend backend, VehicleFamily vehicle, CancellationToken ct)
+    {
+        if (backend is not IModuleDiscovery discovery) throw new DiagnosticException("Module discovery needs the native backend (no --ediabas).");
+        var addresses = VehicleDatabase.UnlistedAddresses(vehicle);
+        Console.WriteLine($"Probing {addresses.Count} addresses the database doesn't list (read-only, about {addresses.Count * 0.15:0} s)...");
+        var progress = new Progress<int>(n => { if (n % 32 == 0) Console.WriteLine($"  {n}/{addresses.Count}"); });
+        var found = await discovery.DiscoverAsync(addresses, progress, ct);
+        Console.WriteLine(found.Count == 0 ? "No other modules answered." : $"{found.Count} other module(s) answered:");
+        foreach (var m in found) Console.WriteLine($"  {m.AddressHex}  {m.Identity.Summary}");
+        if (found.Count > 0) Console.WriteLine("Please report these (with --log traffic.txt) so they can be added to the database.");
         return 0;
     }
 

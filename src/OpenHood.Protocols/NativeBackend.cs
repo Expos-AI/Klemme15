@@ -29,7 +29,7 @@ public sealed record NativeBackendOptions
 /// Talks to the car with OpenHood's own protocol implementation. Needs no BMW software or files.
 /// What it can decode is limited by the open database; EDIABAS mode covers the rest.
 /// </summary>
-public sealed class NativeBackend : IDiagnosticBackend
+public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery
 {
     private readonly ITransport _transport;
     private readonly NativeBackendOptions _options;
@@ -146,6 +146,7 @@ public sealed class NativeBackend : IDiagnosticBackend
                         Details = new Dictionary<string, string>
                         {
                             ["status"] = $"0x{status:X2}",
+                            ["symptom"] = $"0x{status & 0x1F:X2}",
                             ["warning lamp"] = (status & 0x80) != 0 ? "requested" : "off",
                         },
                     });
@@ -224,6 +225,36 @@ public sealed class NativeBackend : IDiagnosticBackend
             }
             return values;
         }, ct);
+
+    /// <summary>Asks each address for its identification with a short timeout; only modules that answer are returned.</summary>
+    public async Task<IReadOnlyList<DiscoveredModule>> DiscoverAsync(IReadOnlyList<byte> addresses, IProgress<int>? progress = null, CancellationToken ct = default)
+    {
+        var found = new List<DiscoveredModule>();
+        var timeout = TimeSpan.FromMilliseconds(150);
+        for (var i = 0; i < addresses.Count; i++)
+        {
+            ct.ThrowIfCancellationRequested();
+            var address = addresses[i];
+            var identity = await OnBus<EcuIdentity?>(() =>
+            {
+                if (_options.Mode == CableMode.DCan)
+                {
+                    UseFast();
+                    var r = _fast.Request(address, [Kwp2000.ReadEcuIdentification, 0x80], timeout, ct);
+                    if (r is null) return null;
+                    return r[0] == 0x7F
+                        ? new EcuIdentity { Raw = new Dictionary<string, string> { ["negative"] = Convert.ToHexString(r) } }
+                        : ParseIdent(r.Length > 2 ? r[2..] : []);
+                }
+                UseDs2();
+                var d = _ds2.Request(address, [Ds2.Identify], timeout, ct);
+                return d is null ? null : ParseIdent(d.Data.Length > 1 ? d.Data[1..] : []);
+            }, ct);
+            if (identity is not null) found.Add(new DiscoveredModule(address, identity));
+            progress?.Report(i + 1);
+        }
+        return found;
+    }
 
     public async ValueTask DisposeAsync()
     {

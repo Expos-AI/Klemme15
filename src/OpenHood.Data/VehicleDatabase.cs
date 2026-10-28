@@ -20,6 +20,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
     private readonly Dictionary<string, EcuDefinition> _modules = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, (string Text, string? Hint)> _obd = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Dictionary<string, string>> _bmw = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, string> _bmwComponents = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, CarComponent> _components = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<(Regex Match, string Component)> _rules = [];
     private readonly List<VehicleFamily> _vehicles = [];
@@ -60,6 +61,12 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
 
     public CarComponent? FindComponent(string id) => _components.GetValueOrDefault(id);
 
+    /// <summary>Addresses worth probing for modules this family's database doesn't list (skips functional/tester addresses).</summary>
+    public static IReadOnlyList<byte> UnlistedAddresses(VehicleFamily family) =>
+        Enumerable.Range(0, 0xF0).Select(i => (byte)i)
+            .Where(a => a != 0xDF && family.Modules.All(m => m.Address != a))
+            .ToList();
+
     public string? DescribeObd(string code)
     {
         if (_obd.TryGetValue(code, out var entry))
@@ -79,6 +86,8 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
         string? componentId = null;
         if (demoModel is not null)
             componentId = demoModel.DemoFaults.FirstOrDefault(d => d.ModuleId == ecu.Id && d.Code.Equals(fault.Code, StringComparison.OrdinalIgnoreCase))?.Component;
+        if (componentId is null && fault.Source == FaultSource.Bmw)
+            componentId = _bmwComponents.GetValueOrDefault($"{ecu.Id}/{fault.Code}");
         if (componentId is null && fault.Source == FaultSource.Obd2)
         {
             foreach (var (match, component) in _rules)
@@ -137,7 +146,11 @@ public sealed class VehicleDatabase : IFaultCodeDatabase
                     if (!_bmw.TryGetValue(module.Name, out var map))
                         _bmw[module.Name] = map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
                     foreach (var c in module.Value.EnumerateObject())
+                    {
                         map[c.Name] = c.Value.ValueKind == JsonValueKind.String ? c.Value.GetString()! : c.Value.GetProperty("text").GetString()!;
+                        if (c.Value.ValueKind == JsonValueKind.Object && c.Value.TryGetProperty("component", out var comp))
+                            _bmwComponents[$"{module.Name}/{c.Name}"] = comp.GetString()!;
+                    }
                 }
                 break;
             case "components.json":

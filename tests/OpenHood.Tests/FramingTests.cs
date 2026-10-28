@@ -83,7 +83,7 @@ public class FramingTests
     [InlineData(0xE0, FaultState.Present)]
     [InlineData(0x40, FaultState.Intermittent)]
     [InlineData(0x20, FaultState.Stored)]
-    [InlineData(0x00, FaultState.Unknown)]
+    [InlineData(0x98, FaultState.Stored)]   // seen on a real 2006 E90 (FZD)
     public void Kwp2000DtcStatusDecodes(byte status, FaultState expected) =>
         Assert.Equal(expected, Kwp2000.StateFromStatus(status));
 }
