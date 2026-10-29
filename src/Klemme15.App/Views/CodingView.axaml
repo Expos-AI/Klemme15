@@ -91,7 +91,7 @@
               <TextBlock Classes="muted small" Text="{Binding NcsStatus}" TextWrapping="Wrap" />
               <StackPanel Orientation="Horizontal" Spacing="10">
                 <Button Content="Choose NCS data folder..." Command="{Binding ChooseNcsCommand}" />
-                <Button Content="Verify with NCS Expert's FSW_PSW.TRC..." Command="{Binding VerifyCommand}" />
+                <Button Content="Verify with NCS Expert's trace file..." Command="{Binding VerifyCommand}" />
               </StackPanel>
               <TextBlock Classes="muted small" TextWrapping="Wrap"
                          Text="Writing unlocks only after verification: read this module once with NCS Expert, then pick the FSW_PSW.TRC it saved. Klemme15 must decode every setting exactly as NCS Expert did." />

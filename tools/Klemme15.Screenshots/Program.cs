@@ -67,6 +67,8 @@ vm.Tests.Speed = 10;
 vm.Tests.StartCommand.Execute(null);
 WaitUntil(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 60000);
 Shot("19-tests");
+vm.Tests.Guides.First(g => g.Guide.Id == "where-is-it").SelectCommand!.Execute(null);
+Shot("21-guide");
 vm.CurrentPage = vm.Service;
 vm.Service.Experimental = true;
 vm.Service.CheckCommand.Execute(null);
