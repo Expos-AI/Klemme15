@@ -37,7 +37,7 @@ public sealed class ReadingValueViewModel : ViewModelBase
     public string Label { get; }
     public string Name => Value.Name;
     public string Text => Value.Number is { } d ? d.ToString(Math.Abs(d) >= 1000 ? "0" : "0.###", CultureInfo.CurrentCulture) : ReadingLabels.ValueText(Value.Text);
-    public string Unit => Value.Unit ?? "";
+    public string Unit => Units.Normalize(Value.Unit) ?? "";
     public string? Comment => Value.Comment;
     public bool CanPin => _pin is not null && Value.Number is not null && !_pinned;
     public bool IsPinned { get => _pinned; set { Set(ref _pinned, value); Raise(nameof(CanPin)); } }
@@ -278,19 +278,7 @@ public sealed class ReadingsViewModel : PageViewModel
         try
         {
             var values = await readings.ReadAsync(ecu, item.Job, ct);
-            OnUi(() =>
-            {
-                item.Values.Clear();
-                foreach (var v in values)
-                {
-                    var source = readings.PinSource(ecu, item.Job, v.Name);
-                    var canPin = source.StartsWith("ediabas:", StringComparison.Ordinal);
-                    var vm = new ReadingValueViewModel(v, canPin ? Pin : null) { IsPinned = _settings.LiveFavorites.Any(f => f.Source == source) };
-                    item.Values.Add(vm);
-                }
-                item.Error = values.Count == 0 ? "No values returned." : null;
-                item.Updated = DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture);
-            });
+            OnUi(() => ShowValues(ecu, item, values));
         }
         catch (OperationCanceledException) { }
         catch (Exception e)
@@ -301,18 +289,34 @@ public sealed class ReadingsViewModel : PageViewModel
         {
             OnUi(() => item.IsBusy = false);
         }
+    }
 
-        void Pin(ReadingValueViewModel value)
+    private void ShowValues(EcuDefinition ecu, ReadingItemViewModel item, IReadOnlyList<ReadingValue> values)
+    {
+        if (_session.Readings is not { } readings) return;
+        item.Values.Clear();
+        foreach (var v in values)
         {
-            var source = readings.PinSource(ecu, item.Job, value.Name);
-            if (_settings.LiveFavorites.All(f => f.Source != source))
-            {
-                _settings.LiveFavorites.Add(new AppSettings.FavoriteParameter { Id = source, Name = value.Label, Unit = value.Unit, Source = source });
-                _settings.Save();
-            }
-            value.IsPinned = true;
-            Status = $"Pinned {value.Label}. It appears on the Live data page after you reconnect.";
+            var source = readings.PinSource(ecu, item.Job, v.Name);
+            var canPin = source.StartsWith("ediabas:", StringComparison.Ordinal);
+            var vm = new ReadingValueViewModel(v, canPin ? value => Pin(ecu, item, value) : null) { IsPinned = _settings.LiveFavorites.Any(f => f.Source == source) };
+            item.Values.Add(vm);
         }
+        item.Error = values.Count == 0 ? "No values returned." : null;
+        item.Updated = DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture);
+    }
+
+    private void Pin(EcuDefinition ecu, ReadingItemViewModel item, ReadingValueViewModel value)
+    {
+        if (_session.Readings is not { } readings) return;
+        var source = readings.PinSource(ecu, item.Job, value.Name);
+        if (_settings.LiveFavorites.All(f => f.Source != source))
+        {
+            _settings.LiveFavorites.Add(new AppSettings.FavoriteParameter { Id = source, Name = value.Label, Unit = value.Unit, Source = source });
+            _settings.Save();
+        }
+        value.IsPinned = true;
+        Status = $"Pinned {value.Label}. It appears on the Live data page after you reconnect.";
     }
 
     private async Task ReadAllAsync()
@@ -325,6 +329,24 @@ public sealed class ReadingsViewModel : PageViewModel
         var done = 0;
         try
         {
+            if (_session.Readings is IBatchReadings batch)
+            {
+                // Many values per request: seconds instead of a minute for a whole engine computer.
+                foreach (var chunk in items.Chunk(40))
+                {
+                    cts.Token.ThrowIfCancellationRequested();
+                    done += chunk.Length;
+                    Status = $"Reading {done} of {items.Count}...";
+                    foreach (var i in chunk) i.IsBusy = true;
+                    IReadOnlyDictionary<string, IReadOnlyList<ReadingValue>> values;
+                    try { values = await batch.ReadManyAsync(module.Ecu, chunk.Select(i => i.Job).ToList(), cts.Token); }
+                    finally { foreach (var i in chunk) i.IsBusy = false; }
+                    foreach (var item in chunk)
+                        ShowValues(module.Ecu, item, values.TryGetValue(item.Job, out var v) ? v : []);
+                }
+                Status = $"Read {items.Count} readings at {DateTime.Now:HH:mm:ss}.";
+                return;
+            }
             foreach (var item in items)
             {
                 cts.Token.ThrowIfCancellationRequested();

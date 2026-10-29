@@ -151,6 +151,13 @@ public interface IMeasurementTables
 }
 
 /// <summary>Backends that can send one raw diagnostic request to a module and return its reply (or null on no reply).</summary>
+/// <summary>Readings that can fetch many values in one go (much faster than one request per value).</summary>
+public interface IBatchReadings
+{
+    /// <summary>Reads several readings; ones that fail are missing from the result.</summary>
+    Task<IReadOnlyDictionary<string, IReadOnlyList<ReadingValue>>> ReadManyAsync(EcuDefinition ecu, IReadOnlyList<string> jobs, CancellationToken ct = default);
+}
+
 public interface IRawRequests
 {
     Task<byte[]?> RequestAsync(EcuDefinition ecu, byte[] request, CancellationToken ct = default);

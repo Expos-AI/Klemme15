@@ -13,7 +13,7 @@ namespace Klemme15.Protocols;
 /// Modules that refuse $2C get a $22 request instead. The tables come from the database the user downloaded.
 /// Read-only: the temporary record lives in the module's RAM and nothing about the car is changed.
 /// </summary>
-public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, Func<EcuDefinition, string?> variantOf, TrafficLog? log = null) : IModuleReadings, IMeasurementReader
+public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, Func<EcuDefinition, string?> variantOf, TrafficLog? log = null) : IModuleReadings, IMeasurementReader, IBatchReadings
 {
     public const byte ReadDataByCommonIdentifier = 0x22;
 
@@ -81,6 +81,43 @@ public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, 
             }
         }
         return values;
+    }
+
+    /// <summary>Reads up to <see cref="MaxPerRecord"/> values per record; a chunk the module refuses is read value by value.</summary>
+    public async Task<IReadOnlyDictionary<string, IReadOnlyList<ReadingValue>>> ReadManyAsync(EcuDefinition ecu, IReadOnlyList<string> jobs, CancellationToken ct = default)
+    {
+        var result = new Dictionary<string, IReadOnlyList<ReadingValue>>(StringComparer.OrdinalIgnoreCase);
+        if (variantOf(ecu) is not { } v || !tables.Has(v)) return result;
+        var table = tables.MeasurementsOf(v);
+        var defs = jobs.Select(j => table.FirstOrDefault(m => m.Result.Equals(j, StringComparison.OrdinalIgnoreCase)))
+            .OfType<MeasurementDef>().ToList();
+        ReadingValue Value(MeasurementDef def, byte[] data)
+        {
+            var number = Decode(def, data);
+            var text = number?.ToString("0.###", CultureInfo.InvariantCulture) ?? Convert.ToHexString(data);
+            return new ReadingValue(def.Result, text, number, Clean(def.Unit), def.Comment);
+        }
+        foreach (var chunk in defs.Where(d => SizeOf(d) > 0).Chunk(MaxPerRecord))
+        {
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                var raw = await ReadRawAsync(ecu, chunk, ct);
+                for (var i = 0; i < chunk.Length; i++) result[chunk[i].Result] = [Value(chunk[i], raw[i])];
+                log?.Note($"Read {chunk.Length} values in one record");
+            }
+            catch (DiagnosticException)
+            {
+                foreach (var def in chunk)
+                    try { result[def.Result] = [Value(def, (await ReadRawAsync(ecu, [def], ct))[0])]; }
+                    catch (DiagnosticException) { }
+            }
+        }
+        // Values whose size the table doesn't state are read on their own.
+        foreach (var def in defs.Where(d => SizeOf(d) == 0))
+            try { result[def.Result] = await ReadAsync(ecu, def.Result, ct); }
+            catch (DiagnosticException) { }
+        return result;
     }
 
     /// <summary>Bytes a value takes in the record, from BMW's data type (0 when the table doesn't say).</summary>
@@ -200,6 +237,5 @@ public sealed class NativeReadings(IRawRequests raw, IMeasurementTables tables, 
         return Math.Round(raw * def.Mul / div + def.Add, 4);
     }
 
-    private static string? Clean(string? unit) =>
-        unit is null || unit is "-" or "" ? null : unit.Replace("Grad C", "°C", StringComparison.OrdinalIgnoreCase);
+    private static string? Clean(string? unit) => Units.Normalize(unit);
 }
