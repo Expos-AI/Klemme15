@@ -1,6 +1,9 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.12.1:**
+**New in 0.12.2:**
+- **Install via winget or Scoop** (`winget install Expos-AI.Klemme15`, or `scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15`), which skips the Windows SmartScreen prompt. Direct `.zip` downloads still work. The install recipes now update themselves on every release.
+
+**0.12.1:**
 - An **About** dialog (version, what Klemme15 is, links, licence) and small footer buttons in the sidebar for About, support, the privacy policy and a donation link.
 - A written **privacy policy** (PRIVACY.md): everything stays on your computer; nothing is sent anywhere unless you ask.
 
