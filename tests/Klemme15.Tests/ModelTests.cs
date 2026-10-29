@@ -99,6 +99,12 @@ public class ModelTests
         Assert.Equal("high", misfire.Confidence);
         Assert.Equal("cyl3", misfire.Component);
         Assert.NotEmpty(misfire.Sources!);
+
+        // Hand-checked advice: the junction box relay code is flagged as usually harmless and explains the radio-swap case.
+        var relay = Db.LookupBmw("E9x.JBE", "A731", "N52")!;
+        Assert.True(relay.UsuallyHarmless);
+        Assert.Contains("aftermarket radio", relay.Hint);
+        Assert.False(Db.LookupBmw("E9x.DSC", "5E40", "N52")!.UsuallyHarmless);
     }
 
     [Fact]

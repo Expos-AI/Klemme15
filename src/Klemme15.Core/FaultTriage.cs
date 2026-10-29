@@ -51,6 +51,15 @@ public static class FaultTriage
         var supply = SupplyWords.Any(text.Contains);
         var bus = BusWords.Any(text.Contains);
 
+        // Codes our research marks as normally harmless on their own (e.g. the junction box's latching relay after a radio swap):
+        // the tip says when they do matter, so they don't go to the top of the list.
+        if (f.UsuallyHarmless && f.State is FaultState.Present or FaultState.Intermittent)
+            return new(FaultPriority.CheckIt, "Check it",
+                "Active, but this code is usually harmless on its own. Read the tip below: if you have none of the symptoms it describes, clear it and see whether it returns.");
+        if (f.UsuallyHarmless && count < 10)
+            return new(FaultPriority.Background, "Probably harmless",
+                "Not active now, and this code is usually harmless on its own. Read the tip below; clear it and only investigate if it returns.");
+
         switch (f.State)
         {
             case FaultState.Present when supply:

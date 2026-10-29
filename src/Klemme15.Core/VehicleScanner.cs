@@ -128,7 +128,7 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
         {
             if (f.Description is not null) return f;
             if (f.Source == FaultSource.Bmw && codes is IFaultCodeDetails details && details.LookupBmw(f.EcuId, f.Code) is { } info)
-                return f with { Description = info.Text, Hint = info.Hint, Confidence = info.Confidence, Sources = info.Sources ?? [] };
+                return f with { Description = info.Text, Hint = info.Hint, Confidence = info.Confidence, Sources = info.Sources ?? [], UsuallyHarmless = info.UsuallyHarmless };
             return f with { Description = f.Source == FaultSource.Obd2 ? codes.DescribeObd(f.Code) : codes.DescribeBmw(f.EcuId, f.Code) };
         }).ToList();
     }

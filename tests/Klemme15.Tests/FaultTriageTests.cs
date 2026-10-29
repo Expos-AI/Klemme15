@@ -41,4 +41,15 @@ public class FaultTriageTests
         Assert.Equal(FaultPriority.FixNow, v.Priority);
         Assert.Contains("battery", v.Advice);
     }
+
+    [Fact]
+    public void Usually_harmless_codes_are_not_fix_now()
+    {
+        var active = F(FaultState.Present, "Junction box: latching relay, terminal 30g_f") with { UsuallyHarmless = true };
+        Assert.Equal(FaultPriority.CheckIt, FaultTriage.Assess(active).Priority);
+        var stored = F(FaultState.Stored, "Odometer difference") with { UsuallyHarmless = true };
+        Assert.Equal(FaultPriority.Background, FaultTriage.Assess(stored).Priority);
+        var frequent = F(FaultState.Stored, "Odometer difference", count: 30) with { UsuallyHarmless = true };
+        Assert.Equal(FaultPriority.CheckIt, FaultTriage.Assess(frequent).Priority);
+    }
 }

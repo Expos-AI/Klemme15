@@ -122,6 +122,9 @@ public sealed record Fault
     /// <summary>Practical advice (where to look, common causes), if the database has any.</summary>
     public string? Hint { get; init; }
 
+    /// <summary>True when this code is normally harmless on its own (see the hint for when it isn't).</summary>
+    public bool UsuallyHarmless { get; init; }
+
     /// <summary>How sure the description is: "official" (from the car's own SGBD), "high", "medium", or null for generic OBD-II text.</summary>
     public string? Confidence { get; init; }
 
