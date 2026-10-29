@@ -47,7 +47,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     private readonly Dictionary<string, List<BmwCodeEntry>> _bmw = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>One researched meaning of a BMW code; <see cref="Engines"/> limits it to certain engines.</summary>
-    private sealed record BmwCodeEntry(string Text, string? Hint, string? Component, string? Confidence, IReadOnlyList<string> Sources, IReadOnlyList<string>? Engines);
+    private sealed record BmwCodeEntry(string Text, string? Hint, string? Component, string? Confidence, IReadOnlyList<string> Sources, IReadOnlyList<string>? Engines, bool Harmless = false);
     private readonly Dictionary<string, CarComponent> _components = new(StringComparer.OrdinalIgnoreCase);
     private readonly List<(Regex Match, string Component)> _rules = [];
     private readonly List<VehicleFamily> _vehicles = [];
@@ -132,7 +132,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
                 ? $"{pick.Text} (meaning recorded for {engines} engines)"
                 : $"{pick.Text} (meaning recorded for {engines}; may differ on your {engine})";
         }
-        return new CodeInfo(text!, pick.Hint, pick.Confidence, pick.Sources, pick.Component);
+        return new CodeInfo(text!, pick.Hint, pick.Confidence, pick.Sources, pick.Component, pick.Harmless);
     }
 
     public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity) => Describe(fault, ecu, identity, null);
@@ -176,6 +176,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
             DescriptionOrigin = origin,
             Confidence = confidence,
             Hint = fault.Hint ?? community?.Hint,
+            UsuallyHarmless = fault.UsuallyHarmless || community?.UsuallyHarmless == true,
             Sources = community?.Sources is { Count: > 0 } src ? src : fault.Sources,
             OfficialText = officialText,
             ModuleVariant = match?.Variant ?? (fault.Confidence == "official" ? identity?.Variant : null),
@@ -385,7 +386,8 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
         string? Str(string p) => e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
         List<string>? List(string p) => e.TryGetProperty(p, out var v) && v.ValueKind == JsonValueKind.Array
             ? v.EnumerateArray().Select(x => x.GetString()!).ToList() : null;
-        return new BmwCodeEntry(Str("text") ?? "", Str("hint"), Str("component"), Str("confidence"), List("sources") ?? [], List("engines"));
+        return new BmwCodeEntry(Str("text") ?? "", Str("hint"), Str("component"), Str("confidence"), List("sources") ?? [], List("engines"),
+            e.TryGetProperty("usually_harmless", out var h) && h.ValueKind == JsonValueKind.True);
     }
 
     private static SchematicPoint ParsePoint(JsonElement e)

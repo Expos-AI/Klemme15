@@ -8,7 +8,9 @@
    "https://www.justanswer.com/bmw/kxhe6-car-error-code-9315-kombi-odometer-difference-bmw.html",
    "https://www.babybmw.net/threads/009315-odometer-difference-fault-code.109271/",
    "https://community.myautoaid.com/vehicle/bmw-3-e90-316-i-2006-116hp-85kw-1596ccm/ecu-type/dashboard/faultcode/9315"
-  ]
+  ],
+  "hint": "The cluster keeps the mileage and the CAS keeps a backup copy; this code means they disagree. Usual causes: a used cluster or CAS was fitted, or the code was logged during battery work. If no part was swapped and the odometer looks right, clear it. If it comes straight back, the cluster and CAS need their mileage brought back into line by a specialist. Klemme15 never changes mileage.",
+  "usually_harmless": true
  },
  {
   "module": "E9x.DSC",
@@ -23,12 +25,16 @@
  {
   "module": "E9x.JBE",
   "code": "A731",
-  "text": "Power supply fault on terminal 30g_f, a switched battery feed the junction box controls.",
-  "hint": "Commonly logged after low battery voltage or the car sitting for a long time.",
-  "confidence": "medium",
+  "text": "The junction box reports a fault with its latching (bistable) relay, which switches the terminal 30g_f feeds.",
+  "hint": "The junction box powers some always-on circuits through a latching relay (terminal 30g_f) and opens it when the parked car keeps waking up or draws too much current, to save the battery. This code is common after a flat battery, a long time parked, battery work, or an aftermarket radio install. If nothing has lost power and the battery doesn't go flat, clear it and see whether it comes back. With an aftermarket radio: use the proper harness adapter and check the radio's constant feed doesn't keep the car awake. If the code returns or the battery drains: register the battery (right size and type), then do a parasitic draw test with a DC clamp meter after the car has slept (about 30 minutes, longer with telematics): around 40 mA is normal, much above 50 mA is worth chasing fuse by fuse. Don't disconnect the battery before testing: it resets the module causing the drain.",
+  "confidence": "high",
   "sources": [
-   "https://www.e90post.com/forums/showthread.php?t=1757718"
-  ]
+   "https://www.e90post.com/forums/showthread.php?t=1757718",
+   "https://www.bimmerfest.com/threads/bi-stable-relay-error-00a731.1263360/",
+   "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/",
+   "https://falkmfg.com/blogs/news/e9x-battery-drain-the-complete-troubleshooting-guide-with-exact-fixes"
+  ],
+  "usually_harmless": true
  },
  {
   "module": "E9x.FZD",
@@ -39,6 +45,28 @@
   "confidence": "medium",
   "sources": [
    "https://autoexplain.com/a670-bmw-code/"
+  ]
+ },
+ {
+  "module": "E9x.JBE",
+  "code": "A738",
+  "hint": "Logged whenever the junction box loses power: battery disconnected or flat, jump-starting, or fuse work. Stored and not coming back: clear it, nothing to fix.",
+  "usually_harmless": true,
+  "text": "Junction box reports that its power supply was interrupted.",
+  "confidence": "medium",
+  "sources": [
+   "https://www.mfcauctions.co.za/dekra-reports/DIGWBAUR32050VR22687.pdf"
+  ]
+ },
+ {
+  "module": "E9x.DSC",
+  "code": "5E40",
+  "text": "On the standard E90-family DSC: the steering angle sensor's zero point doesn't fit how the car is moving.",
+  "hint": "Common after a wheel alignment, steering or suspension work, new wheels or tyres, or a battery disconnect. Park with the wheels dead straight and run Service > Calibrate the steering angle sensor, clear the code, then drive a mile or two; reset the tyre pressure warning too if you changed tyres. If it returns, have the alignment checked. On xDrive cars (DXC module) the same number means the rear-right wheel speed sensor instead: BMW's own wording shown with the code tells you which.",
+  "confidence": "medium",
+  "sources": [
+   "https://z4-forum.com/threads/5e40-steering-angle-implausible-solved.130939/",
+   "https://www.e90post.com/forums/showthread.php?t=1114980"
   ]
  }
 ]

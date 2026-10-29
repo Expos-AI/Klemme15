@@ -75,7 +75,7 @@ public interface IFaultCodeDatabase
 }
 
 /// <summary>Everything the database knows about one code.</summary>
-public sealed record CodeInfo(string Text, string? Hint = null, string? Confidence = null, IReadOnlyList<string>? Sources = null, string? Component = null);
+public sealed record CodeInfo(string Text, string? Hint = null, string? Confidence = null, IReadOnlyList<string>? Sources = null, string? Component = null, bool UsuallyHarmless = false);
 
 /// <summary>Richer lookup than <see cref="IFaultCodeDatabase"/>: tips, confidence and sources.</summary>
 public interface IFaultCodeDetails

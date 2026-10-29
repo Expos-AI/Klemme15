@@ -1,6 +1,8 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.10.2 (second real-car test):** engine readings confirmed working without BMW files (372 values read on a 2006 325i). "Read all" now reads 20 values per request: seconds instead of over a minute. Units are readable (°C, ° crank, mg/stroke, rpm). Live data pauses when you leave its page (unless recording), so the quick test runs at full speed: the module broadcast now works on the E90, so absent modules are skipped in 0.1 s.
+**New in 0.10.3:** practical advice for codes that are usually harmless. The junction box relay code A731 (common after an aftermarket radio install or a flat battery), the odometer backup mismatch 9315 and the "power supply interrupted" A738 now say when to ignore them and when to look further (including how to do a parasitic draw test), and are no longer listed as "fix now". DSC 5E40 on E90-family cars explains the steering angle calibration that usually clears it.
+
+**0.10.2 (second real-car test):** engine readings confirmed working without BMW files (372 values read on a 2006 325i). "Read all" now reads 20 values per request: seconds instead of over a minute. Units are readable (°C, ° crank, mg/stroke, rpm). Live data pauses when you leave its page (unless recording), so the quick test runs at full speed: the module broadcast now works on the E90, so absent modules are skipped in 0.1 s.
 
 **Fixed after the first real-car test (2006 E90 325i):**
 - Module identification is decoded: part number, hardware and coding index and production date for every D-CAN module (the engine computer's part number now pins down its exact version, e.g. MSV70).
