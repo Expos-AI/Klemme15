@@ -7,4 +7,9 @@
   <ItemGroup>
     <ProjectReference Include="..\Klemme15.Core\Klemme15.Core.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <!-- The phone dashboard (built from web/dashboard with 'npm run build'). -->
+    <EmbeddedResource Include="wwwroot/index.html" LogicalName="Klemme15.Telemetry.index.html" />
+    <EmbeddedResource Include="wwwroot/dashboard.js" LogicalName="Klemme15.Telemetry.dashboard.js" />
+  </ItemGroup>
 </Project>

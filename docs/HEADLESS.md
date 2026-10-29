@@ -10,7 +10,9 @@ klemme15 serve --port /dev/ttyUSB0 --vehicle E9x --model 335i
 
 A small web server runs on port 8080 (change it with `--http`):
 
-- `http://<pi>:8080/` — a live page you can open on a phone.
+- `http://<pi>:8080/` — the **phone dashboard**: big gauges (engine speed, coolant, speed, battery), a tile with a sparkline for every value, warnings when the engine runs hot, the alternator isn't charging or the fuel trims drift, and a Faults tab that reads the engine's fault memory sorted by priority. It has °C/°F and km/h/mph settings and a dark or light theme, and "Add to Home Screen" makes it a full-screen app. It only reads.
+- `http://<pi>:8080/classic` — the original one-table page, for very old browsers.
+- `http://<pi>:8080/info` — the car name, poll interval and the list of values being published.
 - `http://<pi>:8080/live.json` — the latest values as JSON (CORS open, so a web app can fetch it):
   ```json
   { "time": "...", "values": { "rpm": { "value": 820, "unit": "rpm", "name": "Engine speed" }, ... } }
@@ -19,6 +21,18 @@ A small web server runs on port 8080 (change it with `--http`):
 - `http://<pi>:8080/health` — read count, error count and the last error, for monitoring.
 
 Choose the values with `--pids` (default: rpm, speed, coolant, iat, load, throttle, fuel trims, MAF, voltage) and the poll rate with `--interval` (seconds).
+
+### The dashboard's source
+
+The dashboard is a small React app in `web/dashboard`. Its built files are committed in `src/Klemme15.Telemetry/wwwroot` and embedded in Klemme15, so building Klemme15 never needs Node. To change it:
+
+```bash
+cd web/dashboard
+npm ci
+npm run build   # type-checks, then writes src/Klemme15.Telemetry/wwwroot/
+```
+
+CI rebuilds it and fails if the committed files are out of date.
 
 ## MQTT
 

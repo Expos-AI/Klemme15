@@ -7,7 +7,7 @@ using Klemme15.Core;
 namespace Klemme15.Telemetry;
 
 public sealed record TelemetryOptions(int HttpPort = 8080, string? MqttHost = null, int MqttPort = 1883,
-    string MqttTopic = "klemme15", string? MqttUser = null, string? MqttPass = null, double IntervalSeconds = 1);
+    string MqttTopic = "klemme15", string? MqttUser = null, string? MqttPass = null, double IntervalSeconds = 1, string? CarName = null);
 
 /// <summary>
 /// Headless telemetry: polls the car's live values on a timer and serves them as JSON over HTTP (for Grafana, a web
@@ -15,7 +15,7 @@ public sealed record TelemetryOptions(int HttpPort = 8080, string? MqttHost = nu
 /// Meant to run on a Raspberry Pi left plugged into the OBD port: <c>klemme15 serve</c>.
 /// </summary>
 public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition engine, IReadOnlyList<LiveParameter> parameters,
-    TelemetryOptions options, TrafficLog? log = null)
+    TelemetryOptions options, TrafficLog? log = null, IFaultCodeDatabase? codes = null)
 {
     private readonly object _gate = new();
     private IReadOnlyList<LiveValue> _latest = [];
@@ -40,7 +40,7 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
             http.Prefixes.Add($"http://localhost:{options.HttpPort}/");
             http.Start();
         }
-        log?.Note($"Telemetry: serving http://localhost:{options.HttpPort}/ (endpoints: /live /live.json /faults /health /)");
+        log?.Note($"Telemetry: serving http://localhost:{options.HttpPort}/ (dashboard; endpoints: /live.json /faults /health /info /classic)");
 
         var serving = ServeHttpAsync(http, ct);
         var pinging = PingAsync(mqtt, ct);
@@ -97,9 +97,12 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
         {
             var (body, type) = context.Request.Url?.AbsolutePath switch
             {
-                "/" => (IndexHtml(), "text/html; charset=utf-8"),
+                "/" or "/index.html" => (Asset("index.html") ?? ClassicHtml(), "text/html; charset=utf-8"),
+                "/dashboard.js" => (Asset("dashboard.js") ?? "", "text/javascript; charset=utf-8"),
+                "/classic" => (ClassicHtml(), "text/html; charset=utf-8"),
                 "/health" => (Health(), "application/json"),
                 "/faults" => (FaultsJson(), "application/json"),
+                "/info" => (InfoJson(), "application/json"),
                 _ => (LiveJson(), "application/json"),
             };
             var bytes = Encoding.UTF8.GetBytes(body);
@@ -140,12 +143,42 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
         try
         {
             var faults = backend.ReadFaultsAsync(engine).GetAwaiter().GetResult();
-            return JsonSerializer.Serialize(faults.Select(f => new { code = f.Code, state = f.State.ToString(), f.Description, priority = FaultTriage.Assess(f).Priority.ToString() }));
+            if (codes is not null) faults = new VehicleScanner(backend, codes).Describe(faults);
+            return JsonSerializer.Serialize(faults.Select(f =>
+            {
+                var verdict = FaultTriage.Assess(f);
+                return new { code = f.Code, state = f.State.ToString(), description = f.Description, priority = verdict.Priority.ToString(), advice = verdict.Advice };
+            }));
         }
         catch (Exception e) { return JsonSerializer.Serialize(new { error = e.Message }); }
     }
 
-    private string IndexHtml()
+    private static readonly Dictionary<string, string?> Assets = new();
+
+    /// <summary>A file of the phone dashboard, embedded in this assembly.</summary>
+    public static string? Asset(string name)
+    {
+        lock (Assets)
+        {
+            if (Assets.TryGetValue(name, out var cached)) return cached;
+            using var stream = typeof(TelemetryServer).Assembly.GetManifestResourceStream($"Klemme15.Telemetry.{name}");
+            string? text = null;
+            if (stream is not null) { using var reader = new StreamReader(stream); text = reader.ReadToEnd(); }
+            Assets[name] = text;
+            return text;
+        }
+    }
+
+    private string InfoJson() => JsonSerializer.Serialize(new
+    {
+        car = options.CarName,
+        interval = options.IntervalSeconds,
+        version = $"Klemme15 {typeof(TelemetryServer).Assembly.GetName().Version?.ToString(3)}",
+        parameters = parameters.Select(p => new { id = p.Id, name = p.Name, unit = p.Unit }),
+    });
+
+    /// <summary>The original single-table page, kept for very old browsers.</summary>
+    private string ClassicHtml()
     {
         var rows = string.Join("", parameters.Select(p => $"<tr><td>{p.Name}</td><td id=\"{p.Id}\">-</td><td>{p.Unit}</td></tr>"));
         const string css = "body{font-family:system-ui,sans-serif;margin:2rem;background:#121a23;color:#dce3ea}"

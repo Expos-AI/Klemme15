@@ -15,6 +15,10 @@ public class FrmGuardTests
         Assert.Equal(FrmGeneration.Frm1, FrmGuard.Classify("6961130", "frm_87"));
         Assert.Equal(FrmGeneration.Frm1, FrmGuard.Classify("61.35-6 987 998", null));
         Assert.Equal(FrmGeneration.Frm2, FrmGuard.Classify("9166711", "frm_70"));
+        // Numbers only inferred from BMW's numbering are not trusted: unknown, so fragile.
+        Assert.Equal(FrmGeneration.Unknown, FrmGuard.Classify("9153777", "frm_70"));
+        Assert.Equal(FrmGeneration.Unknown, FrmGuard.Classify("3455896", null));      // MINI
+        Assert.Equal(FrmGeneration.Unknown, FrmGuard.Classify("12346961130", null));  // not a 61.35 number
         Assert.Equal(FrmGeneration.Frm3, FrmGuard.Classify("9224596", "frm_70"));
         Assert.Equal(FrmGeneration.Frm3, FrmGuard.Classify("61359241002", null));
         Assert.Equal(FrmGeneration.Frm3, FrmGuard.Classify("8886836", null));

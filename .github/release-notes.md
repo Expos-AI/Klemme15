@@ -1,6 +1,15 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.10.3:** practical advice for codes that are usually harmless. The junction box relay code A731 (common after an aftermarket radio install or a flat battery), the odometer backup mismatch 9315 and the "power supply interrupted" A738 now say when to ignore them and when to look further (including how to do a parasitic draw test), and are no longer listed as "fix now". DSC 5E40 on E90-family cars explains the steering angle calibration that usually clears it.
+**New in 0.11:**
+- **Coding (experimental).** Back up any comfort module's coding with no BMW data, compare it later to see exactly what any tool changed, and restore it in one click, with every block read back. With your own NCS Expert data you can see every setting by name and switch popular options: LED bulb-check off (indicators, brake, plate, parking, fog), digital speed, instant consumption, dial lighting, mirror fold, windows that keep closing when a door opens, wiper finish. Writing unlocks only after Klemme15 decodes your module exactly as NCS Expert does. It backs up first, changes only those bits, re-checks every setting and puts the original back if anything is off. The key module (CAS), engine and safety modules are never coded. See docs/CODING.md.
+- **FRM3 protection.** The Vehicle page tells you which footwell module you have, from its part number: FRM1, FRM2, or the fragile FRM3. A fragile or unidentified FRM is only coded or put through service functions at 13.0 V (a charger), and its faults are only cleared at 12.5 V. A low battery now warns before you clear faults or code on cars with an FRM.
+- **Valvetronic end-stop learning without BMW files** (N52, MSV70/MSV80).
+- **Cooling system bleed assistant** (Tests page) for engines with an electric water pump. It walks you through BMW's 12-minute routine (engine off, pedal to the floor) and watches the pump run.
+- **Phone dashboard for headless mode.** Open `klemme15 serve` on your phone for gauges, live tiles with sparklines, warnings and the engine's faults.
+- **How-to guides** with sources (Tests page): where every module is on an E90, fuses and the B+ cable, a parasitic battery drain test, connector notes for common jobs, the trunk lid harness, and the FRM3 problem.
+- The E60 family's 0x72 module is now correctly named the body module (KBM), not a footwell module.
+
+**0.10.3:** practical advice for codes that are usually harmless. The junction box relay code A731 (common after an aftermarket radio install or a flat battery), the odometer backup mismatch 9315 and the "power supply interrupted" A738 now say when to ignore them and when to look further (including how to do a parasitic draw test), and are no longer listed as "fix now". DSC 5E40 on E90-family cars explains the steering angle calibration that usually clears it.
 
 **0.10.2 (second real-car test):** engine readings confirmed working without BMW files (372 values read on a 2006 325i). "Read all" now reads 20 values per request: seconds instead of over a minute. Units are readable (°C, ° crank, mg/stroke, rpm). Live data pauses when you leave its page (unless recording), so the quick test runs at full speed: the module broadcast now works on the E90, so absent modules are skipped in 0.1 s.
 

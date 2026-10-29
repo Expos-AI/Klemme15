@@ -31,6 +31,15 @@ internal static class Cli
           serve   [--http 8080]         Headless telemetry: live data as JSON over HTTP (and MQTT)
                   [--mqtt host[:port]]  for a Raspberry Pi, Grafana or a home dashboard
                   [--pids ...] [--interval 1] [--mqtt-topic klemme15] [--mqtt-user u --mqtt-pass p]
+          coding --module <id> backup   Save a comfort module's coding to a file (no BMW data needed)
+                 [--out file]
+          coding --module <id> restore <file> [--yes]   Put a backup back (each block read back)
+          coding --module <id> compare <file>           Show what changed since a backup
+          coding --module <id> show --ncs <DATEN> [--trc FSW_PSW.TRC]   Settings by name, from your NCS Expert data
+          coding --module <id> set <option> on|off --ncs <DATEN> --trc <FSW_PSW.TRC> --experimental
+                                        Switch a comfort option (see 'coding options'); needs NCS Expert's
+                                        reading of the same module to verify Klemme15's map first
+          coding options                List the comfort options
           discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
           job     <sgbd> <job> [args]   Run any EDIABAS job (EDIABAS mode)
@@ -38,6 +47,7 @@ internal static class Cli
           db download                   Download the optional BMW fault database (bmw-unified-db, ~13 MB)
           db download-full              Also add engine readings without BMW files (~130 MB once, keeps a few MB)
           db install <json.tar.gz>      Install that database from a file you downloaded yourself
+          guides [id]                   List the how-to guides, or print one (where modules are, wiring, battery drain...)
           code <module> <code>          Look up what a code means, e.g. 'code E9x.DSC 5E1A --model 325i'
           sgbd <file.prg> [TABLE]       List the tables in one of your BMW files, or print one
 
@@ -149,6 +159,7 @@ internal static class Cli
             Console.WriteLine($"  troubleshooting: {guide.Title}");
             var n = 0;
             foreach (var step in guide.StepsFor(model?.EngineCode)) Console.WriteLine($"    {++n}. {step.Text}");
+            foreach (var src in guide.SourceList) Console.WriteLine($"    guide source: {src}");
         }
         if (f.OfficialSource is not null) Console.WriteLine($"  source: {f.OfficialSource}");
         foreach (var src in f.Sources) Console.WriteLine($"  community source: {src}");
@@ -179,6 +190,10 @@ internal static class Cli
                 return 0;
             case "service" when a.Positional.Count == 0:
                 return ListService(db);
+            case "coding" when a.Positional.FirstOrDefault() is "options" or null:
+                foreach (var t in Klemme15.Core.Coding.CodingToggles.All)
+                    Console.WriteLine($"  {t.Id,-20} [{t.Module}] {t.Title}\n{"",23}{t.Description}");
+                return 0;
             case "vehicles":
                 foreach (var v in db.Vehicles)
                 {
@@ -191,6 +206,23 @@ internal static class Cli
                 return 0;
             case "sgbd":
                 return DumpSgbd(a);
+            case "guides":
+                if (a.Positional.FirstOrDefault() is not { } gid)
+                {
+                    foreach (var g in db.Guides.All) Console.WriteLine($"  {g.Id,-22} {g.Title}");
+                    return 0;
+                }
+                if (db.Guides.All.FirstOrDefault(g => g.Id.Equals(gid, StringComparison.OrdinalIgnoreCase)) is not { } guide)
+                {
+                    Console.Error.WriteLine("Unknown guide. Run 'klemme15 guides'.");
+                    return 2;
+                }
+                Console.WriteLine($"{guide.Title}\n{guide.Summary}\n");
+                foreach (var w in guide.Safety) Console.WriteLine($"  ! {w}");
+                var number = 0;
+                foreach (var step in guide.StepsFor(a.Get("engine"))) Console.WriteLine($"  {++number}. {step.Text}");
+                foreach (var src in guide.SourceList) Console.WriteLine($"  source: {src}");
+                return 0;
             case "db":
                 return await Database(db, a);
         }
@@ -251,8 +283,9 @@ internal static class Cli
                 "service" => await Service(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token, vehicle),
                 "live" => await Live(backend, vehicle, a, cts.Token),
-                "serve" => await Serve(backend, vehicle, log, a, cts.Token),
+                "serve" => await Serve(backend, vehicle, log, a, cts.Token, codes),
                 "discover" => await Discover(backend, vehicle, cts.Token),
+                "coding" => await Coding(backend, vehicle, settings.Demo, log, a, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
                 "job" => await Job(backend, a, cts.Token),
                 _ => Unknown(a.Command),
@@ -275,6 +308,138 @@ internal static class Cli
                 File.WriteAllText(logFile, log.Export());
                 Console.WriteLine($"Traffic log saved to {logFile}");
             }
+        }
+    }
+
+    /// <summary>klemme15 coding --module FRM backup|restore|compare|show|set ...</summary>
+    private static async Task<int> Coding(IDiagnosticBackend backend, VehicleFamily vehicle, bool demo, TrafficLog log, Args a, CancellationToken ct)
+    {
+        if (backend is not IRawRequests raw) { Console.Error.WriteLine("Coding needs Klemme15's own connection (not --ediabas)."); return 2; }
+        var ecu = Module(vehicle, a);
+        if (!Klemme15.Core.Coding.CodingProtocol.IsCodable(ecu))
+        {
+            Console.Error.WriteLine($"Klemme15 doesn't code {ecu.Name}. Codable: {string.Join(", ", vehicle.Modules.Where(Klemme15.Core.Coding.CodingProtocol.IsCodable).Select(m => m.Id))}");
+            return 2;
+        }
+        var identity = await backend.IdentifyAsync(ecu, ct);
+        Console.WriteLine($"{ecu.Name}: {identity.Summary}");
+        if (FrmGuard.IsFootwellModule(ecu)) Console.WriteLine($"  {FrmGuard.Assess(identity).Label}: {FrmGuard.Assess(identity).Advice}");
+        var verb = a.Positional.FirstOrDefault() ?? "backup";
+        var progress = new Progress<string>(text => Console.Error.Write($"\r  {text}".PadRight(70)));
+
+        async Task<bool> Guard()
+        {
+            if (demo) return true;
+            var guard = await WriteGuard.CheckAsync(backend, ecu, identity, WriteKind.Coding, vehicle.Modules.FirstOrDefault(m => m.IsEngine), null, ct);
+            if (!guard.Allowed) Console.WriteLine($"Not written: {guard.Reason}");
+            return guard.Allowed;
+        }
+
+        async Task<Klemme15.Core.Coding.CodingBackup> Backup(string? note, bool useOut = true)
+        {
+            var blocks = await Klemme15.Core.Coding.CodingProtocol.DiscoverAsync(raw, ecu, progress, ct);
+            Console.Error.WriteLine();
+            if (blocks.Count == 0) throw new DiagnosticException($"{ecu.Name} didn't return any coding blocks.");
+            var b = new Klemme15.Core.Coding.CodingBackup
+            {
+                ModuleId = ecu.Id, ModuleName = ecu.Name, PartNumber = identity.PartNumber, CodingIndex = identity.CodingIndex,
+                Variant = identity.Variant, Taken = DateTimeOffset.Now, Note = note, Blocks = blocks,
+            };
+            var file = (useOut ? a.Get("out") : null) ?? b.FileName;
+            File.WriteAllText(file, b.ToJson());
+            Console.WriteLine($"Backup of {blocks.Count} blocks saved to {file}");
+            return b;
+        }
+
+        Klemme15.Core.Coding.NcsModule? LoadMap(IReadOnlyList<Klemme15.Core.Coding.CodingBlock> blocks, IReadOnlyDictionary<string, string>? trace)
+        {
+            if (a.Get("ncs") is not { } folder) { Console.Error.WriteLine("Pass --ncs <your NCS Expert DATEN folder>."); return null; }
+            var lib = Klemme15.Core.Coding.NcsLibrary.Open(folder, vehicle.Id);
+            if (lib is null) { Console.Error.WriteLine($"No NCS data for {vehicle.Id} in {folder}."); return null; }
+            var candidates = lib.Candidates(Klemme15.Core.Coding.CodingProtocol.ShortName(ecu), identity.CodingIndex, blocks, trace);
+            foreach (var c in candidates.Take(3)) Console.WriteLine($"  candidate {c.FileName}: {c.Why}");
+            return candidates.Count == 0 ? null : lib.Load(candidates[0].FileName);
+        }
+
+        switch (verb)
+        {
+            case "backup":
+                await Backup(null);
+                return 0;
+            case "restore":
+            case "compare":
+            {
+                if (a.Positional.Count < 2) { Console.Error.WriteLine($"usage: klemme15 coding --module <id> {verb} <backup file>"); return 2; }
+                var backup = Klemme15.Core.Coding.CodingBackup.FromJson(File.ReadAllText(a.Positional[1]));
+                if (Klemme15.Core.Coding.CodingProtocol.Mismatch(backup, ecu, identity) is { } why) { Console.Error.WriteLine(why); return 1; }
+                if (verb == "compare")
+                {
+                    var now = await Klemme15.Core.Coding.CodingProtocol.ReadBlocksAsync(raw, ecu, backup.Blocks.Select(b => b.Id), progress, ct);
+                    Console.Error.WriteLine();
+                    var diffs = Klemme15.Core.Coding.CodingProtocol.Compare(backup.Blocks, now);
+                    Console.WriteLine(diffs.Count == 0 ? "Identical to the backup." : $"{diffs.Count} byte(s) differ:");
+                    foreach (var d in diffs) Console.WriteLine($"  {d}");
+                    return 0;
+                }
+                if (!a.Has("experimental")) { Console.Error.WriteLine("Restoring writes to the module: add --experimental."); return 2; }
+                if (!Confirm($"Write the backup from {backup.Taken.LocalDateTime:g} back to {ecu.Name}?", a)) return 1;
+                if (!await Guard()) return 1;
+                await Backup("before restoring", useOut: false);
+                var written = await Klemme15.Core.Coding.CodingProtocol.RestoreAsync(raw, ecu, backup, identity, progress, ct);
+                Console.Error.WriteLine();
+                log.Note($"Coding of {ecu.Name} restored: {written} blocks");
+                Console.WriteLine(written == 0 ? "Already identical: nothing written." : $"Restored {written} block(s), each read back. Switch the ignition off for 10 s and on again.");
+                return 0;
+            }
+            case "show":
+            case "set":
+            {
+                var trace = a.Get("trc") is { } trc ? Klemme15.Core.Coding.NcsFiles.ParseTrace(File.ReadAllText(trc, System.Text.Encoding.Latin1)) : null;
+                var blocks = await Klemme15.Core.Coding.CodingProtocol.DiscoverAsync(raw, ecu, progress, ct);
+                Console.Error.WriteLine();
+                if (LoadMap(blocks, trace) is not { } map) return 1;
+                var verified = trace is null ? [] : Klemme15.Core.Coding.NcsDecoder.VerifiedLayouts(map, blocks, trace);
+                var layout = verified.FirstOrDefault()
+                             ?? (trace is not null ? Klemme15.Core.Coding.NcsDecoder.Verify(map, blocks, trace).Layout : null)
+                             ?? Klemme15.Core.Coding.NcsLayout.Candidates.MaxBy(l => Klemme15.Core.Coding.NcsDecoder.Plausibility(map, l, blocks))!;
+                if (trace is not null)
+                {
+                    var check = Klemme15.Core.Coding.NcsDecoder.Verify(map, blocks, trace);
+                    Console.WriteLine(verified.Count > 0 ? $"Verified against NCS Expert: {check.Summary}" : $"NOT verified: {check.Summary}");
+                    foreach (var m in check.Mismatches) Console.WriteLine($"  {m}");
+                }
+                if (verb == "show")
+                {
+                    foreach (var (setting, value) in Klemme15.Core.Coding.NcsDecoder.Decode(map, layout, blocks))
+                        Console.WriteLine($"  {setting.Key,-40} {value ?? "?"}");
+                    return 0;
+                }
+                if (a.Positional.Count < 3 || a.Positional[2] is not ("on" or "off")) { Console.Error.WriteLine("usage: klemme15 coding --module <id> set <option> on|off ..."); return 2; }
+                var toggle = Klemme15.Core.Coding.CodingToggles.All.FirstOrDefault(t => t.Id.Equals(a.Positional[1], StringComparison.OrdinalIgnoreCase));
+                if (toggle is null) { Console.Error.WriteLine("Unknown option. See 'klemme15 coding options'."); return 2; }
+                if (!toggle.Module.Equals(Klemme15.Core.Coding.CodingProtocol.ShortName(ecu), StringComparison.OrdinalIgnoreCase))
+                {
+                    Console.Error.WriteLine($"'{toggle.Id}' is a {toggle.Module} option, not for {ecu.Name}.");
+                    return 2;
+                }
+                if (!a.Has("experimental")) { Console.Error.WriteLine("Coding is experimental: add --experimental."); return 2; }
+                if (verified.Count == 0) { Console.Error.WriteLine("Writing needs --trc with NCS Expert's FSW_PSW.TRC read from this module, and a full match."); return 1; }
+                var changes = Klemme15.Core.Coding.CodingToggles.ChangesFor(toggle, map, a.Positional[2] == "on");
+                if (changes.Count == 0) { Console.Error.WriteLine($"{map.FileName} has none of this option's settings."); return 1; }
+                foreach (var (setting, value) in changes) Console.WriteLine($"  {setting.Key} -> {value}");
+                if (!Confirm($"Code {ecu.Name} now? A backup is saved first.", a)) return 1;
+                if (!await Guard()) return 1;
+                var backup = await Backup($"before {toggle.Id} {a.Positional[2]}");
+                var evidence = new Klemme15.Core.Coding.NcsEvidence(map, trace!, blocks);
+                var result = await Klemme15.Core.Coding.CodingWriter.ApplyAsync(raw, ecu, evidence, changes, backup, progress, ct);
+                Console.Error.WriteLine();
+                log.Note($"Coding {ecu.Name}: {toggle.Id} {a.Positional[2]} -> {result.Message}");
+                Console.WriteLine(result.Message);
+                return result.Success ? 0 : 1;
+            }
+            default:
+                Console.Error.WriteLine("usage: klemme15 coding --module <id> backup|restore|compare|show|set");
+                return 2;
         }
     }
 
@@ -616,7 +781,7 @@ internal static class Cli
         return 0;
     }
 
-    private static async Task<int> Serve(IDiagnosticBackend backend, VehicleFamily vehicle, TrafficLog log, Args a, CancellationToken ct)
+    private static async Task<int> Serve(IDiagnosticBackend backend, VehicleFamily vehicle, TrafficLog log, Args a, CancellationToken ct, IFaultCodeDatabase? codes = null)
     {
         var engine = vehicle.Modules.First(m => m.IsEngine);
         var available = backend.GetLiveParameters(engine);
@@ -638,12 +803,14 @@ internal static class Cli
             HttpPort: int.TryParse(a.Get("http"), out var hp) ? hp : 8080,
             MqttHost: mqttHost, MqttPort: mqttPort,
             MqttTopic: a.Get("mqtt-topic") ?? "klemme15", MqttUser: a.Get("mqtt-user"), MqttPass: a.Get("mqtt-pass"),
-            IntervalSeconds: double.TryParse(a.Get("interval"), NumberStyles.Float, CultureInfo.InvariantCulture, out var iv) ? iv : 1);
+            IntervalSeconds: double.TryParse(a.Get("interval"), NumberStyles.Float, CultureInfo.InvariantCulture, out var iv) ? iv : 1,
+            CarName: $"{vehicle.Name} {a.Get("model")}".Trim());
 
         Console.WriteLine($"Serving {parameters.Count} live values on http://localhost:{options.HttpPort}/  (Ctrl+C to stop)");
+        Console.WriteLine($"  Dashboard: open http://<this computer's address>:{options.HttpPort}/ on your phone (same Wi-Fi)");
         Console.WriteLine($"  JSON: http://localhost:{options.HttpPort}/live.json   faults: /faults   health: /health");
         if (mqttHost is not null) Console.WriteLine($"  MQTT: publishing to {mqttHost}:{mqttPort} under topic '{options.MqttTopic}/<value>'");
-        var server = new Klemme15.Telemetry.TelemetryServer(backend, engine, parameters, options, log);
+        var server = new Klemme15.Telemetry.TelemetryServer(backend, engine, parameters, options, log, codes);
         try { await server.RunAsync(ct); }
         catch (OperationCanceledException) { Console.WriteLine("Stopped."); }
         return 0;

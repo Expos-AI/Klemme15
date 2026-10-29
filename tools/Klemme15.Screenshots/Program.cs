@@ -76,6 +76,18 @@ vm.Service.RunCommand.Execute(null);
 WaitUntil(() => vm.Service.HasResult);
 Shot("18-service");
 vm.Service.Experimental = false;
+vm.CurrentPage = vm.Coding;
+Pump(100);
+if (vm.Coding.Modules.FirstOrDefault(m => m.Ecu.Id.EndsWith(".FRM", StringComparison.Ordinal)) is { } footwell)
+{
+    footwell.SelectCommand.Execute(null);
+    vm.Coding.BackupCommand.Execute(null);
+    WaitUntil(() => vm.Coding.HasBackups);
+    vm.Coding.Backups[0].CompareCommand.Execute(null);
+    WaitUntil(() => vm.Coding.HasDiff);
+    Shot("20-coding");
+}
+else problems.Add("20-coding: no codable module answered on the demo car");
 vm.CurrentPage = vm.Expert;
 Shot("09-expert");
 vm.CurrentPage = vm.Log;
@@ -153,6 +165,7 @@ sealed class NoDialogs : IDialogService
     public Task<bool> CopyTextAsync(string text) => Task.FromResult(false);
     public Task<bool> SaveTextAsync(string title, string suggestedName, string extension, string content) => Task.FromResult(false);
     public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
+    public Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<string?>(null);
     public Task OpenUrlAsync(string url) => Task.CompletedTask;
 }
 

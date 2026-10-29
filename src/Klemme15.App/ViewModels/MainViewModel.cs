@@ -32,10 +32,11 @@ public sealed class MainViewModel : ViewModelBase
             () => CurrentPage = Live!);
         Live = new LiveViewModel(Session, dialogs);
         Service = new ServiceViewModel(Session, settings);
-        Tests = new TestsViewModel(Session);
+        Coding = new CodingViewModel(Session, settings, dialogs);
+        Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url));
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);
-        Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Service, Expert, Log];
+        Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Service, Coding, Expert, Log];
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
@@ -56,6 +57,7 @@ public sealed class MainViewModel : ViewModelBase
     public ReadingsViewModel Readings { get; }
     public LiveViewModel Live { get; }
     public ServiceViewModel Service { get; }
+    public CodingViewModel Coding { get; }
     public TestsViewModel Tests { get; }
     public ExpertViewModel Expert { get; }
     public LogViewModel Log { get; }

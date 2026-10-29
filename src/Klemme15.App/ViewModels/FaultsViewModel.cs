@@ -100,7 +100,7 @@ public sealed class FaultGroupViewModel : ViewModelBase
             RelayCommand? live = step.Live && _guideActions is { } b && _session.IsConnected ? new RelayCommand(b.OpenLive) : null;
             return new GuideStepViewModel(i + 1, step.Text, readings, live);
         }).ToList();
-        return new GuideViewModel(guide.Title, guide.Summary, guide.Safety, steps);
+        return new GuideViewModel(guide.Title, guide.Summary, guide.Safety, steps, guide.SourceList.Select(u => new SourceLink(u, _openUrl)).ToList());
     }
 
     private async Task ClearAsync()

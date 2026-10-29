@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Klemme15.Core;
+using Klemme15.Data;
 
 namespace Klemme15.App.ViewModels;
 
@@ -32,6 +33,15 @@ public sealed class GuidedTestViewModel(GuidedTestInfo info) : ViewModelBase
     public RelayCommand? SelectCommand { get; set; }
 }
 
+public sealed class GuideItemViewModel(Guide guide) : ViewModelBase
+{
+    private bool _isSelected;
+    public Guide Guide { get; } = guide;
+    public string Title => Guide.Title;
+    public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
+    public RelayCommand? SelectCommand { get; set; }
+}
+
 /// <summary>
 /// Guided tests: Klemme15 measures the engine while telling you what to do (idle, hold 2,500 rpm, blip the throttle)
 /// and explains what the numbers mean. Read-only: nothing is changed on the car.
@@ -45,9 +55,19 @@ public sealed class TestsViewModel : PageViewModel
     private string _instruction = "", _status = "";
     private double _fraction;
 
-    public TestsViewModel(SessionState session)
+    private readonly Action<string> _openUrl;
+    private GuideViewModel? _guide;
+
+    public TestsViewModel(SessionState session, Action<string>? openUrl = null)
     {
         _session = session;
+        _openUrl = openUrl ?? (_ => { });
+        foreach (var g in session.Database.Guides.All.OrderBy(g => g.ReferenceOnly ? 0 : 1).ThenBy(g => g.Title))
+        {
+            var item = new GuideItemViewModel(g);
+            item.SelectCommand = new RelayCommand(() => SelectGuide(item));
+            Guides.Add(item);
+        }
         foreach (var t in GuidedTests.All)
         {
             var vm = new GuidedTestViewModel(t);
@@ -69,6 +89,26 @@ public sealed class TestsViewModel : PageViewModel
     public ObservableCollection<GuidedTestViewModel> Tests { get; } = [];
     public ObservableCollection<TestFindingViewModel> Findings { get; } = [];
     public ObservableCollection<TestValueViewModel> Values { get; } = [];
+    public ObservableCollection<GuideItemViewModel> Guides { get; } = [];
+
+    /// <summary>The how-to guide being read, when one is picked instead of a test.</summary>
+    public GuideViewModel? Guide
+    {
+        get => _guide;
+        private set { if (Set(ref _guide, value)) { Raise(nameof(ShowingGuide)); Raise(nameof(ShowingTest)); } }
+    }
+
+    public bool ShowingGuide => _guide is not null;
+    public bool ShowingTest => _guide is null;
+
+    private void SelectGuide(GuideItemViewModel item)
+    {
+        if (_running) return;
+        foreach (var t in Tests) t.IsSelected = false;
+        foreach (var g in Guides) g.IsSelected = g == item;
+        var steps = item.Guide.StepsFor(_session.Model?.EngineCode).Select((s, i) => new GuideStepViewModel(i + 1, s.Text, null, null)).ToList();
+        Guide = new GuideViewModel(item.Guide.Title, item.Guide.Summary, item.Guide.Safety, steps, item.Guide.SourceList.Select(u => new SourceLink(u, _openUrl)).ToList());
+    }
 
     public bool NotConnected => !_session.IsConnected;
     private EcuDefinition? Engine => _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine);
@@ -101,6 +141,8 @@ public sealed class TestsViewModel : PageViewModel
     {
         if (_running) return;
         foreach (var t in Tests) t.IsSelected = t == test;
+        foreach (var g in Guides) g.IsSelected = false;
+        Guide = null;
         _selected = test;
         Findings.Clear();
         Values.Clear();

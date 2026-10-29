@@ -21,8 +21,15 @@ public sealed record Guide(
     IReadOnlyList<GuideStep> Steps,
     IReadOnlyList<string> ObdCodes,
     IReadOnlyList<string> Keywords,
-    IReadOnlyList<string> Modules)
+    IReadOnlyList<string> Modules,
+    IReadOnlyList<string>? Sources = null)
 {
+    /// <summary>Where the guide's facts come from.</summary>
+    public IReadOnlyList<string> SourceList => Sources ?? [];
+
+    /// <summary>A reference guide (no codes or keywords): only listed in the guide library, never attached to a fault.</summary>
+    public bool ReferenceOnly => ObdCodes.Count == 0 && Keywords.Count == 0;
+
     /// <summary>Steps that apply to this engine (all steps when the engine is unknown).</summary>
     public IReadOnlyList<GuideStep> StepsFor(string? engine) =>
         Steps.Where(s => s.Engines.Count == 0 || engine is null
@@ -61,7 +68,8 @@ public sealed class GuideLibrary
                 List(s, "engines"))).ToList(),
             List(g, "obd").Select(c => c.ToUpperInvariant()).ToList(),
             List(g, "keywords").Select(k => k.ToLowerInvariant()).ToList(),
-            List(g, "modules"))).ToList();
+            List(g, "modules"),
+            List(g, "sources"))).ToList();
         return new GuideLibrary(guides);
     }
 

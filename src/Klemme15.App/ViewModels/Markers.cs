@@ -220,8 +220,11 @@ public sealed class GuideStepViewModel(int number, string text, RelayCommand? re
 }
 
 /// <summary>A troubleshooting guide shown under a fault.</summary>
-public sealed class GuideViewModel(string title, string summary, IReadOnlyList<string> safety, IReadOnlyList<GuideStepViewModel> steps)
+public sealed class GuideViewModel(string title, string summary, IReadOnlyList<string> safety, IReadOnlyList<GuideStepViewModel> steps,
+    IReadOnlyList<SourceLink>? sources = null)
 {
+    public IReadOnlyList<SourceLink> Sources { get; } = sources ?? [];
+    public bool HasSources => Sources.Count > 0;
     public string Title { get; } = title;
     public string Summary { get; } = summary;
     public IReadOnlyList<string> Safety { get; } = safety;
