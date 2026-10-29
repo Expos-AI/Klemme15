@@ -358,7 +358,7 @@ public sealed class VirtualCar : ITransport
         new VirtualEcu { Address = 0x01, Ident = "9184432 ACSM HW 02 SW 09" },
         new VirtualEcu { Address = 0x40, Ident = "9147215 CAS3 HW 03 SW 21" },
         new VirtualEcu { Address = 0x60, Ident = "9187040 KOMBI HW 06 SW 0E" },
-        new VirtualEcu { Address = 0x72, Ident = "6981534 FRM2 HW 02 SW 0A", Faults = [(0xA3B4, 0x60)] },
+        new VirtualEcu { Address = 0x72, Ident = "6981534 FRMFA HW 02 SW 0A", Faults = [(0xA3B4, 0x60)] },
         new VirtualEcu { Address = 0x00, Ident = "9147177 JBBF HW 07 SW 33" },
         new VirtualEcu { Address = 0x78, Ident = "9182287 IHKA HW 01 SW 05" },
     ]);

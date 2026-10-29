@@ -22,8 +22,16 @@ public sealed record ServiceStep(string Job, string Args, double Wait = 0, bool 
 /// <paramref name="Map"/> translates a choice into the value these variants expect ("oil" → "Oel").
 /// </summary>
 public sealed record ServiceImplementation(IReadOnlyList<string> Variants, IReadOnlyList<ServiceStep> Steps, IReadOnlyList<ServiceStep> Stop,
-    byte[]? Native, byte[]? Expect, IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>? Map = null)
+    byte[]? Native, byte[]? Expect, IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>>? Map = null,
+    IReadOnlyList<NativeStep>? NativeSteps = null, IReadOnlyList<byte[]>? NativeStop = null)
 {
+    /// <summary>The raw requests Klemme15 sends itself (no BMW files needed), in order. Empty when there are none.</summary>
+    public IReadOnlyList<NativeStep> NativeSequence =>
+        NativeSteps is { Count: > 0 } steps ? steps : Native is { } one ? [new NativeStep(one, Expect)] : [];
+
+    /// <summary>Requests that always follow the native sequence (even after a failure or cancel) to hand the part back.</summary>
+    public IReadOnlyList<byte[]> NativeStopRequests => NativeStop ?? [];
+
     /// <summary>The main job (first step).</summary>
     public string? Job => Steps.Count > 0 ? Steps[0].Job : null;
 
@@ -31,6 +39,9 @@ public sealed record ServiceImplementation(IReadOnlyList<string> Variants, IRead
     public bool Supports(string input, string value) =>
         Map is null || !Map.TryGetValue(input, out var m) || m.ContainsKey(value);
 }
+
+/// <summary>One documented request Klemme15 sends itself. <paramref name="Show"/> shows the reply's data bytes.</summary>
+public sealed record NativeStep(byte[] Send, byte[]? Expect, double Wait = 0, bool Show = false, string? Say = null);
 
 public sealed record ServiceChoice(string Value, string Label);
 
@@ -99,8 +110,13 @@ public sealed class ServiceLibrary
                 if (i.TryGetProperty("map", out var mp))
                     map = mp.EnumerateObject().ToDictionary(p => p.Name,
                         p => (IReadOnlyDictionary<string, string>)p.Value.EnumerateObject().ToDictionary(q => q.Name, q => q.Value.GetString()!));
+                var nativeSteps = i.TryGetProperty("nativeSteps", out var ns)
+                    ? ns.EnumerateArray().Select(x => new NativeStep(Hex(Str(x, "send"))!, Hex(Str(x, "expect")),
+                        x.TryGetProperty("wait", out var nw) && nw.ValueKind == JsonValueKind.Number ? nw.GetDouble() : 0, Bool(x, "show"), Str(x, "say"))).ToList()
+                    : null;
+                var nativeStop = i.TryGetProperty("nativeStop", out var nst) ? nst.EnumerateArray().Select(x => Hex(x.GetString())!).ToList() : null;
                 return new ServiceImplementation(List(i, "variants").Select(v => v.ToLowerInvariant()).ToList(), steps, stop,
-                    Hex(Str(i, "native")), Hex(Str(i, "expect")), map);
+                    Hex(Str(i, "native")), Hex(Str(i, "expect")), map, nativeSteps, nativeStop);
             }).ToList();
             var modules = f.GetProperty("module") is { ValueKind: JsonValueKind.Array } ma
                 ? ma.EnumerateArray().Select(x => x.GetString()!).ToList()
@@ -150,7 +166,7 @@ public static class ServiceRunner
         var impl = f.Implementations.FirstOrDefault(i => i.Variants.Contains(v));
         if (impl is null) return new(false, $"Not available for {ecu.Name} version {variant.ToUpperInvariant()} yet.");
         if (canRunJobs && impl.Job is not null) return new(true, $"Runs BMW's own procedure for {variant.ToUpperInvariant()} from your BMW files.", impl, ServiceMode.Ediabas, v);
-        if (canSendRaw && impl.Native is not null) return new(true, "Runs without BMW files (Klemme15 sends the documented request itself).", impl, ServiceMode.Native, v);
+        if (canSendRaw && impl.NativeSequence.Count > 0) return new(true, "Runs without BMW files (Klemme15 sends the documented request itself).", impl, ServiceMode.Native, v);
         return new(false, impl.Job is not null
             ? "Needs your BMW files: connect with \"Use my own BMW files\" ticked."
             : "Not available with this connection.");
@@ -349,12 +365,32 @@ public static class ServiceRunner
             else
             {
                 var raw = backend as IRawRequests ?? throw new DiagnosticException("This connection can't send the request.");
-                var reply = await raw.RequestAsync(ecu, impl.Native!, ct) ?? throw new DiagnosticException("No reply from the module.");
-                details.Add($"Sent {Convert.ToHexString(impl.Native!)}, reply {Convert.ToHexString(reply)}");
-                if (reply.Length >= 3 && reply[0] == 0x7F)
-                    throw new DiagnosticException($"The module refused ({NegativeResponse(reply[2])}).");
-                if (impl.Expect is { } expect && !reply.AsSpan().StartsWith(expect))
-                    throw new DiagnosticException("The module's reply wasn't the expected confirmation.");
+                var sequence = impl.NativeSequence;
+                for (var i = 0; i < sequence.Count; i++)
+                {
+                    ct.ThrowIfCancellationRequested();
+                    var step = sequence[i];
+                    progress?.Report(step.Say ?? (sequence.Count > 1 ? $"Step {i + 1} of {sequence.Count}" : "Sending the request..."));
+                    started = true;
+                    var reply = await raw.RequestAsync(ecu, step.Send, ct) ?? throw new DiagnosticException("No reply from the module.");
+                    details.Add($"Sent {Convert.ToHexString(step.Send)}, reply {Convert.ToHexString(reply)}");
+                    if (reply.Length >= 3 && reply[0] == 0x7F)
+                        throw new DiagnosticException($"The module refused ({NegativeResponse(reply[2])}).");
+                    if (step.Expect is { } expect && !reply.AsSpan().StartsWith(expect))
+                        throw new DiagnosticException("The module's reply wasn't the expected confirmation.");
+                    if (step.Show && reply.Length > step.Send.Length)
+                        details.Add($"Module reports: {Convert.ToHexString(reply.AsSpan(Math.Min(reply.Length, step.Send.Length)))}");
+                    if (step.Wait > 0)
+                    {
+                        var until = DateTime.UtcNow.AddSeconds(step.Wait);
+                        while (DateTime.UtcNow < until)
+                        {
+                            var left = (int)Math.Ceiling((until - DateTime.UtcNow).TotalSeconds);
+                            progress?.Report($"{step.Say ?? "Running"} ({left} s left)");
+                            await Task.Delay(TimeSpan.FromMilliseconds(Math.Min(1000, Math.Max(50, (until - DateTime.UtcNow).TotalMilliseconds))), ct);
+                        }
+                    }
+                }
             }
             log?.Note($"  -> done: {string.Join("; ", details)}");
             return new(true, plan.Mode == ServiceMode.Demo ? "Done (demo car)." : "Done. The module confirmed every step.", details);
@@ -367,6 +403,19 @@ public static class ServiceRunner
         finally
         {
             // Always hand the part back to the module, even after a failure or when the user stopped the test.
+            if (started && plan.Mode == ServiceMode.Native && backend is IRawRequests stopRaw)
+                foreach (var stop in impl.NativeStopRequests)
+                {
+                    try
+                    {
+                        var reply = await stopRaw.RequestAsync(ecu, stop, CancellationToken.None);
+                        log?.Note($"  -> ended with {Convert.ToHexString(stop)} (reply {(reply is null ? "none" : Convert.ToHexString(reply))})");
+                    }
+                    catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException)
+                    {
+                        log?.Note($"  -> {Convert.ToHexString(stop)} failed: {e.Message}");
+                    }
+                }
             if (started && jobs is not null && plan.Mode == ServiceMode.Ediabas)
                 foreach (var stop in impl.Stop)
                 {

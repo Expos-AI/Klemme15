@@ -37,6 +37,10 @@ public sealed class EngineSignals(IDiagnosticBackend backend, EcuDefinition engi
         ["rough3"] = ["STAT_LAUFUNRUHE_ZYL3_WERT"], ["rough4"] = ["STAT_LAUFUNRUHE_ZYL4_WERT"],
         ["rough5"] = ["STAT_LAUFUNRUHE_ZYL5_WERT"], ["rough6"] = ["STAT_LAUFUNRUHE_ZYL6_WERT"],
         ["rough7"] = ["STAT_LAUFUNRUHE_ZYL7_WERT"], ["rough8"] = ["STAT_LAUFUNRUHE_ZYL8_WERT"],
+        // Electric water pump (N51/N52/N53/N54/N55): actual and requested speed, and its current.
+        ["pump_speed"] = ["STAT_WASSERPUMPE_DREHZAHL_WERT", "STAT_EWAP_DREHZAHL_WERT"],
+        ["pump_target"] = ["STAT_WASSERPUMPE_DREHZAHL_SOLL_WERT", "STAT_EWAP_DREHZAHL_SOLL_WERT"],
+        ["pump_current"] = ["STAT_WASSERPUMPE_STROM_WERT"],
     };
 
     private static readonly HashSet<string> ObdIds = ["rpm", "coolant", "voltage", "stft1", "stft2", "ltft1", "ltft2", "speed"];

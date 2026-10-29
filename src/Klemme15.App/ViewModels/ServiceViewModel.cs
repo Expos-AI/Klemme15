@@ -204,8 +204,16 @@ public sealed class ServiceViewModel : PageViewModel
     };
     public bool IsHighRisk => _selected?.Function.Risk == ServiceRisk.High;
     public bool Unverified => _selected is { Function.Verified: false };
-    public string Caution => _selected?.Function.Caution ?? "";
-    public bool HasCaution => _selected?.Function.Caution is not null;
+    public string Caution => string.Join("\n\n", new[] { _selected?.Function.Caution, FrmCaution }.Where(x => x is not null));
+    public bool HasCaution => Caution.Length > 0;
+
+    /// <summary>The footwell module's own warning, when this function writes to it.</summary>
+    private string? FrmCaution =>
+        _selected is { } item && ModuleOf(item.Function) is { } ecu && FrmGuard.IsFootwellModule(ecu)
+            ? $"{FrmGuard.Assess(IdentityOf(ecu)).Label}: {FrmGuard.Assess(IdentityOf(ecu)).Advice}"
+            : null;
+
+    private EcuIdentity? IdentityOf(EcuDefinition ecu) => _session.LastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == ecu.Id)?.Identity;
     public IReadOnlyList<string> Before => _selected?.Function.Before ?? [];
     public IReadOnlyList<string> After => _selected?.Function.After ?? [];
     public bool HasBefore => Before.Count > 0;
@@ -320,7 +328,12 @@ public sealed class ServiceViewModel : PageViewModel
                 ? ServiceRunner.DemoState(item.Function.Checks)
                 : await ServiceRunner.ReadStateAsync(backend, _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements);
             Checks.Clear();
-            foreach (var c in ServiceRunner.Evaluate(item.Function.Checks, state))
+            var checks = item.Function.Checks;
+            // A fragile footwell module raises the voltage floor (FRM3 rule).
+            if (ModuleOf(item.Function) is { } target && WriteGuard.FloorFor(target, IdentityOf(target), WriteKind.ServiceFunction) is { } floor
+                && (checks.MinVoltage is null || checks.MinVoltage < floor))
+                checks = checks with { MinVoltage = floor };
+            foreach (var c in ServiceRunner.Evaluate(checks, state))
                 Checks.Add(new ServiceCheckViewModel(c, Changed));
             _checked = true;
             Raise(nameof(HasChecks));
@@ -350,6 +363,18 @@ public sealed class ServiceViewModel : PageViewModel
         Status = $"Running '{item.Title}'. Don't switch off the ignition or unplug the cable.";
         try
         {
+            if (!_session.IsDemo && FrmGuard.IsFootwellModule(ecu))
+            {
+                var guard = await WriteGuard.CheckAsync(backend, ecu, IdentityOf(ecu), WriteKind.ServiceFunction,
+                    _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements, _cts.Token);
+                if (!guard.Allowed)
+                {
+                    ResultOk = false;
+                    Result = $"Not started: {guard.Reason}";
+                    Status = "Nothing was sent to the module.";
+                    return;
+                }
+            }
             var progress = new Progress<string>(text => Status = text);
             var outcome = await ServiceRunner.RunAsync(item.Function, item.Availability, backend, ecu, InputValues(), progress, _session.Log, _cts.Token);
             ResultOk = outcome.Success;

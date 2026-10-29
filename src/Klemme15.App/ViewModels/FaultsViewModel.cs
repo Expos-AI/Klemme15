@@ -107,8 +107,14 @@ public sealed class FaultGroupViewModel : ViewModelBase
     {
         Confirming = false;
         if (_session.Backend is not { } backend) return;
-        await backend.ClearFaultsAsync(Ecu);
         var identity = _session.LastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == Ecu.Id)?.Identity;
+        if (!_session.IsDemo)
+        {
+            var guard = await WriteGuard.CheckAsync(backend, Ecu, identity, WriteKind.ClearFaults,
+                _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements);
+            if (!guard.Allowed) { Message = $"Not cleared: {guard.Reason}"; return; }
+        }
+        await backend.ClearFaultsAsync(Ecu);
         var remaining = new VehicleScanner(backend, _session.Codes).Describe(await backend.ReadFaultsAsync(Ecu), Ecu, identity);
         Fill(remaining);
         Message = remaining.Count == 0

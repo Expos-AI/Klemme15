@@ -77,6 +77,12 @@
       <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,10" IsVisible="{Binding HasWarning}">
         <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" />
       </Border>
+      <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,10" IsVisible="{Binding FrmFragile}">
+        <TextBlock Text="{Binding FrmNotice}" TextWrapping="Wrap" FontWeight="SemiBold" />
+      </Border>
+      <Border Classes="panel" Padding="14,10" IsVisible="{Binding FrmSafe}">
+        <TextBlock Classes="muted" Text="{Binding FrmNotice}" TextWrapping="Wrap" />
+      </Border>
       <Border Classes="panel" Padding="14,10" IsVisible="{Binding ConfirmClearAll}">
         <DockPanel>
           <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" Margin="12,0,0,0">

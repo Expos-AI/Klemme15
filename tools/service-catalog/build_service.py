@@ -40,9 +40,20 @@ def S(job, args="", wait=0, show=False, say=None):
     if say: d["say"] = say
     return d
 
-def R(job, args="", sig=(), then=(), stop=(), wait=0, say=None, show=False, map=None, only=None, exclude=(), native=None, expect=None):
+def N(send, expect=None, wait=0, show=False, say=None):
+    """A documented request Klemme15 sends itself (no BMW files needed)."""
+    d = {"send": send}
+    if expect: d["expect"] = expect
+    if wait: d["wait"] = wait
+    if show: d["show"] = True
+    if say: d["say"] = say
+    return d
+
+def R(job, args="", sig=(), then=(), stop=(), wait=0, say=None, show=False, map=None, only=None, exclude=(), native=None, expect=None,
+      native_steps=None, native_stop=None):
     return dict(job=job, args=args, sig=list(sig) if sig is not None else None, then=list(then), stop=list(stop), wait=wait,
-                say=say, show=show, map=map, only=only, exclude=set(exclude), native=native, expect=expect)
+                say=say, show=show, map=map, only=only, exclude=set(exclude), native=native, expect=expect,
+                native_steps=native_steps, native_stop=native_stop)
 
 def choice(id, label, choices):
     return {"id": id, "label": label, "type": "choice", "choices": [{"value": v, "label": l} for v, l in choices]}
@@ -144,13 +155,22 @@ F("valvetronic-learn", "Learn the Valvetronic end stops", "Engine", ["DME"],
   "Lets the engine computer move the Valvetronic eccentric shaft to its end stops and store them.",
   "After replacing the Valvetronic motor, its sensor or the engine computer, or with Valvetronic faults after repairs.",
   "medium",
-  [R("START_SYSTEMCHECK_VVT_ANSCHLAG", "6", sig=["PARAMETER"], wait=30, say="Learning the end stops", stop=[S("STOP_SYSTEMCHECK_VVT_ANSCHLAG")]),
-   R("START_SYSTEMCHECK_VVT_ANSCHLAG", "6", sig=["PARAMETER_WERT"], wait=30, say="Learning the end stops", stop=[S("STOP_SYSTEMCHECK_VVT_ANSCHLAG")]),
+  # N52 engine computers (MSV70/MSV80): BMW's job descriptions document the request ($31 27 with 6 = learn both stops, $21 27
+  # for the status, $32 27 to end it), so Klemme15 can also send it itself without BMW files.
+  [R("START_SYSTEMCHECK_VVT_ANSCHLAG", "6", sig=["PARAMETER"], wait=30, say="Learning the end stops", stop=[S("STOP_SYSTEMCHECK_VVT_ANSCHLAG")],
+     then=[S("STATUS_SYSTEMCHECK_VVT_ANSCHLAG", show=True)], only=["msv70"],
+     native_steps=[N("312706", "7127", wait=30, say="Learning the end stops"), N("2127", "6127", show=True, say="Reading the result")],
+     native_stop=["3227"]),
+   R("START_SYSTEMCHECK_VVT_ANSCHLAG", "6", sig=["PARAMETER_WERT"], wait=30, say="Learning the end stops", stop=[S("STOP_SYSTEMCHECK_VVT_ANSCHLAG")],
+     then=[S("STATUS_SYSTEMCHECK_VVT_ANSCHLAG", show=True)], only=["msv80"],
+     native_steps=[N("312706", "7127", wait=30, say="Learning the end stops"), N("2127", "6127", show=True, say="Reading the result")],
+     native_stop=["3227"]),
    R("START_SYSTEMCHECK_VVT_ANSCHLAG", wait=30, say="Learning the end stops", stop=[S("STOP_SYSTEMCHECK_VVT_ANSCHLAG")]),
    R("STEUERN_VVT_ANSCHLAG", wait=30, say="Learning the end stops", stop=[S("STOP_VVT_ANSCHLAG")]),
    R("STEUERN_VVT_ANSCHLAG", wait=30, say="Learning the end stops", stop=[S("ENDE_VVT_ANSCHLAG")])],
   before=["Engine off, ignition on. You may hear the motor at the front of the cylinder head buzz."],
-  after=["Clear the engine fault memory, start the engine and check it idles smoothly."],
+  after=["Without BMW files the result is the engine computer's status code: 06 usually means the learning finished, 01 that it couldn't start (engine off, ignition on, no Valvetronic faults stored that block it).",
+         "Clear the engine fault memory, start the engine and check it idles smoothly. If the learning keeps failing, the eccentric shaft may be binding or its sensor may be faulty."],
   checks=checks(engineOff=True, minVoltage=12.5),
   duration="About 30 seconds")
 
@@ -790,6 +810,8 @@ def build():
             if r["stop"]: impl["stop"] = r["stop"]
             if r["map"]: impl["map"] = r["map"]
             if r["native"]: impl["native"], impl["expect"] = r["native"], r["expect"]
+            if r["native_steps"]: impl["nativeSteps"] = r["native_steps"]
+            if r["native_stop"]: impl["nativeStop"] = r["native_stop"]
             impls.append(impl)
         if not impls:
             problems.append(f"{f['id']}: no implementation at all")
@@ -848,7 +870,7 @@ def write_docs(out):
             if e["category"] != cat: continue
             mods = e["module"] if isinstance(e["module"], list) else [e["module"]]
             n = sum(len(i["variants"]) for i in e["implementations"])
-            native = any("native" in i for i in e["implementations"])
+            native = any("native" in i or "nativeSteps" in i for i in e["implementations"])
             title = e["title"] + (" (also without BMW files)" if native else "")
             lines.append(f"| {title} | {' / '.join(mods)} | {e['when']} | {n} |")
         lines.append("")
