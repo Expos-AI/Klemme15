@@ -93,6 +93,10 @@ public static class Icons
     public static readonly Geometry Service = StreamGeometry.Parse("M14.7 6.3a4 4 0 0 0-5.2 5.2L3 18l3 3 6.5-6.5a4 4 0 0 0 5.2-5.2l-2.5 2.5-2.1-.6-.6-2.1z");
     public static readonly Geometry Tests = StreamGeometry.Parse("M2 11h4l2-5 4 12 3-9 2 2h5v2h-6l-1-1-3 9-4-12-1 2H2z");
     public static readonly Geometry Expert = StreamGeometry.Parse("M2 4h20v16H2zm2 2v12h16V6zM6.4 8 11 12l-4.6 4L5 14.6 8 12 5 9.4zM12 15h6v2h-6z");
+    public static readonly Geometry Info = StreamGeometry.Parse("M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20zm-1 5h2v2h-2zm0 4h2v6h-2z");
+    public static readonly Geometry Support = StreamGeometry.Parse("M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20zm0 15.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm0-11c-2 0-3.4 1.2-3.6 3.1l1.9.3c.1-1 .7-1.6 1.6-1.6.9 0 1.5.5 1.5 1.3 0 .7-.3 1-1.2 1.6-1 .7-1.6 1.4-1.5 2.8h1.9c0-.8.3-1.2 1.2-1.8 1-.7 1.7-1.5 1.7-2.8 0-1.8-1.5-2.9-3.5-2.9z");
+    public static readonly Geometry Privacy = StreamGeometry.Parse("M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5zm0 2.2 6 2.2V11c0 3.8-2.5 6.7-6 8.7-3.5-2-6-4.9-6-8.7V6.4z");
+    public static readonly Geometry Coffee = StreamGeometry.Parse("M4 8h14v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zm14 0h2a3 3 0 0 1 0 6h-2zM7 2h2v3H7zm4 0h2v3h-2zM3 21h16v2H3z");
     public static readonly Geometry Analyse = StreamGeometry.Parse("M3 3v18h18v-2H5V3zm4 11 3-3 3 3 5-6-1.4-1.4L15 11l-3-3-5 5z");
     public static readonly Geometry Coding = StreamGeometry.Parse("M9 2v2H7a2 2 0 0 0-2 2v2H3v2h2v2H3v2h2v2a2 2 0 0 0 2 2h2v2h2v-2h2v2h2v-2h2a2 2 0 0 0 2-2v-2h2v-2h-2v-2h2V8h-2V6a2 2 0 0 0-2-2h-2V2h-2v2h-2V2zM7 6h10v12H7zm2 3v6h6V9z");
     public static readonly Geometry Log = StreamGeometry.Parse("M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z");

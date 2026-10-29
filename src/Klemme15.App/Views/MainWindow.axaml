@@ -31,7 +31,23 @@
           <controls:LogoMark Width="44" Height="44" HorizontalAlignment="Center" />
           <TextBlock Text="Klemme15" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold" FontSize="13" HorizontalAlignment="Center" />
         </StackPanel>
-        <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,16" Spacing="6">
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,14" Spacing="8">
+          <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Margin="14,0" Padding="0,10,0,0">
+            <WrapPanel HorizontalAlignment="Center" MaxWidth="72">
+              <Button Classes="quiet" Command="{Binding AboutCommand}" ToolTip.Tip="About Klemme15" Width="32" Height="30">
+                <PathIcon Data="{x:Static vm:Icons.Info}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              </Button>
+              <Button Classes="quiet" Command="{Binding SupportCommand}" ToolTip.Tip="Help and support" Width="32" Height="30">
+                <PathIcon Data="{x:Static vm:Icons.Support}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              </Button>
+              <Button Classes="quiet" Command="{Binding PrivacyCommand}" ToolTip.Tip="Privacy policy" Width="32" Height="30">
+                <PathIcon Data="{x:Static vm:Icons.Privacy}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              </Button>
+              <Button Classes="quiet" Command="{Binding CoffeeCommand}" ToolTip.Tip="Buy me a coffee" Width="32" Height="30" IsVisible="{Binding HasCoffee}">
+                <PathIcon Data="{x:Static vm:Icons.Coffee}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              </Button>
+            </WrapPanel>
+          </Border>
           <Button Classes="quiet" Command="{Binding ToggleThemeCommand}" HorizontalAlignment="Center"
                   ToolTip.Tip="Switch between dark and light">
             <PathIcon Data="{x:Static vm:Icons.Theme}" Width="16" Height="16" Foreground="{DynamicResource MutedBrush}" />

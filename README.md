@@ -156,6 +156,10 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 Diagnostics are read-only by default. Clearing faults asks first. Service functions check the car, ask you to confirm each requirement and only run when you press Run; unverified ones need the experimental switch. Coding is limited to comfort modules, always backed up first and verified against NCS Expert's reading of your module before anything is written (see [docs/CODING.md](docs/CODING.md)). Flashing, keys, the key module (CAS) and anything touching the immobiliser are **not** included. Never use Klemme15 while driving; have a passenger watch live data or record it to CSV.
 
+## Privacy
+
+Everything Klemme15 reads from your car stays on your computer. It has no account, no telemetry and no server; it only goes online when you ask it to (downloading the optional fault database, opening a link, or a network cable/`serve` you configure). Your VIN is never transmitted. See [PRIVACY.md](PRIVACY.md).
+
 ## Contributing
 
 The fastest way to help is to **test on your car** and send the saved report and traffic log. See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/CONTRIBUTING-DATA.md](docs/CONTRIBUTING-DATA.md).
