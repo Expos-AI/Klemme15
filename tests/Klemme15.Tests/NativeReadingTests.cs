@@ -113,6 +113,23 @@ public class NativeReadingTests
     }
 
     [Fact]
+    public async Task Reads_many_readings_at_once()
+    {
+        var defined = new List<ushort>();
+        var module = new FakeModule(r => Msv70(r, new() { [0x4200] = [0x50], [0x5A85] = [0x02, 0xEE] }, defined));
+        var readings = new NativeReadings(module, new ThreeValues(), _ => "msv70");
+        var values = await readings.ReadManyAsync(Dme, ["STAT_A_WERT", "STAT_B_WERT"]);
+        Assert.Equal(12.0, values["STAT_A_WERT"][0].Number);
+        Assert.Equal(750.0, values["STAT_B_WERT"][0].Number);
+        Assert.Equal(3, module.Sent.Count);   // clear, define both, read once
+    }
+
+    [Fact]
+    public void Units_are_readable() =>
+        Assert.Equal(["°C", "° crank", "rpm", "mg/stroke", null, "l"],
+            new[] { "degC", "Grad KW", "1/min", "mg/Hub", "0/1", "l manuell" }.Select(Units.Normalize).ToArray());
+
+    [Fact]
     public async Task Falls_back_to_22_when_the_module_refuses_records()
     {
         var module = new FakeModule(r => r[0] == 0x22 ? [0x62, r[1], r[2], 0x50] : [0x7F, r[0], 0x11]);

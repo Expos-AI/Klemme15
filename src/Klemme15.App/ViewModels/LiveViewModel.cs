@@ -114,6 +114,15 @@ public sealed class LiveViewModel : PageViewModel
     public RelayCommand RecordCommand { get; }
     public AsyncCommand SaveRecordingCommand { get; }
 
+    /// <summary>
+    /// Leaving the page pauses live data (unless it's recording), so the quick test, readings and service functions
+    /// have the bus to themselves: on a real E90, background polling doubled the quick test's time.
+    /// </summary>
+    public override void OnHidden()
+    {
+        if (_recording is null) Stop();
+    }
+
     public override void OnShown()
     {
         if (Parameters.Count == 0) LoadParameters();

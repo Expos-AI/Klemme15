@@ -1,5 +1,7 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
+**New in 0.10.2 (second real-car test):** engine readings confirmed working without BMW files (372 values read on a 2006 325i). "Read all" now reads 20 values per request: seconds instead of over a minute. Units are readable (°C, ° crank, mg/stroke, rpm). Live data pauses when you leave its page (unless recording), so the quick test runs at full speed: the module broadcast now works on the E90, so absent modules are skipped in 0.1 s.
+
 **Fixed after the first real-car test (2006 E90 325i):**
 - Module identification is decoded: part number, hardware and coding index and production date for every D-CAN module (the engine computer's part number now pins down its exact version, e.g. MSV70).
 - Engine readings without BMW files now work: the engine computer refused the request Klemme15 used, so values are read the way BMW's own tools do (a temporary measurement record). This also fixes the VANOS and cylinder roughness tests.
