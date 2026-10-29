@@ -12,6 +12,9 @@ public interface IDialogService
 
     Task<string?> PickFolderAsync(string title);
 
+    /// <summary>Asks for a file and returns its text, or null if the user cancelled.</summary>
+    Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns);
+
     /// <summary>Opens a web page in the user's browser.</summary>
     Task OpenUrlAsync(string url);
 
@@ -50,6 +53,20 @@ public sealed class DialogService(Window owner) : IDialogService
         return true;
     }
 
+    public async Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns)
+    {
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType(description) { Patterns = patterns }],
+        });
+        if (files.Count == 0) return null;
+        await using var stream = await files[0].OpenReadAsync();
+        using var reader = new StreamReader(stream, System.Text.Encoding.Latin1);
+        return await reader.ReadToEndAsync();
+    }
+
     public async Task<string?> PickFolderAsync(string title)
     {
         var folders = await owner.StorageProvider.OpenFolderPickerAsync(new FolderPickerOpenOptions { Title = title, AllowMultiple = false });
@@ -74,6 +91,9 @@ public sealed class AppSettings
 
     /// <summary>Lets service functions that haven't been confirmed on a real car run. Off by default.</summary>
     public bool ExperimentalService { get; set; }
+
+    /// <summary>The user's NCS Expert data folder (e.g. C:\NCSEXPER\DATEN), for naming coding settings.</summary>
+    public string? NcsFolder { get; set; }
     public List<FavoriteParameter> LiveFavorites { get; set; } = [];
 
     public sealed class FavoriteParameter

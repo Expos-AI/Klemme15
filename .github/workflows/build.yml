@@ -82,6 +82,29 @@ jobs:
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "UI screenshots for $GITHUB_SHA"
           git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" screenshots
 
+  dashboard:
+    # The phone dashboard's built files are committed (so .NET builds don't need Node); prove they match the source.
+    name: Phone dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Type-check and build
+        shell: bash
+        working-directory: web/dashboard
+        run: |
+          npm ci --no-audit --no-fund
+          npm run build
+      - name: Committed build is up to date
+        shell: bash
+        run: |
+          git diff --stat --exit-code -- src/Klemme15.Telemetry/wwwroot || {
+            echo "::error::src/Klemme15.Telemetry/wwwroot is out of date: run 'npm run build' in web/dashboard and commit it."
+            exit 1
+          }
+
   windows-ediabas:
     # EdiabasLib is built for every OS now; Linux is the cheapest place to prove it compiles in.
     name: Build with EDIABAS mode
@@ -110,7 +133,7 @@ jobs:
 
   publish:
     name: Publish ${{ matrix.rid }}
-    needs: [cross-platform, windows-ediabas]
+    needs: [cross-platform, windows-ediabas, dashboard]
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && inputs.version != '')
     strategy:
       matrix:

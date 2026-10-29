@@ -1,5 +1,5 @@
 {
- "$comment": "Klemme15 troubleshooting guides, written by contributors in their own words (GPLv3 like the rest of the project). A guide is offered for a fault when its OBD-II code is in 'obd', or when the fault's text contains one of the 'keywords' (lower case; English and German both work). A keyword matches whole words; '*' at either end allows more letters there, for German compounds ('*raddrehzahl*'). 'modules' limits keyword matches to those modules. Step fields: 'module' + 'readings' open that module on the Readings page filtered by that text; 'live' points to the Live data page; 'engines' shows a step only for those engines. Keep steps factual and safe; say 'usually' or 'common cause' when it is a likelihood, and never tell people to probe airbag circuits.",
+ "$comment": "Klemme15 troubleshooting guides, written by contributors in their own words (GPLv3 like the rest of the project). A guide is offered for a fault when its OBD-II code is in 'obd', or when the fault's text contains one of the 'keywords' (lower case; English and German both work). A keyword matches whole words; '*' at either end allows more letters there, for German compounds ('*raddrehzahl*'). 'modules' limits keyword matches to those modules. Step fields: 'module' + 'readings' open that module on the Readings page filtered by that text; 'live' points to the Live data page; 'engines' shows a step only for those engines. 'sources' lists where the facts come from (shown as links). A guide with no keywords and no codes is only listed in the guide library (Tests page). Keep steps factual and safe; say 'usually' or 'common cause' when it is a likelihood, and never tell people to probe airbag circuits.",
  "guides": [
   {
    "id": "mixture",
@@ -235,6 +235,16 @@
     },
     {
      "text": "The pump and thermostat are often replaced together, because they wear at similar mileages and share the labour. Bleed the cooling system afterwards."
+    },
+    {
+     "text": "After draining coolant or replacing the pump or thermostat, bleed the system: Tests > Cooling system bleed assistant walks you through BMW's own 12-minute routine (engine off, pedal to the floor) and checks the pump ran.",
+     "engines": [
+      "N51",
+      "N52",
+      "N53",
+      "N54",
+      "N55"
+     ]
     }
    ]
   },
@@ -588,6 +598,454 @@
     {
      "text": "After fixing it, reconnect the battery, clear the airbag fault memory and check the light goes out. If the fault returns straight away, have a specialist check the circuit."
     }
+   ]
+  },
+  {
+   "id": "where-is-it",
+   "title": "Where the modules are (E90/E91/E92/E93)",
+   "summary": "Physical locations of the common E9x control modules and how you usually reach them. Positions are for left-hand-drive cars; on right-hand-drive cars the footwell and engine-bay sides are usually mirrored, so check before removing trim.",
+   "obd": [],
+   "keywords": [],
+   "modules": [],
+   "safety": [
+    "Disconnect the battery negative cable in the trunk before unplugging any module, and wait a few minutes before touching connectors.",
+    "The steering wheel, dash and roof lining contain airbags and pyrotechnic parts. Do not probe or unplug airbag connectors; leave that work to someone with the proper procedure.",
+    "Many trim clips and connector locks are brittle on older cars. Use plastic trim tools and release locks before pulling."
+   ],
+   "steps": [
+    {
+     "text": "DME (engine computer): on N52 and N54 cars it usually sits in the plastic electronics box (E-box) at the back of the engine bay on the passenger side, under the cowl. You usually remove the cabin filter housings and the plastic rain tray, then unlock the box lid to reach it."
+    },
+    {
+     "text": "DME connectors: the DME is held by plastic tabs and has large harness plugs with sliding locks. Slide each lock fully before lifting the plug off."
+    },
+    {
+     "text": "FRM (footwell module, lights/windows/mirrors): driver's footwell, behind the side trim panel that carries the hood release handle. You usually remove the door sill strip, the lower dash panel and the side trim panel, then the module comes off two plastic nuts."
+    },
+    {
+     "text": "LDM (cruise control/longitudinal dynamics), on cars that have it: BMW training material places it behind the footwell (light) module in the driver's footwell, so it is reached the same way as the FRM."
+    },
+    {
+     "text": "JBE (junction box electronics, plus the front power distribution box): behind the glovebox on the passenger side. Removing the glovebox usually gives access; the glovebox fuse panel belongs to this same junction box."
+    },
+    {
+     "text": "CAS (key reader/immobiliser): under the steering column on the driver's side, behind the plastic panel above the pedals. Removing that lower panel usually exposes it."
+    },
+    {
+     "text": "KOMBI (instrument cluster): in the dash behind the steering wheel. DIY videos show it removed from the front after its trim and retaining screws come out, with one plug at the back."
+    },
+    {
+     "text": "SZL (steering column switch cluster with steering angle sensor): directly behind the steering wheel on the column. Reaching it means removing the steering wheel, which involves the driver airbag, so follow a full airbag-safe procedure or have a shop do it."
+    },
+    {
+     "text": "ELV (electric steering lock, early key-slot cars only): part of the steering column itself, with a small plug on the column. Not every E9x has one, so check your column before buying parts."
+    },
+    {
+     "text": "DSC (ABS/stability unit): in the engine bay, front corner on the driver's side on most left-hand-drive cars. The control electronics are bolted to the hydraulic block, so replacing it means opening brake lines and bleeding with a scan tool."
+    },
+    {
+     "text": "IBS (intelligent battery sensor): clamped directly on the battery negative post in the trunk and supplied as one part with the negative cable. It reports to the DME, not directly to a scan tool."
+    },
+    {
+     "text": "Head unit (CCC or CIC): behind the centre-stack trim under the screen. On CCC cars you usually unclip the trim panels, remove four screws and slide the unit forward to release its plugs."
+    },
+    {
+     "text": "RLS (rain/light sensor): built into the base of the interior mirror on the windscreen. It talks to the FZD over a local bus."
+    },
+    {
+     "text": "FZD (roof function centre): the overhead console at the front of the roof lining. It handles interior lights and sunroof and passes the rain/light sensor data to the rest of the car."
+    }
+   ],
+   "sources": [
+    "https://www.rpmmotorsport.net/pages/removing-or-installing-a-dme-or-cas-a-bmw-e90-3-series-from-years-2005-to-2011",
+    "https://bimmerpro.ca/sos/knowledgebase.php?article=17",
+    "https://bmwrepairguide.com/bmw-footwell-module-frm-replacement-e90-2007-2013-3-series/",
+    "https://blog.upfix.com/frm3-footwell-module-repair-bmw-mini",
+    "https://ecumedics.com/2026/04/29/how-to-remove-bmw-frm-footwell-module-e90-e70-e84-e82-step-by-step-guide/",
+    "https://share.qclt.com/bmw%E8%B5%84%E6%96%99/1102_Driving%20Dynamic%20Systems/English/Participant_manual/E90%20Driving%20Dynamics%20Systems.pdf",
+    "https://www.youtube.com/watch?v=Xx0iKEBfHn0",
+    "https://bimmerscan.com/bmw-junction-box-jbe/",
+    "https://ia800902.us.archive.org/26/items/BMWTechnicalTrainingDocuments/ST402%20Body%20Electronics%20III/10%20E90%20Voltage%20Supply%20and%20Bus.pdf",
+    "https://www.pelicanparts.com/BMW/techarticles/BMW-3-Series-E90/BODY-Glove_Box_Replacing/BODY-Glove_Box_Replacing.htm",
+    "https://www.youcanic.com/bmw-cas-car-access-system/",
+    "https://www.youtube.com/watch?v=5vdIlO04j1w",
+    "https://www.youtube.com/watch?v=LrWjOYXCiJI",
+    "https://www.pelicanparts.com/BMW/techarticles/BMW-3-Series-E90/ELEC-Steering_Column_Switch_Replacement/ELEC-Steering_Column_Switch_Replacement.htm",
+    "https://ecumedics.com/product/cas-elv-emulator/",
+    "https://crwr.com/en/diagnosis-repairs/electronic-steering-lock-elv-repair/",
+    "https://bimmertalk.com/articles/bmw-dsc-service-guide",
+    "https://www.bimmerfest.com/threads/where-is-the-abs-module-located-in-our-engine-bay.631449/",
+    "https://bimmerscan.com/bmw-intelligent-battery-sensor-ibs/",
+    "https://www.bimmerworld.com/Safety-Race-Interior/Battery-Electrical/OEM-Negative-Battery-Cable-with-IBS-61127616200.html",
+    "https://mca.electricmura.ro/en/blog-how-to-remove-ccc-head-unit-bmw-e90/",
+    "https://www.m3post.com/forums/showthread.php?t=780402",
+    "https://ia600902.us.archive.org/26/items/BMWTechnicalTrainingDocuments/ST402%20Body%20Electronics%20III/11b%20E90%20General%20Vehicle%20Electrical%20II.pdf",
+    "https://www.manualslib.com/manual/3076890/Bmw-E90.html?page=13",
+    "https://www.youtube.com/watch?v=2QZglftGyKk"
+   ]
+  },
+  {
+   "id": "fuses-and-power",
+   "title": "Fuses, battery, B+ cable and grounds",
+   "summary": "Where the E9x fuse panels, battery, jump-start point and main grounds are, and the known problem with the B+ cable plug at the front power distribution box. Fuse numbers and ratings are not listed here because they change with build date, engine and options.",
+   "obd": [],
+   "keywords": [
+    "fuse",
+    "*sicherung*",
+    "jump start",
+    "ground strap",
+    "b+ cable"
+   ],
+   "modules": [],
+   "safety": [
+    "The battery cables are live at all times. Remove the battery negative cable before working on the power distribution boxes or the B+ plug.",
+    "When jump-starting or charging, use the under-hood jump-start post and the body ground point, not the IBS-equipped negative post in the trunk.",
+    "Fuse layouts differ between build dates (charts commonly split around 03/2007 and 09/2007). Always use the fuse chart that matches your car, not one copied from another car."
+   ],
+   "steps": [
+    {
+     "text": "Main fuse panel: behind a cover at the top of the glovebox. Open the glovebox and release the cover fasteners; the panel folds down to show the fuses."
+    },
+    {
+     "text": "The glovebox fuse panel belongs to the junction box, which also holds the JBE and the front power distribution box. Fuse and relay assignments here changed at least twice in 2007, so use the chart for your build month."
+    },
+    {
+     "text": "Battery: on the right side of the trunk, behind a trim panel. On top of the battery there is a rear power distribution box with fusible links that is usually replaced as a complete unit rather than fuse by fuse."
+    },
+    {
+     "text": "Engine electronics fuses: on most cars a separate small group of fuses and relays for the engine electronics lives with the DME in the E-box at the back of the engine bay. Turbo and non-turbo cars use different layouts."
+    },
+    {
+     "text": "B+ cable routing: from the battery, heavy cables run under the car in a protected channel to the front. BMW training material describes one feeding the jump-start post, starter and alternator, one feeding the front junction box, and a smaller one for the engine electronics."
+    },
+    {
+     "text": "Safety battery terminal (BST): a pyrotechnic terminal at the battery that cuts the feed to the starter and alternator after a crash while keeping the rest of the car powered. On some cars with no crank but a powered interior, owners have traced it to the BST cable or the rear power distribution box."
+    },
+    {
+     "text": "Known B+ plug problem: the plug-in contact where the positive cable enters the front power distribution box behind the glovebox can fret and corrode from vibration. Symptoms include no-start, flickering cluster and brief power loss while driving."
+    },
+    {
+     "text": "BMW recalls covered this plug on some E9x cars, including 2010-2011 335d (US 18V-314) and a wider 2008-2012 group that includes some 328i wagons (US 19V-472). The fix adds a repair cable and secures it to the fuse box, so check your VIN for open recalls before buying parts."
+    },
+    {
+     "text": "Jump-start point: under the hood there is a positive post under a cap marked +. The negative connection is a marked body ground nut nearby; connect positive first, then negative, and remove in reverse order."
+    },
+    {
+     "text": "Engine ground: a braided ground strap runs from the engine mount area on the driver's side to the body. A corroded or stiff strap can cause slow or failed cranking even with a good battery."
+    }
+   ],
+   "sources": [
+    "https://fuse-box.info/bmw/bmw-3-series-e90-e91-e92-e93-2005-2013-fuses-and-relay",
+    "https://www.autogenius.info/bmw-3-series-e903-e91-e92-e93-2005-2010-fuse-box-diagram/",
+    "https://bimmerscan.com/bmw-junction-box-jbe/",
+    "https://ia800902.us.archive.org/26/items/BMWTechnicalTrainingDocuments/ST402%20Body%20Electronics%20III/10%20E90%20Voltage%20Supply%20and%20Bus.pdf",
+    "https://www.bimmerworld.com/Safety-Race-Interior/Battery-Electrical/Genuine-BMW-Electrical-Power-Distribution-Box-W-Fus-61146971370.html",
+    "https://www.e90post.com/forums/showthread.php?t=1455825",
+    "https://static.nhtsa.gov/odi/rcl/2019/RCMN-19V472-7907.pdf",
+    "https://static.nhtsa.gov/odi/rcl/2018/RCRIT-18V314-0322.pdf",
+    "https://www.bavarianmw.com/guide-2244.html",
+    "https://www.carmanualsonline.info/bmw-328i-sedan-2007-e90-owner-s-manual/24",
+    "https://www.fcpeuro.com/blog/bmw-ground-strap-theory-replacement",
+    "https://www.youtube.com/watch?v=tU5aQivkB-E",
+    "https://www.fcpeuro.com/blog/bmw-325i-valve-cover-gasket-replacement-n52",
+    "https://www.rpmmotorsport.net/pages/removing-or-installing-a-dme-or-cas-a-bmw-e90-3-series-from-years-2005-to-2011",
+    "https://bimmerscan.com/bmw-intelligent-battery-sensor-ibs/"
+   ]
+  },
+  {
+   "id": "battery-drain",
+   "title": "Parasitic battery drain test",
+   "summary": "How to measure key-off current on an E9x without disturbing the car's sleep, what reading to expect, and how to narrow it down by pulling fuses. E9x cars take a long time to fall fully asleep, so most failed tests are simply not waiting long enough.",
+   "obd": [],
+   "keywords": [
+    "closed-circuit current",
+    "closed circuit current",
+    "*ruhestrom*",
+    "quiescent current",
+    "parasitic",
+    "battery discharge",
+    "*tiefentladung*",
+    "30g_f",
+    "terminal 30g",
+    "*bistabil*",
+    "bi-stable",
+    "bistable"
+   ],
+   "modules": [],
+   "safety": [
+    "Do NOT disconnect the battery before the test. Disconnecting resets modules and can hide the module that is keeping the car awake.",
+    "Never put a multimeter set to amps across the battery posts. Use a DC clamp meter, or a properly fused meter in series following its instructions.",
+    "Pulling and refitting fuses can wake the car's networks. Wait after each change before reading."
+   ],
+   "steps": [
+    {
+     "text": "Charge or test the battery first. A weak battery causes its own faults and makes the readings hard to trust."
+    },
+    {
+     "text": "Read the DME fault memory before you start. The IBS logs key-off current and the DME stores a closed-circuit current fault if it saw too much, which tells you the drain is real."
+    },
+    {
+     "text": "Clamp a DC current clamp around the battery negative cable in the trunk, after zeroing the clamp away from the cable. The IBS stays on the post; you clamp the cable, not the sensor."
+    },
+    {
+     "text": "Because the battery is in the trunk, the trunk must stay open while the car thinks it is shut. BMW's procedure is to turn the trunk latch to the locked position with a screwdriver, with the hood and all doors closed."
+    },
+    {
+     "text": "Switch on the ignition and a few consumers, switch off, open and close the driver's door, then lock the car. Keep the key away from the car and do not touch doors or handles during the test."
+    },
+    {
+     "text": "Wait for full sleep. BMW's reference for E9x is about 60-70 minutes on cars with a telematics unit and about 30 minutes without one; waiting longer does no harm."
+    },
+    {
+     "text": "Expected reading: BMW's reference for E9x is about 40 mA once asleep, and a well-equipped car can be lower. A steady reading above about 50 mA is worth chasing; BMW training material says the car itself warns of excess key-off current at about 80 mA."
+    },
+    {
+     "text": "Narrow it down at the glovebox fuse panel first, then at the rear distribution in the trunk, pulling one fuse at a time. Wait at least 2 minutes after each pull and watch for the current to drop."
+    },
+    {
+     "text": "To avoid waking the car, many people measure the small voltage drop across each fuse instead of pulling it, then convert it to current using a fuse voltage-drop chart."
+    },
+    {
+     "text": "A drop after pulling a fuse points to a circuit, not automatically a failed module. Owners commonly report aftermarket chargers, dashcams and a faulty FRM keeping the car awake."
+    }
+   ],
+   "sources": [
+    "https://static.nhtsa.gov/odi/tsbs/2018/MC-10153705-9999.pdf",
+    "https://falkmfg.com/blogs/news/e9x-battery-drain-the-complete-troubleshooting-guide-with-exact-fixes",
+    "https://ia800902.us.archive.org/26/items/BMWTechnicalTrainingDocuments/ST402%20Body%20Electronics%20III/10%20E90%20Voltage%20Supply%20and%20Bus.pdf",
+    "https://bimmerscan.com/bmw-intelligent-battery-sensor-ibs/",
+    "https://blog.upfix.com/frm3-footwell-module-repair-bmw-mini",
+    "https://www.youtube.com/watch?v=4RZ0csbwRrU"
+   ]
+  },
+  {
+   "id": "wiring-engine-jobs",
+   "title": "Engine connectors for common DIY jobs (N52/N54)",
+   "summary": "Notes on the plugs you meet when replacing the electric water pump, the N52 valve cover/Valvetronic gaskets, DISA valves and oxygen sensors. Old engine-bay connectors get brittle, so most of the work is releasing locks without snapping them.",
+   "obd": [],
+   "keywords": [
+    "valvetronic",
+    "eccentric shaft",
+    "*exzenterwelle*"
+   ],
+   "modules": [
+    "DME"
+   ],
+   "safety": [
+    "Disconnect the battery negative cable before unplugging engine connectors.",
+    "Let the engine cool fully before working near the exhaust, coolant system or valve cover.",
+    "N52 valve cover bolts are single-use aluminium and snap if over-tightened. Use a torque wrench and new bolts."
+   ],
+   "steps": [
+    {
+     "text": "Electric water pump: it sits low at the front of the engine, partly hidden behind the anti-roll bar and steering rack. The plug is reached by rotating the loosened pump forward, pressing the lock tab and pulling."
+    },
+    {
+     "text": "Thermostat plug: the thermostat next to the pump has its own small plug, usually released with a small screwdriver on the tab. Make sure both plugs click home on reassembly."
+    },
+    {
+     "text": "After a pump job the electric pump runs a long bleed cycle with the engine off. Guides recommend keeping a low-rate charger on the under-hood jump-start points while it runs."
+    },
+    {
+     "text": "N52 valve cover: the cover is magnesium on these engines, and the ignition coil and injector harness lift off it as a tray once its clips are released. The E-box lid is usually removed so the harness can be laid aside."
+    },
+    {
+     "text": "Valvetronic motor: its plug releases by squeezing the two side clips. The motor is held by three small screws, one of them hidden underneath."
+    },
+    {
+     "text": "Eccentric shaft sensor: its harness clips to the head with two clips and its plug releases the same way. The sensor's seal must sit correctly in the cover or the plug will not reconnect afterwards."
+    },
+    {
+     "text": "After Valvetronic or valve cover work, reconnect the battery and run the Valvetronic adaptation before the first start, as the DIY guides advise."
+    },
+    {
+     "text": "DISA valves: the N52 has two flap valves on the intake manifold, a larger one on the outer side and a smaller one closer in. The outer one usually needs a metal harness bracket (T25) removed first; some guides remove the manifold for the inner one, while some DIYers reach it without doing so."
+    },
+    {
+     "text": "Oxygen sensors: before unscrewing a sensor, follow its lead back to the plug and release that first. On N52 cars at least one sensor plug sits up top near the bulkhead under a small metal bracket; others are reached from under the car on some cars."
+    },
+    {
+     "text": "O2 plug clips: press the lock tab down and pull the halves apart. Re-tie the new sensor's lead away from the exhaust with cable ties."
+    }
+   ],
+   "sources": [
+    "https://bmwrepairguide.com/bmw-e90-water-pump-replacement/",
+    "https://www.pelicanparts.com/BMW/techarticles/BMW-3-Series-E90/WATER-Coolant_Pump_Replacement/WATER-Coolant_Pump_Replacement.htm",
+    "https://www.fcpeuro.com/blog/bmw-325i-valve-cover-gasket-replacement-n52",
+    "https://bavmods.com/pages/how-to-replace-bmw-valve-cover-and-gasket-n51-n52-engine-e90-e91-e92-e93-e90-e91-e92-e93-e60-e61-e87-e88-e81-e82-x3-x5-z4-328i-128i-528i-1",
+    "https://bmwrepairguide.com/bmw-n52-disa-valve-repair-2006-2010-13567x1x3x5z4-6-cyl/",
+    "https://www.youtube.com/watch?v=_v1x7BRQOBg",
+    "https://www.youtube.com/watch?v=g6MEvL_xXO4",
+    "https://bavmods.com/pages/how-to-replace-bmw-bank-2-sensor-2-o2-sensor-e90-e92-e82-e60-and-more-e-chassis-n52-n54-n55-diy-guide",
+    "https://www.bimmerfest.com/threads/o2-sensor-replacement-pre-cat-connection-point-under-car.1447531/",
+    "https://www.rpmmotorsport.net/pages/removing-or-installing-a-dme-or-cas-a-bmw-e90-3-series-from-years-2005-to-2011"
+   ]
+  },
+  {
+   "id": "wiring-body-modules",
+   "title": "FRM, JBE, ELV and door harness wiring",
+   "summary": "Connector notes for the body modules owners most often remove (FRM, JBE, ELV) and for the door harness boots. Includes why bench recovery of a corrupted FRM means taking the module right out of the car.",
+   "obd": [],
+   "keywords": [
+    "door harness",
+    "junction box",
+    "*junction box*"
+   ],
+   "modules": [],
+   "safety": [
+    "Disconnect the battery negative cable before unplugging the FRM, JBE or ELV.",
+    "Keep a stable power supply or a charger rated for coding on the car during any programming or coding. Owners and repairers link FRM corruption to voltage dips or power loss during coding.",
+    "Do not use the steering lock plug or any harness as a handhold, and never force a connector whose lock is still engaged."
+   ],
+   "steps": [
+    {
+     "text": "FRM connectors: the FRM usually has three large plugs, two on the front face and one at the rear. Each has a locking lever or tab that must be released before the plug comes off."
+    },
+    {
+     "text": "The front FRM plugs are tight in the car. One guide finds it easier to remove the two plastic nuts, ease the module out and release the front plugs with the module in hand."
+    },
+    {
+     "text": "FRM symptoms: a failing or corrupted FRM3 can cause lights that will not switch off, windows that open but will not close, and mirror, turn signal or lock faults. Some owners also report battery drain."
+    },
+    {
+     "text": "Bench recovery: once the FRM3 memory is corrupted, it usually cannot be reached over the car's diagnostic bus. Repairers work on the memory with the module on the bench, so all three plugs must be released and the module removed."
+    },
+    {
+     "text": "JBE: it sits behind the glovebox and is built into the junction box with the front fuse panel and front power distribution box. Removing the glovebox usually gives access to its plugs."
+    },
+    {
+     "text": "The big B+ feed from the trunk battery plugs into the junction box at the front. Disconnect the battery before touching it, and inspect that plug for heat damage or corrosion while you are there."
+    },
+    {
+     "text": "ELV (early cars only): a small plug on the steering column feeds the lock motor. ELV emulators connect at this plug, but the CAS usually needs its ELV fault memory and counters cleared afterwards."
+    },
+    {
+     "text": "ELV failures often follow a weak battery or a jump start, and show as a yellow or red steering-lock light and no crank. Check battery voltage before condemning the lock."
+    },
+    {
+     "text": "Door harness boots: the wiring for each door passes through a rubber boot between the door and the pillar. On some cars wires crack inside the boot from years of opening and closing, causing intermittent window, lock or mirror faults."
+    },
+    {
+     "text": "To inspect a door harness, peel the boot back and flex the bundle gently while watching for the fault to appear. Look for cracked insulation or green corrosion."
+    }
+   ],
+   "sources": [
+    "https://bmwrepairguide.com/bmw-footwell-module-frm-replacement-e90-2007-2013-3-series/",
+    "https://ecumedics.com/2026/04/29/how-to-remove-bmw-frm-footwell-module-e90-e70-e84-e82-step-by-step-guide/",
+    "https://mca.electricmura.ro/en/blog-bmw-frm-footwell/",
+    "https://blog.upfix.com/frm3-footwell-module-repair-bmw-mini",
+    "https://www.automodulelab.com/fix/bmw-frm-not-detected-inpa-ista/",
+    "https://e89.bimmerpost.com/forums/showthread/2147583/your-specialist-subject-the-life-and-times-of-the-frm-module-aka-footwell-module",
+    "https://bimmerscan.com/bmw-junction-box-jbe/",
+    "https://ia800902.us.archive.org/26/items/BMWTechnicalTrainingDocuments/ST402%20Body%20Electronics%20III/10%20E90%20Voltage%20Supply%20and%20Bus.pdf",
+    "https://static.nhtsa.gov/odi/rcl/2019/RCMN-19V472-7907.pdf",
+    "https://ecumedics.com/product/cas-elv-emulator/",
+    "https://www.automodulelab.com/blog/bmw-elv-steering-lock-repair-guide/",
+    "https://www.ogsmechanics.com/bmw-elv-steering-lock-malfunction/",
+    "https://crwr.com/en/diagnosis-repairs/electronic-steering-lock-elv-repair/",
+    "https://bimmerboom.com/bmw-e90-door-lock-issues-causes-symptoms-and-solutions/",
+    "https://www.e90post.com/forums/showthread.php?t=1823694"
+   ]
+  },
+  {
+   "id": "trunk-harness",
+   "title": "Trunk lid / tailgate harness breaks",
+   "summary": "The wiring that crosses from the body into the trunk lid (or E91 tailgate) flexes every time it opens, and on many cars the wires eventually crack inside the rubber sleeve. This causes trunk release, number plate light, reverse light and lock faults, and can short.",
+   "obd": [],
+   "keywords": [
+    "trunk lid",
+    "boot lid",
+    "tailgate",
+    "*heckklappe*",
+    "*kofferraum*",
+    "number plate light",
+    "licence plate light",
+    "license plate light",
+    "*kennzeichenleuchte*"
+   ],
+   "modules": [],
+   "safety": [
+    "Disconnect the battery negative cable before cutting or splicing harness wires. The battery is in the same trunk, so lay a cloth over the posts too.",
+    "Broken wires touching each other can short and blow fuses, and one repair video warns of fire risk. Do not leave exposed copper taped loosely.",
+    "Prop the lid securely while working at the hinge."
+   ],
+   "steps": [
+    {
+     "text": "Typical symptoms include a trunk that will not open by button or key fob, a wrong 'trunk open' warning, a dead number plate or reverse light, or flickering lights. On the E91 tailgate the rear wiper and hatch release are commonly affected."
+    },
+    {
+     "text": "The usual break point is where the harness passes from the body into the lid near the hinge, inside its rubber sleeve. That section bends every time the lid opens."
+    },
+    {
+     "text": "To check it, open the lid, peel back or slit the rubber sleeve and inspect each wire. Flex the bundle gently while someone watches the faulty light or presses the trunk button."
+    },
+    {
+     "text": "Repair by splicing each broken wire with a short section of wire of the same gauge, using soldered joints or sealed crimp splices covered with heat-shrink."
+    },
+    {
+     "text": "Wrap the repaired bundle in cloth harness tape and refit or reseal the sleeve."
+    },
+    {
+     "text": "Ready-made harness repair kits are sold for the E90 trunk lid and for both sides of the E91 tailgate. These can be easier than cutting in your own wire."
+    },
+    {
+     "text": "After repair, check every function that runs through the lid before refitting trim: release button, lock, lights, camera if fitted and the trunk-open warning."
+    }
+   ],
+   "sources": [
+    "https://www.e90post.com/forums/showthread.php?t=807547",
+    "https://www.bimmerfest.com/threads/yet-another-bad-trunk-lid-harness-wire.1308781/",
+    "https://www.youtube.com/watch?v=umB1LJiuWko",
+    "https://www.youtube.com/watch?v=FcAalQuh-io",
+    "https://www.schmiedmann.com/en/bmw-e90/harness-and-harness-repair-kits-for-the-trunk-lid-pg1467-catn-ol",
+    "https://www.bimmerworld.com/Body-Aero/BMW_Performance_Body_Accessories/Wiring-Harness-Repair-Kit-E91-Tailgate-Febi-107124.html",
+    "https://www.hagerty.com/media/opinion/the-hack-mechanic/the-easy-repair-that-got-hard-fixing-broken-wires-inside-a-harness/"
+   ]
+  },
+  {
+   "id": "frm3",
+   "title": "Footwell module (FRM) problems and the FRM3 corruption",
+   "summary": "The footwell module runs the lights, windows and mirrors. The third-generation FRM3 (most cars built from about 2009) stores its settings in flash memory that can corrupt if the voltage dips while it writes, leaving lights or windows dead. Earlier FRM1 and FRM2 modules don't have this weakness.",
+   "obd": [],
+   "keywords": [
+    "footwell module",
+    "*fussraummodul*",
+    "*fussraum*"
+   ],
+   "modules": [],
+   "safety": [
+    "Never code, program or clear an FRM3's faults on a weak battery: connect a proper battery charger (13.2-14.4 V), not a jump pack.",
+    "Don't disconnect the battery while the car is awake (doors just used, lights on); wait for it to sleep first."
+   ],
+   "steps": [
+    {
+     "text": "Run the quick test and look at the Vehicle page: Klemme15 tells you whether your footwell module is an FRM1, FRM2 or the fragile FRM3, from its part number."
+    },
+    {
+     "text": "Typical signs of a failing or corrupted FRM: low beams, indicators or parking lights dead or stuck on, windows that won't close, mirrors dead, and the cluster logging lighting-status faults from the FRM (A3B4/A3C1 on the E9x)."
+    },
+    {
+     "text": "Check the simple things first: battery voltage, the FRM's fuses, and water in the driver's footwell (the module sits behind the trim by the hood release and drowns easily)."
+    },
+    {
+     "text": "If the FRM still answers Klemme15 or another tool, read its faults and take a coding backup on the Coding page before anyone touches it."
+    },
+    {
+     "text": "If it no longer answers at all, it usually can't be fixed over the cable. The options are a bench repair (a specialist reads the flash chip and rebuilds the data) or a new module, which then has to be programmed and coded."
+    },
+    {
+     "text": "In the US, BMW extended the warranty on the FRM for many E8x/E9x/E7x cars under a service bulletin; ask a dealer with your VIN before paying for a repair."
+    }
+   ],
+   "sources": [
+    "https://static.nhtsa.gov/odi/tsbs/2025/MC-11015849-0001.pdf",
+    "https://www.xbimmers.com/forums/attachment.php?attachmentid=3096511&d=1675527007",
+    "https://github.com/tomvleeuwen/dflash_to_eeprom",
+    "https://bimmercode.app/faq/",
+    "https://bimmerscan.com/bmw-footwell-module-frm/",
+    "https://www.car-auto-repair.com/bmw-frm-module-reset-short-circuit-counter/",
+    "https://www.e46zone.com/forum/blogs/blog/80-ways-to-repair-a-bmw-frm2frm3-module/",
+    "https://blog.uobdii.com/how-many-ways-to-repair-a-bmw-frm2-frm3-module/"
    ]
   }
  ]

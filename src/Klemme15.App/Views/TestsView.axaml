@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:sys="using:System"
              x:Class="Klemme15.App.Views.TestsView"
              x:DataType="vm:TestsViewModel">
   <UserControl.Styles>
@@ -41,10 +42,59 @@
       </ItemsControl>
       <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
                  Text="Connect to your car (or open a demo car) in the Garage first." />
+      <TextBlock Classes="title" FontSize="18" Text="How-to guides" Margin="0,14,0,0" />
+      <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Where things are, wiring notes and common fixes, in plain words with sources." />
+      <ItemsControl ItemsSource="{Binding Guides}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:GuideItemViewModel">
+            <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
+              <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
     </StackPanel>
 
     <ScrollViewer Grid.Column="1">
-      <StackPanel Spacing="14" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32">
+      <StackPanel>
+      <Border IsVisible="{Binding ShowingGuide}">
+      <StackPanel Spacing="10" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32"
+                  DataContext="{Binding Guide}" x:DataType="vm:GuideViewModel">
+        <TextBlock Classes="section" Text="{Binding Title}" TextWrapping="Wrap" />
+        <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" />
+        <ItemsControl ItemsSource="{Binding Safety}" IsVisible="{Binding HasSafety}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="sys:String">
+              <TextBlock Classes="red small" Text="{Binding}" TextWrapping="Wrap" FontWeight="SemiBold" Margin="0,2" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <ItemsControl ItemsSource="{Binding Steps}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:GuideStepViewModel">
+              <Grid ColumnDefinitions="26,*" Margin="0,4">
+                <TextBlock Classes="lit" Text="{Binding Number}" FontWeight="SemiBold" />
+                <SelectableTextBlock Grid.Column="1" Text="{Binding Text}" TextWrapping="Wrap" />
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Classes="muted small" Text="Sources" IsVisible="{Binding HasSources}" Margin="0,6,0,0" />
+        <ItemsControl ItemsSource="{Binding Sources}" IsVisible="{Binding HasSources}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SourceLink">
+              <Button Classes="quiet" Content="{Binding Label}" Command="{Binding OpenCommand}" FontSize="12" Padding="4,0" ToolTip.Tip="{Binding Url}" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Classes="muted small" TextWrapping="Wrap"
+                   Text="Guides are written by Klemme15 contributors as a starting point. If you're unsure, or a step needs tools you don't have, ask a mechanic." />
+      </StackPanel>
+      </Border>
+      <StackPanel Spacing="14" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32" IsVisible="{Binding ShowingTest}">
         <TextBlock Classes="section" Text="{Binding TestTitle}" TextWrapping="Wrap" />
         <TextBlock Text="{Binding Summary}" TextWrapping="Wrap" />
         <StackPanel Spacing="2">
@@ -96,6 +146,7 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
         </StackPanel>
+      </StackPanel>
       </StackPanel>
     </ScrollViewer>
   </Grid>

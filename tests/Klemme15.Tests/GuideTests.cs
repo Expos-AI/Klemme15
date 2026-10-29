@@ -32,6 +32,23 @@ public class GuideTests
         Assert.Equal(expected, GuideFor(ecu, code, text, code.StartsWith('P') ? FaultSource.Obd2 : FaultSource.Bmw));
 
     [Fact]
+    public void Junction_box_relay_and_footwell_faults_get_their_guides()
+    {
+        Assert.Equal("battery-drain", GuideFor("E9x.JBE", "A731", "Junction box reports a problem with the terminal 30g_f supply circuit."));
+        Assert.Equal("frm3", GuideFor("E9x.KOMBI", "A3B4", "The cluster got a faulty lighting-status signal from the footwell module (FRM)."));
+        Assert.Equal("trunk-harness", GuideFor("E9x.FRM", "9C9C", "Number plate light left: open circuit"));
+    }
+
+    [Fact]
+    public void Reference_guides_have_sources_and_never_attach_to_faults()
+    {
+        var reference = Db.Guides.All.Where(g => g.ReferenceOnly).ToList();
+        Assert.Contains(reference, g => g.Id == "where-is-it");
+        Assert.All(Db.Guides.All.Where(g => g.Id is "where-is-it" or "fuses-and-power" or "battery-drain" or "frm3"), g => Assert.NotEmpty(g.SourceList));
+        Assert.Null(GuideFor("E9x.FRM", "1234", "Where is the module located"));
+    }
+
+    [Fact]
     public void Whole_words_only_so_clean_is_not_lean() =>
         Assert.Null(GuideFor("E9x.DME", "1234", "Clean the throttle body"));
 

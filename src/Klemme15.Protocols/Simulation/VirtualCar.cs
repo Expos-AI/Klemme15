@@ -18,6 +18,9 @@ public sealed class VirtualEcu
 
     /// <summary>OBD-II codes as raw 16-bit values, e.g. 0x0171 for P0171.</summary>
     public List<ushort> ObdCodes { get; init; } = [];
+
+    /// <summary>Coding blocks (0x3000-0x3EFF), read with $22 and written with $2E.</summary>
+    public Dictionary<ushort, byte[]> Coding { get; init; } = new();
 }
 
 /// <summary>
@@ -43,6 +46,10 @@ public sealed class VirtualCar : ITransport
     {
         Name = name;
         _ecus = ecus.ToDictionary(e => e.Address);
+        // Comfort modules get a made-up coding, so the demo car can be backed up and restored.
+        foreach (var e in _ecus.Values.Where(e => e.Address is 0x72 or 0x60 or 0x00 && e.Coding.Count == 0))
+            for (var block = 0; block < 6; block++)
+                e.Coding[(ushort)(0x3000 + block)] = Enumerable.Range(0, 16).Select(i => (byte)((e.Address * 31 + block * 17 + i * 7) & 0xFF)).ToArray();
     }
 
     public string Name { get; }
@@ -171,6 +178,18 @@ public sealed class VirtualCar : ITransport
                 var body = new List<byte> { 0x58, (byte)ecu.Faults.Count };
                 foreach (var (code, status) in ecu.Faults) body.AddRange([(byte)(code >> 8), (byte)code, status]);
                 return [.. body];
+            }
+            case 0x22 when req.Length == 3 && req[1] is >= 0x30 and <= 0x3E:
+            {
+                var id = (ushort)(req[1] << 8 | req[2]);
+                return ecu.Coding.TryGetValue(id, out var block) ? [0x62, req[1], req[2], .. block] : [0x7F, 0x22, 0x31];
+            }
+            case 0x2E when req.Length > 3 && req[1] is >= 0x30 and <= 0x3E:
+            {
+                var id = (ushort)(req[1] << 8 | req[2]);
+                if (!ecu.Coding.ContainsKey(id)) return [0x7F, 0x2E, 0x31];
+                ecu.Coding[id] = req[3..];
+                return [0x6E, req[1], req[2]];
             }
             case 0x14:
                 ecu.Faults.Clear();

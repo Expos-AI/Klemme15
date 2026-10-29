@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#0f161e">
+  <title>Klemme15 Live</title>
+  <style>
+    :root {
+      --bg: #0f161e; --panel: #17212c; --raised: #1e2a37; --line: #2a3746; --text: #dce3ea; --muted: #8796a5;
+      --accent: #4aa3df; --ok: #3fb27f; --warn: #e0a43a; --bad: #e0564f;
+      color-scheme: dark;
+    }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg: #eef2f6; --panel: #ffffff; --raised: #f6f8fa; --line: #d8e0e8; --text: #16212c; --muted: #5b6b7b;
+        --accent: #1f74b8; --ok: #1e8a5a; --warn: #b7791f; --bad: #c53030;
+        color-scheme: light;
+      }
+    }
+    :root[data-theme="light"] {
+      --bg: #eef2f6; --panel: #ffffff; --raised: #f6f8fa; --line: #d8e0e8; --text: #16212c; --muted: #5b6b7b;
+      --accent: #1f74b8; --ok: #1e8a5a; --warn: #b7791f; --bad: #c53030;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+    body { padding: max(12px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom)); }
+  </style>
+</head>
+<body>
+  <div id="root"><p style="padding:2rem">Loading Klemme15...</p></div>
+  <noscript>This dashboard needs JavaScript. The raw values are at <a href="/live.json">/live.json</a>, or try <a href="/classic">the simple page</a>.</noscript>
+  <script src="/dashboard.js"></script>
+</body>
+</html>

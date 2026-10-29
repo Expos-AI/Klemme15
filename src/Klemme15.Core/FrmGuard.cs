@@ -51,14 +51,20 @@ public static class FrmGuard
         if (v is not null && v.StartsWith("frm3", StringComparison.Ordinal)) return FrmGeneration.Frm3;
 
         var digits = partNumber is null ? "" : Regex.Replace(partNumber, @"\D", "");
-        // BMW numbers are 7 digits; the "61.35" group prefix is sometimes included.
-        if (digits.Length > 7) digits = digits[^7..];
+        // BMW numbers are 7 digits; only the "6135" group prefix (or leading zeros) may come before them.
+        if (digits.Length > 7)
+        {
+            var head = digits[..^7];
+            digits = head.TrimStart('0') is "" or "6135" ? digits[^7..] : "";
+        }
         if (digits.Length == 7 && int.TryParse(digits, out var n))
         {
-            if (n is >= 6_950_000 and < 7_000_000) return FrmGeneration.Frm1;   // 6 95x xxx - 6 98x xxx: FRMFA
+            // 6 95x xxx - 6 98x xxx: FRMFA (2004-2007 numbers, long before the FRM3 appeared in 2009).
+            if (n is >= 6_950_000 and < 7_000_000) return FrmGeneration.Frm1;
             if (n == 8_886_836) return FrmGeneration.Frm3;                          // FRM3R "MAX" service replacement
             if (n is >= 9_224_500 and < 9_500_000) return FrmGeneration.Frm3;       // 9 224 5xx onward: FRM3/FRM3R
-            if (n is >= 9_120_000 and < 9_224_500) return FrmGeneration.Frm2;       // 9 12x xxx - 9 21x xxx: FRM II
+            // FRM II: only numbers confirmed by listings. The rest of 9 12x-9 22x is inferred, so it stays "unknown" (fragile).
+            if (n is 9_166_708 or 9_166_709 or 9_166_711 or 9_204_527) return FrmGeneration.Frm2;
         }
         if (v is "frm_87") return FrmGeneration.Frm1;
         // FRM_70 covers both FRM2 and FRM3, and MINI numbers aren't mapped: unknown, so treated as fragile.
