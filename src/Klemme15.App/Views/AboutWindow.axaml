@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Klemme15.App.ViewModels"
+        xmlns:controls="using:Klemme15.App.Controls"
+        x:Class="Klemme15.App.Views.AboutWindow"
+        x:DataType="vm:AboutViewModel"
+        Title="About Klemme15"
+        Width="460" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource BaseBrush}">
+  <StackPanel Margin="28,24" Spacing="14">
+    <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+      <controls:LogoMark Width="46" Height="46" />
+      <StackPanel VerticalAlignment="Center">
+        <TextBlock Text="Klemme15" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold" FontSize="22" />
+        <TextBlock Text="{Binding Version}" Classes="muted" FontSize="12" />
+      </StackPanel>
+    </StackPanel>
+
+    <TextBlock Text="{Binding Tagline}" FontWeight="SemiBold" />
+    <TextBlock Text="{Binding Blurb}" TextWrapping="Wrap" Classes="muted" />
+    <TextBlock Text="{Binding Confirmed}" TextWrapping="Wrap" Classes="muted small" />
+
+    <StackPanel Orientation="Horizontal" Spacing="8">
+      <Button Content="Project &amp; source" Command="{Binding ProjectCommand}" />
+      <Button Content="Report an issue" Command="{Binding SupportCommand}" />
+      <Button Content="Privacy" Command="{Binding PrivacyCommand}" />
+      <Button Classes="primary" Content="Buy me a coffee" Command="{Binding CoffeeCommand}" IsVisible="{Binding HasCoffee}" />
+    </StackPanel>
+
+    <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0">
+      <StackPanel Spacing="6">
+        <TextBlock Text="{Binding License}" Classes="muted small" TextWrapping="Wrap" />
+        <TextBlock Text="{Binding Independent}" Classes="muted small" TextWrapping="Wrap" />
+      </StackPanel>
+    </Border>
+  </StackPanel>
+</Window>

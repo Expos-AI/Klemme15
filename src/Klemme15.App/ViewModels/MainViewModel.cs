@@ -46,6 +46,10 @@ public sealed class MainViewModel : ViewModelBase
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
+        AboutCommand = new RelayCommand(() => _ = dialogs.ShowAboutAsync(Version));
+        SupportCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Support));
+        PrivacyCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Privacy));
+        CoffeeCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Coffee));
 
         Session.PropertyChanged += (_, e) =>
         {
@@ -103,6 +107,11 @@ public sealed class MainViewModel : ViewModelBase
     }
 
     public RelayCommand ToggleThemeCommand { get; }
+    public RelayCommand AboutCommand { get; }
+    public RelayCommand SupportCommand { get; }
+    public RelayCommand PrivacyCommand { get; }
+    public RelayCommand CoffeeCommand { get; }
+    public bool HasCoffee => !string.IsNullOrWhiteSpace(Services.Links.Coffee);
 
     public void ApplyTheme()
     {

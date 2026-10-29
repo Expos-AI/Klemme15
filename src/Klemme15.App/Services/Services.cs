@@ -18,6 +18,9 @@ public interface IDialogService
     /// <summary>Opens a web page in the user's browser.</summary>
     Task OpenUrlAsync(string url);
 
+    /// <summary>Shows the About dialog (version, links, license).</summary>
+    Task ShowAboutAsync(string version);
+
     /// <summary>Puts text on the clipboard. Returns false if that isn't possible here.</summary>
     Task<bool> CopyTextAsync(string text);
 }
@@ -44,6 +47,12 @@ public sealed class DialogService(Window owner) : IDialogService
     {
         if (Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.Scheme is "https" or "http")
             await owner.Launcher.LaunchUriAsync(uri);
+    }
+
+    public async Task ShowAboutAsync(string version)
+    {
+        var dialog = new Views.AboutWindow { DataContext = new ViewModels.AboutViewModel(version, this) };
+        await dialog.ShowDialog(owner);
     }
 
     public async Task<bool> CopyTextAsync(string text)

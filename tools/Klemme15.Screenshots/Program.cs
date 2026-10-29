@@ -175,6 +175,7 @@ sealed class NoDialogs : IDialogService
     public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
     public Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<string?>(null);
     public Task OpenUrlAsync(string url) => Task.CompletedTask;
+    public Task ShowAboutAsync(string version) => Task.CompletedTask;
 }
 
 /// <summary>Collects binding errors and other warnings so CI can report them.</summary>
