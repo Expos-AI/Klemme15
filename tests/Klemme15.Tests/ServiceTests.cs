@@ -25,7 +25,7 @@ public class ServiceTests
             foreach (var i in f.Implementations)
             {
                 Assert.NotEmpty(i.Variants);
-                Assert.True(i.Job is not null || i.Native is not null, f.Id);
+                Assert.True(i.Job is not null || i.NativeSequence.Count > 0, f.Id);
                 Assert.All(i.Variants, v => Assert.Equal(v.ToLowerInvariant(), v));
                 // Every {placeholder} in a job or its arguments is something the user chooses.
                 foreach (var step in i.Steps.Concat(i.Stop))
@@ -57,10 +57,11 @@ public class ServiceTests
             foreach (var step in f.Implementations.SelectMany(i => i.Steps.Concat(i.Stop)).Where(st => !st.Job.StartsWith("STEUERN_ELVCOUNTER_", StringComparison.Ordinal)))
                 Assert.DoesNotContain(forbidden, w => step.Job.Contains(w, StringComparison.OrdinalIgnoreCase));
         }
-        // Native requests may only start a routine ($31) or control an output ($30).
+        // Native requests may only control an output ($30), start, stop or read a routine ($31/$32/$33) or read a local
+        // value ($21). Nothing native ever writes data ($2E/$3B/$3D) or touches security access ($27).
         foreach (var i in Library.All.SelectMany(f => f.Implementations))
-            if (i.Native is { } n)
-                Assert.Contains(n[0], new byte[] { 0x30, 0x31 });
+            foreach (var n in i.NativeSequence.Select(x => x.Send).Concat(i.NativeStopRequests))
+                Assert.Contains(n[0], new byte[] { 0x21, 0x30, 0x31, 0x32, 0x33 });
     }
 
     [Fact]
@@ -148,6 +149,23 @@ public class ServiceTests
         Assert.True(outcome.Success, outcome.Message);
         Assert.Equal(Convert.FromHexString("3130001000"), car.Sent.Single());
         Assert.Contains(log.Snapshot(), e => e.ToString().Contains("Register a new battery"));
+    }
+
+    [Fact]
+    public async Task Native_sequences_always_send_their_stop_request_even_when_cancelled()
+    {
+        var f = Fn("valvetronic-learn");
+        var plan = ServiceRunner.Availability(f, Dme, "msv70", true, canRunJobs: false, canSendRaw: true);
+        Assert.True(plan.Available, plan.Reason);
+        Assert.Equal(ServiceMode.Native, plan.Mode);
+        using var cts = new CancellationTokenSource();
+        var car = new FakeCar(req =>
+        {
+            if (req[0] == 0x31) { cts.Cancel(); return [0x71, 0x27]; }
+            return [(byte)(req[0] + 0x40), req[1]];
+        });
+        await Assert.ThrowsAsync<TaskCanceledException>(() => ServiceRunner.RunAsync(f, plan, car, Dme, new Dictionary<string, string>(), null, null, cts.Token));
+        Assert.Equal(["312706", "3227"], car.Sent.Select(Convert.ToHexString).ToList());
     }
 
     [Fact]

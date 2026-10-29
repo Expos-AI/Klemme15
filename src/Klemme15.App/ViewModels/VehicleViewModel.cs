@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Klemme15.App.Services;
 using Klemme15.Core;
+using Klemme15.Data;
 
 namespace Klemme15.App.ViewModels;
 
@@ -181,6 +182,29 @@ public sealed class VehicleViewModel : PageViewModel
 
     public bool HasWarning => !string.IsNullOrEmpty(_warning);
 
+    private string? _frmNotice;
+    private bool _frmFragile;
+
+    /// <summary>What the quick test found out about the footwell module (FRM3 or not), shown above the car.</summary>
+    public string? FrmNotice
+    {
+        get => _frmNotice;
+        private set { if (Set(ref _frmNotice, value)) { Raise(nameof(HasFrmNotice)); Raise(nameof(FrmFragile)); Raise(nameof(FrmSafe)); } }
+    }
+
+    public bool HasFrmNotice => !string.IsNullOrEmpty(_frmNotice);
+    public bool FrmFragile => HasFrmNotice && _frmFragile;
+    public bool FrmSafe => HasFrmNotice && !_frmFragile;
+
+    private void UpdateFrmNotice(VehicleScanResult scan)
+    {
+        var frm = scan.Ecus.FirstOrDefault(e => FrmGuard.IsFootwellModule(e.Ecu) && e.Identity is not null);
+        if (frm is null) { FrmNotice = null; return; }
+        var a = FrmGuard.Assess(frm.Identity);
+        _frmFragile = a.Fragile;
+        FrmNotice = $"Footwell module: {a.Label}{(frm.Identity!.PartNumber is { } pn ? $" (part {pn})" : "")}. {a.Advice}";
+    }
+
     public bool ConfirmClearAll
     {
         get => _confirmClearAll;
@@ -198,13 +222,26 @@ public sealed class VehicleViewModel : PageViewModel
         ConfirmClearAll = false;
         if (_session.Backend is not { } backend || _session.LastScan is not { } scan) return;
         var failed = new List<string>();
+        var skipped = new List<string>();
         foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
         {
-            try { await backend.ClearFaultsAsync(e.Ecu); }
+            try
+            {
+                if (!_session.IsDemo)
+                {
+                    var guard = await WriteGuard.CheckAsync(backend, e.Ecu, e.Identity, WriteKind.ClearFaults,
+                        _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements);
+                    if (!guard.Allowed) { skipped.Add($"{e.Ecu.Name} ({guard.Reason})"); continue; }
+                }
+                await backend.ClearFaultsAsync(e.Ecu);
+            }
             catch (Exception ex) when (ex is DiagnosticException or NotSupportedException) { failed.Add(e.Ecu.Name); }
         }
         await RunAsync();
-        if (failed.Count > 0) Error = "Couldn't clear: " + string.Join(", ", failed);
+        var problems = new List<string>();
+        if (failed.Count > 0) problems.Add("Couldn't clear: " + string.Join(", ", failed));
+        if (skipped.Count > 0) problems.Add("Left alone to protect it: " + string.Join("; ", skipped));
+        if (problems.Count > 0) Error = string.Join("\n", problems);
     }
 
     /// <summary>
@@ -224,7 +261,10 @@ public sealed class VehicleViewModel : PageViewModel
             double? v = read.TryGetValue("voltage", out var volts) ? volts : null;
             Warning = v switch
             {
-                < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then scan again.",
+                < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then scan again."
+                          + (FrmGuard.FamiliesWithFrm.Contains(vehicle.Id)
+                              ? " Don't clear faults, code or run service functions until it's charged: the footwell module (FRM) on these cars can corrupt itself if the voltage dips while it writes."
+                              : ""),
                 > 15.2 => $"Voltage is {v:0.0} V, higher than normal. Check the charger or alternator before trusting new faults.",
                 _ => null,
             };
@@ -309,6 +349,7 @@ public sealed class VehicleViewModel : PageViewModel
             Progress = 100;
             ProgressText = scan.Cancelled ? "Quick test stopped." : "";
             _session.PublishScan(scan with { BatteryVoltage = battery });
+            UpdateFrmNotice(scan);
         }
         finally
         {

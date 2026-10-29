@@ -25,6 +25,7 @@ existing_ds2 = {m["id"].split(".")[1]: m for m in mod_doc["modules"] if m["id"].
 
 # Names, categories and drawing positions for module types the E46/E9x lists don't have.
 EXTRA = {
+    "KBM": ("Body module (KBM)", "Body", [400, 368]),
     "HUD": ("Head-up display", "Infotainment", [300, 230]),
     "LDM": ("Longitudinal dynamics (cruise control)", "Chassis", [250, 300]),
     "EMF": ("Electric parking brake (EMF)", "Chassis", [760, 230]),
@@ -86,6 +87,9 @@ def dcan_modules(prefix, chassis_list):
     for addr, vs in sorted(by_addr.items()):
         fam = collections.Counter(con.execute("select ecu_family from ecu_variant where lower(sgbd)=?", (v,)).fetchone()[0] or "" for v in vs).most_common(1)[0][0]
         short = ADDRESS_IDS.get(addr) or fam.upper()
+        # The E60 family has no footwell module: 0x72 is its body module (KBM), which has no FRM3 flash problem.
+        if short == "FRM" and all(v.startswith("kbm") for v in vs):
+            short = "KBM"
         if short in existing:
             src = existing[short]
             name, cat, pos = src["name"], src["category"], src.get("pos")

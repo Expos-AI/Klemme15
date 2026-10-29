@@ -3102,8 +3102,8 @@
       ]
     },
     {
-      "id": "E60.FRM",
-      "name": "Footwell module (FRM)",
+      "id": "E60.KBM",
+      "name": "Body module (KBM)",
       "address": "72",
       "protocol": "BmwFast",
       "category": "Body",

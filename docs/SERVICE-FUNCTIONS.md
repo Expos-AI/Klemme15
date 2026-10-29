@@ -17,7 +17,7 @@ All functions are **experimental** until confirmed on a real car. Except where n
 | Function | Module | When to use it | Module versions |
 |---|---|---|---|
 | Reset engine adaptations | DME | After replacing a sensor, injector, throttle body or intake part, or after fixing a vacuum leak, so old corrections don't linger. | 39 |
-| Learn the Valvetronic end stops | DME | After replacing the Valvetronic motor, its sensor or the engine computer, or with Valvetronic faults after repairs. | 15 |
+| Learn the Valvetronic end stops (also without BMW files) | DME | After replacing the Valvetronic motor, its sensor or the engine computer, or with Valvetronic faults after repairs. | 15 |
 | Learn the intake (DISA) flap end stops | DME | After replacing the DISA actuator or the intake manifold. | 8 |
 | Cylinder cut-out test (find a misfire) | DME | Rough idle or a misfire that doesn't point clearly at one cylinder. Test each cylinder in turn and compare. | 21 |
 | Fuel tank leak test | DME | Evaporative system leak faults, or after replacing the fuel cap, purge valve or leak-detection pump. | 23 |

@@ -400,7 +400,8 @@
     "Engine off, ignition on. You may hear the motor at the front of the cylinder head buzz."
    ],
    "after": [
-    "Clear the engine fault memory, start the engine and check it idles smoothly."
+    "Without BMW files the result is the engine computer's status code: 06 usually means the learning finished, 01 that it couldn't start (engine off, ignition on, no Valvetronic faults stored that block it).",
+    "Clear the engine fault memory, start the engine and check it idles smoothly. If the learning keeps failing, the eccentric shaft may be binding or its sensor may be faulty."
    ],
    "checks": {
     "ignition": true,
@@ -418,6 +419,11 @@
        "args": "6",
        "wait": 30,
        "say": "Learning the end stops"
+      },
+      {
+       "job": "STATUS_SYSTEMCHECK_VVT_ANSCHLAG",
+       "args": "",
+       "show": true
       }
      ],
      "stop": [
@@ -425,6 +431,23 @@
        "job": "STOP_SYSTEMCHECK_VVT_ANSCHLAG",
        "args": ""
       }
+     ],
+     "nativeSteps": [
+      {
+       "send": "312706",
+       "expect": "7127",
+       "wait": 30,
+       "say": "Learning the end stops"
+      },
+      {
+       "send": "2127",
+       "expect": "6127",
+       "show": true,
+       "say": "Reading the result"
+      }
+     ],
+     "nativeStop": [
+      "3227"
      ]
     },
     {
@@ -437,6 +460,11 @@
        "args": "6",
        "wait": 30,
        "say": "Learning the end stops"
+      },
+      {
+       "job": "STATUS_SYSTEMCHECK_VVT_ANSCHLAG",
+       "args": "",
+       "show": true
       }
      ],
      "stop": [
@@ -444,6 +472,23 @@
        "job": "STOP_SYSTEMCHECK_VVT_ANSCHLAG",
        "args": ""
       }
+     ],
+     "nativeSteps": [
+      {
+       "send": "312706",
+       "expect": "7127",
+       "wait": 30,
+       "say": "Learning the end stops"
+      },
+      {
+       "send": "2127",
+       "expect": "6127",
+       "show": true,
+       "say": "Reading the result"
+      }
+     ],
+     "nativeStop": [
+      "3227"
      ]
     },
     {

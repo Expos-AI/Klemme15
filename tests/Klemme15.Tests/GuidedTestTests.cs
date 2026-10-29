@@ -66,6 +66,25 @@ public class GuidedTestTests
     }
 
     [Fact]
+    public async Task Bleed_assistant_waits_for_the_pump_and_times_the_cycle()
+    {
+        // The pump starts 5 s after the test begins (pedal held) and runs about 11.7 minutes.
+        var car = new Scripted(n => new()
+        {
+            ["rpm"] = 0, ["coolant"] = 25, ["voltage"] = 13.6,
+            ["pump_speed"] = n is >= 10 and < 1410 ? 80 : 0,
+        });
+        var report = await GuidedTests.CoolingBleedAsync(car, null, CancellationToken.None, speed: 1e6);
+        Assert.Equal(TestSeverity.Ok, report.Findings[0].Severity);
+        Assert.Contains("bleed cycle", report.Findings[0].Title);
+
+        var running = new Scripted(_ => new() { ["rpm"] = 800, ["coolant"] = 30 });
+        Assert.Contains("engine off", (await GuidedTests.CoolingBleedAsync(running, null, CancellationToken.None, 1e6)).Findings[0].Title);
+        var never = new Scripted(_ => new() { ["rpm"] = 0, ["coolant"] = 20, ["pump_speed"] = 0 });
+        Assert.Contains("didn't start", (await GuidedTests.CoolingBleedAsync(never, null, CancellationToken.None, 1e6)).Findings[0].Title);
+    }
+
+    [Fact]
     public async Task Tests_refuse_a_cold_or_stopped_engine()
     {
         var cold = new Scripted(_ => new() { ["rpm"] = 800, ["coolant"] = 30 });

@@ -249,7 +249,7 @@ internal static class Cli
                 "readings" => await Readings(backend, db, model, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
                 "test" => await GuidedTest(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "service" => await Service(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
-                "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token),
+                "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token, vehicle),
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "serve" => await Serve(backend, vehicle, log, a, cts.Token),
                 "discover" => await Discover(backend, vehicle, cts.Token),
@@ -467,7 +467,17 @@ internal static class Cli
         var state = demo ? ServiceRunner.DemoState(f.Checks) : await ServiceRunner.ReadStateAsync(backend, vehicle.Modules.FirstOrDefault(m => m.IsEngine),
                 await MeasurementsFor(backend, db, vehicle, model, log, ct), ct);
         var ok = true;
-        foreach (var c in ServiceRunner.Evaluate(f.Checks, state))
+        var checks = f.Checks;
+        if (!demo && FrmGuard.IsFootwellModule(ecu!))
+        {
+            var frmId = await backend.IdentifyAsync(ecu!, ct);
+            var frm = FrmGuard.Assess(frmId);
+            Console.WriteLine($"  {frm.Label}: {frm.Advice}");
+            var guard = WriteGuard.Decide(ecu!, frmId, WriteKind.ServiceFunction, state.Voltage);
+            if (!guard.Allowed) { Console.WriteLine($"Not run: {guard.Reason}"); return 1; }
+            if (guard.Floor is { } floor && (checks.MinVoltage is null || checks.MinVoltage < floor)) checks = checks with { MinVoltage = floor };
+        }
+        foreach (var c in ServiceRunner.Evaluate(checks, state))
         {
             Console.WriteLine($"  [{c.State switch { CheckState.Pass => "OK", CheckState.Fail => "NO", _ => "??" }}] {c.Text}{(c.Detail is null ? "" : $": {c.Detail}")}");
             if (c.State == CheckState.Fail) ok = false;
@@ -552,8 +562,14 @@ internal static class Cli
         }
     }
 
-    private static async Task<int> Clear(IDiagnosticBackend backend, EcuDefinition ecu, bool yes, CancellationToken ct)
+    private static async Task<int> Clear(IDiagnosticBackend backend, EcuDefinition ecu, bool yes, CancellationToken ct, VehicleFamily? vehicle = null)
     {
+        if (WriteGuard.FloorFor(ecu, null, WriteKind.ClearFaults) is not null)
+        {
+            var identity = await backend.IdentifyAsync(ecu, ct);
+            var guard = await WriteGuard.CheckAsync(backend, ecu, identity, WriteKind.ClearFaults, vehicle?.Modules.FirstOrDefault(m => m.IsEngine), null, ct);
+            if (!guard.Allowed) { Console.WriteLine($"Not cleared: {guard.Reason}"); return 1; }
+        }
         if (!yes)
         {
             Console.Write($"Clear all faults in {ecu.Name}? Readiness monitors reset too. Type YES: ");
