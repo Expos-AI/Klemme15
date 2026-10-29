@@ -50,6 +50,7 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 - **Wi-Fi and network cables**: a K+DCAN cable behind ser2net, an ESP32 bridge or any adapter that shares the serial port on the network (`rfc2217://192.168.4.1:2217` or `tcp://host:port`). Best on D-CAN cars.
 - **Headless mode with a phone dashboard**: `klemme15 serve` on a Raspberry Pi (or laptop) left on the OBD port serves a **phone dashboard** (gauges, live tiles with sparklines, warnings for overheating, charging and fuel trims, and the engine's faults sorted by priority) to any phone on the same Wi-Fi, plus JSON over HTTP and MQTT for Grafana or Home Assistant. See [docs/HEADLESS.md](docs/HEADLESS.md).
 - **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
+- **Analyse** (datalogging): load a CSV you recorded here or anywhere, scatter any channel against another (fuel trims against RPM or load), see a value averaged over a tuning-style map (RPM across, load up), and play the whole log back with a scrubber while every channel reads out in step. Record on the Live page and press **Analyse** to jump straight in.
 - **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
 - **Reports**: one click to save a scan as HTML, Markdown or JSON.
 - **Traffic log**: every byte sent and received, savable for bug reports.

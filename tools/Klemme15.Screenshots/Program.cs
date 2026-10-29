@@ -58,10 +58,16 @@ WaitUntil(() => vm.Readings.Groups.SelectMany(g => g.Items).All(i => i.HasValues
 Shot("16-readings");
 vm.CurrentPage = vm.Live;
 vm.Live.StartCommand.Execute(null);
-Pump(3000);
+vm.Live.RecordCommand.Execute(null);
+Pump(4000);
 Shot("08-live");
 vm.Live.Stop();
 Pump(200);
+// Analyse the recording just made.
+vm.Live.AnalyseCommand.Execute(null);
+Pump(200);
+vm.Analyse.Position = vm.Analyse.MaxPosition / 2;
+Shot("22-analyse");
 vm.CurrentPage = vm.Tests;
 vm.Tests.Speed = 10;
 vm.Tests.StartCommand.Execute(null);

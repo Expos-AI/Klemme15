@@ -1,6 +1,9 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.11:**
+**New in 0.11.1:**
+- **Analyse page (datalogging).** Load a CSV datalog (recorded by Klemme15 or any tool) and scatter one channel against another, see a value averaged over a tuning-style RPM/load map, and play the log back with a scrubber while every channel reads out in step. The Live page's recording opens straight in it with the new "Analyse" button.
+
+**0.11:**
 - **Coding (experimental).** Back up any comfort module's coding with no BMW data, compare it later to see exactly what any tool changed, and restore it in one click, with every block read back. With your own NCS Expert data you can see every setting by name and switch popular options: LED bulb-check off (indicators, brake, plate, parking, fog), digital speed, instant consumption, dial lighting, mirror fold, windows that keep closing when a door opens, wiper finish. Writing unlocks only after Klemme15 decodes your module exactly as NCS Expert does. It backs up first, changes only those bits, re-checks every setting and puts the original back if anything is off. The key module (CAS), engine and safety modules are never coded. See docs/CODING.md.
 - **FRM3 protection.** The Vehicle page tells you which footwell module you have, from its part number: FRM1, FRM2, or the fragile FRM3. A fragile or unidentified FRM is only coded or put through service functions at 13.0 V (a charger), and its faults are only cleared at 12.5 V. A low battery now warns before you clear faults or code on cars with an FRM.
 - **Valvetronic end-stop learning without BMW files** (N52, MSV70/MSV80).
