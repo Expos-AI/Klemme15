@@ -205,6 +205,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
     steps:
       - uses: actions/checkout@v5
         with:
@@ -230,7 +232,7 @@ jobs:
         id: ver
         run: echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
       - name: Submit to winget-pkgs (only if a WINGET_TOKEN secret is configured)
-        if: ${{ secrets.WINGET_TOKEN != '' }}
+        if: ${{ env.WINGET_TOKEN != '' }}
         uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: Expos-AI.Klemme15
