@@ -198,3 +198,43 @@ jobs:
             --title "Klemme15 $RELEASE_TAG" \
             --prerelease \
             --notes-file .github/release-notes.md
+
+  packaging:
+    name: Update install recipes (Scoop + winget)
+    needs: release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Regenerate manifests from the released zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eo pipefail
+          gh release download "$RELEASE_TAG" -R "$GITHUB_REPOSITORY" -p "Klemme15-${RELEASE_TAG}-win-x64.zip" -D /tmp --clobber
+          ./scripts/update-packaging.sh "$RELEASE_TAG" "/tmp/Klemme15-${RELEASE_TAG}-win-x64.zip"
+      - name: Commit the refreshed manifests
+        run: |
+          set -eo pipefail
+          if git diff --quiet -- bucket packaging/winget; then echo "manifests already current"; exit 0; fi
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add bucket packaging/winget
+          git commit -m "Packaging: update Scoop and winget manifests for $RELEASE_TAG"
+          git push origin HEAD:main
+      - name: Compute the plain version (no leading v)
+        id: ver
+        run: echo "version=${RELEASE_TAG#v}" >> "$GITHUB_OUTPUT"
+      - name: Submit to winget-pkgs (only if a WINGET_TOKEN secret is configured)
+        if: ${{ secrets.WINGET_TOKEN != '' }}
+        uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: Expos-AI.Klemme15
+          version: ${{ steps.ver.outputs.version }}
+          release-tag: ${{ env.RELEASE_TAG }}
+          installers-regex: 'win-x64\.zip$'
+          token: ${{ secrets.WINGET_TOKEN }}

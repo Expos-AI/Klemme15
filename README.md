@@ -13,6 +13,27 @@
 
 Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.
 
+**See it running:** [screenshots of the current build](https://github.com/Expos-AI/Klemme15/tree/screenshots) (rendered automatically by CI on every push). <!-- Add a short demo GIF here once you've filmed a real scan: ![demo](docs/demo.gif) -->
+
+---
+
+## Install
+
+**Windows (recommended — no security warning):**
+
+```powershell
+winget install Expos-AI.Klemme15
+```
+or with [Scoop](https://scoop.sh):
+```powershell
+scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15
+scoop install klemme15
+```
+
+**Any platform (direct download):** grab the `.zip` for your system from the [latest release](https://github.com/Expos-AI/Klemme15/releases), unzip it anywhere and run `Klemme15`. The downloads are portable — there's no installer.
+
+> Windows may show a SmartScreen prompt on a freshly downloaded `.zip` because the build isn't yet code-signed (signing is [on the roadmap](docs/ROADMAP.md)). Installing via **winget** or **Scoop** avoids it. If you downloaded directly, click **More info → Run anyway**, or verify the download's SHA-256 against the release notes first. Everything Klemme15 does stays on your computer — see [the privacy policy](PRIVACY.md).
+
 ---
 
 ## Why Klemme15

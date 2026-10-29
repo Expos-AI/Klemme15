@@ -1,0 +1,20 @@
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
+PackageIdentifier: Expos-AI.Klemme15
+PackageVersion: 0.12.1
+PackageLocale: en-US
+Publisher: Expos-AI
+PublisherUrl: https://github.com/Expos-AI
+PackageName: Klemme15
+PackageUrl: https://github.com/Expos-AI/Klemme15
+License: GPL-3.0-or-later
+LicenseUrl: https://github.com/Expos-AI/Klemme15/blob/main/LICENSE
+ShortDescription: "Open-source BMW E-series diagnostics: scan modules, read and clear faults, live data, guided tests and service functions with a K+DCAN cable."
+Moniker: klemme15
+Tags:
+  - bmw
+  - diagnostics
+  - obd
+  - automotive
+  - e90
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
