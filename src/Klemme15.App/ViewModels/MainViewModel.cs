@@ -33,10 +33,16 @@ public sealed class MainViewModel : ViewModelBase
         Live = new LiveViewModel(Session, dialogs);
         Service = new ServiceViewModel(Session, settings);
         Coding = new CodingViewModel(Session, settings, dialogs);
+        Analyse = new AnalyseViewModel(dialogs);
+        Live.AnalyseRecording = csv =>
+        {
+            Analyse.Load(Klemme15.Core.DataLog.Parse(csv), "this recording");
+            CurrentPage = Analyse;
+        };
         Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url));
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);
-        Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Service, Coding, Expert, Log];
+        Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Service, Coding, Analyse, Expert, Log];
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
@@ -58,6 +64,7 @@ public sealed class MainViewModel : ViewModelBase
     public LiveViewModel Live { get; }
     public ServiceViewModel Service { get; }
     public CodingViewModel Coding { get; }
+    public AnalyseViewModel Analyse { get; }
     public TestsViewModel Tests { get; }
     public ExpertViewModel Expert { get; }
     public LogViewModel Log { get; }

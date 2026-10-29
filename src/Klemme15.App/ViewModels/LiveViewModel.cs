@@ -68,6 +68,9 @@ public sealed class LiveViewModel : PageViewModel
         _recording?.AppendLine("time," + string.Join(",", _columns.Select(p => $"\"{p.Name} ({p.Unit})\"")));
     }
 
+    /// <summary>Hands the current recording's CSV text to the Analyse page.</summary>
+    public Action<string>? AnalyseRecording { get; set; }
+
     public LiveViewModel(SessionState session, IDialogService dialogs)
     {
         _session = session;
@@ -82,6 +85,8 @@ public sealed class LiveViewModel : PageViewModel
             RaiseCommands();
         }, () => _recording is null);
         SaveRecordingCommand = new AsyncCommand(SaveRecordingAsync, () => _recording is not null);
+        AnalyseCommand = new RelayCommand(() => { if (_recording is { } rec) AnalyseRecording?.Invoke(rec.ToString()); },
+            () => _recording is not null && AnalyseRecording is not null);
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(SessionState.Backend)) OnUi(LoadParameters);
@@ -113,6 +118,7 @@ public sealed class LiveViewModel : PageViewModel
     public RelayCommand StopCommand { get; }
     public RelayCommand RecordCommand { get; }
     public AsyncCommand SaveRecordingCommand { get; }
+    public RelayCommand AnalyseCommand { get; }
 
     /// <summary>
     /// Leaving the page pauses live data (unless it's recording), so the quick test, readings and service functions
@@ -218,5 +224,6 @@ public sealed class LiveViewModel : PageViewModel
         StopCommand.RaiseCanExecuteChanged();
         RecordCommand.RaiseCanExecuteChanged();
         SaveRecordingCommand.RaiseCanExecuteChanged();
+        AnalyseCommand.RaiseCanExecuteChanged();
     }
 }
