@@ -152,12 +152,14 @@ public static class GuidedTests
 
     private static readonly TimeSpan Tick = TimeSpan.FromMilliseconds(500);
 
-    public static Task<TestReport> RunAsync(string id, ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1) => id switch
+    /// <param name="faults">Optional: reads the start-chain modules' fault memories, for the no-start triage.</param>
+    public static Task<TestReport> RunAsync(string id, ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1,
+        Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults = null) => id switch
     {
         "fuel-trims" => FuelTrimsAsync(signals, progress, ct, speed),
         "vanos" => VanosAsync(signals, progress, ct, speed),
         "roughness" => RoughnessAsync(signals, progress, ct, speed),
-        "no-start" => NoStartAsync(signals, progress, ct, speed),
+        "no-start" => NoStartAsync(signals, progress, ct, speed, faults),
         "cooling-bleed" => CoolingBleedAsync(signals, progress, ct, speed),
         _ => throw new ArgumentException($"Unknown test {id}"),
     };
@@ -238,8 +240,9 @@ public static class GuidedTests
         return new TestReport(findings, values, "°");
     }
 
-    /// <summary>Reads a short "does the start chain work?" picture. Faults come from the optional reader; the immobiliser is never queried.</summary>
-    public static async Task<TestReport> NoStartAsync(ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1)
+    /// <summary>Reads a short "does the start chain work?" picture, then routes the stored faults. The immobiliser is never queried.</summary>
+    public static async Task<TestReport> NoStartAsync(ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1,
+        Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faultProvider = null)
     {
         double minV = 99, maxRpm = 0; var ticks = 40;
         for (var tick = 0; tick < ticks; tick++)
@@ -251,25 +254,19 @@ public static class GuidedTests
             await Wait(speed, ct);
         }
 
-        var findings = new List<TestFinding>();
         var values = new List<KeyValuePair<string, double>>();
         if (minV < 99) values.Add(new("Lowest voltage seen", minV));
         values.Add(new("Highest engine speed seen", maxRpm));
 
-        if (minV >= 99)
-            findings.Add(new(TestSeverity.Unknown, "Battery voltage couldn't be read", "Klemme15 couldn't read the control-module voltage. Measure the battery with a meter: below about 12.2 V at rest, or dropping under 9-10 V while cranking, is the first thing to fix."));
-        else if (minV < 11.5)
-            findings.Add(new(TestSeverity.Problem, $"Battery voltage is low ({minV:0.0} V)", "This alone can stop a car cranking or firing, and it throws confusing faults in other modules. Charge or replace the battery and test again before chasing anything else."));
-        else
-            findings.Add(new(TestSeverity.Ok, $"Battery voltage looks healthy ({minV:0.0} V)", "If it didn't drop while cranking, the battery and its main connections are probably fine."));
-
-        if (maxRpm > 200)
-            findings.Add(new(TestSeverity.Ok, "The engine is turning over", $"It reached {maxRpm:0} rpm, so the starter and its circuit work. A crank-but-no-start is then about spark, fuel or air: check the next item, read the faults below, and test the fuel pump (Service > Test the fuel pump)."));
-        else
-            findings.Add(new(TestSeverity.Watch, "No cranking was seen", "Either you didn't crank during the test, or the engine isn't turning. If it won't crank: check the battery (above), the starter and its wiring, and — on cars with a gear selector — that it's in P or N. A steering lock that hasn't released also blocks starting; that's a job for a workshop, Klemme15 doesn't touch it."));
-
-        findings.Add(new(TestSeverity.Unknown, "Read the fault memory next",
-            "Open the Faults page and look at the 'fix now' faults on the engine and fuel modules: a crank sensor, fuel pressure or ignition fault logged during the failed start usually names the cause. If the battery, cranking and faults are all fine, what's left is usually the immobiliser or the key — and that needs a dealer or an auto locksmith, which this tool deliberately leaves alone."));
+        IReadOnlyList<NoStartTriage.ModuleFault> faults = [];
+        if (faultProvider is not null)
+        {
+            progress?.Report(new("Reading the start-chain fault memories...", "", 1));
+            try { faults = await faultProvider(ct); }
+            catch (Exception e) when (e is DiagnosticException or TimeoutException or NotSupportedException) { }
+        }
+        bool? cranked = maxRpm > 200 ? true : maxRpm > 0 ? false : null;
+        var findings = NoStartTriage.Assess(minV < 99 ? minV : null, cranked, faults).ToList();
         return new TestReport(findings, values, "");
     }
 

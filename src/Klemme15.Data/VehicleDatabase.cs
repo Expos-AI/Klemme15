@@ -33,6 +33,28 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>Klemme15's service functions (db/service.json).</summary>
     public ServiceLibrary Service => _service ??= ServiceLibrary.Load();
 
+    private Klemme15.Core.Coding.VerifiedCodingLibrary? _verifiedCoding;
+
+    /// <summary>Where this database reads user overrides from (set when it was loaded).</summary>
+    public string OverrideFolder { get; private set; } = UserFolder;
+
+    /// <summary>
+    /// Community-verified coding maps (the embedded db/coding-verified.json plus any the user dropped in their override
+    /// folder, whose entries are appended). Lets the comfort toggles work on a matching module without NCS data.
+    /// </summary>
+    public Klemme15.Core.Coding.VerifiedCodingLibrary VerifiedCoding => _verifiedCoding ??= LoadVerifiedCoding();
+
+    private Klemme15.Core.Coding.VerifiedCodingLibrary LoadVerifiedCoding()
+    {
+        var jsons = new List<string>();
+        using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data.coding-verified.json"))
+            if (stream is not null) { using var reader = new StreamReader(stream); jsons.Add(reader.ReadToEnd()); }
+        var userPath = Path.Combine(OverrideFolder, "coding-verified.json");
+        if (File.Exists(userPath)) { try { jsons.Add(File.ReadAllText(userPath)); } catch (IOException) { } }
+        var entries = jsons.SelectMany(j => Klemme15.Core.Coding.VerifiedCodingLibrary.Load(j).Entries).ToList();
+        return Klemme15.Core.Coding.VerifiedCodingLibrary.FromEntries(entries);
+    }
+
     /// <summary>Replaces the official sources (e.g. after the user downloads a database or picks their BMW folder).</summary>
     public void SetOfficialSources(IEnumerable<IOfficialFaultSource> sources)
     {
@@ -72,7 +94,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
 
     public static VehicleDatabase Load(string? overrideFolder = null)
     {
-        var db = new VehicleDatabase();
+        var db = new VehicleDatabase { OverrideFolder = overrideFolder ?? UserFolder };
         foreach (var name in Files)
         {
             db.LoadEmbedded(name);

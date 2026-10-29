@@ -1,6 +1,10 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.11.1:**
+**New in 0.12:**
+- **No-start triage.** "Why won't it start?" (Tests page) now reads the start-chain modules' fault memories (engine, key, steering lock) along with battery voltage and whether the engine cranked, and routes the result to a cause: battery, starter, steering lock, a crank/cam sensor, fuel, ignition, or a genuine immobiliser fault that belongs at a locksmith or dealer. It never touches keys or the immobiliser.
+- **Contribute and share coding maps.** After verifying a module against NCS Expert, export its map (part number, coding index and each toggle's bit-operations, in our own numbers) and open a pull request. Once a map is shipped, an owner with the same module can use its comfort toggles with no NCS data — still with a backup, read-back and automatic restore. The shared database (db/coding-verified.json) starts empty and grows as real cars are verified.
+
+**0.11.1:**
 - **Analyse page (datalogging).** Load a CSV datalog (recorded by Klemme15 or any tool) and scatter one channel against another, see a value averaged over a tuning-style RPM/load map, and play the log back with a scrubber while every channel reads out in step. The Live page's recording opens straight in it with the new "Analyse" button.
 
 **0.11:**

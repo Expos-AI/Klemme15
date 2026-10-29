@@ -1,0 +1,4 @@
+{
+  "$comment": "Community-verified coding maps, one per exact module (part number + coding index). Each entry is produced by Klemme15's own NCS-Expert verification on a real car and written in our own numbers (block, offset, mask, on/off byte) — never copied from BMW's files. It lets an owner with the same module use the comfort toggles without NCS data, still with a backup, read-back and automatic restore. Contribute with 'klemme15 coding ... export' (or the Coding page) after a successful verification, and open a pull request. Starts empty until real cars are verified.",
+  "entries": []
+}
