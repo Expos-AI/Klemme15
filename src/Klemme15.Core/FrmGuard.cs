@@ -78,13 +78,13 @@ public static class FrmGuard
         var g = Classify(partNumber, variant);
         return g switch
         {
-            FrmGeneration.Frm1 => new(g, false, "FRM1 (first generation)",
+            FrmGeneration.Frm1 => new(g, false, "Footwell module FRM1 (first generation)",
                 "This footwell module is the early type. It isn't affected by the FRM3 corruption problem, but keep the battery healthy while coding anyway.",
                 NormalWriteFloor, null),
-            FrmGeneration.Frm2 => new(g, false, "FRM2",
+            FrmGeneration.Frm2 => new(g, false, "Footwell module FRM2",
                 "This footwell module is the second generation, which has a real EEPROM and isn't affected by the FRM3 corruption problem. Keep the battery healthy while coding anyway.",
                 NormalWriteFloor, null),
-            FrmGeneration.Frm3 => new(g, true, "FRM3 (fragile type)",
+            FrmGeneration.Frm3 => new(g, true, "Footwell module FRM3 (fragile type)",
                 $"This is the FRM3 footwell module, the type that can corrupt itself if the voltage dips while it writes. Klemme15 only codes it or runs its service functions at {FragileWriteFloor:0.0} V or more (a charger), and only clears its faults at {NormalWriteFloor:0.0} V or more. Never disconnect the battery while the car is awake.",
                 FragileWriteFloor, NormalWriteFloor),
             _ => new(FrmGeneration.Unknown, true, "Footwell module (type not confirmed)",

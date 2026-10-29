@@ -202,7 +202,7 @@ public sealed class VehicleViewModel : PageViewModel
         if (frm is null) { FrmNotice = null; return; }
         var a = FrmGuard.Assess(frm.Identity);
         _frmFragile = a.Fragile;
-        FrmNotice = $"Footwell module: {a.Label}{(frm.Identity!.PartNumber is { } pn ? $" (part {pn})" : "")}. {a.Advice}";
+        FrmNotice = $"{a.Label}{(frm.Identity!.PartNumber is { } pn ? $", part {pn}" : "")}: {a.Advice}";
     }
 
     public bool ConfirmClearAll

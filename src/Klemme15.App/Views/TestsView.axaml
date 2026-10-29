@@ -27,7 +27,8 @@
   </UserControl.Styles>
 
   <Grid ColumnDefinitions="300,*" Margin="36,26,36,0">
-    <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="10">
+    <ScrollViewer Grid.Column="0" Margin="0,0,12,0">
+    <StackPanel Margin="0,0,12,24" Spacing="10">
       <TextBlock Classes="title" Text="Tests" />
       <TextBlock Classes="muted small" TextWrapping="Wrap"
                  Text="Klemme15 measures the engine while it tells you what to do, then explains what the numbers mean. Nothing is changed on the car." />
@@ -54,6 +55,7 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
     </StackPanel>
+    </ScrollViewer>
 
     <ScrollViewer Grid.Column="1">
       <StackPanel>
