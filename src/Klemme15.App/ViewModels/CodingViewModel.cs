@@ -68,6 +68,7 @@ public sealed class CodingViewModel : PageViewModel
     private NcsModule? _module;
     private NcsLayout? _layout;
     private NcsEvidence? _evidence;
+    private VerifiedCoding? _shared;
     private string _status = "";
     private string _ncsStatus = "";
     private string _verification = "";
@@ -87,6 +88,7 @@ public sealed class CodingViewModel : PageViewModel
         ChooseNcsCommand = new AsyncCommand(ChooseNcsAsync, () => !_busy, e => NcsStatus = e.Message);
         VerifyCommand = new AsyncCommand(VerifyAsync, () => CanTalk && _module is not null, e => Verification = e.Message);
         ConfirmCommand = new AsyncCommand(ApplyPendingAsync, () => _pending is not null && !_busy, e => Status = e.Message);
+        ExportCommand = new AsyncCommand(ExportAsync, () => IsVerified && !_busy, e => Status = e.Message);
         CancelCommand = new RelayCommand(() => Pending = null);
         _session.PropertyChanged += (_, e) =>
         {
@@ -109,6 +111,7 @@ public sealed class CodingViewModel : PageViewModel
     public AsyncCommand ChooseNcsCommand { get; }
     public AsyncCommand VerifyCommand { get; }
     public AsyncCommand ConfirmCommand { get; }
+    public AsyncCommand ExportCommand { get; }
     public RelayCommand CancelCommand { get; }
 
     public bool HasModule => _selected is not null;
@@ -180,7 +183,7 @@ public sealed class CodingViewModel : PageViewModel
         Status = _session.Backend is null ? "Connect to the car (or a demo car) in the Garage first."
             : _session.Backend is not IRawRequests ? "Coding uses Klemme15's own connection: reconnect without \"Use my own BMW files\"."
             : scan is null ? "Run the quick test first: Klemme15 codes only modules that answered it." : "";
-        Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand);
+        Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
     }
 
     private static void Refresh(params AsyncCommand[] commands)
@@ -196,6 +199,7 @@ public sealed class CodingViewModel : PageViewModel
         _module = null;
         _layout = null;
         _evidence = null;
+        _shared = item is not null ? _session.Database.VerifiedCoding.For(item.Ecu, item.Identity) : null;
         Pending = null;
         Toggles.Clear();
         Settings.Clear();
@@ -204,7 +208,7 @@ public sealed class CodingViewModel : PageViewModel
         LoadBackups();
         foreach (var p in new[] { nameof(HasModule), nameof(ModuleTitle), nameof(FrmText), nameof(HasFrmText), nameof(HasToggles), nameof(HasSettings), nameof(IsVerified) })
             Raise(p);
-        Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand);
+        Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
     }
 
     private void LoadBackups()
@@ -228,12 +232,12 @@ public sealed class CodingViewModel : PageViewModel
     private async Task<T> Busy<T>(Func<Task<T>> work)
     {
         _busy = true;
-        Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand);
+        Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand, ExportCommand);
         try { return await work(); }
         finally
         {
             _busy = false;
-            Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand);
+            Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand, ExportCommand);
         }
     }
 
@@ -304,15 +308,38 @@ public sealed class CodingViewModel : PageViewModel
     private void FillToggles()
     {
         Toggles.Clear();
-        if (_selected is { } m && _module is not null && _layout is not null && _blocks is not null)
+        if (_selected is { } m && _blocks is not null)
         {
-            var canWrite = IsVerified && Experimental;
-            foreach (var t in CodingToggles.All.Where(t => t.Module.Equals(CodingProtocol.ShortName(m.Ecu), StringComparison.OrdinalIgnoreCase)))
-                Toggles.Add(new CodingToggleItem(t, CodingToggles.StateOf(t, _module, _layout, _blocks), t.Match(_module).Count, canWrite, (item, on) => Pending = (item, on)));
+            var mine = CodingToggles.All.Where(t => t.Module.Equals(CodingProtocol.ShortName(m.Ecu), StringComparison.OrdinalIgnoreCase)).ToList();
+            if (_module is not null && _layout is not null)
+            {
+                var canWrite = IsVerified && Experimental;
+                foreach (var t in mine)
+                    Toggles.Add(new CodingToggleItem(t, CodingToggles.StateOf(t, _module, _layout, _blocks), t.Match(_module).Count, canWrite, (item, on) => Pending = (item, on)));
+            }
+            else if (_shared is { } shared)
+            {
+                // No NCS data, but a community-verified map for this exact module: use it.
+                foreach (var t in mine.Where(t => shared.Toggles.ContainsKey(t.Id)))
+                {
+                    var state = VerifiedWriter.StateOf(shared, t.Id, _blocks) switch
+                    {
+                        VerifiedState.On => ToggleState.On, VerifiedState.Off => ToggleState.Off,
+                        VerifiedState.Mixed => ToggleState.Mixed, VerifiedState.Unavailable => ToggleState.Unavailable, _ => ToggleState.Unknown,
+                    };
+                    Toggles.Add(new CodingToggleItem(t, state, shared.Toggles[t.Id].Count, Experimental, (item, on) => Pending = (item, on)));
+                }
+            }
         }
         Raise(nameof(HasToggles));
+        Raise(nameof(HasShared));
+        Raise(nameof(SharedText));
         Raise(nameof(IsVerified));
+        ExportCommand.RaiseCanExecuteChanged();
     }
+
+    public bool HasShared => _shared is not null && _module is null;
+    public string SharedText => _shared is { } s ? $"A community-verified map for this module (part {s.PartNumber}) is built in, so these options work without NCS data." : "";
 
     private async Task<CodingBackup> TakeBackupAsync(string? note)
     {
@@ -457,7 +484,10 @@ public sealed class CodingViewModel : PageViewModel
     private async Task ApplyPendingAsync()
     {
         // Everything the write depends on is captured now, so nothing can swap it while the checks below await.
-        if (_pending is not { } p || _selected is not { } m || _evidence is not { } evidence || _module?.FileName != evidence.Module.FileName) return;
+        if (_pending is not { } p || _selected is not { } m) return;
+        var evidence = _evidence is { } e && _module?.FileName == e.Module.FileName ? e : null;
+        var shared = evidence is null ? _shared : null;
+        if (evidence is null && shared is null) return;
         Pending = null;
         if (!Experimental) { Status = "Switch on experimental functions on the Service page first."; return; }
         await Busy(async () =>
@@ -465,9 +495,18 @@ public sealed class CodingViewModel : PageViewModel
             if (!await GuardAsync()) return 0;
             _blocks = null; // the safety backup is always a fresh read
             var backup = await TakeBackupAsync($"before: {p.Item.Title} {(p.On ? "on" : "off")}");
-            var changes = CodingToggles.ChangesFor(p.Item.Toggle, evidence.Module, p.On);
-            _session.Log.Note($"Coding {m.Name}: {p.Item.Title} {(p.On ? "on" : "off")} ({string.Join(", ", changes.Select(c => $"{c.Setting.Key}={c.Value}"))})");
-            var result = await CodingWriter.ApplyAsync(Raw, m.Ecu, evidence, changes, backup, new Progress<string>(s => Status = s));
+            CodingResult result;
+            if (evidence is not null)
+            {
+                var changes = CodingToggles.ChangesFor(p.Item.Toggle, evidence.Module, p.On);
+                _session.Log.Note($"Coding {m.Name}: {p.Item.Title} {(p.On ? "on" : "off")} ({string.Join(", ", changes.Select(c => $"{c.Setting.Key}={c.Value}"))})");
+                result = await CodingWriter.ApplyAsync(Raw, m.Ecu, evidence, changes, backup, new Progress<string>(s => Status = s));
+            }
+            else
+            {
+                _session.Log.Note($"Coding {m.Name} (community-verified map): {p.Item.Title} {(p.On ? "on" : "off")}");
+                result = await VerifiedWriter.ApplyAsync(Raw, m.Ecu, m.Identity, shared!, p.Item.Toggle.Id, p.On, backup, new Progress<string>(s => Status = s));
+            }
             _session.Log.Note($"  -> {result.Message}");
             Status = result.Message;
             _blocks = await ReadBlocksAsync();
@@ -475,5 +514,15 @@ public sealed class CodingViewModel : PageViewModel
             FillToggles();
             return 0;
         });
+    }
+
+    private async Task ExportAsync()
+    {
+        if (_selected is not { } m || _evidence is not { } evidence || _module?.FileName != evidence.Module.FileName) return;
+        var entry = VerifiedCodingExport.FromEvidence(m.Ecu, m.Identity, _session.Vehicle?.Id ?? "", evidence);
+        if (entry is null) { Status = "Nothing verified to export yet."; return; }
+        var saved = await _dialogs.SaveTextAsync("Save a verified coding map to contribute",
+            $"{m.Ecu.Id}-{entry.PartNumber}.coding-verified.json", "json", VerifiedCodingExport.ToJson(entry));
+        Status = saved ? "Saved. Please open a pull request adding it to db/coding-verified.json so others with this module can use it." : "";
     }
 }

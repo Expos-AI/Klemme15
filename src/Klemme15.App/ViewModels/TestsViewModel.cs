@@ -137,6 +137,27 @@ public sealed class TestsViewModel : PageViewModel
         StopCommand.RaiseCanExecuteChanged();
     }
 
+    /// <summary>Reads the fault memories of the start-chain modules (engine, key and steering lock), described, for the no-start triage.</summary>
+    private async Task<IReadOnlyList<NoStartTriage.ModuleFault>> StartChainFaultsAsync(CancellationToken ct)
+    {
+        if (_session.Backend is not { } backend || _session.Vehicle is not { } vehicle) return [];
+        var wanted = new[] { "DME", "DDE", "CAS", "ELV", "EWS", "EKPS" };
+        var scanner = new VehicleScanner(backend, _session.Codes);
+        var result = new List<NoStartTriage.ModuleFault>();
+        foreach (var ecu in vehicle.Modules.Where(m => wanted.Any(w => m.Id.EndsWith("." + w, StringComparison.OrdinalIgnoreCase) || m.Id.Equals(w, StringComparison.OrdinalIgnoreCase))))
+        {
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                var identity = _session.LastScan?.Ecus.FirstOrDefault(e => e.Ecu.Id == ecu.Id)?.Identity;
+                foreach (var f in await backend.ReadFaultsAsync(ecu, ct))
+                    result.Add(new(ecu.Id.Split('.').Last(), scanner.Describe([f], ecu, identity)[0]));
+            }
+            catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException) { }
+        }
+        return result;
+    }
+
     private void Select(GuidedTestViewModel test)
     {
         if (_running) return;
@@ -171,7 +192,9 @@ public sealed class TestsViewModel : PageViewModel
         try
         {
             var progress = new Progress<TestProgress>(p => { Instruction = p.Instruction; Status = p.Status; Fraction = p.Fraction * 100; });
-            var report = await GuidedTests.RunAsync(test.Info.Id, signals, progress, _cts.Token, Speed);
+            Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults =
+                test.Info.Id == "no-start" ? StartChainFaultsAsync : null;
+            var report = await GuidedTests.RunAsync(test.Info.Id, signals, progress, _cts.Token, Speed, faults);
             foreach (var f in report.Findings) Findings.Add(new TestFindingViewModel(f));
             var max = report.Values.Count == 0 ? 0 : report.Values.Max(v => Math.Abs(v.Value));
             foreach (var v in report.Values) Values.Add(new TestValueViewModel(v.Key, v.Value, report.Unit, max));

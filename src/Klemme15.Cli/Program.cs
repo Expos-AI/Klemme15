@@ -36,9 +36,11 @@ internal static class Cli
           coding --module <id> restore <file> [--yes]   Put a backup back (each block read back)
           coding --module <id> compare <file>           Show what changed since a backup
           coding --module <id> show --ncs <DATEN> [--trc FSW_PSW.TRC]   Settings by name, from your NCS Expert data
-          coding --module <id> set <option> on|off --ncs <DATEN> --trc <FSW_PSW.TRC> --experimental
-                                        Switch a comfort option (see 'coding options'); needs NCS Expert's
-                                        reading of the same module to verify Klemme15's map first
+          coding --module <id> set <option> on|off --experimental [--ncs <DATEN> --trc <FSW_PSW.TRC>]
+                                        Switch a comfort option (see 'coding options'). Needs either NCS Expert's
+                                        reading of this module to verify the map, or a community-verified map for it.
+          coding --module <id> export --ncs <DATEN> --trc <FSW_PSW.TRC> [--out f] [--by name]
+                                        After verifying, save this module's map to contribute to the shared database
           coding options                List the comfort options
           discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
@@ -285,7 +287,7 @@ internal static class Cli
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "serve" => await Serve(backend, vehicle, log, a, cts.Token, codes),
                 "discover" => await Discover(backend, vehicle, cts.Token),
-                "coding" => await Coding(backend, vehicle, settings.Demo, log, a, cts.Token),
+                "coding" => await Coding(backend, db, vehicle, settings.Demo, log, a, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
                 "job" => await Job(backend, a, cts.Token),
                 _ => Unknown(a.Command),
@@ -312,7 +314,7 @@ internal static class Cli
     }
 
     /// <summary>klemme15 coding --module FRM backup|restore|compare|show|set ...</summary>
-    private static async Task<int> Coding(IDiagnosticBackend backend, VehicleFamily vehicle, bool demo, TrafficLog log, Args a, CancellationToken ct)
+    private static async Task<int> Coding(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle, bool demo, TrafficLog log, Args a, CancellationToken ct)
     {
         if (backend is not IRawRequests raw) { Console.Error.WriteLine("Coding needs Klemme15's own connection (not --ediabas)."); return 2; }
         var ecu = Module(vehicle, a);
@@ -391,6 +393,29 @@ internal static class Cli
                 Console.WriteLine(written == 0 ? "Already identical: nothing written." : $"Restored {written} block(s), each read back. Switch the ignition off for 10 s and on again.");
                 return 0;
             }
+            case "set" when a.Get("ncs") is null && a.Get("trc") is null:
+            {
+                // No NCS data this run: the only way to write is a shipped community-verified map for this exact module.
+                if (a.Positional.Count < 3 || a.Positional[2] is not ("on" or "off")) { Console.Error.WriteLine("usage: klemme15 coding --module <id> set <option> on|off --experimental"); return 2; }
+                var toggle = Klemme15.Core.Coding.CodingToggles.All.FirstOrDefault(t => t.Id.Equals(a.Positional[1], StringComparison.OrdinalIgnoreCase));
+                if (toggle is null) { Console.Error.WriteLine("Unknown option. See 'klemme15 coding options'."); return 2; }
+                if (!toggle.Module.Equals(Klemme15.Core.Coding.CodingProtocol.ShortName(ecu), StringComparison.OrdinalIgnoreCase)) { Console.Error.WriteLine($"'{toggle.Id}' is a {toggle.Module} option, not for {ecu.Name}."); return 2; }
+                if (!a.Has("experimental")) { Console.Error.WriteLine("Coding is experimental: add --experimental."); return 2; }
+                if (db.VerifiedCoding.For(ecu, identity) is not { } shared || !shared.Toggles.ContainsKey(toggle.Id))
+                {
+                    Console.Error.WriteLine("No community-verified map for this module is built in. Pass --ncs <DATEN> --trc <FSW_PSW.TRC> to verify it yourself. See docs/CODING.md.");
+                    return 1;
+                }
+                Console.WriteLine($"Using a community-verified map for this module (part {shared.PartNumber}, CI {shared.CodingIndex}).");
+                if (!Confirm($"Code {ecu.Name} now? A backup is saved first.", a)) return 1;
+                if (!await Guard()) return 1;
+                var sbackup = await Backup($"before {toggle.Id} {a.Positional[2]}");
+                var sresult = await Klemme15.Core.Coding.VerifiedWriter.ApplyAsync(raw, ecu, identity, shared, toggle.Id, a.Positional[2] == "on", sbackup, progress, ct);
+                Console.Error.WriteLine();
+                log.Note($"Coding {ecu.Name} (verified map): {toggle.Id} {a.Positional[2]} -> {sresult.Message}");
+                Console.WriteLine(sresult.Message);
+                return sresult.Success ? 0 : 1;
+            }
             case "show":
             case "set":
             {
@@ -423,7 +448,7 @@ internal static class Cli
                     return 2;
                 }
                 if (!a.Has("experimental")) { Console.Error.WriteLine("Coding is experimental: add --experimental."); return 2; }
-                if (verified.Count == 0) { Console.Error.WriteLine("Writing needs --trc with NCS Expert's FSW_PSW.TRC read from this module, and a full match."); return 1; }
+                if (verified.Count == 0) { Console.Error.WriteLine("Writing needs --trc with NCS Expert's FSW_PSW.TRC read from this module, and a full match. See docs/CODING.md."); return 1; }
                 var changes = Klemme15.Core.Coding.CodingToggles.ChangesFor(toggle, map, a.Positional[2] == "on");
                 if (changes.Count == 0) { Console.Error.WriteLine($"{map.FileName} has none of this option's settings."); return 1; }
                 foreach (var (setting, value) in changes) Console.WriteLine($"  {setting.Key} -> {value}");
@@ -437,8 +462,24 @@ internal static class Cli
                 Console.WriteLine(result.Message);
                 return result.Success ? 0 : 1;
             }
+            case "export":
+            {
+                var trace = a.Get("trc") is { } trc ? Klemme15.Core.Coding.NcsFiles.ParseTrace(File.ReadAllText(trc, System.Text.Encoding.Latin1)) : null;
+                if (trace is null) { Console.Error.WriteLine("Export needs --ncs <DATEN> and --trc <FSW_PSW.TRC> from a real reading of this module."); return 2; }
+                var blocks = await Klemme15.Core.Coding.CodingProtocol.DiscoverAsync(raw, ecu, progress, ct);
+                Console.Error.WriteLine();
+                if (LoadMap(blocks, trace) is not { } map) return 1;
+                var evidence = new Klemme15.Core.Coding.NcsEvidence(map, trace, blocks);
+                var entry = Klemme15.Core.Coding.VerifiedCodingExport.FromEvidence(ecu, identity, vehicle.Id, evidence, a.Get("by"));
+                if (entry is null) { Console.Error.WriteLine("Not verified against NCS Expert, so nothing to export. Check the trace was read from this module."); return 1; }
+                var json = Klemme15.Core.Coding.VerifiedCodingExport.ToJson(entry);
+                if (a.Get("out") is { } outFile) { File.WriteAllText(outFile, json); Console.WriteLine($"Verified coding map for {ecu.Name} (part {entry.PartNumber}, CI {entry.CodingIndex}) written to {outFile}."); }
+                else Console.WriteLine(json);
+                Console.Error.WriteLine("Please open a pull request adding this to db/coding-verified.json so others with the same module can use it.");
+                return 0;
+            }
             default:
-                Console.Error.WriteLine("usage: klemme15 coding --module <id> backup|restore|compare|show|set");
+                Console.Error.WriteLine("usage: klemme15 coding --module <id> backup|restore|compare|show|set|export");
                 return 2;
         }
     }
@@ -544,7 +585,26 @@ internal static class Cli
             if (p.Instruction != last) { Console.WriteLine(); Console.WriteLine($">> {p.Instruction}"); last = p.Instruction; }
             Console.Write($"\r   {p.Status}".PadRight(60));
         });
-        var report = await GuidedTests.RunAsync(info.Id, signals, progress, ct, demo ? 8 : 1);
+        Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults = null;
+        if (info.Id == "no-start")
+        {
+            var scanner = new VehicleScanner(backend, db.ForEngine(model?.EngineCode));
+            faults = async c =>
+            {
+                var wanted = new[] { "DME", "DDE", "CAS", "ELV", "EWS", "EKPS" };
+                var list = new List<NoStartTriage.ModuleFault>();
+                foreach (var ecu in vehicle.Modules.Where(m => wanted.Any(w => m.Id.EndsWith("." + w, StringComparison.OrdinalIgnoreCase))))
+                    try
+                    {
+                        var identity = await backend.IdentifyAsync(ecu, c);
+                        foreach (var f in await backend.ReadFaultsAsync(ecu, c))
+                            list.Add(new(ecu.Id.Split('.').Last(), scanner.Describe([f], ecu, identity)[0]));
+                    }
+                    catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException) { }
+                return list;
+            };
+        }
+        var report = await GuidedTests.RunAsync(info.Id, signals, progress, ct, demo ? 8 : 1, faults);
         Console.WriteLine();
         Console.WriteLine();
         foreach (var v in report.Values) Console.WriteLine($"  {v.Key,-28} {v.Value,8:0.0} {report.Unit}");

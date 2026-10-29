@@ -246,4 +246,90 @@ public class CodingTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => CodingProtocol.RestoreAsync(car, Frm, odd, new EcuIdentity { PartNumber = "6961130", CodingIndex = "05" }));
         Assert.Equal(writesBefore, car.Writes.Count);
     }
+
+    private static readonly EcuIdentity FrmId = new() { PartNumber = "6961130", CodingIndex = "05" };
+
+    [Fact]
+    public void Exports_a_verified_entry_only_from_a_real_verification()
+    {
+        var (module, car, trace) = Build();
+        var evidence = new NcsEvidence(module, trace, BlocksOf(car));
+        var entry = VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", evidence, "tester")!;
+        Assert.NotNull(entry);
+        Assert.True(entry.WellFormed);
+        Assert.True(entry.Matches(Frm, FrmId));
+        Assert.True(entry.Toggles.ContainsKey("led-turn-signals"));
+        Assert.All(entry.Toggles["led-turn-signals"], op => Assert.True(op.Valid));
+
+        // An unverified evidence (wrong trace) exports nothing.
+        var wrong = new Dictionary<string, string>(trace) { ["OPTION_3"] = "wert_03" };
+        Assert.Null(VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", new NcsEvidence(module, wrong, BlocksOf(car)), "tester"));
+    }
+
+    [Fact]
+    public void Verified_entry_round_trips_through_the_library()
+    {
+        var (module, car, trace) = Build();
+        var entry = VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", new NcsEvidence(module, trace, BlocksOf(car)))!;
+        var json = "[" + VerifiedCodingExport.ToJson(entry) + "]";
+        var lib = VerifiedCodingLibrary.Load(json);
+        Assert.Single(lib.Entries);
+        Assert.NotNull(lib.For(Frm, FrmId));
+        Assert.Null(lib.For(Frm, new EcuIdentity { PartNumber = "9224596", CodingIndex = "05" }));
+        Assert.Null(VerifiedCodingLibrary.Load("not json").Entries.FirstOrDefault());
+    }
+
+    [Fact]
+    public async Task Codes_from_a_verified_entry_without_ncs_and_only_its_bits()
+    {
+        var (module, car, trace) = Build();
+        var entry = VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", new NcsEvidence(module, trace, BlocksOf(car)))!;
+        Assert.Equal(VerifiedState.Off, VerifiedWriter.StateOf(entry, "led-turn-signals", BlocksOf(car)));
+        var before = BlocksOf(car);
+        var result = await VerifiedWriter.ApplyAsync(car, Frm, FrmId, entry, "led-turn-signals", on: true, Backup(car));
+        Assert.True(result.Success, result.Message);
+        Assert.Equal(VerifiedState.On, VerifiedWriter.StateOf(entry, "led-turn-signals", BlocksOf(car)));
+        var diffs = CodingProtocol.Compare(before, BlocksOf(car));
+        Assert.All(diffs, d => Assert.Equal(0x3001, d.Block));
+        Assert.Equal(0x0F, diffs.Aggregate(0, (m, d) => m | d.ChangedBits));
+    }
+
+    [Fact]
+    public async Task Verified_write_refuses_a_different_module_and_restores_on_trouble()
+    {
+        var (module, car, trace) = Build();
+        var entry = VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", new NcsEvidence(module, trace, BlocksOf(car)))!;
+        var wrongModule = await VerifiedWriter.ApplyAsync(car, Frm, new EcuIdentity { PartNumber = "9224596", CodingIndex = "05" }, entry, "led-turn-signals", true, Backup(car));
+        Assert.False(wrongModule.Success);
+        Assert.Empty(car.Writes);
+
+        var original = BlocksOf(car);
+        var calls = 0;
+        car.Corrupt = (_, data) => calls++ == 0 ? [.. data[..15], (byte)(data[15] ^ 0x40)] : data;
+        var result = await VerifiedWriter.ApplyAsync(car, Frm, FrmId, entry, "led-turn-signals", on: true, Backup(car));
+        Assert.False(result.Success);
+        Assert.True(result.Restored, result.Message);
+        Assert.Empty(CodingProtocol.Compare(original, BlocksOf(car)));
+    }
+
+    [Fact]
+    public void Malformed_verified_entries_are_rejected_without_losing_the_rest()
+    {
+        var (module, car, trace) = Build();
+        var good = VerifiedCodingExport.ToJson(VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", new NcsEvidence(module, trace, BlocksOf(car)))!);
+        // A negative offset, an empty part number, and outright bad JSON are each dropped; the good entry survives.
+        var badOffset = "{\"Chassis\":\"E9x\",\"Module\":\"FRM\",\"PartNumber\":\"1\",\"CodingIndex\":\"1\",\"Toggles\":{\"x\":[{\"Block\":12288,\"Offset\":-1,\"Mask\":1,\"OnByte\":1,\"OffByte\":0}]}}";
+        var emptyPart = "{\"Chassis\":\"E9x\",\"Module\":\"FRM\",\"PartNumber\":\"\",\"CodingIndex\":\"1\",\"Toggles\":{\"x\":[{\"Block\":12288,\"Offset\":0,\"Mask\":1,\"OnByte\":1,\"OffByte\":0}]}}";
+        var lib = VerifiedCodingLibrary.Load($"[{good},{badOffset},{emptyPart},{{}}]");
+        Assert.Single(lib.Entries);
+        Assert.True(lib.Entries[0].WellFormed);
+    }
+
+    [Fact]
+    public void A_negative_offset_op_is_not_well_formed()
+    {
+        Assert.False(new CodingOp(0x3000, -1, 0x01, 0x01, 0x00).Valid);
+        Assert.False(new CodingOp(0x3000, 300, 0x01, 0x01, 0x00).Valid);
+        Assert.True(new CodingOp(0x3000, 5, 0x0C, 0x08, 0x04).Valid);
+    }
 }

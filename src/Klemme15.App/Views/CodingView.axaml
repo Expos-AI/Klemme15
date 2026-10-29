@@ -96,6 +96,10 @@
               <TextBlock Classes="muted small" TextWrapping="Wrap"
                          Text="Writing unlocks only after verification: read this module once with NCS Expert, then pick the FSW_PSW.TRC it saved. Klemme15 must decode every setting exactly as NCS Expert did." />
               <TextBlock Text="{Binding Verification}" TextWrapping="Wrap" />
+              <Button Content="Export this map to contribute..." Command="{Binding ExportCommand}" HorizontalAlignment="Left" />
+              <Border Classes="panel" Background="{DynamicResource LitSoftBrush}" Padding="12,8" IsVisible="{Binding HasShared}">
+                <TextBlock Text="{Binding SharedText}" TextWrapping="Wrap" />
+              </Border>
             </StackPanel>
           </Border>
 
