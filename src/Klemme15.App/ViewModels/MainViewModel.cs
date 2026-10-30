@@ -10,10 +10,11 @@ public sealed class MainViewModel : ViewModelBase
     private PageViewModel _currentPage;
     private bool _isDark;
 
-    public MainViewModel(IDialogService dialogs, AppSettings settings)
+    /// <param name="database">An already-loaded database (the splash loads it in the background); loaded here if omitted.</param>
+    public MainViewModel(IDialogService dialogs, AppSettings settings, VehicleDatabase? database = null)
     {
         Settings = settings;
-        Session = new SessionState(VehicleDatabase.Load());
+        Session = new SessionState(database ?? VehicleDatabase.Load());
         Garage = new GarageViewModel(Session, dialogs, settings, () => CurrentPage = Vehicle!);
         Vehicle = new VehicleViewModel(Session, dialogs);
         Faults = new FaultsViewModel(Session, (fault, ecu) =>
