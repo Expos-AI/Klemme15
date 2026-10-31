@@ -7,8 +7,11 @@
         ShowInTaskbar="False"
         WindowStartupLocation="CenterScreen"
         SystemDecorations="None"
+        Topmost="False"
         Background="#0D1117">
 
+  <Border BorderBrush="#1F2630" BorderThickness="1">
+  <Grid RowDefinitions="*,Auto">
   <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="680">
 
     <!-- lockup: the exact paths from the brand lockup SVG -->
@@ -72,4 +75,13 @@
     </Grid>
 
   </StackPanel>
+
+  <!-- footer: version, what it is, and who it isn't -->
+  <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="22,0,22,16"
+        TextElement.FontSize="11" TextElement.Foreground="#4A5361">
+    <TextBlock x:Name="Footer" Text="Open-source BMW diagnostics · Not affiliated with BMW AG" />
+    <TextBlock x:Name="VersionText" Grid.Column="1" />
+  </Grid>
+  </Grid>
+  </Border>
 </Window>

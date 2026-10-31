@@ -5,9 +5,10 @@ using AvPath = Avalonia.Controls.Shapes.Path;
 namespace Klemme15.App.Views;
 
 /// <summary>
-/// Startup splash. The wordmark types in, the tile builds around it, and a loading line with a
-/// progress bar under the logo shows the app's real startup progress. When startup has finished the
-/// lamp lights (terminal 15 on = ready). Any key or click skips the animation, never the startup work.
+/// Startup splash. The wordmark types in, the tile builds around it, and a loading line with a progress bar
+/// under the logo shows the app's real startup steps (database, BMW files, fault texts, ports, interface).
+/// It stays exactly as long as that work takes, plus the short intro animation, and then the lamp lights
+/// (terminal 15 on = ready). There is no artificial wait, so there is nothing to skip.
 /// </summary>
 public partial class SplashWindow : Window
 {
@@ -18,14 +19,12 @@ public partial class SplashWindow : Window
     private static readonly double[] GlyphRight = { 381.4, 410.0, 491.3, 609.9, 730.3, 810.7, 858.6, 940.5 };
 
     private readonly AvPath[] _glyphs;
-    private readonly CancellationTokenSource _skip = new();
 
     public SplashWindow()
     {
         InitializeComponent();
         _glyphs = new[] { G0, G1, G2, G3, G4, G5, G6, G7 };
-        KeyDown += (_, _) => _skip.Cancel();
-        PointerPressed += (_, _) => _skip.Cancel();
+        VersionText.Text = $"v{typeof(SplashWindow).Assembly.GetName().Version?.ToString(3)}";
     }
 
     /// <param name="startupWork">
@@ -37,49 +36,43 @@ public partial class SplashWindow : Window
         // Created on the UI thread, so reports from background work are marshalled back to it.
         var progress = new Progress<(string Status, double Fraction)>(p => SetLoad(p.Status, p.Fraction));
         var work = startupWork(progress);
-        var skip = _skip.Token;
-
         try
         {
-            await Task.Delay(250, skip);
+            // About one second in all; the real work runs alongside it.
+            await Task.Delay(150);
             for (var i = 0; i < _glyphs.Length; i++)                  // 1. the wordmark types in
             {
                 _glyphs[i].Opacity = 1;
                 Canvas.SetLeft(TypingCursor, GlyphRight[i] + 9);
-                await Task.Delay(62, skip);
+                await Task.Delay(45);
             }
-            await Task.Delay(90, skip);
+            await Task.Delay(70);
 
             TypingCursor.IsVisible = false;                           // 2. the tile builds, lamp still dim
             Tile.Opacity = 1;
             Lamp.Fill = LampDim;
-            await Task.Delay(380, skip);
-
-            LoadPanel.Opacity = 1;                                    // 3. the loading line fades in
-            await Task.Delay(300, skip);
-        }
-        catch (OperationCanceledException)
-        {
-            ShowEndState();
+            LoadPanel.Opacity = 1;                                    // 3. the loading line fades in with it
+            await Task.Delay(220);
         }
         catch (Exception e)
         {
             // The animation is decoration: whatever goes wrong here must not interfere with startup.
             System.Diagnostics.Trace.TraceError($"Splash animation failed: {e}");
+            ShowEndState();
         }
 
         await work;                                                   // never close before startup is done
         LoadPanel.Opacity = 1;
-        SetLoad("ready", 1);
+        SetLoad("Ready", 1);
         Status.Foreground = Amber;
         await IgniteAsync();                                          // 4. the lamp lights: ready
-        await Task.Delay(450);
+        await Task.Delay(250);
     }
 
     private void SetLoad(string status, double fraction)
     {
         fraction = Math.Clamp(fraction, 0, 1);
-        Status.Text = status;
+        Status.Text = fraction < 1 ? status + "…" : status;
         Percent.Text = $"{(int)Math.Round(fraction * 100)}%";
         BarFill.Width = Track.Bounds.Width * fraction;
     }

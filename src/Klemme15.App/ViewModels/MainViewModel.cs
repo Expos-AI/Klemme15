@@ -11,11 +11,12 @@ public sealed class MainViewModel : ViewModelBase
     private bool _isDark;
 
     /// <param name="database">An already-loaded database (the splash loads it in the background); loaded here if omitted.</param>
-    public MainViewModel(IDialogService dialogs, AppSettings settings, VehicleDatabase? database = null)
+    /// <param name="startup">What the splash already found (fault texts, BMW files, ports); null to look on the Garage page.</param>
+    public MainViewModel(IDialogService dialogs, AppSettings settings, VehicleDatabase? database = null, StartupInfo? startup = null)
     {
         Settings = settings;
         Session = new SessionState(database ?? VehicleDatabase.Load());
-        Garage = new GarageViewModel(Session, dialogs, settings, () => CurrentPage = Vehicle!);
+        Garage = new GarageViewModel(Session, dialogs, settings, () => CurrentPage = Vehicle!, startup);
         Vehicle = new VehicleViewModel(Session, dialogs);
         Faults = new FaultsViewModel(Session, (fault, ecu) =>
         {

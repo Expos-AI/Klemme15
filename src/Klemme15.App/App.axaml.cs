@@ -59,11 +59,35 @@ public partial class App : Application
         {
             await splash.RunAsync(async progress =>
             {
-                progress.Report(("loading vehicle database", 0.15));
+                // Each step is real work the app would otherwise do after opening; doing it here means the
+                // Garage opens ready. A step that fails is left for the Garage to retry, as before.
+                progress.Report(("Loading vehicle database", 0.05));
                 database = await Task.Run(() => VehicleDatabase.Load());
-                progress.Report(("building the interface", 0.80));
+
+                SgbdFolder? found = null;
+                var searched = false;
+                var folder = settings.EcuFolder ?? settings.EdiabasPath;
+                if (folder is null || EdiabasLocator.CountPrg(folder) == 0)
+                {
+                    progress.Report(("Looking for EDIABAS, INPA or ISTA files", 0.30));
+                    try { found = await Task.Run(EdiabasLocator.Find); searched = true; }
+                    catch (Exception e) { Trace.TraceError($"BMW file search failed: {e}"); }
+                }
+
+                progress.Report(("Loading official fault texts", 0.55));
+                OfficialStatus? official = null;
+                try { official = await Task.Run(() => OfficialSetup.Apply(database, folder ?? found?.Path, autoDetect: !searched)); }
+                catch (Exception e) { Trace.TraceError($"Fault text setup failed: {e}"); }
+
+                progress.Report(("Checking cable ports", 0.75));
+                IReadOnlyList<Klemme15.Serial.PortInfo>? ports = null;
+                try { ports = await Task.Run(Klemme15.Serial.PortDiscovery.List); }
+                catch (Exception e) { Trace.TraceError($"Port listing failed: {e}"); }
+
+                progress.Report(("Building the interface", 0.90));
                 await Task.Delay(40); // let the status line paint before the UI thread gets busy
-                OpenMainWindow(desktop, settings, database, show: false);
+                OpenMainWindow(desktop, settings, database, show: false,
+                    new StartupInfo { Official = official, EdiabasSearched = searched, Ediabas = found, Ports = ports });
                 opened = true;
             });
             desktop.MainWindow!.Show();
@@ -81,10 +105,10 @@ public partial class App : Application
         }
     }
 
-    private static void OpenMainWindow(IClassicDesktopStyleApplicationLifetime desktop, AppSettings settings, VehicleDatabase? database, bool show = true)
+    private static void OpenMainWindow(IClassicDesktopStyleApplicationLifetime desktop, AppSettings settings, VehicleDatabase? database, bool show = true, StartupInfo? startup = null)
     {
         var window = new MainWindow();
-        var main = new MainViewModel(new DialogService(window), settings, database);
+        var main = new MainViewModel(new DialogService(window), settings, database, startup);
         main.ApplyTheme();
         window.DataContext = main;
         window.Closing += (_, _) => main.Shutdown();
