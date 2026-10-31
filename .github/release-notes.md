@@ -1,5 +1,18 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
+**New in 0.13.1:**
+- **Faster-feeling startup.** The splash screen now does real setup work while it shows: it loads the vehicle database, finds your EDIABAS/INPA/ISTA files, loads official fault texts and checks cable ports, with each step on the progress bar. The Garage page opens ready instead of showing "Looking for..." first.
+- The splash lasts only as long as that work plus a short intro (about a second), with no added waiting, so the skip-on-click has been removed. It shows the version and "Not affiliated with BMW AG".
+
+**0.13.0:**
+- **Dash messages (Check Control).** The quick test now asks the instrument cluster which warning messages it is showing (key battery low, bulb out, washer fluid, brake pads...) and its recent message history, so you can see **why the warning triangle is lit even when no module has a fault code**. Shown red or yellow like the dash, with what each means and what to do. 61 common messages written in our own words with sources; BMW's own wording is shown alongside when you have your BMW files. Unknown messages still appear by number.
+- **Shadow / Info memory**, clearly labelled. Native mode now also reads the info memory of the key module (CAS) and the engine computer. These background entries are labelled "Shadow / Info memory" everywhere and never count as faults.
+- Reports (HTML, Markdown, forum post) and `klemme15 scan` include both. Demo cars show a "key battery low" message.
+- Note: the cluster's message-history format is not yet confirmed on a real car; a scan with the traffic log saved helps.
+
+**0.12.3:**
+- A startup splash screen tied to the app's real loading progress.
+
 **New in 0.12.2:**
 - **Install via winget or Scoop** (`winget install Expos-AI.Klemme15`, or `scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15`), which skips the Windows SmartScreen prompt. Direct `.zip` downloads still work. The install recipes now update themselves on every release.
 
