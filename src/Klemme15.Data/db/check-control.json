@@ -1,0 +1,734 @@
+{
+  "$comment": "Check Control (CC-ID) messages: the dash warnings with the triangle. Written in Klemme15's own words from community lists (sources per entry). 'high' = the ID and meaning agree across community lists and a local cross-check of BMW's cluster text table; 'medium' = community lists only. BMW's own texts are never included; when the user has their BMW files, Klemme15 shows BMW's wording next to these. Severity follows the triangle colour: Critical = red (stop safely), Warning and Advisory = yellow. IDs are for E8x/E9x/E6x/E7x clusters; other models can differ.",
+  "messages": [
+    {
+      "id": 11,
+      "title": "Steering fault",
+      "severity": "Warning",
+      "description": "The steering system (active steering or power assistance) has reported a problem. Steering may feel heavier or different.",
+      "hint": "Drive carefully and have the steering module's fault memory read.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Door open (front right)",
+      "severity": "Advisory",
+      "description": "The cluster sees a door open. The exact door per ID comes from community lists.",
+      "hint": "If every door is shut, check the door's latch switch.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 15,
+      "title": "Door open (front left)",
+      "severity": "Advisory",
+      "description": "The cluster sees a door open. The exact door per ID comes from community lists.",
+      "hint": "If every door is shut, check the door's latch switch.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 16,
+      "title": "Door open (rear left)",
+      "severity": "Advisory",
+      "description": "The cluster sees a door open. The exact door per ID comes from community lists.",
+      "hint": "If every door is shut, check the door's latch switch.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 17,
+      "title": "Door open (rear right)",
+      "severity": "Advisory",
+      "description": "The cluster sees a door open. The exact door per ID comes from community lists.",
+      "hint": "If every door is shut, check the door's latch switch.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 18,
+      "title": "Bonnet open",
+      "severity": "Advisory",
+      "description": "The bonnet (hood) is reported as not latched.",
+      "hint": "If it is closed, the bonnet contact switch is a common cause.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 19,
+      "title": "Boot open",
+      "severity": "Advisory",
+      "description": "The boot (trunk) lid is reported as open.",
+      "hint": "If it is closed, check the boot lock's switch.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 24,
+      "title": "Dynamic Brake Control failed",
+      "severity": "Warning",
+      "description": "The brake-assist function is off. Normal braking still works.",
+      "hint": "Drive moderately and have the DSC module read.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 27,
+      "title": "Engine oil at minimum",
+      "severity": "Warning",
+      "description": "The oil level sensor reads the minimum mark.",
+      "hint": "Top up with the correct oil soon; check for leaks or oil use.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 28,
+      "title": "Engine oil below minimum",
+      "severity": "Critical",
+      "description": "The oil level is below the minimum mark. Running low on oil can damage the engine.",
+      "hint": "Top up before driving further.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 29,
+      "title": "Engine fault, reduced power",
+      "severity": "Warning",
+      "description": "The engine ECU has limited power because of a fault.",
+      "hint": "Read the engine (DME/DDE) fault memory; a matching fault code will be there.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 30,
+      "title": "Engine fault, stop carefully",
+      "severity": "Critical",
+      "description": "A serious engine fault. The car asks you to stop when it is safe.",
+      "hint": "Stop safely and read the engine fault memory before driving on.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 31,
+      "title": "Increased emissions",
+      "severity": "Warning",
+      "description": "An emissions-related fault is stored (the US 'check engine' light usually comes on too).",
+      "hint": "Read the engine fault memory; misfires, lambda and VANOS faults are common causes.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 32,
+      "title": "Fuel cap not closed",
+      "severity": "Advisory",
+      "description": "The fuel filler cap was reported as loose or missing.",
+      "hint": "Tighten the cap until it clicks; the message clears after some driving.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 33,
+      "title": "Engine fault, drive moderately",
+      "severity": "Warning",
+      "description": "The engine ECU has found a fault and asks for gentle driving.",
+      "hint": "Read the engine fault memory.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 35,
+      "title": "DSC failed",
+      "severity": "Warning",
+      "description": "Stability control is not working. The car brakes normally but without DSC help.",
+      "hint": "Read the DSC module; wheel speed sensors and the steering angle sensor are common causes.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 36,
+      "title": "DSC switched off",
+      "severity": "Advisory",
+      "description": "Stability control has been switched off with the button.",
+      "hint": "Press the DSC button to turn it back on.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 39,
+      "title": "Engine overheated, stop carefully",
+      "severity": "Critical",
+      "description": "The engine temperature is too high. Driving on can damage the engine.",
+      "hint": "Stop safely, let it cool, and check coolant level, water pump and thermostat.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 41,
+      "title": "Service due",
+      "severity": "Advisory",
+      "description": "A scheduled service item (oil, brakes, inspection) is due.",
+      "hint": "See the service list in the iDrive / cluster menu; reset it after the work is done.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 46,
+      "title": "Fasten seat belt",
+      "severity": "Advisory",
+      "description": "A seat belt is not fastened.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 49,
+      "title": "Particulate filter fault",
+      "severity": "Warning",
+      "description": "The diesel particulate filter has reported a problem.",
+      "hint": "Read the DDE fault memory.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 50,
+      "title": "Flat tyre monitor failed",
+      "severity": "Warning",
+      "description": "The flat tyre warning (RPA) or tyre pressure monitor isn't working, so a puncture may not be shown.",
+      "hint": "Check the tyre pressures by hand, then re-initialise the system.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 63,
+      "title": "Flat tyre",
+      "severity": "Critical",
+      "description": "A tyre is losing pressure.",
+      "hint": "Stop safely and check the tyres. Run-flat tyres allow limited driving at reduced speed.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 65,
+      "title": "Charge the key",
+      "severity": "Advisory",
+      "description": "The rechargeable battery in the key (comfort access / some keys) is low.",
+      "hint": "Leave the key in the ignition slot while driving to charge it.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 67,
+      "title": "Key battery low",
+      "severity": "Advisory",
+      "description": "The battery in the remote key is weak. The car still starts with the key in the slot.",
+      "hint": "Many E-series keys have a rechargeable cell that charges while the key sits in the ignition slot, so a longer drive often clears it. If it keeps coming back, the cell is worn out: replace the cell (check which type your key uses) or the key.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 68,
+      "title": "Key battery low (standby functions)",
+      "severity": "Advisory",
+      "description": "The key's battery is too weak for remote functions such as auxiliary heating.",
+      "hint": "Replace or charge the key's battery.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 70,
+      "title": "Servotronic failed",
+      "severity": "Warning",
+      "description": "The speed-dependent power steering assistance isn't working. Steering may be heavier.",
+      "hint": "Have the steering fault memory read.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 71,
+      "title": "Replace brake pads",
+      "severity": "Warning",
+      "description": "A brake pad wear sensor has been worn through.",
+      "hint": "Replace the pads and the wear sensor, then reset the brake service in the cluster.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 74,
+      "title": "Brake fluid low, stop carefully",
+      "severity": "Critical",
+      "description": "The brake fluid level is low. This can mean a leak or very worn pads.",
+      "hint": "Stop safely and check the fluid level and for leaks before driving on.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 75,
+      "title": "Trailer electrics failed",
+      "severity": "Warning",
+      "description": "The trailer module reports a fault (lights or wiring on the trailer side).",
+      "hint": "Check the trailer plug and bulbs.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 79,
+      "title": "Low outside temperature",
+      "severity": "Advisory",
+      "description": "Outside temperature is near freezing; roads may be icy.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 88,
+      "title": "Left low beam out",
+      "severity": "Advisory",
+      "description": "The left dipped-beam headlight bulb or its circuit has failed.",
+      "hint": "Replace the bulb; on xenon cars check the igniter and ballast.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 89,
+      "title": "Right low beam out",
+      "severity": "Advisory",
+      "description": "The right dipped-beam headlight bulb or its circuit has failed.",
+      "hint": "Replace the bulb; on xenon cars check the igniter and ballast.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 111,
+      "title": "Left number plate light out",
+      "severity": "Advisory",
+      "description": "A number plate (licence plate) light has failed.",
+      "hint": "Replace the bulb; an LED plate light without a load resistor can also cause this.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 113,
+      "title": "Parking lights on",
+      "severity": "Advisory",
+      "description": "The parking (side) lights were left on with the car off.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 114,
+      "title": "Left rear fog light out",
+      "severity": "Advisory",
+      "description": "The rear fog light bulb or circuit on the left has failed.",
+      "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 116,
+      "title": "Left rear indicator out",
+      "severity": "Advisory",
+      "description": "A turn signal bulb or circuit has failed.",
+      "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 119,
+      "title": "Right front indicator out",
+      "severity": "Advisory",
+      "description": "A turn signal bulb or circuit has failed.",
+      "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 120,
+      "title": "Left low beam out",
+      "severity": "Advisory",
+      "description": "The left dipped-beam headlight bulb or its circuit has failed (alternative ID on some clusters).",
+      "hint": "Replace the bulb; on xenon cars check the igniter and ballast.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 121,
+      "title": "Right low beam out",
+      "severity": "Advisory",
+      "description": "The right dipped-beam headlight bulb or its circuit has failed (alternative ID on some clusters).",
+      "hint": "Replace the bulb; on xenon cars check the igniter and ballast.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 129,
+      "title": "Right rear fog light out",
+      "severity": "Advisory",
+      "description": "The rear fog light bulb or circuit on the right has failed.",
+      "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 132,
+      "title": "Right front parking light out",
+      "severity": "Advisory",
+      "description": "The right front side light / angel eye has failed.",
+      "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 134,
+      "title": "Right brake light out",
+      "severity": "Warning",
+      "description": "A brake light has failed. Other drivers may not see you braking.",
+      "hint": "Replace the bulb soon.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 135,
+      "title": "Centre brake light out",
+      "severity": "Warning",
+      "description": "The third (centre) brake light has failed.",
+      "hint": "Check the LED strip and its plug.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 136,
+      "title": "Left brake light out",
+      "severity": "Warning",
+      "description": "A brake light has failed. Other drivers may not see you braking.",
+      "hint": "Replace the bulb soon.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 137,
+      "title": "Right number plate light out",
+      "severity": "Advisory",
+      "description": "A number plate (licence plate) light has failed.",
+      "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 139,
+      "title": "Flat tyre (front left)",
+      "severity": "Critical",
+      "description": "The front left tyre is losing pressure.",
+      "hint": "Stop safely and check the tyre.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 142,
+      "title": "Check tyre pressures",
+      "severity": "Warning",
+      "description": "A tyre pressure is lower than it should be.",
+      "hint": "Check and correct all four pressures, then reset the tyre monitor.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 143,
+      "title": "Flat tyre (front right)",
+      "severity": "Critical",
+      "description": "The front right tyre is losing pressure.",
+      "hint": "Stop safely and check the tyre.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 147,
+      "title": "Flat tyre",
+      "severity": "Critical",
+      "description": "A tyre is losing pressure.",
+      "hint": "Stop safely and check the tyres.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 164,
+      "title": "Washer fluid low",
+      "severity": "Advisory",
+      "description": "The windscreen washer reservoir is low.",
+      "hint": "Top up washer fluid.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 166,
+      "title": "Coolant level low",
+      "severity": "Warning",
+      "description": "The coolant expansion tank level is low.",
+      "hint": "Top up with the right coolant when the engine is cold and look for leaks.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 168,
+      "title": "Transmission fault, drive moderately",
+      "severity": "Warning",
+      "description": "The gearbox control unit has found a fault and may limit gears.",
+      "hint": "Read the transmission (EGS) fault memory.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 182,
+      "title": "Oil level sensor fault",
+      "severity": "Advisory",
+      "description": "The engine oil level sensor isn't giving a reading, so oil level can't be shown.",
+      "hint": "Check the oil on the dipstick (if fitted) or have the sensor checked.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 212,
+      "title": "Oil pressure low, stop carefully",
+      "severity": "Critical",
+      "description": "Engine oil pressure is too low. Driving on can destroy the engine.",
+      "hint": "Stop the engine as soon as it is safe and check the oil level.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 213,
+      "title": "Alternator fault",
+      "severity": "Critical",
+      "description": "The alternator isn't charging. The battery will run down while you drive.",
+      "hint": "Drive straight to a garage with as few electrical loads as possible.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 216,
+      "title": "Fuel pump fault, drive moderately",
+      "severity": "Warning",
+      "description": "The fuel pump control has reported a problem.",
+      "hint": "Read the fuel pump module (EKPS) and engine fault memories.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 229,
+      "title": "Charge the battery",
+      "severity": "Warning",
+      "description": "The battery charge is low, for example after short trips or long standing.",
+      "hint": "Charge the battery with a charger; if it keeps happening, test the battery and look for a drain.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 230,
+      "title": "Battery flat, emergency charging",
+      "severity": "Warning",
+      "description": "The battery is so low that the car has switched to emergency charging and may turn off comfort features.",
+      "hint": "Charge the battery and test it.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 257,
+      "title": "Engine running hot, drive moderately",
+      "severity": "Warning",
+      "description": "Engine temperature is higher than normal.",
+      "hint": "Check coolant level, the electric water pump and thermostat.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 275,
+      "title": "Fuel low",
+      "severity": "Advisory",
+      "description": "The fuel level has reached reserve.",
+      "hint": "Refuel soon.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    }
+  ]
+}

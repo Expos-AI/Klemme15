@@ -25,7 +25,7 @@ public sealed record EdiabasOptions
 /// Runs jobs from the user's own BMW SGBD files through EdiabasLib. Gives the deepest coverage
 /// (every module, BMW fault texts, all status jobs) but needs those files. Runs on Windows, macOS and Linux.
 /// </summary>
-public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner, IModuleReadings, IMeasurementReader
+public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend, IJobRunner, IModuleReadings, IMeasurementReader, ICheckControlReader
 {
     private readonly SemaphoreSlim _lock = new(1, 1);
     private readonly Dictionary<string, string> _resolved = new(StringComparer.OrdinalIgnoreCase);
@@ -230,6 +230,36 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
         }
         return d;
     }
+
+    /// <summary>
+    /// The cluster's Check Control list with BMW's own jobs: STATUS_CHECKCONTROL_LESEN (active IDs, 2 bytes each in
+    /// STAT_CC_NUMMERN) and, where the cluster has it, STATUS_CHECKCONTROL_HISTORY (STAT_CC_ID per entry, with mileage).
+    /// </summary>
+    public Task<CheckControlReading?> ReadCheckControlAsync(EcuDefinition cluster, CancellationToken ct = default) =>
+        Locked<CheckControlReading?>(() =>
+        {
+            var sgbd = SgbdFor(cluster);
+            try { _ediabas?.ResolveSgbdFile(sgbd); }
+            catch (Exception) { return null; }
+            if (!JobExists("STATUS_CHECKCONTROL_LESEN")) return null;
+
+            var sets = RunJobCore(sgbd, "STATUS_CHECKCONTROL_LESEN", "", ct);
+            var all = Merge(sets);
+            var count = CheckControlParser.ParseInt(all.GetValueOrDefault("STAT_CC_ID_ANZAHL") ?? all.GetValueOrDefault("STAT_ANZAHL"));
+            var active = CheckControlParser.ParseEdiabasList(all.GetValueOrDefault("STAT_CC_NUMMERN"), count);
+
+            var history = new List<CheckControlHistoryEntry>();
+            try
+            {
+                if (JobExists("STATUS_CHECKCONTROL_HISTORY"))
+                    foreach (var set in RunJobCore(sgbd, "STATUS_CHECKCONTROL_HISTORY", "", ct))
+                        if (CheckControlParser.ParseInt(set.GetValueOrDefault("STAT_CC_ID")) is { } id && !CheckControlParser.IsPlaceholder(id))
+                            history.Add(new CheckControlHistoryEntry(id,
+                                long.TryParse(set.GetValueOrDefault("STAT_GWSZ_STAND_WERT"), NumberStyles.Integer, CultureInfo.InvariantCulture, out var km) ? km : null));
+            }
+            catch (DiagnosticException) { /* history is a bonus */ }
+            return new CheckControlReading(active, history, all.GetValueOrDefault("_TEL_ANTWORT"));
+        }, ct);
 
     public Task ClearFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) =>
         RunJobAsync(SgbdFor(ecu), "FS_LOESCHEN", "", ct);

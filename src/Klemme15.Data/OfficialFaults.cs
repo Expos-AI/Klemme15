@@ -204,7 +204,7 @@ public sealed class UnifiedDbSource(string folder) : IOfficialFaultSource
 /// The user's own EDIABAS "Ecu" folder (installed with ISTA, INPA or EDIABAS). Fault texts are read from
 /// the FORTTEXTE table of each variant's .prg file on the user's machine; nothing is copied into Klemme15.
 /// </summary>
-public sealed class SgbdFolderSource : IOfficialFaultSource
+public sealed class SgbdFolderSource : IOfficialFaultSource, ICheckControlTextSource
 {
     private readonly Dictionary<string, string> _files = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<string, Dictionary<int, OfficialEntry>?> _cache = new(StringComparer.OrdinalIgnoreCase);
@@ -225,6 +225,53 @@ public sealed class SgbdFolderSource : IOfficialFaultSource
     public bool HasVariant(string variant) => _files.ContainsKey(variant);
     public IReadOnlyCollection<string> EnginesOf(string variant) => [];
     public IReadOnlyCollection<string> PartNumbersOf(string variant) => [];
+
+    private Dictionary<int, string>? _ccTexts;
+
+    /// <summary>
+    /// BMW's Check Control text for an ID, from the CCM_TEXT_TABELLE of a cluster file in the user's folder (only some
+    /// clusters carry one; the IDs are shared across E-series clusters, but a text can come from another model's file).
+    /// </summary>
+    public string? CheckControlText(int id)
+    {
+        lock (_lock)
+        {
+            if (_ccTexts is null)
+            {
+                _ccTexts = [];
+                foreach (var (name, path) in _files.Where(f => f.Key.StartsWith("komb", StringComparison.OrdinalIgnoreCase)).OrderBy(f => f.Key, StringComparer.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        var rows = SgbdFile.Open(path).ReadTable("CCM_TEXT_TABELLE");
+                        if (rows is null) continue;
+                        foreach (var row in rows)
+                            if (row.TryGetValue("CC_NR", out var nr) && row.TryGetValue("CC_TEXT", out var text) &&
+                                CcNumber(nr) is { } n && CleanCc(text) is { Length: > 0 } clean && !clean.StartsWith('#'))
+                                _ccTexts.TryAdd(n, clean);
+                    }
+                    catch (Exception) { /* unreadable file: skip */ }
+                }
+            }
+            return _ccTexts.GetValueOrDefault(id);
+        }
+    }
+
+    private static int? CcNumber(string nr)
+    {
+        var t = nr.Trim();
+        if (t.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
+            return int.TryParse(t[2..], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var h) ? h : null;
+        return int.TryParse(t, NumberStyles.Integer, CultureInfo.InvariantCulture, out var d) ? d : null;
+    }
+
+    /// <summary>Joins BMW's display line breaks ("Vor- sichtig" → "Vorsichtig") and drops format placeholders.</summary>
+    public static string CleanCc(string text)
+    {
+        var t = System.Text.RegularExpressions.Regex.Replace(text, @"(\p{Ll})- (\p{Ll})", "$1$2");
+        t = t.Replace("%s", "").Trim();
+        return System.Text.RegularExpressions.Regex.Replace(t, @"\s{2,}", " ");
+    }
 
     public OfficialEntry? Lookup(string variant, int code)
     {

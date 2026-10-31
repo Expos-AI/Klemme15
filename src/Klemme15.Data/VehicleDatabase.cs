@@ -13,7 +13,7 @@ public sealed record FaultLocation(SchematicPoint Position, string Title, bool I
 /// Loads the built-in community database, then layers any JSON files found in a user folder on top,
 /// so people can add or fix entries without rebuilding the app.
 /// </summary>
-public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber
+public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber, ICheckControlCatalog
 {
     private readonly List<IOfficialFaultSource> _official = [];
 
@@ -60,7 +60,27 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     {
         _official.Clear();
         _official.AddRange(sources);
+        CheckControl.SetOfficialSources(_official.OfType<ICheckControlTextSource>());
     }
+
+    private CheckControlCatalog? _checkControl;
+
+    /// <summary>The Check Control (dash message) list: db/check-control.json plus the user's override.</summary>
+    public CheckControlCatalog CheckControl
+    {
+        get
+        {
+            if (_checkControl is null)
+            {
+                _checkControl = CheckControlCatalog.Load(OverrideFolder);
+                _checkControl.SetOfficialSources(_official.OfType<ICheckControlTextSource>());
+            }
+            return _checkControl;
+        }
+    }
+
+    public CheckControlInfo? LookupCheckControl(int id) => CheckControl.LookupCheckControl(id);
+    public (string Text, string Source)? OfficialCheckControlText(int id) => CheckControl.OfficialCheckControlText(id);
 
     private static readonly string[] Files = ["modules.json", "obd-generic.json", "obd-codes.json", "bmw-codes.json", "components.json", "vehicles.json"];
 
@@ -211,8 +231,10 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>The same database, with BMW codes read for a specific engine (e.g. "N52").</summary>
     public IFaultCodeDatabase ForEngine(string? engine) => engine is null ? this : new EngineCodes(this, engine);
 
-    private sealed class EngineCodes(VehicleDatabase inner, string engine) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber
+    private sealed class EngineCodes(VehicleDatabase inner, string engine) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber, ICheckControlCatalog
     {
+        public CheckControlInfo? LookupCheckControl(int id) => inner.LookupCheckControl(id);
+        public (string Text, string Source)? OfficialCheckControlText(int id) => inner.OfficialCheckControlText(id);
         public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity) => inner.Describe(fault, ecu, identity, engine);
         public string? DescribeObd(string code) => inner.DescribeObd(code);
         public string? DescribeBmw(string ecuId, string code) => LookupBmw(ecuId, code)?.Text;
@@ -250,8 +272,10 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>Fault descriptions for a demo car: the real database plus the demo's own made-up BMW codes.</summary>
     public IFaultCodeDatabase ForDemo(VehicleModel model) => new DemoCodes(this, model);
 
-    private sealed class DemoCodes(VehicleDatabase inner, VehicleModel model) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber
+    private sealed class DemoCodes(VehicleDatabase inner, VehicleModel model) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber, ICheckControlCatalog
     {
+        public CheckControlInfo? LookupCheckControl(int id) => inner.LookupCheckControl(id);
+        public (string Text, string Source)? OfficialCheckControlText(int id) => inner.OfficialCheckControlText(id);
         public Fault Describe(Fault fault, EcuDefinition ecu, EcuIdentity? identity) =>
             inner.Describe(fault, ecu, identity, model.EngineCode,
                 model.DemoFaults.FirstOrDefault(d => d.ModuleId == ecu.Id && d.Code.Equals(fault.Code, StringComparison.OrdinalIgnoreCase))?.Text);
@@ -397,6 +421,9 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
             Drive = Str("drive"),
             ModuleIds = m.TryGetProperty("modules", out var mods) ? mods.EnumerateArray().Select(x => x.GetString()!).ToList() : [],
             DemoFaults = faults,
+            DemoCheckControl = demo.ValueKind == JsonValueKind.Object && demo.TryGetProperty("checkControl", out var cc) && cc.ValueKind == JsonValueKind.Array
+                ? cc.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.Number && x.TryGetInt32(out _)).Select(x => x.GetInt32()).ToList()
+                : [],
             IdleRpm = demo.ValueKind == JsonValueKind.Object && demo.TryGetProperty("idle", out var idle) ? idle.GetInt32() : 700,
             Turbo = demo.ValueKind == JsonValueKind.Object && demo.TryGetProperty("turbo", out var turbo) && turbo.ValueKind == JsonValueKind.True,
         };

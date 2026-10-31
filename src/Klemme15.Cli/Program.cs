@@ -529,6 +529,7 @@ internal static class Cli
         }
         foreach (var group in scan.Ecus.Where(e => e.Note is not null).GroupBy(e => e.Note))
             Console.WriteLine($"\nnote: {string.Join(", ", group.Select(e => e.Ecu.Id))}: {group.Key}");
+        PrintCheckControl(scan);
 
         if (a.Get("report") is { } file)
         {
@@ -554,6 +555,29 @@ internal static class Cli
     /// BMW's measurement values for the engine: from BMW's files in EDIABAS mode, otherwise read by Klemme15 itself
     /// with the downloaded tables, for the engine computer version its part number identifies.
     /// </summary>
+    /// <summary>The dash (Check Control) messages: why the triangle is on, even with no fault codes.</summary>
+    private static void PrintCheckControl(VehicleScanResult scan)
+    {
+        if (scan.CheckControl.Count == 0)
+        {
+            if (scan.CheckControlNote is { } note) Console.WriteLine($"\ndash messages: {note}");
+            return;
+        }
+        Console.WriteLine();
+        Console.WriteLine($"Dash messages (Check Control): {scan.ActiveCheckControl} showing now");
+        foreach (var m in scan.CheckControl.Where(m => m.Active))
+        {
+            var colour = m.Severity == CcSeverity.Critical ? "RED   " : "YELLOW";
+            Console.WriteLine($"  [{colour}] {m.Code,-7} {m.Title}");
+            if (m.Hint is { } tip) Console.WriteLine($"           Tip: {tip}");
+            if (m.OfficialText is { } bmw && bmw != m.Title) Console.WriteLine($"           BMW: {bmw}");
+        }
+        foreach (var m in scan.CheckControl.Where(m => !m.Active).Take(10))
+            Console.WriteLine($"  [earlier] {m.Code,-7} {m.Title}{(m.MileageKm is { } km ? $" (~{km:N0} km)" : "")}");
+        if (scan.ActiveCheckControl > 0 && scan.TotalFaults == 0)
+            Console.WriteLine("  These are messages, not fault codes, which is why the fault memory is empty.");
+    }
+
     private static async Task<IMeasurementReader?> MeasurementsFor(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle,
         VehicleModel? model, TrafficLog log, CancellationToken ct)
     {
@@ -782,7 +806,7 @@ internal static class Cli
         foreach (var f in faults.OrderBy(f => FaultTriage.Assess(f).Priority))
         {
             var v = FaultTriage.Assess(f);
-            Console.WriteLine($"  {f.Code,-6} {(f.IsShadow ? "Shadow" : f.IsInfo ? "Info" : f.State.ToString()),-12} {v.Label,-17} {f.DisplayDescription}");
+            Console.WriteLine($"  {f.Code,-6} {(f.IsShadow || f.IsInfo ? "Shadow/Info" : f.State.ToString()),-12} {v.Label,-17} {f.DisplayDescription}");
             Console.WriteLine($"         {v.Advice}");
         }
     }

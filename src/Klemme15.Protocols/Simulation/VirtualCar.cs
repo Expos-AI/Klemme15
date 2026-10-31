@@ -21,6 +21,15 @@ public sealed class VirtualEcu
 
     /// <summary>Coding blocks (0x3000-0x3EFF), read with $22 and written with $2E.</summary>
     public Dictionary<ushort, byte[]> Coding { get; init; } = new();
+
+    /// <summary>Info / shadow memory ($22 2000): (code, status).</summary>
+    public List<(ushort Code, byte Status)> InfoMemory { get; init; } = [];
+
+    /// <summary>Check Control IDs the cluster shows now ($21 09).</summary>
+    public List<ushort> CheckControl { get; init; } = [];
+
+    /// <summary>The cluster's Check Control history ($21 0F): (ID, mileage in km).</summary>
+    public List<(ushort Id, int Km)> CheckControlHistory { get; init; } = [];
 }
 
 /// <summary>
@@ -184,6 +193,26 @@ public sealed class VirtualCar : ITransport
                 var id = (ushort)(req[1] << 8 | req[2]);
                 return ecu.Coding.TryGetValue(id, out var block) ? [0x62, req[1], req[2], .. block] : [0x7F, 0x22, 0x31];
             }
+            case 0x22 when req.Length == 3 && req[1] == 0x20 && req[2] == 0x00:
+            {
+                if (ecu.InfoMemory.Count == 0 && !ecu.IsEngine && ecu.Address != 0x40) return [0x7F, 0x22, 0x31];
+                var body = new List<byte> { 0x62, 0x20, 0x00 };
+                foreach (var (code, status) in ecu.InfoMemory) body.AddRange([(byte)(code >> 8), (byte)code, status]);
+                return [.. body];
+            }
+            case 0x21 when req.Length == 2 && req[1] == 0x09 && ecu.Address == 0x60:
+            {
+                var body = new List<byte> { 0x61, 0x09, (byte)ecu.CheckControl.Count };
+                foreach (var id in ecu.CheckControl) body.AddRange([(byte)(id >> 8), (byte)id]);
+                return [.. body];
+            }
+            case 0x21 when req.Length == 2 && req[1] == 0x0F && ecu.Address == 0x60:
+            {
+                var body = new List<byte> { 0x61, 0x0F };
+                foreach (var (id, km) in ecu.CheckControlHistory)
+                    body.AddRange([(byte)(id >> 8), (byte)id, (byte)(km / 8 >> 8), (byte)(km / 8)]);
+                return [.. body];
+            }
             case 0x2E when req.Length > 3 && req[1] is >= 0x30 and <= 0x3E:
             {
                 var id = (ushort)(req[1] << 8 | req[2]);
@@ -320,6 +349,7 @@ public sealed class VirtualCar : ITransport
                                .Select(f => (Convert.ToUInt16(f.Code, 16), (byte)(f.Present ? 0x60 : 0x20)))
                                .ToList(),
                 ObdCodes = faults.Where(f => f.IsObd).Select(f => ObdCodeToRaw(f.Code)).ToList(),
+                CheckControl = CheckControlDescriber.IsCluster(def) ? model.DemoCheckControl.Select(i => (ushort)i).ToList() : [],
             });
         }
         return new VirtualCar($"Demo {model.FamilyId} {model.Name}", ecus) { IdleRpm = model.IdleRpm, Turbo = model.Turbo };
@@ -375,8 +405,13 @@ public sealed class VirtualCar : ITransport
         new VirtualEcu { Address = 0x18, Ident = "7581735 GS19 HW 05 SW 12" },
         new VirtualEcu { Address = 0x29, Ident = "6779871 DSC8 HW 04 SW 1F", Faults = [(0x5E20, 0x20)] },
         new VirtualEcu { Address = 0x01, Ident = "9184432 ACSM HW 02 SW 09" },
-        new VirtualEcu { Address = 0x40, Ident = "9147215 CAS3 HW 03 SW 21" },
-        new VirtualEcu { Address = 0x60, Ident = "9187040 KOMBI HW 06 SW 0E" },
+        new VirtualEcu { Address = 0x40, Ident = "9147215 CAS3 HW 03 SW 21", InfoMemory = [(0xA0C4, 0x20)] },   // illustrative
+        new VirtualEcu
+        {
+            Address = 0x60, Ident = "9187040 KOMBI HW 06 SW 0E",
+            CheckControl = [67],                                    // remote key battery low: the triangle with no fault code
+            CheckControlHistory = [(67, 151_200), (164, 148_800)],  // and washer fluid low, a while ago
+        },
         new VirtualEcu { Address = 0x72, Ident = "6981534 FRMFA HW 02 SW 0A", Faults = [(0xA3B4, 0x60)] },
         new VirtualEcu { Address = 0x00, Ident = "9147177 JBBF HW 07 SW 33" },
         new VirtualEcu { Address = 0x78, Ident = "9182287 IHKA HW 01 SW 05" },

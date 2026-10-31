@@ -63,6 +63,25 @@ public sealed class VehicleViewModel : PageViewModel
     public ObservableCollection<MarkerViewModel> Markers { get; } = [];
     public ObservableCollection<FaultItemViewModel> Faults { get; } = [];
 
+    /// <summary>Dash (Check Control) messages from the cluster: active first, then its history.</summary>
+    public ObservableCollection<CheckControlItem> DashMessages { get; } = [];
+    public bool HasDashMessages => DashMessages.Count > 0;
+    public int ActiveDashMessages => DashMessages.Count(m => !m.IsHistory);
+    public bool DashRed => DashMessages.Any(m => m.IsRed);
+    public bool DashYellow => !DashRed && DashMessages.Any(m => m.IsYellow);
+    public bool DashNone => HasDashMessages && !DashRed && !DashYellow;
+    public string DashHeading => ActiveDashMessages switch
+    {
+        0 => "Dash messages: none showing now",
+        1 => "1 dash message (Check Control)",
+        var n => $"{n} dash messages (Check Control)",
+    };
+
+    /// <summary>Shown when the triangle has a reason but the fault memory is empty.</summary>
+    public bool DashExplainsTriangle => ActiveDashMessages > 0 && (_session.LastScan?.TotalFaults ?? 0) == 0;
+    public string? DashNote => _session.LastScan?.CheckControlNote;
+    public bool HasDashNote => !HasDashMessages && DashNote is not null;
+
     public bool IsConnected => _session.IsConnected;
     public bool NotConnected => !_session.IsConnected;
     public bool HasScan => _session.LastScan is not null;
@@ -77,7 +96,8 @@ public sealed class VehicleViewModel : PageViewModel
             if (_session.LastScan is not { } s) return "";
             var faults = s.TotalFaults == 1 ? "1 fault" : $"{s.TotalFaults} faults";
             var battery = s.BatteryVoltage is { } v ? $" Battery {v:0.0} V." : "";
-            return $"{s.RespondingEcus} of {s.Ecus.Count} modules answered in {s.Elapsed.TotalSeconds:0.0} s. {faults}.{battery}";
+            var dash = s.ActiveCheckControl switch { 0 => "", 1 => " 1 dash message.", var n => $" {n} dash messages." };
+            return $"{s.RespondingEcus} of {s.Ecus.Count} modules answered in {s.Elapsed.TotalSeconds:0.0} s. {faults}.{dash}{battery}";
         }
     }
 
@@ -375,7 +395,10 @@ public sealed class VehicleViewModel : PageViewModel
         Select(null);
         Markers.Clear();
         Faults.Clear();
+        DashMessages.Clear();
         _moduleMarkers.Clear();
+        var cc = _session.LastScan?.CheckControl ?? [];
+        foreach (var m in cc.Where(m => m.Active).Concat(cc.Where(m => !m.Active).Take(8))) DashMessages.Add(new CheckControlItem(m));
 
         if (_session.Vehicle is { } vehicle)
         {
@@ -435,7 +458,9 @@ public sealed class VehicleViewModel : PageViewModel
         Faults.Clear();
         foreach (var f in ordered) Faults.Add(f);
 
-        foreach (var p in new[] { nameof(HasScan), nameof(HasFaults), nameof(NoFaultsAfterScan), nameof(BeforeScan), nameof(Summary), nameof(ClearAllQuestion) })
+        foreach (var p in new[] { nameof(HasScan), nameof(HasFaults), nameof(NoFaultsAfterScan), nameof(BeforeScan), nameof(Summary), nameof(ClearAllQuestion),
+                                  nameof(HasDashMessages), nameof(ActiveDashMessages), nameof(DashRed), nameof(DashYellow), nameof(DashNone), nameof(DashHeading),
+                                  nameof(DashExplainsTriangle), nameof(DashNote), nameof(HasDashNote) })
             Raise(p);
         AskClearAllCommand.RaiseCanExecuteChanged();
         ExportHtmlCommand.RaiseCanExecuteChanged();

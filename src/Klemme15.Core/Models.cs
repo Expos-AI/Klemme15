@@ -162,6 +162,11 @@ public sealed record Fault
     public IReadOnlyList<string> Alternatives { get; init; } = [];
 
     public string DisplayDescription => Description ?? "No description in database yet (please contribute one)";
+
+    /// <summary>"Shadow / Info memory" for background entries, otherwise the fault state.</summary>
+    public string MemoryLabel => IsInfo || IsShadow ? InfoMemoryLabel : State.ToString();
+
+    public const string InfoMemoryLabel = "Shadow / Info memory";
 }
 
 public enum EcuScanStatus { Ok, Faults, NoResponse, Error, Skipped }
@@ -193,6 +198,14 @@ public sealed record VehicleScanResult
 
     /// <summary>Battery voltage measured before the scan, if the car reports it.</summary>
     public double? BatteryVoltage { get; init; }
+
+    /// <summary>Check Control (dash) messages the cluster reported: the active ones first, then its history.</summary>
+    public IReadOnlyList<CheckControlMessage> CheckControl { get; init; } = [];
+
+    /// <summary>Why the Check Control list couldn't be read, if it couldn't (null when read, or not attempted).</summary>
+    public string? CheckControlNote { get; init; }
+
+    public int ActiveCheckControl => CheckControl.Count(m => m.Active);
 
     public int RespondingEcus => Ecus.Count(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults);
     public int TotalFaults => Ecus.Sum(e => e.Faults.Count(f => !f.IsInfo));
@@ -258,6 +271,9 @@ public sealed record VehicleModel
     public IReadOnlyList<string> ModuleIds { get; init; } = [];
 
     public IReadOnlyList<DemoFault> DemoFaults { get; init; } = [];
+
+    /// <summary>Check Control IDs the demo car's cluster shows (the dash triangle without a fault code).</summary>
+    public IReadOnlyList<int> DemoCheckControl { get; init; } = [];
 
     /// <summary>Engine code from <see cref="Engine"/>, e.g. "N52", "N54", "M54".</summary>
     public string? EngineCode =>

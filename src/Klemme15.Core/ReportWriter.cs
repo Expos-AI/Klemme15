@@ -34,8 +34,9 @@ public static class ReportWriter
         sb.AppendLine();
         sb.AppendLine($"- Vehicle: {scan.Chassis ?? "unknown"}  VIN: {scan.Vin ?? "not read"}");
         sb.AppendLine($"- Backend: {scan.Backend}  Duration: {scan.Elapsed.TotalSeconds:0.0}s{(scan.Cancelled ? " (cancelled)" : "")}");
-        sb.AppendLine($"- Modules answering: {scan.RespondingEcus}/{scan.Ecus.Count}  Faults: {scan.TotalFaults}{(scan.InfoEntries > 0 ? $"  Info memory: {scan.InfoEntries}" : "")}{(scan.BatteryVoltage is { } v ? $"  Battery: {v:0.0} V" : "")}");
+        sb.AppendLine($"- Modules answering: {scan.RespondingEcus}/{scan.Ecus.Count}  Faults: {scan.TotalFaults}{(scan.InfoEntries > 0 ? $"  Shadow / Info memory: {scan.InfoEntries}" : "")}{(scan.ActiveCheckControl > 0 ? $"  Dash messages: {scan.ActiveCheckControl}" : "")}{(scan.BatteryVoltage is { } v ? $"  Battery: {v:0.0} V" : "")}");
         sb.AppendLine();
+        MarkdownCheckControl(sb, scan, forum: false);
         sb.AppendLine("| Module | Address | Status | Faults | Identification |");
         sb.AppendLine("|---|---|---|---|---|");
         foreach (var e in scan.Ecus)
@@ -47,14 +48,60 @@ public static class ReportWriter
             foreach (var f in e.Faults)
             {
                 var verdict = FaultTriage.Assess(f);
-                sb.AppendLine($"- **{f.Code}** ({(f.IsShadow ? "Shadow memory" : f.IsInfo ? "Info memory" : f.State.ToString())}, {verdict.Label.ToLowerInvariant()}) {f.DisplayDescription}");
+                sb.AppendLine($"- **{f.Code}** ({f.MemoryLabel}, {verdict.Label.ToLowerInvariant()}) {f.DisplayDescription}");
                 sb.AppendLine($"  - {verdict.Advice}");
                 if (f.OfficialText is { } bmw && bmw != f.Description) sb.AppendLine($"  - BMW text: {bmw}");
                 if (f.ModuleVariant is { } mod) sb.AppendLine($"  - Module {mod}{(f.VariantConfirmed ? "" : " (most likely)")}");
                 if (f.Hint is { } tip) sb.AppendLine($"  - Tip: {tip}");
             }
         }
+        MarkdownInfoMemory(sb, scan, forum: false);
         return sb.ToString();
+    }
+
+    private static string CcLine(CheckControlMessage m) =>
+        $"`{m.Code}` {m.Title} ({(m.Severity == CcSeverity.Critical ? "red" : "yellow")}{(m.Severity == CcSeverity.Advisory ? ", advisory" : "")})";
+
+    /// <summary>The dash (Check Control) messages: why the triangle is lit even with no fault codes.</summary>
+    private static void MarkdownCheckControl(StringBuilder sb, VehicleScanResult scan, bool forum)
+    {
+        var active = scan.CheckControl.Where(m => m.Active).ToList();
+        var history = scan.CheckControl.Where(m => !m.Active).ToList();
+        if (active.Count == 0 && history.Count == 0)
+        {
+            if (!forum && scan.CheckControlNote is { } note) { sb.AppendLine($"_Dash messages: {note}_"); sb.AppendLine(); }
+            return;
+        }
+        sb.AppendLine(forum ? "**Dash messages (Check Control)**" : "## Dash messages (Check Control)");
+        sb.AppendLine();
+        if (active.Count == 0) sb.AppendLine("- None showing now.");
+        foreach (var m in active)
+        {
+            sb.AppendLine($"- {CcLine(m)}{(m.Description is { } d && !forum ? $": {d}" : "")}");
+            if (m.OfficialText is { } bmw && bmw != m.Title) sb.AppendLine($"  - BMW: {(forum ? Scrub(bmw) : bmw)}");
+            if (m.Hint is { } tip && !forum) sb.AppendLine($"  - Tip: {tip}");
+        }
+        if (history.Count > 0)
+        {
+            sb.AppendLine(forum ? "- Earlier:" : "- Shown earlier (cluster history):");
+            foreach (var m in history.Take(forum ? 5 : 20))
+                sb.AppendLine($"  - {CcLine(m)}{(m.MileageKm is { } km ? $" at about {km:N0} km" : "")}");
+        }
+        sb.AppendLine();
+    }
+
+    /// <summary>A separate list of the background entries, clearly labelled, so they aren't mistaken for faults.</summary>
+    private static void MarkdownInfoMemory(StringBuilder sb, VehicleScanResult scan, bool forum)
+    {
+        var entries = scan.Ecus.SelectMany(e => e.Faults.Where(f => f.IsInfo || f.IsShadow).Select(f => (e.Ecu, Fault: f))).ToList();
+        if (entries.Count == 0) return;
+        sb.AppendLine();
+        sb.AppendLine(forum ? $"**{Fault.InfoMemoryLabel}** (logged events, not faults)" : $"## {Fault.InfoMemoryLabel}");
+        if (!forum) { sb.AppendLine(); sb.AppendLine("Events modules logged in the background. They never light a lamp on their own, but they can explain one."); }
+        sb.AppendLine();
+        foreach (var (ecu, f) in entries.Take(forum ? 8 : 100))
+            sb.AppendLine($"- `{f.Code}` {ShortName(ecu)}: {(forum ? Scrub(f.DisplayDescription) : f.DisplayDescription)}");
+        if (forum && entries.Count > 8) sb.AppendLine($"- _...and {entries.Count - 8} more._");
     }
 
     /// <summary>
@@ -78,6 +125,7 @@ public static class ReportWriter
                 e.Identity?.Variant is { } variant ? $"{ShortName(e.Ecu)} ({variant})" : ShortName(e.Ecu))));
         sb.AppendLine();
 
+        MarkdownCheckControl(sb, scan, forum: true);
         var all = scan.Ecus.SelectMany(e => e.Faults.Select(f => (Ecu: e.Ecu, Fault: f, Verdict: FaultTriage.Assess(f)))).ToList();
         void Section(string heading, FaultPriority priority, bool details)
         {
@@ -87,7 +135,7 @@ public static class ReportWriter
             sb.AppendLine();
             foreach (var (ecu, f, _) in items)
             {
-                var state = f.IsShadow ? "shadow" : f.IsInfo ? "info" : f.State switch
+                var state = f.IsShadow || f.IsInfo ? "shadow / info memory" : f.State switch
                 {
                     FaultState.Present => "active now",
                     FaultState.Stored => "stored",
@@ -105,8 +153,10 @@ public static class ReportWriter
         Section("Needs fixing", FaultPriority.FixNow, true);
         Section("Worth checking", FaultPriority.CheckIt, true);
         var background = all.Count(x => x.Verdict.Priority == FaultPriority.Background);
-        if (all.Count == 0) sb.AppendLine("No faults stored.");
-        else if (background > 0) sb.AppendLine($"_Plus {background} background entr{(background == 1 ? "y" : "ies")} (info/shadow memory or one-off events) left out._");
+        var infoMemory = all.Count(x => x.Fault.IsInfo || x.Fault.IsShadow);
+        if (all.Count == 0) sb.AppendLine(scan.ActiveCheckControl > 0 ? "No fault codes stored (the dash message above is not a fault code)." : "No faults stored.");
+        else if (background - infoMemory > 0) sb.AppendLine($"_Plus {background - infoMemory} background entr{(background - infoMemory == 1 ? "y" : "ies")} (one-off events) left out._");
+        MarkdownInfoMemory(sb, scan, forum: true);
         sb.AppendLine();
         sb.AppendLine($"_Read with Klemme15 {scan.Started:yyyy-MM-dd} (open-source BMW diagnostics). VIN removed._");
         return sb.ToString();
@@ -126,6 +176,41 @@ public static class ReportWriter
 
     /// <summary>Removes full VINs and BMW's 7-character short VIN ("PT12345") from text.</summary>
     public static string Scrub(string text) => VinPattern.Replace(text, "[VIN removed]");
+
+    private static void HtmlCheckControl(StringBuilder sb, VehicleScanResult scan, Func<string?, string> H)
+    {
+        var active = scan.CheckControl.Where(m => m.Active).ToList();
+        var history = scan.CheckControl.Where(m => !m.Active).ToList();
+        if (active.Count == 0 && history.Count == 0)
+        {
+            if (scan.CheckControlNote is { } note) sb.Append($"<p class=\"muted\">Dash messages: {H(note)}</p>");
+            return;
+        }
+        var red = CheckControlDescriber.Worst(active) == CcSeverity.Critical ? " red" : "";
+        sb.Append($"<div class=\"cc{red}\"><h2><span class=\"tri{red}\"></span>Dash messages (Check Control)</h2>");
+        if (active.Count > 0 && scan.TotalFaults == 0)
+            sb.Append("<div class=\"muted\">These explain the warning triangle on the dash. They are messages, not fault codes, so the fault memory can be empty.</div>");
+        sb.Append("<ul>");
+        if (active.Count == 0) sb.Append("<li class=\"muted\">None showing now.</li>");
+        foreach (var m in active)
+        {
+            var tri = m.Severity == CcSeverity.Critical ? "tri red" : "tri";
+            sb.Append($"<li><span class=\"{tri}\"></span><b>{H(m.Title)}</b> <code>{H(m.Code)}</code> <span class=\"muted\">{H(CheckControlDescriber.SeverityLabel(m.Severity))}</span>");
+            if (m.Description is { } d) sb.Append($"<br>{H(d)}");
+            if (m.Hint is { } h) sb.Append($"<br><span class=\"muted\">Tip: {H(h)}</span>");
+            if (m.OfficialText is { } ot) sb.Append($"<br><span class=\"muted\">BMW text: {H(ot)} ({H(m.OfficialSource)})</span>");
+            sb.Append("</li>");
+        }
+        sb.Append("</ul>");
+        if (history.Count > 0)
+        {
+            sb.Append("<div class=\"muted\">Shown earlier (cluster history):</div><ul>");
+            foreach (var m in history.Take(20))
+                sb.Append($"<li>{H(m.Title)} <code>{H(m.Code)}</code>{(m.MileageKm is { } km ? $" <span class=\"muted\">at about {km:N0} km</span>" : "")}</li>");
+            sb.Append("</ul>");
+        }
+        sb.Append("</div>");
+    }
 
     public static string ToHtml(VehicleScanResult scan)
     {
@@ -150,6 +235,10 @@ th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--mute
 code{font:13px ui-monospace,Consolas,monospace}
 section{margin-top:24px}
 .table-wrap{overflow-x:auto}
+.cc{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--warn);border-radius:10px;padding:12px 16px;margin:16px 0}
+.cc.red{border-left-color:var(--bad)}.cc h2{margin:0 0 6px;font-size:17px}.cc ul{margin:6px 0;padding-left:20px}
+.tri{display:inline-block;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--warn);vertical-align:-2px;margin-right:6px}
+.tri.red{border-bottom-color:var(--bad)}
 .brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-weight:600;font-size:17px}.brand svg{width:32px;height:32px;flex:none}
 @media (prefers-color-scheme:light){.brand svg rect:first-child{stroke:var(--line);stroke-width:8}}
 </style></head><body><main>
@@ -162,7 +251,9 @@ section{margin-top:24px}
         sb.Append($"<div class=\"stat\"><b>{scan.TotalFaults}</b>faults</div>");
         sb.Append($"<div class=\"stat\"><b>{scan.Elapsed.TotalSeconds:0.0}s</b>scan time</div>");
         if (scan.BatteryVoltage is { } v) sb.Append($"<div class=\"stat\"><b>{v:0.0} V</b>battery</div>");
+        if (scan.ActiveCheckControl > 0) sb.Append($"<div class=\"stat\"><b>{scan.ActiveCheckControl}</b>dash messages</div>");
         sb.Append("</div>");
+        HtmlCheckControl(sb, scan, H);
         sb.Append("<div class=\"table-wrap\"><table><tr><th>Module</th><th>Address</th><th>Status</th><th>Faults</th><th>Identification</th></tr>");
         foreach (var e in scan.Ecus)
             sb.Append($"<tr><td>{H(e.Ecu.Name)}</td><td><code>{e.Ecu.AddressHex}</code></td><td class=\"{e.Status}\">{Label(e.Status)}</td><td>{e.Faults.Count}</td><td>{H(Info(e))}</td></tr>");
@@ -173,7 +264,7 @@ section{margin-top:24px}
             foreach (var f in e.Faults)
             {
                 var details = string.Join(", ", f.Details.Select(kv => $"{kv.Key}: {kv.Value}"));
-                var state = (f.IsShadow ? "Shadow memory" : f.IsInfo ? "Info memory" : f.State.ToString()) + $"<br><b>{H(FaultTriage.Assess(f).Label)}</b>";
+                var state = H(f.MemoryLabel) + $"<br><b>{H(FaultTriage.Assess(f).Label)}</b>";
                 var hint = $"<br><span class=\"muted\">{H(FaultTriage.Assess(f).Advice)}</span>"
                            + (f.Hint is null ? "" : $"<br><span class=\"muted\">Tip: {H(f.Hint)}</span>");
                 var bmwText = f.OfficialText is { } ot && ot != f.Description ? $"<br><span class=\"muted\">BMW text: {H(ot)}</span>" : "";
@@ -196,6 +287,8 @@ section{margin-top:24px}
             }
             sb.Append("</table></div></section>");
         }
+        if (scan.InfoEntries > 0)
+            sb.Append($"<p class=\"muted\">Entries marked <b>{Fault.InfoMemoryLabel}</b> are events modules logged in the background; they never light a lamp on their own.</p>");
         sb.Append("<p class=\"muted\">Generated by Klemme15. Fault descriptions come from the community database and may be incomplete.</p>");
         sb.Append("</main></body></html>");
         return sb.ToString();

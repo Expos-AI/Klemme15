@@ -333,6 +333,9 @@
                 "module": "E9x.FRM",
                 "code": "9CB5"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -381,6 +384,9 @@
                 "module": "E9x.KOMBI",
                 "code": "A3B9"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -421,6 +427,9 @@
                 "module": "E9x.KOMBI",
                 "code": "9319"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -462,6 +471,9 @@
                 "module": "E9x.IHKA",
                 "code": "9C6C"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -502,6 +514,9 @@
                 "module": "E9x.DME",
                 "code": "P0171"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -543,6 +558,9 @@
                 "module": "E9x.EGS",
                 "code": "4F8D"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -590,6 +608,9 @@
                 "module": "E9x.DME",
                 "code": "P0087"
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         }
@@ -670,6 +691,9 @@
                 "module": "E8x.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -701,6 +725,9 @@
                 "module": "E8x.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -732,6 +759,9 @@
                 "module": "E8x.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -763,6 +793,9 @@
                 "module": "E8x.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -794,6 +827,9 @@
                 "module": "E8x.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         }
@@ -884,6 +920,9 @@
                 "module": "E60.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -915,6 +954,9 @@
                 "module": "E60.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -946,6 +988,9 @@
                 "module": "E60.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -977,6 +1022,9 @@
                 "module": "E60.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1008,6 +1056,9 @@
                 "module": "E60.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1039,6 +1090,9 @@
                 "module": "E60.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         }
@@ -1134,6 +1188,9 @@
                 "module": "E70.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1166,6 +1223,9 @@
                 "module": "E70.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1198,6 +1258,9 @@
                 "module": "E70.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1230,6 +1293,9 @@
                 "module": "E70.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1262,6 +1328,9 @@
                 "module": "E70.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         }
@@ -1346,6 +1415,9 @@
                 "module": "E89.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1378,6 +1450,9 @@
                 "module": "E89.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1410,6 +1485,9 @@
                 "module": "E89.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1442,6 +1520,9 @@
                 "module": "E89.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         },
@@ -1474,6 +1555,9 @@
                 "module": "E89.DME",
                 "present": true
               }
+            ],
+            "checkControl": [
+              67
             ]
           }
         }

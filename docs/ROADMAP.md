@@ -32,7 +32,7 @@
 - Service functions with explicit confirmation: battery registration, service interval reset
 
 ## Later
-- Code-signed Windows builds (Azure Trusted Signing) so there's no SmartScreen prompt on a direct download; winget and Scoop already avoid it.
+- Code-signed Windows builds so there's no SmartScreen prompt on a direct download (free for open source via SignPath Foundation); winget and Scoop already avoid it at no cost.
 - F-series and G-series over ENET (HSFZ / UDS)
 - Coding: more comfort options, and a shared list of module files people have verified, so fewer users need NCS Expert's trace
 - Android build

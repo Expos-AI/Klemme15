@@ -139,6 +139,42 @@
           <Border DockPanel.Dock="Top" Classes="panel" Background="{DynamicResource RaisedBrush}" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDiscovery}">
             <SelectableTextBlock Text="{Binding Discovery}" TextWrapping="Wrap" FontSize="13" LineHeight="19" />
           </Border>
+          <!-- Dash (Check Control) messages: why the triangle is lit, even with no fault codes -->
+          <Border DockPanel.Dock="Top" Classes="panel" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDashMessages}"
+                  Background="{DynamicResource RaisedBrush}">
+            <StackPanel Spacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Path Data="M 9,1 L 17,16 L 1,16 Z" Width="18" Height="17" Fill="{DynamicResource RedBrush}" IsVisible="{Binding DashRed}" VerticalAlignment="Center" />
+                <Path Data="M 9,1 L 17,16 L 1,16 Z" Width="18" Height="17" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding DashYellow}" VerticalAlignment="Center" />
+                <Path Data="M 9,1 L 17,16 L 1,16 Z" Width="18" Height="17" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" IsVisible="{Binding DashNone}" VerticalAlignment="Center" />
+                <TextBlock Classes="section" Text="{Binding DashHeading}" VerticalAlignment="Center" />
+              </StackPanel>
+              <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding DashExplainsTriangle}"
+                         Text="This is why the warning triangle is on. Dash messages aren't fault codes, so the fault memory can be empty." />
+              <ItemsControl ItemsSource="{Binding DashMessages}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate DataType="vm:CheckControlItem">
+                    <StackPanel Spacing="2" Margin="0,4">
+                      <DockPanel>
+                        <TextBlock DockPanel.Dock="Right" Classes="muted small" Text="{Binding StateText}" VerticalAlignment="Center" Margin="8,0,0,0" />
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                          <Ellipse Width="9" Height="9" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsRed}" VerticalAlignment="Center" />
+                          <Ellipse Width="9" Height="9" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsYellow}" VerticalAlignment="Center" />
+                          <Ellipse Width="9" Height="9" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" IsVisible="{Binding IsHistory}" VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                          <TextBlock Classes="code muted small" Text="{Binding Code}" VerticalAlignment="Center" />
+                        </StackPanel>
+                      </DockPanel>
+                      <TextBlock Classes="muted small" Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}" Margin="17,0,0,0" />
+                      <TextBlock Classes="muted small" Text="{Binding Hint}" TextWrapping="Wrap" IsVisible="{Binding HasHint}" Margin="17,0,0,0" />
+                      <TextBlock Classes="muted small" Text="{Binding Official}" TextWrapping="Wrap" IsVisible="{Binding HasOfficial}" Margin="17,0,0,0" />
+                    </StackPanel>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </Border>
+          <TextBlock DockPanel.Dock="Top" Classes="muted small" TextWrapping="Wrap" Margin="6,0,0,10" Text="{Binding DashNote}" IsVisible="{Binding HasDashNote}" />
           <TextBlock DockPanel.Dock="Top" Classes="section" Text="Faults" Margin="6,0,0,10" />
           <TextBlock DockPanel.Dock="Top" Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" Margin="6,0,0,10" />
           <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Margin="6,0"
