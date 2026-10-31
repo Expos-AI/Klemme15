@@ -150,6 +150,7 @@ public static class CarStory
             StoryKind.BatteryWork => "The clock needed setting, which happens after the battery has been disconnected or ran completely flat.",
             StoryKind.Service => "A scheduled service came due.",
             StoryKind.Lights => $"A bulb or light circuit failed: {names}.",
+            _ when messages.Count == 1 && messages[0].Description is { Length: > 0 } d && !messages[0].Unknown => d,
             _ => names.Length > 0 ? char.ToUpperInvariant(names[0]) + names[1..] + "." : "",
         };
     }
