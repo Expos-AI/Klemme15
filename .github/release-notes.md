@@ -1,6 +1,13 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.13.2:**
+**New in 0.14.0:**
+- **Every dash message decoded.** 396 Check Control IDs (1 to 999) in our own words, each with what it means, what to do, how serious it is and which module usually raises it. Meanings that BMW's own numbering confirms are marked high confidence; where public lists got it wrong (123 and 133 are the *left* rear light), BMW's numbering is used.
+- **No fault code left blank.** A BMW code that no source describes still gets a meaning from its number range and module (codes 0xC000-0xEFFF are almost always communication faults), plus what to do next.
+- **Clear everything, like ISTA.** Clearing a module now also empties its Shadow / Info memory. Info memory is read from every D-CAN module. New: `klemme15 clear --all`.
+- **One-click LED preset** on the Coding page: every bulb warning off (indicators, brake, plate, parking/angel eyes, fog) in one write, with one backup, a full read-back and automatic restore. Also a cluster extras preset. Like single options, presets unlock only when Klemme15 knows exactly where the settings live in your module (your verified NCS data, or a community-verified map); it never guesses coding bits.
+- **Layout fixes**: the navigation rail shows icons only on shorter windows so every page fits, and long text wraps instead of being cut off. Every release is now checked for clipped or overlapping text at 1440x900 and 1280x720.
+
+**0.13.2:**
 - **Dash messages confirmed on a real E90.** The cluster's message list and history and the key module's info memory now decode as seen on a real car. Four more messages added: brake and stability control failed (42), right reversing light out (115), parking brake applied (308), hill start assist off (354).
 - Vehicle page: dash message rows no longer overlap when the history shows mileage, and a long list scrolls instead of pushing the faults off screen.
 

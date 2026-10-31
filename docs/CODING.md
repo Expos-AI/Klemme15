@@ -100,6 +100,15 @@ klemme15 coding --module FRM show --ncs C:\NCSEXPER\DATEN --trc C:\NCSEXPER\WORK
 klemme15 coding --module FRM set led-turn-signals on --ncs C:\NCSEXPER\DATEN --trc C:\NCSEXPER\WORK\FSW_PSW.TRC --experimental --port COM3
 ```
 
+## One-click presets
+
+A preset switches several comfort options in **one write**: one backup, one write of only those settings' bits, one full read-back, and the original put back automatically if anything is off.
+
+- **LED conversion: all bulb warnings off** (footwell module): indicators, brake lights, number plate lights, parking lights / angel eyes and fog lights. Low beams and xenons aren't touched.
+- **Cluster extras** (instrument cluster): digital speed, instant consumption, and dials always lit.
+
+A preset is only a list of existing options. It unlocks under the same rule as single options: Klemme15 must know exactly where each setting lives in *your* module, either from your NCS Expert data verified against NCS Expert's own reading, or from a community-verified map for your exact part number and coding index. It never writes fixed byte positions, because footwell modules differ between versions and a wrong bit can switch off lights or worse. Two options that would want different values for the same bits are refused before anything is written.
+
 ## Voltage
 
 Every coding write needs at least **12.5 V**. A footwell module that is an **FRM3**, or one Klemme15 can't identify, needs **13.0 V**, which in practice means a battery charger (not a jump pack). Klemme15 never codes without a voltage reading.

@@ -242,7 +242,7 @@ public sealed class CodingViewModel : PageViewModel
         Diff = "";
         Verification = "";
         LoadBackups();
-        foreach (var p in new[] { nameof(HasModule), nameof(ModuleTitle), nameof(FrmText), nameof(HasFrmText), nameof(HasToggles), nameof(HasSettings), nameof(IsVerified) })
+        foreach (var p in new[] { nameof(HasModule), nameof(ModuleTitle), nameof(FrmText), nameof(HasFrmText), nameof(HasToggles), nameof(HasSettings), nameof(IsVerified), nameof(HasPresets), nameof(PresetLockedText), nameof(HasPresetLocked) })
             Raise(p);
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
     }

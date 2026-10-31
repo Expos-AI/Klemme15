@@ -27,7 +27,7 @@ Replies that don't fit these layouts are dropped rather than guessed at. The raw
 
 ## Where the meanings come from
 
-`src/Klemme15.Data/db/check-control.json` holds Klemme15's own list. It is written in our own words from community lists, with the sources listed for each entry.
+`src/Klemme15.Data/db/check-control.json` holds Klemme15's own list: 396 IDs from 1 to 999, written in our own words from the public community lists, with the sources, a severity and the module that usually raises it. The public lists turn out to be copies of one list, so a meaning BMW's own table also confirms (checked locally, never shipped) is marked `high`; where the two differ, BMW's numbering wins and the entry says so (for example, 123 and 133 are the *left* rear light). IDs that appear in no public list, such as 34 and 77, still show by number, with BMW's wording if you have your BMW files.
 
 - **Confidence:**
   - `high`: the ID and its meaning agree across community lists and a local cross-check of BMW's cluster text table.
@@ -61,4 +61,4 @@ To share a message with everyone, open a pull request against `db/check-control.
 
 ## Shadow / Info memory
 
-Modules log events here that never light a lamp on their own, for example a crank that was aborted, a remote that answered weakly, or a voltage dip. These entries are labelled **Shadow / Info memory** everywhere: on the Faults page, in the reports and in forum posts. They are sorted as background, never counted as faults, and are never a reason to replace a part on their own.
+Klemme15 reads it from every D-CAN module that has one, and **Clear fault memory** clears it too, as ISTA does (EDIABAS `IS_LOESCHEN`; natively KWP `$31 06`, sent only to a module that has just confirmed it has an info memory). Modules log events here that never light a lamp on their own, for example a crank that was aborted, a remote that answered weakly, or a voltage dip. These entries are labelled **Shadow / Info memory** everywhere: on the Faults page, in the reports and in forum posts. They are sorted as background, never counted as faults, and are never a reason to replace a part on their own.
