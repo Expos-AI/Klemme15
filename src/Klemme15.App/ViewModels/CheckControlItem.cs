@@ -13,7 +13,7 @@ public sealed class CheckControlItem(CheckControlMessage message)
     public bool IsHistory => !Message.Active;
     public string StateText => Message.Active
         ? Message.Severity switch { CcSeverity.Critical => "Red", CcSeverity.Warning => "Yellow", _ => "Advisory" }
-        : Message.MileageKm is { } km ? $"Earlier, ~{km:N0} km" : "Earlier";
+        : Message.MileageKm is { } km ? $"~{km:N0} km" : "earlier";
     public string? Description => Message.Active ? Message.Description : null;
     public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
     public string? Hint => Message.Active && Message.Hint is { } h ? $"Tip: {h}" : null;

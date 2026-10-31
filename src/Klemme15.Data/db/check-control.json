@@ -230,6 +230,18 @@
       ]
     },
     {
+      "id": 42,
+      "title": "Brake and stability control failed",
+      "severity": "Warning",
+      "description": "The DSC system reports that brake and stability functions (such as cornering brake control) are limited. Normal braking still works.",
+      "hint": "Read the DSC fault memory. If it appeared together with several other messages at the same moment, a low battery voltage is the usual cause.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
       "id": 46,
       "title": "Fasten seat belt",
       "severity": "Advisory",
@@ -424,6 +436,18 @@
       "severity": "Advisory",
       "description": "The rear fog light bulb or circuit on the left has failed.",
       "hint": "Replace the bulb.",
+      "confidence": "high",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 115,
+      "title": "Right reversing light out",
+      "severity": "Advisory",
+      "description": "The right reversing (backup) light bulb or its circuit has failed.",
+      "hint": "Replace the bulb; an LED bulb without the right coding can also trigger it.",
       "confidence": "high",
       "sources": [
         "https://endtuning.com/ccidcodes/",
@@ -724,6 +748,30 @@
       "severity": "Advisory",
       "description": "The fuel level has reached reserve.",
       "hint": "Refuel soon.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 308,
+      "title": "Parking brake applied",
+      "severity": "Advisory",
+      "description": "The parking brake is on. Shown as a reminder, often together with the red brake symbol.",
+      "hint": "Release the parking brake. If it shows with the brake released, check the handbrake switch.",
+      "confidence": "medium",
+      "sources": [
+        "https://endtuning.com/ccidcodes/",
+        "https://mr-fix.info/bmw-cc-id-codes-fault-warning-messages/"
+      ]
+    },
+    {
+      "id": 354,
+      "title": "Hill start assist off",
+      "severity": "Advisory",
+      "description": "The DSC's hill start assist is unavailable for now.",
+      "hint": "Usually follows a DSC message or low battery voltage; read the DSC fault memory if it keeps coming back.",
       "confidence": "medium",
       "sources": [
         "https://endtuning.com/ccidcodes/",
