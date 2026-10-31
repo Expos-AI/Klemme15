@@ -32,7 +32,7 @@
                           ToolTip.Tip="See this module's live values (sensor readings, switch states, learned values)" />
                   <Button Classes="quiet" Content="Clear fault memory" Command="{Binding AskClearCommand}" IsVisible="{Binding NotConfirming}" />
                   <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding Confirming}">
-                    <TextBlock Text="Clear every fault in this module?" VerticalAlignment="Center" />
+                    <TextBlock Text="Clear faults and Shadow / Info memory?" VerticalAlignment="Center" ToolTip.Tip="Clears this module's fault memory and its Shadow / Info memory, as ISTA does" />
                     <Button Classes="primary" Content="Clear" Command="{Binding ClearCommand}" Padding="14,6" />
                     <Button Content="Keep" Command="{Binding CancelClearCommand}" Padding="12,6" />
                   </StackPanel>

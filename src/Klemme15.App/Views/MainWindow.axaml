@@ -27,39 +27,39 @@
     <!-- Navigation rail -->
     <Border Background="{DynamicResource RailBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,1,0">
       <DockPanel>
-        <StackPanel DockPanel.Dock="Top" Margin="0,18,0,22" HorizontalAlignment="Center" Spacing="6">
+        <StackPanel DockPanel.Dock="Top" Margin="0,14,0,12" HorizontalAlignment="Center" Spacing="6">
           <controls:LogoMark Width="44" Height="44" HorizontalAlignment="Center" />
           <TextBlock Text="Klemme15" FontFamily="{DynamicResource DisplayFont}" FontWeight="Bold" FontSize="13" HorizontalAlignment="Center" />
         </StackPanel>
-        <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,14" Spacing="8">
-          <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Margin="14,0" Padding="0,10,0,0">
-            <WrapPanel HorizontalAlignment="Center" MaxWidth="72">
-              <Button Classes="quiet" Command="{Binding AboutCommand}" ToolTip.Tip="About Klemme15" Width="32" Height="30">
-                <PathIcon Data="{x:Static vm:Icons.Info}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+        <StackPanel DockPanel.Dock="Bottom" Margin="0,0,0,10" Spacing="6">
+          <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Margin="12,0" Padding="0,8,0,0">
+            <WrapPanel HorizontalAlignment="Center" MaxWidth="84" ItemWidth="28" ItemHeight="28">
+              <Button Classes="quiet" Command="{Binding AboutCommand}" ToolTip.Tip="About Klemme15" Width="28" Height="28" Padding="0">
+                <PathIcon Data="{x:Static vm:Icons.Info}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
               </Button>
-              <Button Classes="quiet" Command="{Binding SupportCommand}" ToolTip.Tip="Help and support" Width="32" Height="30">
-                <PathIcon Data="{x:Static vm:Icons.Support}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              <Button Classes="quiet" Command="{Binding SupportCommand}" ToolTip.Tip="Help and support" Width="28" Height="28" Padding="0">
+                <PathIcon Data="{x:Static vm:Icons.Support}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
               </Button>
-              <Button Classes="quiet" Command="{Binding PrivacyCommand}" ToolTip.Tip="Privacy policy" Width="32" Height="30">
-                <PathIcon Data="{x:Static vm:Icons.Privacy}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              <Button Classes="quiet" Command="{Binding PrivacyCommand}" ToolTip.Tip="Privacy policy" Width="28" Height="28" Padding="0">
+                <PathIcon Data="{x:Static vm:Icons.Privacy}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
               </Button>
-              <Button Classes="quiet" Command="{Binding CoffeeCommand}" ToolTip.Tip="Buy me a coffee" Width="32" Height="30" IsVisible="{Binding HasCoffee}">
-                <PathIcon Data="{x:Static vm:Icons.Coffee}" Width="15" Height="15" Foreground="{DynamicResource MutedBrush}" />
+              <Button Classes="quiet" Command="{Binding CoffeeCommand}" ToolTip.Tip="Buy me a coffee" Width="28" Height="28" Padding="0" IsVisible="{Binding HasCoffee}">
+                <PathIcon Data="{x:Static vm:Icons.Coffee}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
+              </Button>
+              <Button Classes="quiet" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Switch between dark and light" Width="28" Height="28" Padding="0">
+                <PathIcon Data="{x:Static vm:Icons.Theme}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
               </Button>
             </WrapPanel>
           </Border>
-          <Button Classes="quiet" Command="{Binding ToggleThemeCommand}" HorizontalAlignment="Center"
-                  ToolTip.Tip="Switch between dark and light">
-            <PathIcon Data="{x:Static vm:Icons.Theme}" Width="16" Height="16" Foreground="{DynamicResource MutedBrush}" />
-          </Button>
-          <TextBlock Text="{Binding Version}" Classes="muted" FontSize="10.5" HorizontalAlignment="Center" />
+          <TextBlock Text="{Binding Version}" Classes="muted" FontSize="10" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0" />
         </StackPanel>
-        <ListBox Classes="rail" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}">
+        <ListBox Classes="rail" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}"
+                 ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:PageViewModel">
-              <StackPanel Spacing="5" HorizontalAlignment="Center">
-                <PathIcon Data="{Binding Icon}" Width="19" Height="19" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="Medium" HorizontalAlignment="Center" />
+              <StackPanel Spacing="4" HorizontalAlignment="Center">
+                <PathIcon Data="{Binding Icon}" Width="18" Height="18" HorizontalAlignment="Center" />
+                <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="Medium" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="72" />
               </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>
@@ -80,10 +80,11 @@
               </StackPanel>
             </Border>
           </StackPanel>
-          <StackPanel Orientation="Horizontal" Spacing="14" VerticalAlignment="Center">
+          <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center" Margin="0,0,12,0">
             <TextBlock Text="{Binding CarTitle}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" VerticalAlignment="Center" />
-            <TextBlock Text="{Binding CarSubtitle}" Classes="muted" VerticalAlignment="Center" Margin="0,3,0,0" />
-          </StackPanel>
+            <TextBlock Grid.Column="1" Text="{Binding CarSubtitle}" Classes="muted" VerticalAlignment="Center" Margin="14,3,0,0"
+                       TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding CarSubtitle}" />
+          </Grid>
         </DockPanel>
       </Border>
 

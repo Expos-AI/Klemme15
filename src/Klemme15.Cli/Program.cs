@@ -20,7 +20,8 @@ internal static class Cli
           faults  --module <id>         Read one module's fault memory
           readings --module <id>        Read every status value a module offers (needs --ediabas, or --demo)
                    [--filter lambda] [--job STATUS_X]
-          clear   --module <id> [--yes] Clear one module's fault memory
+          clear   --module <id> [--yes] Clear one module's fault memory and Shadow / Info memory
+          clear   --all [--yes]         Clear every module that answers
           test                          List guided tests (fuel trims, VANOS, cylinder roughness)
           test <id>                     Run one: measures while telling you what to do, then explains the result
           service                       List service functions (battery registration, calibrations, tests)
@@ -283,6 +284,7 @@ internal static class Cli
                 "readings" => await Readings(backend, db, model, settings.Demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : backend as IModuleReadings, Module(vehicle, a), a, cts.Token),
                 "test" => await GuidedTest(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
                 "service" => await Service(backend, db, vehicle, model, settings.Demo, log, a, cts.Token),
+                "clear" when a.Has("all") => await ClearAll(backend, vehicle, a.Has("yes"), cts.Token),
                 "clear" => await Clear(backend, Module(vehicle, a), a.Has("yes"), cts.Token, vehicle),
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "serve" => await Serve(backend, vehicle, log, a, cts.Token, codes),
@@ -821,12 +823,45 @@ internal static class Cli
         }
         if (!yes)
         {
-            Console.Write($"Clear all faults in {ecu.Name}? Readiness monitors reset too. Type YES: ");
+            Console.Write($"Clear all faults and the Shadow / Info memory in {ecu.Name}? Readiness monitors reset too. Type YES: ");
             if (Console.ReadLine()?.Trim() != "YES") { Console.WriteLine("Cancelled."); return 0; }
         }
         await backend.ClearFaultsAsync(ecu, ct);
-        Console.WriteLine("Fault memory cleared. Read it again after a drive to see what returns.");
+        Console.WriteLine("Fault memory and Shadow / Info memory cleared. Read it again after a drive to see what returns.");
         return 0;
+    }
+
+    /// <summary>Clears every module that answers, fault memory and Shadow / Info memory, with the same voltage guards.</summary>
+    private static async Task<int> ClearAll(IDiagnosticBackend backend, VehicleFamily vehicle, bool yes, CancellationToken ct)
+    {
+        if (!yes)
+        {
+            Console.Write($"Clear the fault memory and Shadow / Info memory of every {vehicle.Id} module that answers? Type YES: ");
+            if (Console.ReadLine()?.Trim() != "YES") { Console.WriteLine("Cancelled."); return 0; }
+        }
+        var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
+        int cleared = 0, skipped = 0, failed = 0;
+        foreach (var ecu in vehicle.Modules)
+        {
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                var identity = await backend.IdentifyAsync(ecu, ct);
+                if (identity is null) continue;
+                var guard = await WriteGuard.CheckAsync(backend, ecu, identity, WriteKind.ClearFaults, engine, null, ct);
+                if (!guard.Allowed) { Console.WriteLine($"  skipped {ecu.Name}: {guard.Reason}"); skipped++; continue; }
+                await backend.ClearFaultsAsync(ecu, ct);
+                Console.WriteLine($"  cleared {ecu.Name}");
+                cleared++;
+            }
+            catch (Exception e) when (e is DiagnosticException or NotSupportedException)
+            {
+                Console.WriteLine($"  couldn't clear {ecu.Name}: {e.Message}");
+                failed++;
+            }
+        }
+        Console.WriteLine($"Cleared {cleared} modules{(skipped > 0 ? $", skipped {skipped}" : "")}{(failed > 0 ? $", {failed} failed" : "")}. Scan again after a drive to see what returns.");
+        return failed > 0 ? 1 : 0;
     }
 
     private static async Task<int> Live(IDiagnosticBackend backend, VehicleFamily vehicle, Args a, CancellationToken ct)

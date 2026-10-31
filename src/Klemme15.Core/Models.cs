@@ -142,7 +142,7 @@ public sealed record Fault
 
     /// <summary>
     /// Where <see cref="Description"/> came from: "bmw-en" (BMW's English), "bmw-de" (BMW's German, untranslated),
-    /// "bmw-de-glossary" (BMW's German put into English with Klemme15's glossary), "community", "obd", or null.
+    /// "bmw-de-glossary" (BMW's German put into English with Klemme15's glossary), "community", "obd", "klemme15-generic" (a general meaning from the code range and module), or null.
     /// </summary>
     public string? DescriptionOrigin { get; init; }
 

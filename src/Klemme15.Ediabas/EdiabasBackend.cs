@@ -261,8 +261,15 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
             return new CheckControlReading(active, history, all.GetValueOrDefault("_TEL_ANTWORT"));
         }, ct);
 
+    /// <summary>Clears the fault memory (FS_LOESCHEN) and, where the module has one, the Shadow / Info memory (IS_LOESCHEN), as ISTA does.</summary>
     public Task ClearFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) =>
-        RunJobAsync(SgbdFor(ecu), "FS_LOESCHEN", "", ct);
+        Locked(() =>
+        {
+            var sgbd = SgbdFor(ecu);
+            RunJobCore(sgbd, "FS_LOESCHEN", "", ct);
+            if (JobExists("IS_LOESCHEN")) RunJobCore(sgbd, "IS_LOESCHEN", "", ct);
+            return true;
+        }, ct);
 
     public IReadOnlyList<LiveParameter> GetLiveParameters(EcuDefinition ecu)
     {

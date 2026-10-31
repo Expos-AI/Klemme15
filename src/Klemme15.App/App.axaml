@@ -227,7 +227,7 @@
       <Setter Property="Padding" Value="0" />
     </Style>
     <Style Selector="ListBox.rail ListBoxItem">
-      <Setter Property="Padding" Value="0,12" />
+      <Setter Property="Padding" Value="0,8" />
       <Setter Property="Margin" Value="8,2" />
       <Setter Property="CornerRadius" Value="6" />
       <Setter Property="HorizontalContentAlignment" Value="Center" />

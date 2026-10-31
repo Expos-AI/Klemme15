@@ -103,12 +103,55 @@
             </StackPanel>
           </Border>
 
+          <!-- One-click presets -->
+          <Border Classes="panel" Padding="18,14" IsVisible="{Binding HasPresetLocked}">
+            <StackPanel Spacing="6">
+              <TextBlock FontWeight="SemiBold" Text="One-click presets" />
+              <TextBlock Classes="muted small" Text="{Binding PresetLockedText}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+          <StackPanel Spacing="8" IsVisible="{Binding HasPresets}">
+            <TextBlock Classes="section" FontSize="16" Text="One-click presets" />
+            <Border Classes="panel" Padding="14,10" IsVisible="{Binding PendingIsPreset}">
+              <DockPanel>
+                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" Margin="12,0,0,0">
+                  <Button Classes="primary" Content="Code it" Command="{Binding ConfirmCommand}" Padding="14,6" />
+                  <Button Content="Cancel" Command="{Binding CancelCommand}" Padding="12,6" />
+                </StackPanel>
+                <TextBlock Text="{Binding PendingText}" TextWrapping="Wrap" />
+              </DockPanel>
+            </Border>
+            <ItemsControl ItemsSource="{Binding Presets}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:CodingToggleItem">
+                  <Border Classes="card" Margin="0,0,0,8" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1">
+                    <Grid ColumnDefinitions="*,Auto">
+                      <StackPanel Spacing="3">
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+                        <TextBlock Classes="muted small" Text="{Binding IncludesText}" TextWrapping="Wrap" />
+                        <TextBlock Classes="muted small" Text="{Binding Caveat}" TextWrapping="Wrap" IsVisible="{Binding HasCaveat}" />
+                      </StackPanel>
+                      <StackPanel Grid.Column="1" Spacing="6" Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Classes="mono small" Text="{Binding StateText}" HorizontalAlignment="Right" />
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                          <Button Classes="primary" Content="{Binding OnLabel}" Command="{Binding TurnOnCommand}" IsEnabled="{Binding CanTurnOn}" />
+                          <Button Content="{Binding OffLabel}" Command="{Binding TurnOffCommand}" IsEnabled="{Binding CanTurnOff}" />
+                        </StackPanel>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+
           <!-- Toggles -->
           <StackPanel Spacing="8" IsVisible="{Binding HasToggles}">
             <TextBlock Classes="section" FontSize="16" Text="3. Comfort options" />
             <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotExperimental}"
                        Text="Coding is experimental: switch on experimental functions on the Service page to change these." />
-            <Border Classes="panel" Padding="14,10" IsVisible="{Binding HasPending}">
+            <Border Classes="panel" Padding="14,10" IsVisible="{Binding PendingIsToggle}">
               <DockPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="8" Margin="12,0,0,0">
                   <Button Classes="primary" Content="Code it" Command="{Binding ConfirmCommand}" Padding="14,6" />

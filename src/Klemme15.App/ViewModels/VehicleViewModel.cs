@@ -33,7 +33,7 @@ public sealed class VehicleViewModel : PageViewModel
         RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
-        AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasFaults);
+        AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasAnythingToClear);
         CancelClearAllCommand = new RelayCommand(() => ConfirmClearAll = false);
         ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_isScanning, e => Error = e.Message);
         DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
@@ -87,6 +87,9 @@ public sealed class VehicleViewModel : PageViewModel
     public bool HasScan => _session.LastScan is not null;
     public bool HasFaults => Faults.Count > 0;
     public bool NoFaultsAfterScan => HasScan && !HasFaults;
+
+    /// <summary>Faults or Shadow / Info memory entries anywhere: both are cleared, as ISTA does.</summary>
+    public bool HasAnythingToClear => _session.LastScan?.Ecus.Any(e => e.Faults.Count > 0) == true;
     public bool BeforeScan => _session.IsConnected && !HasScan && !_isScanning;
 
     public string Summary
@@ -234,7 +237,7 @@ public sealed class VehicleViewModel : PageViewModel
     public bool NotConfirmClearAll => !_confirmClearAll;
 
     public string ClearAllQuestion =>
-        $"Clear the fault memory of {(_session.LastScan?.Ecus.Count(e => e.Faults.Count > 0) ?? 0)} modules? Read them again after a drive to see what returns.";
+        $"Clear the fault memory and the Shadow / Info memory of {(_session.LastScan?.Ecus.Count(e => e.Faults.Count > 0) ?? 0)} modules? Read them again after a drive to see what returns. Dash messages clear by themselves once their cause is fixed.";
 
     /// <summary>Clears every module that reported faults, then runs the quick test again.</summary>
     private async Task ClearAllAsync()

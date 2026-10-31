@@ -15,7 +15,8 @@ public sealed record CheckControlInfo(
     CcSeverity Severity,
     string? Hint = null,
     string? Confidence = null,
-    IReadOnlyList<string>? Sources = null);
+    IReadOnlyList<string>? Sources = null,
+    string? Module = null);
 
 /// <summary>
 /// One Check Control (CC-ID) message from the instrument cluster: the dash warnings with the small triangle
@@ -36,6 +37,9 @@ public sealed record CheckControlMessage
     public long? MileageKm { get; init; }
 
     public string? Hint { get; init; }
+
+    /// <summary>The module that usually raises this message (e.g. "footwell module (FRM)"), when known.</summary>
+    public string? Module { get; init; }
 
     /// <summary>"high" or "medium" for researched entries; null when the ID isn't in the database yet.</summary>
     public string? Confidence { get; init; }
@@ -181,6 +185,7 @@ public static class CheckControlDescriber
                 : null),
             Severity = info?.Severity ?? CcSeverity.Warning,
             Hint = info?.Hint,
+            Module = info?.Module,
             Confidence = info?.Confidence,
             Sources = info?.Sources ?? [],
             OfficialText = official?.Text,

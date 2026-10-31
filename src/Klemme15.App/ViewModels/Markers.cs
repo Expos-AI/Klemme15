@@ -122,6 +122,7 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
         "bmw-en" => $"BMW's own English text, from {Fault.OfficialSource ?? "your BMW data"}",
         "bmw-de-glossary" => "BMW's German text, put into English by Klemme15's glossary (approximate)",
         "bmw-de" => "BMW's German text (no English yet: use Translate)",
+        "klemme15-generic" => "General meaning from the code's number range and module (no specific text on file)",
         _ => LegacyProvenance,
     };
 

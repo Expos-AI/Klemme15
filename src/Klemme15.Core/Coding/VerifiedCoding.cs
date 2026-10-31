@@ -115,14 +115,39 @@ public static class VerifiedWriter
         return VerifiedState.Mixed;
     }
 
+    public static Task<CodingResult> ApplyAsync(IRawRequests raw, EcuDefinition ecu, EcuIdentity? identity, VerifiedCoding entry,
+        string toggleId, bool on, CodingBackup backup, IProgress<string>? progress = null, CancellationToken ct = default) =>
+        ApplyAsync(raw, ecu, identity, entry, [toggleId], on, backup, progress, ct);
+
+    /// <summary>Several options in one write (a preset), with one read-back; all succeed or the original goes back.</summary>
     public static async Task<CodingResult> ApplyAsync(IRawRequests raw, EcuDefinition ecu, EcuIdentity? identity, VerifiedCoding entry,
-        string toggleId, bool on, CodingBackup backup, IProgress<string>? progress = null, CancellationToken ct = default)
+        IReadOnlyList<string> toggleIds, bool on, CodingBackup backup, IProgress<string>? progress = null, CancellationToken ct = default)
     {
         if (!CodingProtocol.IsCodable(ecu)) return new(false, $"Klemme15 doesn't code {ecu.Name}.", [], false);
         if (!entry.WellFormed) return new(false, "This verified-coding entry is malformed.", [], false);
         if (!entry.Matches(ecu, identity))
             return new(false, "This verified entry is for a different module (part number or coding index don't match this car's).", [], false);
-        if (!entry.Toggles.TryGetValue(toggleId, out var ops)) return new(false, "That option isn't in the verified entry for this module.", [], false);
+        if (toggleIds.Count == 0) return new(false, "Nothing to change.", [], false);
+        var ops = new List<CodingOp>();
+        foreach (var id in toggleIds)
+        {
+            if (!entry.Toggles.TryGetValue(id, out var o)) return new(false, "That option isn't in the verified entry for this module.", [], false);
+            ops.AddRange(o);
+        }
+        // Two options must never want different bits in the same place.
+        foreach (var g in ops.GroupBy(o => (o.Block, o.Offset)))
+        {
+            var list = g.ToList();
+            for (var i = 0; i < list.Count; i++)
+                for (var j = i + 1; j < list.Count; j++)
+                {
+                    var overlap = (byte)(list[i].Mask & list[j].Mask);
+                    var a = on ? list[i].OnByte : list[i].OffByte;
+                    var b = on ? list[j].OnByte : list[j].OffByte;
+                    if (overlap != 0 && (a & overlap) != (b & overlap))
+                        return new(false, "These options disagree about the same bits, so Klemme15 won't write them together. Nothing was written.", [], false);
+                }
+        }
         if (ops.Any(o => backup.Blocks.All(b => b.Id != o.Block)))
             return new(false, "The backup doesn't cover the blocks this change writes. Take a fresh backup first.", [], false);
 

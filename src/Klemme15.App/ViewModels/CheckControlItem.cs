@@ -18,6 +18,8 @@ public sealed class CheckControlItem(CheckControlMessage message)
     public bool HasDescription => !string.IsNullOrWhiteSpace(Description);
     public string? Hint => Message.Active && Message.Hint is { } h ? $"Tip: {h}" : null;
     public bool HasHint => Hint is not null;
+    public string? ModuleText => Message.Active && Message.Module is { } m ? $"Usually raised by the {m}" : null;
+    public bool HasModule => ModuleText is not null;
     public string? Official => Message.OfficialText is { } t && t != Message.Title ? $"BMW: {t}" : null;
     public bool HasOfficial => Official is not null;
 }

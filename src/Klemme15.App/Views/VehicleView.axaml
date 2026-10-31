@@ -168,6 +168,7 @@
                       </Grid>
                       <TextBlock Classes="muted small" Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}" Margin="17,0,0,0" />
                       <TextBlock Classes="muted small" Text="{Binding Hint}" TextWrapping="Wrap" IsVisible="{Binding HasHint}" Margin="17,0,0,0" />
+                      <TextBlock Classes="muted small" Text="{Binding ModuleText}" TextWrapping="Wrap" IsVisible="{Binding HasModule}" Margin="17,0,0,0" />
                       <TextBlock Classes="muted small" Text="{Binding Official}" TextWrapping="Wrap" IsVisible="{Binding HasOfficial}" Margin="17,0,0,0" />
                     </StackPanel>
                   </DataTemplate>

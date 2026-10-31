@@ -213,6 +213,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                 UseFast();
                 BmwFastChannel.EnsurePositive(_fast.Request(ecu.Address, [Kwp2000.ClearDtc, 0xFF, 0xFF], ct: ct), Kwp2000.ClearDtc, $"Clear faults {ecu.Id}");
                 if (ecu.IsEngine) _fast.Request(ecu.Address, [0x04], ct: ct);
+                ClearInfoMemory(ecu, ct);
                 break;
             case BusProtocol.Ds2 when !ecu.IsEngine:
                 UseDs2();
@@ -226,6 +227,20 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         }
         return true;
     }, ct);
+
+    /// <summary>
+    /// Clears the Shadow / Info memory the way ISTA does (IS_LOESCHEN, <c>$31 06</c>), but only after the module has
+    /// confirmed it has one by answering <c>$22 2000</c>. A module without one is left alone.
+    /// </summary>
+    private void ClearInfoMemory(EcuDefinition ecu, CancellationToken ct)
+    {
+        if (!InfoMemory.Offered(ecu)) return;
+        var probe = _fast.Request(ecu.Address, InfoMemory.Request, TimeSpan.FromMilliseconds(400), ct);
+        if (!InfoMemory.Supported(probe)) return;
+        var reply = _fast.Request(ecu.Address, InfoMemory.ClearRequest, ct: ct);
+        if (!InfoMemory.Cleared(reply))
+            throw new DiagnosticException($"Clear Shadow / Info memory {ecu.Id}: {(reply is { Length: > 2 } && reply[0] == 0x7F ? Kwp2000.NegativeResponseText(reply[2]) : "no confirmation")}");
+    }
 
     /// <summary>
     /// The cluster's Check Control list: <c>$21 09</c> for what's showing now, <c>$21 0F</c> for the history.
