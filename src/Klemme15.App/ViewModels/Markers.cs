@@ -185,7 +185,7 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public bool IsStored => !IsActive && !Fault.IsInfo;
     public bool IsInfo => Fault.IsInfo;
 
-    public string StateText => Fault.IsShadow ? "Shadow memory" : Fault.IsInfo ? "Info memory" : Fault.State switch
+    public string StateText => Fault.IsShadow || Fault.IsInfo ? Fault.InfoMemoryLabel : Fault.State switch
     {
         FaultState.Present => "Active now",
         FaultState.Intermittent => "Intermittent",

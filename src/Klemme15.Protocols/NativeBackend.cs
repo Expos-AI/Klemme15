@@ -29,7 +29,7 @@ public sealed record NativeBackendOptions
 /// Talks to the car with Klemme15's own protocol implementation. Needs no BMW software or files.
 /// What it can decode is limited by the open database; EDIABAS mode covers the rest.
 /// </summary>
-public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe, IRawRequests
+public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe, IRawRequests, ICheckControlReader
 {
     private readonly ITransport _transport;
     private readonly NativeBackendOptions _options;
@@ -178,6 +178,12 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                         },
                     });
                 }
+                if (InfoMemory.Offered(ecu))
+                {
+                    // Info / shadow memory ($22 2000): a bonus, so a refusal or silence is fine.
+                    try { faults.AddRange(InfoMemory.Parse(ecu, _fast.Request(ecu.Address, InfoMemory.Request, TimeSpan.FromMilliseconds(400), ct))); }
+                    catch (DiagnosticException) { }
+                }
                 if (ecu.IsEngine)
                 {
                     var obd = _fast.Request(ecu.Address, [0x03], ct: ct);
@@ -219,6 +225,23 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                 break;
         }
         return true;
+    }, ct);
+
+    /// <summary>
+    /// The cluster's Check Control list: <c>$21 09</c> for what's showing now, <c>$21 0F</c> for the history.
+    /// Both raw replies go to the traffic log, so an unexpected layout can be reported and fixed.
+    /// </summary>
+    public Task<CheckControlReading?> ReadCheckControlAsync(EcuDefinition cluster, CancellationToken ct = default) => OnBus<CheckControlReading?>(() =>
+    {
+        if (ProtocolFor(cluster) != BusProtocol.BmwFast) return null;
+        UseFast();
+        var active = _fast.Request(cluster.Address, CheckControlParser.ActiveRequest, ct: ct);
+        var ids = CheckControlParser.ParseActive(active);
+        if (ids is null) return null;
+        byte[]? history = null;
+        try { history = _fast.Request(cluster.Address, CheckControlParser.HistoryRequest, ct: ct); }
+        catch (DiagnosticException) { /* history is a bonus */ }
+        return new CheckControlReading(ids, CheckControlParser.ParseHistory(history), CheckControlParser.Hex(active), history is null ? null : CheckControlParser.Hex(history));
     }, ct);
 
     /// <summary>One raw request to a BMW-FAST (D-CAN or KWP on K-line) module; the reply as received, or null on no reply.</summary>
