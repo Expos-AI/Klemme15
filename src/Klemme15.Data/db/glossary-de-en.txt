@@ -1681,3 +1681,11 @@ range = range
 setpoint = setpoint
 reason = reason
 calc = calc.
+
+# ---- added after a real E90 scan (Oct 2026)
+abbiegelicht = cornering light
+ueberspannung = overvoltage
+ueberspannungsfehler = overvoltage fault
+ueberspannungsfehlerr = overvoltage fault
+unterspannung = undervoltage
+startup = start-up

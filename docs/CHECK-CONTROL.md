@@ -25,6 +25,17 @@ Replies that don't fit these layouts are dropped rather than guessed at. The raw
 
 **Tip:** in the history, several messages at the *same* mileage (DSC, brake assist, hill start, flat tyre monitor, "charge battery") usually mean one event, almost always a voltage dip from a weak battery or a long crank. They don't mean five separate faults.
 
+## The car's story
+
+The history (`$21 0F`) is turned into a timeline on the Faults page and in reports. Klemme15 groups warnings logged at the same mileage (the cluster stores mileage in 8 km steps), then recognises a few patterns:
+
+- **Battery ran low:** several unrelated systems at the same instant (DSC, brake assist, hill start, tyre monitor), or a battery message. That's one voltage dip, not separate faults.
+- **Flat tyre:** a puncture warning repeating over a short distance is one event, shown with how many times it was logged.
+- **Battery disconnected:** "set the clock" means the power had been off.
+- **Key battery low**, service due, lights out, and engine and brake messages each get their own label.
+
+The explanations are deliberately "most likely". On a real E90, the cluster's history was mostly lost when the battery went completely flat, so the story is richest on a car whose battery has never died.
+
 ## Where the meanings come from
 
 `src/Klemme15.Data/db/check-control.json` holds Klemme15's own list: 396 IDs from 1 to 999, written in our own words from the public community lists, with the sources, a severity and the module that usually raises it. The public lists turn out to be copies of one list, so a meaning BMW's own table also confirms (checked locally, never shipped) is marked `high`; where the two differ, BMW's numbering wins and the entry says so (for example, 123 and 133 are the *left* rear light). IDs that appear in no public list, such as 34 and 77, still show by number, with BMW's wording if you have your BMW files.

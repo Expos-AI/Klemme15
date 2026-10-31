@@ -204,6 +204,8 @@ public sealed class ServiceViewModel : PageViewModel
     };
     public bool IsHighRisk => _selected?.Function.Risk == ServiceRisk.High;
     public bool Unverified => _selected is { Function.Verified: false };
+    public string ConfirmedText => _selected?.Function.Confirmations is { Count: > 0 } c ? "Confirmed on a real car: " + string.Join("; ", c) : "";
+    public bool HasConfirmed => ConfirmedText.Length > 0;
     public string Caution => string.Join("\n\n", new[] { _selected?.Function.Caution, FrmCaution }.Where(x => x is not null));
     public bool HasCaution => Caution.Length > 0;
 
@@ -296,7 +298,7 @@ public sealed class ServiceViewModel : PageViewModel
     private void RaiseSelection()
     {
         foreach (var p in new[] { nameof(Selected), nameof(HasSelection), nameof(FunctionTitle), nameof(Summary), nameof(When), nameof(ModuleText),
-                     nameof(RiskText), nameof(IsHighRisk), nameof(Unverified), nameof(Caution), nameof(HasCaution), nameof(Before), nameof(After), nameof(HasBefore), nameof(HasAfter),
+                     nameof(RiskText), nameof(IsHighRisk), nameof(Unverified), nameof(ConfirmedText), nameof(HasConfirmed), nameof(Caution), nameof(HasCaution), nameof(Before), nameof(After), nameof(HasBefore), nameof(HasAfter),
                      nameof(AvailabilityText), nameof(IsAvailable), nameof(Blocked), nameof(HasChecks), nameof(Duration), nameof(HasDuration) })
             Raise(p);
         Changed();

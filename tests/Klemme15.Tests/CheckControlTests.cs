@@ -238,3 +238,64 @@ public class CheckControlTests
         Assert.Contains("download", other.Hint!.ToLowerInvariant());
     }
 }
+
+public class CarStoryTests
+{
+    private static readonly VehicleDatabase Db = VehicleDatabase.Load(Path.Combine(Path.GetTempPath(), "klemme15-no-overrides"));
+
+    [Fact]
+    public void TellsPuncturesAndVoltageDipsApart()
+    {
+        CheckControlHistoryEntry H(int id, long km) => new(id, km);
+        var history = new List<CheckControlHistoryEntry>
+        {
+            H(63, 120_000), H(63, 120_008), H(63, 120_016), H(63, 120_048),   // a puncture nagging over 48 km
+            H(67, 125_000),                                                     // key battery
+            H(354, 130_000), H(50, 130_000), H(35, 130_000), H(42, 130_000), H(24, 130_000), H(229, 130_000), // a voltage dip
+            H(167, 130_040),                                                    // clock reset after battery work
+        };
+        var story = CarStory.Build(history, Db);
+        Assert.Equal(history.Count, story.Entries);
+        Assert.Equal(130_040, story.LastKm);
+        Assert.Equal([StoryKind.Puncture, StoryKind.KeyBattery, StoryKind.LowVoltage, StoryKind.BatteryWork], story.Events.Select(e => e.Kind));
+        var flat = story.Events[0];
+        Assert.Equal(4, flat.Times);
+        Assert.Equal("120,000 – 120,048 km", flat.When);
+        Assert.Contains("4 times", flat.Explanation);
+        var dip = story.Events[2];
+        Assert.Equal(6, dip.Messages.Count);
+        Assert.Contains("voltage dip", dip.Explanation);
+        Assert.Equal("Battery ran low", dip.Title);
+    }
+
+    [Fact]
+    public void ABatteryWarningOnItsOwnReadsNaturally()
+    {
+        var e = Assert.Single(CarStory.Build([new(229, 50_000), new(229, 50_000)], Db).Events);
+        Assert.Equal(StoryKind.LowVoltage, e.Kind);
+        Assert.DoesNotContain("systems", e.Explanation);
+    }
+
+    [Fact]
+    public void EmptyHistoryHasNoStory()
+    {
+        Assert.True(CarStory.Build([], Db).IsEmpty);
+    }
+
+    [Fact]
+    public async Task DemoCarTellsItsStoryInReports()
+    {
+        var family = Db.FindVehicle("E9x")!;
+        var model = family.Models.First(m => m.DemoCheckControl.Count > 0);
+        var car = VirtualCar.ForModel(model, family.Modules);
+        await using var backend = new NativeBackend(car, new NativeBackendOptions { Mode = CableMode.DCan, ProbeTimeout = TimeSpan.FromMilliseconds(80) });
+        await backend.ConnectAsync();
+        var scan = await new VehicleScanner(backend, Db).ScanAsync(family.Modules, model.Id);
+        Assert.NotNull(scan.Story);
+        Assert.Contains(scan.Story!.Events, e => e.Kind == StoryKind.LowVoltage);
+        Assert.Contains(scan.Story.Events, e => e.Kind == StoryKind.Puncture && e.Times == 3);
+        Assert.Contains("The car's story", ReportWriter.ToHtml(scan));
+        Assert.Contains("Battery ran low", ReportWriter.ToMarkdown(scan));
+        Assert.Contains("Warning history", ReportWriter.ToForumPost(scan));
+    }
+}

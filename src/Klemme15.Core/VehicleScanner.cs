@@ -63,9 +63,10 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
 
         IReadOnlyList<CheckControlMessage> cc = [];
         string? ccNote = null;
+        CarStoryResult? story = null;
         if (!cancelled)
         {
-            try { (cc, ccNote) = await ReadCheckControlAsync(results, progress, ecus.Count, ct); }
+            try { (cc, ccNote, story) = await ReadCheckControlAsync(results, progress, ecus.Count, ct); }
             catch (OperationCanceledException) { cancelled = true; }
         }
 
@@ -73,6 +74,7 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
         {
             CheckControl = cc,
             CheckControlNote = ccNote,
+            Story = story,
             Started = started,
             Backend = backend.Name,
             Vin = vin,
@@ -88,21 +90,23 @@ public sealed class VehicleScanner(IDiagnosticBackend backend, IFaultCodeDatabas
     /// Asks the instrument cluster which Check Control messages it shows (the dash warnings that aren't fault codes).
     /// Only when the cluster answered the scan; never fatal.
     /// </summary>
-    private async Task<(IReadOnlyList<CheckControlMessage>, string?)> ReadCheckControlAsync(
+    private async Task<(IReadOnlyList<CheckControlMessage>, string?, CarStoryResult?)> ReadCheckControlAsync(
         IReadOnlyList<EcuScanResult> results, IProgress<ScanProgress>? progress, int total, CancellationToken ct)
     {
         var cluster = results.FirstOrDefault(r => CheckControlDescriber.IsCluster(r.Ecu) && r.Status is EcuScanStatus.Ok or EcuScanStatus.Faults);
-        if (cluster is null) return ([], null);
-        if (backend is not ICheckControlReader reader) return ([], "This connection can't read Check Control messages.");
+        if (cluster is null) return ([], null, null);
+        if (backend is not ICheckControlReader reader) return ([], "This connection can't read Check Control messages.", null);
         progress?.Report(new ScanProgress(results.Count, total, null, "Reading dash messages (Check Control)", cluster.Ecu));
         try
         {
             var reading = await reader.ReadCheckControlAsync(cluster.Ecu, ct);
-            if (reading is null) return ([], "The instrument cluster didn't report its Check Control messages.");
-            return (CheckControlDescriber.Describe(reading, codes as ICheckControlCatalog), null);
+            if (reading is null) return ([], "The instrument cluster didn't report its Check Control messages.", null);
+            var catalog = codes as ICheckControlCatalog;
+            var story = reading.History.Count > 0 ? CarStory.Build(reading.History, catalog) : null;
+            return (CheckControlDescriber.Describe(reading, catalog), null, story);
         }
         catch (OperationCanceledException) { throw; }
-        catch (Exception e) { return ([], $"Check Control messages couldn't be read: {e.Message}"); }
+        catch (Exception e) { return ([], $"Check Control messages couldn't be read: {e.Message}", null); }
     }
 
     /// <summary>Reads only the Check Control messages (for a refresh without a full scan).</summary>

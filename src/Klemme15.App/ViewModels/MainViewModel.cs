@@ -55,7 +55,7 @@ public sealed class MainViewModel : ViewModelBase
 
         Session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection))
+            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection) or nameof(SessionState.Voltage))
                 foreach (var p in new[] { nameof(CarTitle), nameof(CarSubtitle), nameof(Connection), nameof(IsConnected), nameof(HasCar) })
                     Raise(p);
         };
@@ -93,7 +93,7 @@ public sealed class MainViewModel : ViewModelBase
     public bool HasCar => Session.Model is not null && Session.IsConnected;
     public string CarTitle => Session.Model is { } m && Session.IsConnected ? $"{Session.Vehicle?.Id} {m.Name}" : "No car connected";
     public string CarSubtitle => Session.Model is { } m && Session.IsConnected ? m.Engine : "Pick your car in the garage";
-    public string Connection => Session.Connection;
+    public string Connection => Session.VoltageText.Length > 0 ? $"{Session.Connection} · {Session.VoltageText}" : Session.Connection;
     public bool IsConnected => Session.IsConnected;
 
     public bool IsDark

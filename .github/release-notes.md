@@ -1,6 +1,13 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.15.0:**
+**New in 0.16.0:**
+- **Your car's story.** The instrument cluster quietly remembers the last few dozen dash warnings it showed, with the mileage of each. Klemme15 now reads that memory and tells it as a timeline on the Faults page (and in reports): *"221,616 – 221,648 km: Flat tyre. The cluster warned 12 times as the tyre lost pressure."* It groups warnings by moment and recognises the patterns: many unrelated systems complaining at the same instant is a battery voltage dip, not five faults; a tyre warning repeating over a few kilometres is one puncture; "set the clock" means the battery had been disconnected.
+- **Battery registration confirmed on a real car** (MSV70 / N52, E90 325i). The Service page now shows which real cars a function has been confirmed on.
+- **Battery protection.** The header shows the battery voltage once it's been measured. Below 12.4 V with the engine off, the Vehicle page warns that a connected tool keeps the car awake (10-20 A), and disconnecting reminds you to switch the ignition off.
+- Modules that keep their Shadow / Info memory (some footwell modules, junction boxes, cruise control) are no longer reported as failing to clear; their fault memory is still cleared.
+- Better English for a few BMW texts (cornering light, overvoltage fault).
+
+**0.15.0:**
 - **Quick codes set themselves up.** The Coding page has a checklist that gets a module to one-click coding. Klemme15 finds your NCS Expert install and its latest reading of the module by itself, so verifying is one button.
 - **Teach Klemme15 from another coding tool.** Using BimmerCode or similar? Read the module, change one option with your tool, read again: Klemme15 learns exactly which bits that option is on your module and can then do it itself, offline, with backup, read-back and auto-restore. It refuses unclear readings (nothing changed, too much changed, outside the coding).
 - **Share this map**: one click opens a pre-filled GitHub issue so everyone with the same module gets quick codes with no setup. Maps hold only part number, coding index and option bits.

@@ -30,6 +30,9 @@ public static class InfoMemory
     /// <summary>True when the reply is a positive answer to <see cref="Request"/>, i.e. the module has an info memory.</summary>
     public static bool Supported(byte[]? reply) => reply is { Length: >= 3 } && reply[0] == 0x62 && reply[1] == 0x20 && reply[2] == 0x00;
 
+    /// <summary>True when the module answers "not supported" (7F 31 11 or 12): it keeps its info memory, which is fine.</summary>
+    public static bool Declined(byte[]? reply) => reply is { Length: >= 3 } && reply[0] == 0x7F && reply[1] == 0x31 && reply[2] is 0x11 or 0x12;
+
     /// <summary>True for the positive answer to <see cref="ClearRequest"/>.</summary>
     public static bool Cleared(byte[]? reply) => reply is { Length: >= 2 } && reply[0] == 0x71 && reply[1] == 0x06;
 

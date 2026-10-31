@@ -56,7 +56,19 @@ public static class ReportWriter
             }
         }
         MarkdownInfoMemory(sb, scan, forum: false);
+        MarkdownStory(sb, scan, forum: false);
         return sb.ToString();
+    }
+
+    /// <summary>The cluster's warning history, told as events (newest first).</summary>
+    private static void MarkdownStory(StringBuilder sb, VehicleScanResult scan, bool forum)
+    {
+        if (scan.Story is not { IsEmpty: false } story) return;
+        sb.AppendLine();
+        sb.AppendLine(forum ? "**Warning history (from the cluster)**" : "## The car's story (warning history from the cluster)");
+        sb.AppendLine();
+        foreach (var e in story.Events.Reverse().Take(forum ? 5 : 50))
+            sb.AppendLine($"- **{e.When}**: {e.Title}. {(forum ? "" : e.Explanation)}".TrimEnd());
     }
 
     private static string CcLine(CheckControlMessage m) =>
@@ -157,6 +169,7 @@ public static class ReportWriter
         if (all.Count == 0) sb.AppendLine(scan.ActiveCheckControl > 0 ? "No fault codes stored (the dash message above is not a fault code)." : "No faults stored.");
         else if (background - infoMemory > 0) sb.AppendLine($"_Plus {background - infoMemory} background entr{(background - infoMemory == 1 ? "y" : "ies")} (one-off events) left out._");
         MarkdownInfoMemory(sb, scan, forum: true);
+        MarkdownStory(sb, scan, forum: true);
         sb.AppendLine();
         sb.AppendLine($"_Read with Klemme15 {scan.Started:yyyy-MM-dd} (open-source BMW diagnostics). VIN removed._");
         return sb.ToString();
@@ -286,6 +299,13 @@ section{margin-top:24px}
                 };
                 sb.Append($"<tr><td><code>{H(f.Code)}</code></td><td>{state}</td><td>{H(f.DisplayDescription)}{hint}{origin}</td><td class=\"muted\">{H(details)}</td></tr>");
             }
+            sb.Append("</table></div></section>");
+        }
+        if (scan.Story is { IsEmpty: false } story)
+        {
+            sb.Append("<section><h2>The car's story</h2><p class=\"muted\">Every dash message the instrument cluster still remembers, grouped into what happened. Newest first.</p><div class=\"table-wrap\"><table><tr><th>When</th><th>What happened</th></tr>");
+            foreach (var e in story.Events.Reverse())
+                sb.Append($"<tr><td><code>{H(e.When)}</code></td><td><b>{H(e.Title)}</b><br><span class=\"muted\">{H(e.Explanation)}</span><br><span class=\"muted\">{H(string.Join(" ", e.Messages.Select(m => m.Code)))}</span></td></tr>");
             sb.Append("</table></div></section>");
         }
         if (scan.InfoEntries > 0)

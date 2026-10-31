@@ -148,6 +148,17 @@ public sealed class FaultsViewModel : PageViewModel
 
     public ObservableCollection<FaultGroupViewModel> Groups { get; } = [];
 
+    /// <summary>The car's story: every dash warning the instrument cluster remembers, grouped into moments and explained.</summary>
+    public ObservableCollection<StoryItem> Story { get; } = [];
+    public bool HasStory => Story.Count > 0;
+    public string StoryHeadline => _session.LastScan?.Story is { } s
+        ? $"Your car's story · {s.Entries} warnings the instrument cluster remembers" + (s.LastKm is { } km ? $", up to ~{km:N0} km" : "")
+        : "";
+    private bool _storyOpen = true;
+    public bool StoryOpen { get => _storyOpen; set { if (Set(ref _storyOpen, value)) Raise(nameof(StoryToggleText)); } }
+    public string StoryToggleText => _storyOpen ? "Hide" : "Show";
+    public RelayCommand ToggleStoryCommand => new(() => StoryOpen = !StoryOpen);
+
     /// <summary>Navigates to the Readings page for a module.</summary>
     public Action<EcuDefinition>? OpenReadings { get; set; }
 
@@ -203,7 +214,10 @@ public sealed class FaultsViewModel : PageViewModel
                 };
                 if (group.Faults.Count > 0) Groups.Add(group);
             }
-        foreach (var p in new[] { nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount), nameof(Verdict),
+        Story.Clear();
+        // Newest first: what happened most recently is what people ask about.
+        foreach (var ev in (_session.LastScan?.Story?.Events ?? []).Reverse()) Story.Add(new StoryItem(ev));
+        foreach (var p in new[] { nameof(HasStory), nameof(StoryHeadline), nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount), nameof(Verdict),
                      nameof(FixNowCount), nameof(CheckCount), nameof(BackgroundCount), nameof(HasBackground) })
             Raise(p);
     }

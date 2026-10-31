@@ -99,6 +99,9 @@
           <TextBlock TextWrapping="Wrap" Classes="small"
                      Text="Experimental: not yet confirmed on a real car with Klemme15. It uses BMW's own procedure for your module version, but there is no guarantee." />
         </Border>
+        <Border Classes="good" IsVisible="{Binding HasConfirmed}">
+          <TextBlock TextWrapping="Wrap" Classes="small" Text="{Binding ConfirmedText}" />
+        </Border>
         <Border Classes.bad="{Binding IsHighRisk}" Classes.good="{Binding !IsHighRisk}">
           <TextBlock TextWrapping="Wrap" Classes="small" Text="{Binding RiskText}" />
         </Border>

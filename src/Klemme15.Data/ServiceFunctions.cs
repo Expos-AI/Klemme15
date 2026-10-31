@@ -51,8 +51,11 @@ public sealed record ServiceInput(string Id, string Label, bool IsChoice, IReadO
 public sealed record ServiceFunction(
     string Id, string Title, string Category, IReadOnlyList<string> Modules, string Summary, string When, ServiceRisk Risk, bool Verified,
     IReadOnlyList<string> Before, IReadOnlyList<string> After, ServiceChecks Checks, IReadOnlyList<ServiceImplementation> Implementations,
-    IReadOnlyList<ServiceInput> Inputs, string? Duration = null, string? Caution = null)
+    IReadOnlyList<ServiceInput> Inputs, string? Duration = null, string? Caution = null, IReadOnlyList<string>? ConfirmedOn = null)
 {
+    /// <summary>Real cars it has been confirmed on so far (e.g. "MSV70 (N52), E90 325i, October 2026").</summary>
+    public IReadOnlyList<string> Confirmations => ConfirmedOn ?? [];
+
     /// <summary>The main module's short name ("DME").</summary>
     public string Module => Modules.Count > 0 ? Modules[0] : "";
 }
@@ -129,7 +132,7 @@ public sealed class ServiceLibrary
             list.Add(new ServiceFunction(
                 Str(f, "id")!, Str(f, "title")!, Str(f, "category") ?? "Other", modules, Str(f, "summary")!, Str(f, "when") ?? "",
                 Enum.Parse<ServiceRisk>(Str(f, "risk") ?? "high", ignoreCase: true), Bool(f, "verified"),
-                List(f, "before"), List(f, "after"), checks, impls, inputs, Str(f, "duration"), Str(f, "caution")));
+                List(f, "before"), List(f, "after"), checks, impls, inputs, Str(f, "duration"), Str(f, "caution"), List(f, "confirmedOn")));
         }
         return new ServiceLibrary(list);
     }
