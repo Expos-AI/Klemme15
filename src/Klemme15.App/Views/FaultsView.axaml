@@ -22,6 +22,30 @@
 
     <ScrollViewer>
       <StackPanel MaxWidth="980" HorizontalAlignment="Left">
+      <!-- Health over time: what changed across every scan of this car on this computer -->
+      <Border Classes="panel" Padding="18,14" Margin="0,0,0,22" IsVisible="{Binding ShowTrendsCard}">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="section" Text="{Binding TrendsHeadline}" TextWrapping="Wrap" />
+          <TextBlock Classes="muted small" Text="{Binding TrendsNote}" TextWrapping="Wrap" />
+          <ItemsControl ItemsSource="{Binding Trends}" IsVisible="{Binding HasTrends}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TrendItem">
+                <Grid ColumnDefinitions="22,*" Margin="0,4">
+                  <Grid>
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsAct}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsWatch}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsInfo}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                  </Grid>
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
       <!-- The car's story: the cluster's warning history, explained -->
       <Border Classes="panel" Padding="18,14" Margin="0,0,0,22" IsVisible="{Binding HasStory}">
         <StackPanel Spacing="10">

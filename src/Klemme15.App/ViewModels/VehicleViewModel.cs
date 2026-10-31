@@ -271,16 +271,29 @@ public sealed class VehicleViewModel : PageViewModel
     /// Low voltage makes modules log false faults, which is why dealer tools want a charger connected.
     /// Reads the battery voltage through the engine computer when the car reports it.
     /// </summary>
+    /// <summary>Engine values read with the battery check, kept for the health snapshot.</summary>
+    private IReadOnlyDictionary<string, double> _engineReadings = new Dictionary<string, double>();
+
     private async Task<double?> CheckBatteryAsync(IDiagnosticBackend backend, VehicleFamily vehicle)
     {
+        _engineReadings = new Dictionary<string, double>();
         var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
         if (engine is null) return null;
         try
         {
             // The standard OBD value first; many BMW engine computers (MSV70 among them) don't answer it, so then
-            // BMW's own battery voltage measurement.
+            // BMW's own battery voltage measurement. Engine speed, coolant and fuel trims ride along for the health history.
+            var signals = new EngineSignals(backend, engine, _session.Measurements);
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-            var read = await new EngineSignals(backend, engine, _session.Measurements).ReadAsync(["voltage"], cts.Token);
+            var read = await signals.ReadAsync(["voltage"], cts.Token);
+            var all = new Dictionary<string, double>(read);
+            try
+            {
+                using var more = new CancellationTokenSource(TimeSpan.FromSeconds(6));
+                foreach (var kv in await signals.ReadAsync(["rpm", "coolant", "ltft1", "ltft2"], more.Token)) all[kv.Key] = kv.Value;
+            }
+            catch (Exception) { /* the extras are optional */ }
+            _engineReadings = all;
             double? v = read.TryGetValue("voltage", out var volts) ? volts : null;
             _session.Voltage = v;
             Warning = v switch
@@ -373,7 +386,9 @@ public sealed class VehicleViewModel : PageViewModel
                 vehicle.Modules, $"{vehicle.Id} {_session.Model?.Name}".Trim(), progress, _cts.Token);
             Progress = 100;
             ProgressText = scan.Cancelled ? "Quick test stopped." : "";
-            _session.PublishScan(scan with { BatteryVoltage = battery });
+            var final = scan with { BatteryVoltage = battery };
+            _session.RecordHealth(final, _engineReadings);
+            _session.PublishScan(final);
             UpdateFrmNotice(scan);
         }
         finally

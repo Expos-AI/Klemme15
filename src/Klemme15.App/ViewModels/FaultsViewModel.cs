@@ -1,3 +1,4 @@
+using Klemme15.App.Services;
 using System.Collections.ObjectModel;
 using Avalonia.Media;
 using Klemme15.Core;
@@ -137,6 +138,7 @@ public sealed class FaultsViewModel : PageViewModel
         _openUrl = openUrl;
         RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && _session.LastScan is not null, e => Error = e.Message);
         _session.ScanUpdated += () => OnUi(Rebuild);
+        _session.HistoryChanged += () => OnUi(RebuildTrends);
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.LastScan)) RefreshCommand.RaiseCanExecuteChanged();
@@ -158,6 +160,41 @@ public sealed class FaultsViewModel : PageViewModel
     public bool StoryOpen { get => _storyOpen; set { if (Set(ref _storyOpen, value)) Raise(nameof(StoryToggleText)); } }
     public string StoryToggleText => _storyOpen ? "Hide" : "Show";
     public RelayCommand ToggleStoryCommand => new(() => StoryOpen = !StoryOpen);
+
+    /// <summary>What changed across every scan of this car on this computer.</summary>
+    public ObservableCollection<TrendItem> Trends { get; } = [];
+    public bool HasTrends => Trends.Count > 0;
+    private string _trendsHeadline = "";
+    public string TrendsHeadline { get => _trendsHeadline; private set => Set(ref _trendsHeadline, value); }
+    private string _trendsNote = "";
+    public string TrendsNote { get => _trendsNote; private set => Set(ref _trendsNote, value); }
+
+    private void RebuildTrends()
+    {
+        Trends.Clear();
+        TrendsHeadline = TrendsNote = "";
+        if (_session.LastScan is { } scan)
+        {
+            var history = _session.IsDemo ? DemoHistory.For(scan)
+                : scan.Vin is { Length: 17 } vin ? _session.History.Load(HealthSnapshot.KeyFor(vin)) : [];
+            if (history.Count > 0)
+            {
+                var catalog = _session.Database.CheckControl;
+                foreach (var t in HealthTrends.Analyze(history, id => CheckControlDescriber.Describe(id, catalog, active: true).Title)) Trends.Add(new TrendItem(t));
+                var since = history[0].Time.LocalDateTime;
+                TrendsHeadline = $"Health over time · {history.Count} scan{(history.Count == 1 ? "" : "s")} since {since:d MMM yyyy}";
+                TrendsNote = Trends.Count > 0
+                    ? (_session.IsDemo ? "A made-up history for the demo car. " : "") + "Klemme15 compares every quick test of this car on this computer, so slow changes show up before they become faults."
+                    : history.Count < 3
+                        ? "Nothing to compare yet. Each quick test is saved on this computer; after a few, slow changes (a battery resting lower, fuel trims creeping) show up here."
+                        : "Nothing is drifting. Battery, charging, fuel trims and faults look the same as in earlier scans.";
+            }
+        }
+        Raise(nameof(HasTrends));
+        Raise(nameof(ShowTrendsCard));
+    }
+
+    public bool ShowTrendsCard => TrendsHeadline.Length > 0;
 
     /// <summary>Navigates to the Readings page for a module.</summary>
     public Action<EcuDefinition>? OpenReadings { get; set; }
@@ -214,6 +251,7 @@ public sealed class FaultsViewModel : PageViewModel
                 };
                 if (group.Faults.Count > 0) Groups.Add(group);
             }
+        RebuildTrends();
         Story.Clear();
         // Newest first: what happened most recently is what people ask about.
         foreach (var ev in (_session.LastScan?.Story?.Events ?? []).Reverse()) Story.Add(new StoryItem(ev));

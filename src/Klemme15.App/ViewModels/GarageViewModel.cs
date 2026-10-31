@@ -76,6 +76,8 @@ public sealed class GarageViewModel : PageViewModel
             Raise(nameof(IsConnected));
             Raise(nameof(ConnectedText));
         };
+        _session.HistoryChanged += () => OnUi(RebuildCars);
+        RebuildCars();
         RebuildPreview();
         RefreshPorts();
         if (EdiabasAvailable) _ = FindEdiabasAsync();
@@ -324,6 +326,23 @@ public sealed class GarageViewModel : PageViewModel
         Raise(nameof(Models));
         Raise(nameof(CableHint));
         Model = _family.Family.Models.FirstOrDefault();
+    }
+
+    /// <summary>Every real car scanned on this computer, newest first (from the local health history).</summary>
+    public System.Collections.ObjectModel.ObservableCollection<CarCardViewModel> Cars { get; } = [];
+    public bool HasCars => Cars.Count > 0;
+    public string CarsNote => "Saved on this computer after every quick test, never uploaded. Pick a car to select its model; its trends are on the Faults page after the next quick test.";
+
+    private void RebuildCars()
+    {
+        Cars.Clear();
+        try
+        {
+            foreach (var latest in _session.History.Cars().Take(12))
+                Cars.Add(new CarCardViewModel(latest, _session.History.Load(latest.CarKey), SelectModel, _session.ForgetCar));
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        Raise(nameof(HasCars));
     }
 
     /// <summary>Selects a model by id (used by the screenshot tool and saved settings).</summary>
