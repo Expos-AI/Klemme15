@@ -335,6 +335,75 @@ public class CodingTests
         Assert.All(entry.Toggles.Keys, id => Assert.Equal(VerifiedState.On, VerifiedWriter.StateOf(entry, id, BlocksOf(car))));
     }
 
+    private static List<CodingBlock> Blocks(params (ushort Id, byte[] Data)[] b) => b.Select(x => new CodingBlock(x.Id, x.Data)).ToList();
+
+    [Fact]
+    public void Learns_an_option_from_a_before_and_after_reading()
+    {
+        var toggle = CodingToggles.All.Single(t => t.Id == "led-turn-signals");
+        var before = Blocks((0x3000, new byte[16]), (0x3001, new byte[16]));
+        var afterData = new byte[16]; afterData[3] = 0x0C; afterData[9] = 0x80;
+        var after = Blocks((0x3000, new byte[16]), (0x3001, afterData));
+        var learned = CodingLearner.Learn(Frm, FrmId, "E9x", toggle, turnedOn: true, before, after);
+        Assert.NotNull(learned.Entry);
+        var ops = learned.Entry!.Toggles["led-turn-signals"];
+        Assert.Equal(2, ops.Count);
+        Assert.Contains(ops, o => o.Block == 0x3001 && o.Offset == 3 && o.Mask == 0x0C && o.OnByte == 0x0C && o.OffByte == 0);
+        Assert.Equal(VerifiedState.On, VerifiedWriter.StateOf(learned.Entry, "led-turn-signals", after));
+        Assert.Equal(VerifiedState.Off, VerifiedWriter.StateOf(learned.Entry, "led-turn-signals", before));
+
+        // Learned while switching off: the same bytes, with on/off the other way round.
+        var off = CodingLearner.Learn(Frm, FrmId, "E9x", toggle, turnedOn: false, after, before);
+        Assert.Equal(VerifiedState.On, VerifiedWriter.StateOf(off.Entry!, "led-turn-signals", after));
+    }
+
+    [Fact]
+    public void Refuses_to_learn_from_unclear_readings()
+    {
+        var toggle = CodingToggles.All.Single(t => t.Id == "led-turn-signals");
+        var before = Blocks((0x3001, new byte[16]));
+        Assert.Null(CodingLearner.Learn(Frm, FrmId, "E9x", toggle, true, before, before).Entry);              // nothing changed
+        var many = Enumerable.Range(0, 16).Select(i => (byte)0xFF).ToArray();
+        Assert.Null(CodingLearner.Learn(Frm, FrmId, "E9x", toggle, true, before, Blocks((0x3001, many))).Entry);   // a whole recode
+        Assert.Null(CodingLearner.Learn(Frm, null, "E9x", toggle, true, before, Blocks((0x3001, [1, .. new byte[15]]))).Entry); // module unknown
+        var kombiToggle = CodingToggles.All.Single(t => t.Id == "digital-speed");
+        Assert.Null(CodingLearner.Learn(Frm, FrmId, "E9x", kombiToggle, true, before, Blocks((0x3001, [1, .. new byte[15]]))).Entry); // wrong module
+    }
+
+    [Fact]
+    public void Learned_options_merge_and_shipped_maps_win()
+    {
+        var a = CodingToggles.All.Single(t => t.Id == "led-turn-signals");
+        var b = CodingToggles.All.Single(t => t.Id == "led-fog-lights");
+        var before = Blocks((0x3001, new byte[16]));
+        var e1 = CodingLearner.Learn(Frm, FrmId, "E9x", a, true, before, Blocks((0x3001, [0x01, .. new byte[15]]))).Entry!;
+        var e2 = CodingLearner.Learn(Frm, FrmId, "E9x", b, true, before, Blocks((0x3001, [0, 0x02, .. new byte[14]]))).Entry!;
+        var merged = CodingLearner.Merge(CodingLearner.Merge([], e1), e2);
+        Assert.Single(merged);
+        Assert.Equal(2, merged[0].Toggles.Count);
+        var roundTrip = VerifiedCodingLibrary.Load(CodingLearner.ToFileJson(merged));
+        Assert.Equal(2, roundTrip.For(Frm, FrmId)!.Toggles.Count);
+
+        var shipped = e1 with { Source = null, Toggles = new Dictionary<string, IReadOnlyList<CodingOp>> { ["led-turn-signals"] = [new CodingOp(0x3001, 5, 0x10, 0x10, 0)] } };
+        var lib = VerifiedCodingLibrary.FromEntries([shipped, .. merged]);
+        var combined = lib.For(Frm, FrmId)!;
+        Assert.Equal(5, combined.Toggles["led-turn-signals"][0].Offset);   // shipped first
+        Assert.True(combined.Toggles.ContainsKey("led-fog-lights"));       // learned adds what's missing
+    }
+
+    [Fact]
+    public void Finds_the_ncs_install_from_its_daten_folder()
+    {
+        var root = Directory.CreateTempSubdirectory("NCSEXPER").FullName;
+        var daten = Directory.CreateDirectory(Path.Combine(root, "DATEN", "E89")).Parent!.FullName;
+        var work = Directory.CreateDirectory(Path.Combine(root, "WORK")).FullName;
+        var install = NcsLocator.FromDaten(Path.Combine(daten, "E89"))!;
+        Assert.Equal(daten, install.Daten);
+        Assert.Null(NcsLocator.LatestTrace(install));
+        File.WriteAllText(Path.Combine(work, "FSW_PSW.TRC"), "x");
+        Assert.NotNull(NcsLocator.LatestTrace(install));
+    }
+
     [Fact]
     public void Preset_state_combines_its_options()
     {

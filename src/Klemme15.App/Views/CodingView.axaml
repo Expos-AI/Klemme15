@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:core="using:Klemme15.Core.Coding"
              x:Class="Klemme15.App.Views.CodingView"
              x:DataType="vm:CodingViewModel">
   <UserControl.Styles>
@@ -51,6 +52,38 @@
           <TextBlock Classes="section" Text="{Binding ModuleTitle}" />
           <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,10" IsVisible="{Binding HasFrmText}">
             <TextBlock Text="{Binding FrmText}" TextWrapping="Wrap" FontWeight="SemiBold" />
+          </Border>
+
+          <!-- Quick codes: guided setup -->
+          <Border Classes="panel" Padding="18,14" IsVisible="{Binding HasSetupHeadline}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1">
+            <StackPanel Spacing="8">
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Classes="quiet" Content="Step-by-step guide" Command="{Binding OpenGuideCommand}" VerticalAlignment="Center" />
+                <TextBlock FontWeight="SemiBold" Text="{Binding SetupHeadline}" TextWrapping="Wrap" VerticalAlignment="Center" />
+              </DockPanel>
+              <ItemsControl ItemsSource="{Binding SetupSteps}" IsVisible="{Binding ShowSetup}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:SetupStep">
+                    <Grid ColumnDefinitions="22,*" Margin="0,3">
+                      <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding Done}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                      <Ellipse Width="11" Height="11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5" IsVisible="{Binding NotDone}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                      <StackPanel Grid.Column="1" Spacing="1">
+                        <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                        <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" IsVisible="{Binding HasDetail}" />
+                      </StackPanel>
+                    </Grid>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+              <WrapPanel IsVisible="{Binding ShowSetup}">
+                <Button Classes="primary" Content="Verify with NCS Expert's latest reading" Command="{Binding VerifyLatestCommand}" Margin="0,0,8,6" />
+                <Button Content="Share this map" Command="{Binding ShareCommand}" Margin="0,0,8,6"
+                        ToolTip.Tip="Opens a pre-filled GitHub issue with this module's map, so the next owner of this module gets quick codes with no setup" />
+              </WrapPanel>
+              <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding ShowSetup}"
+                         Text="Klemme15 doesn't include BMW's software or coding data. If you don't have NCS Expert, teach Klemme15 below with any coding tool you already use. Workshops can get BMW's own software legally from BMW's aftersales portal." />
+              <Button Classes="quiet" Content="BMW aftersales portal (official)" Command="{Binding OpenBmwCommand}" HorizontalAlignment="Left" IsVisible="{Binding ShowSetup}" />
+            </StackPanel>
           </Border>
 
           <!-- Backups -->
@@ -145,6 +178,33 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
           </StackPanel>
+
+          <!-- Teach from another coding tool -->
+          <Border Classes="panel" Padding="18,14" IsVisible="{Binding CanLearn}">
+            <StackPanel Spacing="8">
+              <TextBlock FontWeight="SemiBold" Text="Teach Klemme15 from another coding tool" />
+              <TextBlock Classes="muted small" TextWrapping="Wrap"
+                         Text="Already use BimmerCode, NCS Expert or another tool? Klemme15 reads the module, you change one option with your tool, Klemme15 reads again and learns exactly which bits that option is on your module. From then on it works here, offline, with backup and read-back, and you can share it." />
+              <WrapPanel>
+                <ComboBox ItemsSource="{Binding LearnOptions}" SelectedItem="{Binding LearnOption}" PlaceholderText="Which option will you change?" MinWidth="300" MaxWidth="520" Margin="0,0,12,6">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="core:CodingToggle">
+                      <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+                <RadioButton GroupName="learnDir" Content="I'll switch it on" IsChecked="{Binding LearnTurnedOn}" Margin="0,0,12,6" VerticalAlignment="Center" />
+                <RadioButton GroupName="learnDir" Content="I'll switch it off" IsChecked="{Binding LearnTurnedOff}" Margin="0,0,12,6" VerticalAlignment="Center" />
+              </WrapPanel>
+              <WrapPanel>
+                <Button Content="1. Read before" Command="{Binding LearnBeforeCommand}" Margin="0,0,8,6" />
+                <Button Content="2. Read after" Command="{Binding LearnAfterCommand}" Margin="0,0,8,6" />
+                <Button Classes="primary" Content="3. Save" Command="{Binding LearnSaveCommand}" Margin="0,0,8,6" />
+              </WrapPanel>
+              <TextBlock Text="{Binding LearnStatus}" TextWrapping="Wrap" />
+              <SelectableTextBlock Classes="mono small" Text="{Binding LearnChanges}" TextWrapping="Wrap" IsVisible="{Binding HasLearnChanges}" />
+            </StackPanel>
+          </Border>
 
           <!-- Toggles -->
           <StackPanel Spacing="8" IsVisible="{Binding HasToggles}">

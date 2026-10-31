@@ -1,6 +1,12 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.14.0:**
+**New in 0.15.0:**
+- **Quick codes set themselves up.** The Coding page has a checklist that gets a module to one-click coding. Klemme15 finds your NCS Expert install and its latest reading of the module by itself, so verifying is one button.
+- **Teach Klemme15 from another coding tool.** Using BimmerCode or similar? Read the module, change one option with your tool, read again: Klemme15 learns exactly which bits that option is on your module and can then do it itself, offline, with backup, read-back and auto-restore. It refuses unclear readings (nothing changed, too much changed, outside the coding).
+- **Share this map**: one click opens a pre-filled GitHub issue so everyone with the same module gets quick codes with no setup. Maps hold only part number, coding index and option bits.
+- A step-by-step [quick codes guide](https://github.com/Expos-AI/Klemme15/blob/main/docs/QUICK-CODES.md), and a link to BMW's official aftersales portal for workshops that want BMW's own software.
+
+**0.14.0:**
 - **Every dash message decoded.** 396 Check Control IDs (1 to 999) in our own words, each with what it means, what to do, how serious it is and which module usually raises it. Meanings that BMW's own numbering confirms are marked high confidence; where public lists got it wrong (123 and 133 are the *left* rear light), BMW's numbering is used.
 - **No fault code left blank.** A BMW code that no source describes still gets a meaning from its number range and module (codes 0xC000-0xEFFF are almost always communication faults), plus what to do next.
 - **Clear everything, like ISTA.** Clearing a module now also empties its Shadow / Info memory. Info memory is read from every D-CAN module. New: `klemme15 clear --all`.

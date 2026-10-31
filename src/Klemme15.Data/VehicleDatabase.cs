@@ -55,6 +55,21 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
         return Klemme15.Core.Coding.VerifiedCodingLibrary.FromEntries(entries);
     }
 
+    /// <summary>
+    /// Saves a map the user verified or taught Klemme15 on their own car into coding-verified.json in their override
+    /// folder (merged by module), so the options work from now on. Returns the file's path.
+    /// </summary>
+    public string SaveUserCoding(Klemme15.Core.Coding.VerifiedCoding entry)
+    {
+        var path = Path.Combine(OverrideFolder, "coding-verified.json");
+        var existing = File.Exists(path) ? Klemme15.Core.Coding.VerifiedCodingLibrary.Load(File.ReadAllText(path)).Entries : [];
+        var merged = Klemme15.Core.Coding.CodingLearner.Merge(existing, entry);
+        Directory.CreateDirectory(OverrideFolder);
+        File.WriteAllText(path, Klemme15.Core.Coding.CodingLearner.ToFileJson(merged));
+        _verifiedCoding = null;   // reload with the new entry
+        return path;
+    }
+
     /// <summary>Replaces the official sources (e.g. after the user downloads a database or picks their BMW folder).</summary>
     public void SetOfficialSources(IEnumerable<IOfficialFaultSource> sources)
     {
