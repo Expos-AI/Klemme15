@@ -53,6 +53,42 @@
           <TextBlock Text="{Binding Engine}" Classes="muted" FontSize="16" />
         </StackPanel>
 
+        <!-- Your cars: every real car scanned on this computer -->
+        <StackPanel Spacing="8" IsVisible="{Binding HasCars}">
+          <TextBlock Classes="section" Text="Your cars" />
+          <TextBlock Classes="muted small" Text="{Binding CarsNote}" TextWrapping="Wrap" />
+          <ItemsControl ItemsSource="{Binding Cars}">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:CarCardViewModel">
+                <Border Classes="panel" Padding="14,12" Margin="0,0,12,12" Width="290">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding LastScan}" TextWrapping="Wrap" />
+                    <TextBlock Classes="small" Text="{Binding Status}" TextWrapping="Wrap" />
+                    <StackPanel Orientation="Horizontal" Spacing="6" IsVisible="{Binding HasTrend}">
+                      <Ellipse Width="9" Height="9" Fill="{DynamicResource RedBrush}" IsVisible="{Binding TrendIsAct}" VerticalAlignment="Center" />
+                      <Ellipse Width="9" Height="9" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding TrendIsWatch}" VerticalAlignment="Center" />
+                      <TextBlock Classes="small" Text="{Binding TopTrend}" TextWrapping="Wrap" MaxWidth="240" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0" IsVisible="{Binding NotConfirming}">
+                      <Button Content="Select" Command="{Binding SelectCommand}" Padding="12,5" ToolTip.Tip="Select this car's model below" />
+                      <Button Classes="quiet" Content="Forget" Command="{Binding AskForgetCommand}" ToolTip.Tip="Delete this car's saved scans from this computer" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,6,0,0" IsVisible="{Binding Confirming}">
+                      <TextBlock Classes="small" Text="Delete its history?" VerticalAlignment="Center" />
+                      <Button Classes="primary" Content="Delete" Command="{Binding ForgetCommand}" Padding="12,5" />
+                      <Button Content="Keep" Command="{Binding KeepCommand}" Padding="12,5" />
+                    </StackPanel>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+
         <!-- Shown until official fault meanings are set up: the full card is further down -->
         <Border Classes="panel" Padding="16,12" IsVisible="{Binding NeedsFaultData}">
           <DockPanel>

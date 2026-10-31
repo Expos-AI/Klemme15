@@ -1,6 +1,11 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.16.0:**
+**New in 0.17.0:**
+- **Health over time.** Every quick test of a real car now leaves a small snapshot on your computer (battery voltage, charging, fuel trims, faults, dash messages). The Faults page compares them and tells you what's drifting *before* it becomes a fault: a battery that rests a little lower each week, charging voltage out of range, long-term fuel trims creeping lean (the early sign of a vacuum leak), a fault that keeps coming back after you clear it, and what's new since last time. Open the demo car to see it with a made-up two-month history.
+- **Your cars.** The Garage page lists every car you've scanned on this computer: last scan, mileage, battery, faults to fix and the most important trend. One click selects its model. Run a few cars? This is your fleet view, with no account and no cloud.
+- **Private by design.** The history holds no VIN (cars are told apart by a one-way hash), never leaves your computer, and each car can be forgotten with one click. See the [privacy policy](https://github.com/Expos-AI/Klemme15/blob/main/PRIVACY.md).
+
+**0.16.0:**
 - **Your car's story.** The instrument cluster quietly remembers the last few dozen dash warnings it showed, with the mileage of each. Klemme15 now reads that memory and tells it as a timeline on the Faults page (and in reports): *"221,616 – 221,648 km: Flat tyre. The cluster warned 12 times as the tyre lost pressure."* It groups warnings by moment and recognises the patterns: many unrelated systems complaining at the same instant is a battery voltage dip, not five faults; a tyre warning repeating over a few kilometres is one puncture; "set the clock" means the battery had been disconnected.
 - **Battery registration confirmed on a real car** (MSV70 / N52, E90 325i). The Service page now shows which real cars a function has been confirmed on.
 - **Battery protection.** The header shows the battery voltage once it's been measured. Below 12.4 V with the engine off, the Vehicle page warns that a connected tool keeps the car awake (10-20 A), and disconnecting reminds you to switch the ignition off.

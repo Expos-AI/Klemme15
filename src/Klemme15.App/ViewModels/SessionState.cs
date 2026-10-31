@@ -14,9 +14,38 @@ public sealed class SessionState : ViewModelBase
     private VehicleScanResult? _lastScan;
     private bool _isDemo;
 
-    public SessionState(VehicleDatabase database) => Database = database;
+    public SessionState(VehicleDatabase database, string? historyFolder = null)
+    {
+        Database = database;
+        History = new HealthHistoryStore(historyFolder ?? DefaultHistoryFolder);
+    }
+
+    public static string DefaultHistoryFolder =>
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "Klemme15", "history");
 
     public VehicleDatabase Database { get; }
+
+    /// <summary>Health snapshots of every real car scanned on this computer (never uploaded anywhere).</summary>
+    public HealthHistoryStore History { get; }
+
+    /// <summary>Raised after a snapshot is saved or a car is forgotten.</summary>
+    public event Action? HistoryChanged;
+
+    /// <summary>Saves a snapshot of a finished quick test on a real car. Demo cars and scans without a VIN are skipped.</summary>
+    public HealthSnapshot? RecordHealth(VehicleScanResult scan, IReadOnlyDictionary<string, double> engine)
+    {
+        if (_isDemo || HealthSnapshot.From(scan, _model?.Id, _model?.Name, engine) is not { } snapshot) return null;
+        try { History.Add(snapshot); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return null; }
+        HistoryChanged?.Invoke();
+        return snapshot;
+    }
+
+    public void ForgetCar(string carKey)
+    {
+        try { History.Forget(carKey); } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        HistoryChanged?.Invoke();
+    }
     public TrafficLog Log { get; } = new();
 
     public IDiagnosticBackend? Backend
