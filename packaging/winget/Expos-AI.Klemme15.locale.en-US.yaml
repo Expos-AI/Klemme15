@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.1.6.0.schema.json
 PackageIdentifier: Expos-AI.Klemme15
-PackageVersion: 0.12.3
+PackageVersion: 0.13.0
 PackageLocale: en-US
 Publisher: Expos-AI
 PublisherUrl: https://github.com/Expos-AI
