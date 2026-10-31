@@ -238,6 +238,9 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         var probe = _fast.Request(ecu.Address, InfoMemory.Request, TimeSpan.FromMilliseconds(400), ct);
         if (!InfoMemory.Supported(probe)) return;
         var reply = _fast.Request(ecu.Address, InfoMemory.ClearRequest, ct: ct);
+        // Some modules (seen on a real E90: footwell module, junction box, cruise control) keep their info memory and say
+        // so with "not supported". That's the module's choice, not a failure: its fault memory was still cleared.
+        if (InfoMemory.Declined(reply)) return;
         if (!InfoMemory.Cleared(reply))
             throw new DiagnosticException($"Clear Shadow / Info memory {ecu.Id}: {(reply is { Length: > 2 } && reply[0] == 0x7F ? Kwp2000.NegativeResponseText(reply[2]) : "no confirmation")}");
     }

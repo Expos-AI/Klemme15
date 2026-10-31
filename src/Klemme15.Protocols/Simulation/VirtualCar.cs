@@ -354,7 +354,9 @@ public sealed class VirtualCar : ITransport
                 ObdCodes = faults.Where(f => f.IsObd).Select(f => ObdCodeToRaw(f.Code)).ToList(),
                 CheckControl = CheckControlDescriber.IsCluster(def) ? model.DemoCheckControl.Select(i => (ushort)i).ToList() : [],
                 // A short history, so the demo shows how earlier dash messages look (washer fluid, a low battery once).
-                CheckControlHistory = CheckControlDescriber.IsCluster(def) && model.DemoCheckControl.Count > 0 ? [(164, 96_400), (229, 98_112)] : [],
+                CheckControlHistory = CheckControlDescriber.IsCluster(def) && model.DemoCheckControl.Count > 0
+                    ? [(63, 88_000), (63, 88_008), (63, 88_024), (41, 92_000), (164, 96_400), (35, 98_112), (42, 98_112), (354, 98_112), (229, 98_112), (167, 98_120)]
+                    : [],
                 InfoMemory = def.Id.EndsWith(".CAS", StringComparison.OrdinalIgnoreCase) ? [(0xA0C4, 0x20)] : [],
             });
         }

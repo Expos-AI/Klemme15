@@ -81,6 +81,18 @@ public sealed class SessionState : ViewModelBase
     /// <summary>Short connection label for the header, e.g. "Demo car" or "Cable on COM3".</summary>
     public string Connection { get => _connection; private set => Set(ref _connection, value); }
 
+    private double? _voltage;
+
+    /// <summary>The battery voltage last measured on the car (null until measured, or in demo mode).</summary>
+    public double? Voltage
+    {
+        get => _voltage;
+        set { if (Set(ref _voltage, value)) Raise(nameof(VoltageText)); }
+    }
+
+    /// <summary>"12.4 V", or empty when unknown.</summary>
+    public string VoltageText => _voltage is { } v ? $"{v:0.0} V" : "";
+
     /// <summary>Fault texts for this session (demo cars add their own made-up BMW codes).</summary>
     public IFaultCodeDatabase Codes => _isDemo && _model is not null ? Database.ForDemo(_model) : Database.ForEngine(_model?.EngineCode);
 
@@ -131,13 +143,16 @@ public sealed class SessionState : ViewModelBase
     public async Task DisconnectAsync()
     {
         var b = _backend;
+        var wasCar = b is not null && !IsDemo;
         Backend = null;
+        Voltage = null;
         PublishScan(null);
         Connection = "Not connected";
         if (b is not null)
         {
             try { await b.DisposeAsync(); } catch (Exception) { /* cable may already be gone */ }
         }
-        Status = "Not connected";
+        // While a tool is connected the car stays awake and draws 10-20 A with the engine off; a reminder costs nothing.
+        Status = wasCar ? "Disconnected. Switch the ignition off (Start/Stop) so the car can go to sleep." : "Not connected";
     }
 }

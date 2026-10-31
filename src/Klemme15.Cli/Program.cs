@@ -578,6 +578,16 @@ internal static class Cli
             Console.WriteLine($"  [earlier] {m.Code,-7} {m.Title}{(m.MileageKm is { } km ? $" (~{km:N0} km)" : "")}");
         if (scan.ActiveCheckControl > 0 && scan.TotalFaults == 0)
             Console.WriteLine("  These are messages, not fault codes, which is why the fault memory is empty.");
+        if (scan.Story is { IsEmpty: false } story)
+        {
+            Console.WriteLine();
+            Console.WriteLine($"The car's story ({story.Entries} warnings the cluster remembers, newest first):");
+            foreach (var e in story.Events.Reverse())
+            {
+                Console.WriteLine($"  {e.When,-24} {e.Title}");
+                Console.WriteLine($"  {"",-24} {e.Explanation}");
+            }
+        }
     }
 
     private static async Task<IMeasurementReader?> MeasurementsFor(IDiagnosticBackend backend, VehicleDatabase db, VehicleFamily vehicle,

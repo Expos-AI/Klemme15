@@ -136,6 +136,7 @@
    "when": "After fitting a new battery of the same type and capacity as the old one.",
    "risk": "low",
    "verified": false,
+  "confirmedOn": ["MSV70 engine computer (N52), E90 325i, October 2026: the engine computer accepted the registration."],
    "before": [
     "The new battery must match the old one's type (AGM or standard) and capacity. A different type or capacity also needs the car's coding changed, which Klemme15 doesn't do."
    ],

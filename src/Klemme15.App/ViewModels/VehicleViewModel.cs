@@ -282,12 +282,14 @@ public sealed class VehicleViewModel : PageViewModel
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(5));
             var read = await new EngineSignals(backend, engine, _session.Measurements).ReadAsync(["voltage"], cts.Token);
             double? v = read.TryGetValue("voltage", out var volts) ? volts : null;
+            _session.Voltage = v;
             Warning = v switch
             {
                 < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then scan again."
                           + (FrmGuard.FamiliesWithFrm.Contains(vehicle.Id)
                               ? " Don't clear faults, code or run service functions until it's charged: the footwell module (FRM) on these cars can corrupt itself if the voltage dips while it writes."
                               : ""),
+                < 12.4 => $"Battery at {v:0.0} V with the engine off. While Klemme15 is connected the car stays awake and draws 10-20 A, so keep this short, start the engine, or connect a charger. Switch the ignition off when you're done.",
                 > 15.2 => $"Voltage is {v:0.0} V, higher than normal. Check the charger or alternator before trusting new faults.",
                 _ => null,
             };

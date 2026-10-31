@@ -207,6 +207,9 @@ public sealed record VehicleScanResult
 
     public int ActiveCheckControl => CheckControl.Count(m => m.Active);
 
+    /// <summary>The cluster's warning history told as events (null when the cluster gave no history).</summary>
+    public CarStoryResult? Story { get; init; }
+
     public int RespondingEcus => Ecus.Count(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults);
     public int TotalFaults => Ecus.Sum(e => e.Faults.Count(f => !f.IsInfo));
     public int InfoEntries => Ecus.Sum(e => e.Faults.Count(f => f.IsInfo));
