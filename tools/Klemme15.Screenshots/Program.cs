@@ -129,7 +129,7 @@ foreach (var page in vm.Pages)
 {
     vm.CurrentPage = page;
     Pump(200);
-    Shot($"s-{page.Title.ToLowerInvariant()}");
+    Shot($"s-{page.Title.ToLowerInvariant().Replace(' ', '-')}");
 }
 vm.CurrentPage = vm.Vehicle;
 if (vm.Vehicle.Markers.FirstOrDefault(m => m.IsFaultSource) is { } src) { vm.Vehicle.Select(src); Shot("s-vehicle-selected"); vm.Vehicle.Select(null); }

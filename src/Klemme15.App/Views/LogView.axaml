@@ -20,7 +20,7 @@
       <ListBox x:Name="LogList" ItemsSource="{Binding Lines}" Background="Transparent">
         <ListBox.ItemTemplate>
           <DataTemplate x:DataType="sys:String">
-            <TextBlock Classes="mono" FontSize="12" Text="{Binding}" />
+            <TextBlock Classes="mono" FontSize="12" Text="{Binding}" TextWrapping="Wrap" />
           </DataTemplate>
         </ListBox.ItemTemplate>
       </ListBox>

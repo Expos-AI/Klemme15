@@ -233,6 +233,13 @@
       <Setter Property="HorizontalContentAlignment" Value="Center" />
       <Setter Property="Foreground" Value="{DynamicResource MutedBrush}" />
     </Style>
+    <!-- short windows: icons only (names in tooltips), so every page fits without scrolling -->
+    <Style Selector="ListBox.rail.compact ListBoxItem">
+      <Setter Property="Padding" Value="0,9" />
+    </Style>
+    <Style Selector="ListBox.rail.compact TextBlock.raillabel">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
     <Style Selector="ListBox.rail ListBoxItem:pointerover /template/ ContentPresenter#PART_ContentPresenter">
       <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
     </Style>
