@@ -67,7 +67,7 @@ public sealed record CodingSettingItem(string Name, string Value, string Group);
 /// Coding: back up and restore a module's coding (no BMW data needed), read its settings by name from the user's own
 /// NCS Expert data, and switch a short list of popular comfort options with every safety check Klemme15 has.
 /// </summary>
-public sealed class CodingViewModel : PageViewModel
+public sealed partial class CodingViewModel : PageViewModel
 {
     private readonly SessionState _session;
     private readonly AppSettings _settings;
@@ -100,6 +100,7 @@ public sealed class CodingViewModel : PageViewModel
         ConfirmCommand = new AsyncCommand(ApplyPendingAsync, () => _pending is not null && !_busy, e => Status = e.Message);
         ExportCommand = new AsyncCommand(ExportAsync, () => IsVerified && !_busy, e => Status = e.Message);
         CancelCommand = new RelayCommand(() => Pending = null);
+        InitQuickCodes();
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.LastScan) or nameof(SessionState.Backend)) Refresh();
@@ -245,6 +246,8 @@ public sealed class CodingViewModel : PageViewModel
         foreach (var p in new[] { nameof(HasModule), nameof(ModuleTitle), nameof(FrmText), nameof(HasFrmText), nameof(HasToggles), nameof(HasSettings), nameof(IsVerified), nameof(HasPresets), nameof(PresetLockedText), nameof(HasPresetLocked) })
             Raise(p);
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
+        ResetLearning();
+        UpdateSetup();
     }
 
     private void LoadBackups()
@@ -274,6 +277,9 @@ public sealed class CodingViewModel : PageViewModel
         {
             _busy = false;
             Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand, ExportCommand);
+            RefreshLearn();
+            VerifyLatestCommand.RaiseCanExecuteChanged();
+            ShareCommand.RaiseCanExecuteChanged();
         }
     }
 
@@ -382,6 +388,7 @@ public sealed class CodingViewModel : PageViewModel
             }
         }
         Raise(nameof(HasToggles));
+        UpdateSetup();
         Raise(nameof(HasPresets));
         Raise(nameof(PresetLockedText));
         Raise(nameof(HasPresetLocked));
@@ -496,6 +503,12 @@ public sealed class CodingViewModel : PageViewModel
 
     private void UpdateNcsStatus()
     {
+        if (_settings.NcsFolder is null && NcsLocator.Find() is { } found)
+        {
+            // NCS Expert is installed: use it without asking.
+            _settings.NcsFolder = found.Daten;
+            try { _settings.Save(); } catch (Exception) { /* not fatal */ }
+        }
         if (_settings.NcsFolder is null)
         {
             NcsStatus = "Optional: point Klemme15 at your NCS Expert data folder (usually C:\\NCSEXPER\\DATEN) to see settings by name. Klemme15 doesn't include BMW's coding data.";
@@ -504,6 +517,7 @@ public sealed class CodingViewModel : PageViewModel
         var family = _session.Vehicle?.Id ?? _settings.VehicleId;
         _library = NcsLibrary.Open(_settings.NcsFolder, family);
         NcsStatus = _library is null ? $"No NCS data for {family} found in {_settings.NcsFolder}." : $"NCS data: {_library.Folder} ({_library.ModuleFiles.Count} module files).";
+        UpdateSetup();
     }
 
     /// <summary>
@@ -513,7 +527,13 @@ public sealed class CodingViewModel : PageViewModel
     private async Task VerifyAsync()
     {
         var text = await _dialogs.OpenTextAsync("NCS Expert's reading of this module (FSW_PSW.TRC)", "NCS Expert trace", ["*.TRC", "*.trc"]);
-        if (text is null || _selected is null) return;
+        if (text is null) return;
+        await VerifyWithTraceAsync(text);
+    }
+
+    private async Task VerifyWithTraceAsync(string text)
+    {
+        if (_selected is null) return;
         var trace = NcsFiles.ParseTrace(text);
         await Busy(async () =>
         {

@@ -1,0 +1,29 @@
+name: Share a coding map
+description: A map Klemme15 verified (or learned) on your car, so owners of the same module get one-click quick codes.
+title: "Coding map: "
+labels: ["coding-map"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Klemme15's **Share this map** button fills this in for you. A map holds only the module's part number,
+        coding index and which bits each option uses — no VIN, no personal data, and nothing copied from BMW's files.
+  - type: textarea
+    id: map
+    attributes:
+      label: Map
+      description: The JSON Klemme15 produced (it's also on your clipboard).
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Model and year, e.g. "E90 325i 2006". Optional.
+  - type: checkboxes
+    id: tested
+    attributes:
+      label: Checks
+      options:
+        - label: I used the option from Klemme15 afterwards and it worked on my car.

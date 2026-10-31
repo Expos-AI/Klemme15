@@ -243,5 +243,86 @@ public sealed class VerifiedCodingLibrary
     }
 
     /// <summary>The verified entry for the module now on the car, if there is one.</summary>
-    public VerifiedCoding? For(EcuDefinition ecu, EcuIdentity? identity) => _entries.FirstOrDefault(e => e.Matches(ecu, identity));
+    /// <summary>
+    /// Everything known for the module on the car. Several entries for the same module (the shipped map, one the user
+    /// taught Klemme15) are merged; the first entry that has an option wins, so shipped maps take precedence.
+    /// </summary>
+    public VerifiedCoding? For(EcuDefinition ecu, EcuIdentity? identity)
+    {
+        var matches = _entries.Where(e => e.Matches(ecu, identity)).ToList();
+        if (matches.Count <= 1) return matches.FirstOrDefault();
+        var toggles = new Dictionary<string, IReadOnlyList<CodingOp>>();
+        foreach (var e in matches)
+            foreach (var (id, ops) in e.Toggles) toggles.TryAdd(id, ops);
+        return matches[0] with { Toggles = toggles, Source = string.Join(" + ", matches.Select(m => m.Source ?? "shared").Distinct()) };
+    }
+}
+
+/// <summary>
+/// Teaching Klemme15 an option by watching another coding tool: a reading of the module before, the user changes exactly
+/// one option with their tool (BimmerCode, NCS Expert...), a reading after. The bits that changed are that option on this
+/// exact module (part number and coding index), in our own numbers. Strict limits keep a careless reading from becoming a
+/// map: only coding blocks, a handful of bytes, nothing else on the module may have changed, and the user confirms.
+/// </summary>
+public static class CodingLearner
+{
+    /// <summary>More bytes than this for one option almost always means several options (or a full recode) changed.</summary>
+    public const int MaxBytes = 8;
+
+    public sealed record Learned(VerifiedCoding? Entry, string Message, IReadOnlyList<CodingDifference> Changes);
+
+    /// <param name="turnedOn">True when the user switched the option on with their tool (off → on), false for on → off.</param>
+    public static Learned Learn(EcuDefinition ecu, EcuIdentity? identity, string chassis, CodingToggle toggle, bool turnedOn,
+        IReadOnlyList<CodingBlock> before, IReadOnlyList<CodingBlock> after)
+    {
+        if (!CodingProtocol.IsCodable(ecu)) return new(null, $"Klemme15 doesn't code {ecu.Name}.", []);
+        if (!toggle.Module.Equals(CodingProtocol.ShortName(ecu), StringComparison.OrdinalIgnoreCase))
+            return new(null, $"{toggle.Title} isn't an option of {ecu.Name}.", []);
+        if (identity?.PartNumber is not { } part || identity.CodingIndex is not { } index)
+            return new(null, "The module's part number or coding index is unknown, so a map couldn't be matched to it later.", []);
+        if (before.Select(b => b.Id).Order().SequenceEqual(after.Select(b => b.Id).Order()) == false)
+            return new(null, "The two readings don't cover the same blocks. Read again.", []);
+
+        var changes = CodingProtocol.Compare(before, after);
+        if (changes.Count == 0) return new(null, "Nothing changed between the two readings. Change the option with your tool, then read again.", changes);
+        if (changes.Any(c => !CodingProtocol.IsCodingBlock(c.Block)))
+            return new(null, "Something outside the coding blocks changed. Klemme15 won't learn from this.", changes);
+        if (changes.Count > MaxBytes)
+            return new(null, $"{changes.Count} bytes changed. That's more than one option (or the tool recoded the whole module), so Klemme15 won't learn from it. Change only this option and try again.", changes);
+
+        var ops = changes.Select(c =>
+        {
+            var mask = (byte)c.ChangedBits;
+            var was = (byte)(c.Before & mask);
+            var now = (byte)(c.After & mask);
+            return turnedOn ? new CodingOp(c.Block, c.Offset, mask, now, was) : new CodingOp(c.Block, c.Offset, mask, was, now);
+        }).ToList();
+        if (ops.Any(o => !o.Valid)) return new(null, "The change couldn't be stored as a clean on/off. Nothing learned.", changes);
+
+        var entry = new VerifiedCoding
+        {
+            Chassis = chassis, Module = CodingProtocol.ShortName(ecu), PartNumber = part, CodingIndex = index,
+            Source = "learned from another coding tool", Verified = DateTimeOffset.Now,
+            Toggles = new Dictionary<string, IReadOnlyList<CodingOp>> { [toggle.Id] = ops },
+        };
+        return new(entry, $"Learned {toggle.Title}: {changes.Count} byte{(changes.Count == 1 ? "" : "s")} in block{(changes.Select(c => c.Block).Distinct().Count() == 1 ? "" : "s")} " +
+            string.Join(", ", changes.Select(c => $"{c.Block:X4}").Distinct()) + ".", changes);
+    }
+
+    /// <summary>Adds or replaces options in a list of entries (the user's own file), merging by module.</summary>
+    public static IReadOnlyList<VerifiedCoding> Merge(IReadOnlyList<VerifiedCoding> existing, VerifiedCoding learned)
+    {
+        var list = existing.ToList();
+        var i = list.FindIndex(e => e.Module.Equals(learned.Module, StringComparison.OrdinalIgnoreCase)
+                                    && e.PartNumber == learned.PartNumber && e.CodingIndex == learned.CodingIndex && e.Source == learned.Source);
+        if (i < 0) { list.Add(learned); return list; }
+        var toggles = new Dictionary<string, IReadOnlyList<CodingOp>>(list[i].Toggles);
+        foreach (var (id, ops) in learned.Toggles) toggles[id] = ops;
+        list[i] = list[i] with { Toggles = toggles, Verified = learned.Verified };
+        return list;
+    }
+
+    public static string ToFileJson(IReadOnlyList<VerifiedCoding> entries) =>
+        "{\n  \"$comment\": \"Coding maps you verified or taught Klemme15 on your own car. Share one with Klemme15's 'Share this map' button.\",\n  \"entries\": [\n" +
+        string.Join(",\n", entries.Select(VerifiedCodingExport.ToJson)) + "\n  ]\n}\n";
 }
