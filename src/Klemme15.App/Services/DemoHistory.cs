@@ -15,7 +15,7 @@ public static class DemoHistory
         var recurring = faults.Take(1).ToList();
         var km = scan.Story?.LastKm ?? 184_000;
         double[] rest = [12.64, 12.58, 12.55, 12.47, 12.41, 12.36];
-        double[] trim = [1.6, 2.3, 3.9, 5.2, 6.8, 8.4];
+        double[] trim = [0.8, 1.2, 2.6, 4.1, 6.2, 9.6];
         var list = new List<HealthSnapshot>();
         for (var i = 0; i < rest.Length; i++)
         {
