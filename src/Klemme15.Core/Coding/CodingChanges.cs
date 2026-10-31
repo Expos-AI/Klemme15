@@ -19,6 +19,42 @@ public sealed record CodingToggle(string Id, string Title, string Module, string
 
 public enum ToggleState { Unavailable, Off, On, Mixed, Unknown }
 
+/// <summary>
+/// Several comfort options switched together in one go (one backup, one write, one read-back, all or nothing).
+/// A preset is only a list of existing options: where each lives still comes from the user's verified NCS data or a
+/// community-verified map for their exact module, never from fixed byte positions.
+/// </summary>
+public sealed record CodingPreset(string Id, string Title, string Module, string Description, IReadOnlyList<string> ToggleIds, string? Caveat = null)
+{
+    public IReadOnlyList<CodingToggle> Toggles => CodingToggles.All.Where(t => ToggleIds.Contains(t.Id)).ToList();
+}
+
+public static class CodingPresets
+{
+    public static readonly IReadOnlyList<CodingPreset> All =
+    [
+        new("led-pack", "LED conversion: all bulb warnings off", "FRM",
+            "Turns off the bulb test for the indicators, brake lights, number plate lights, parking lights / angel eyes and fog lights at once, " +
+            "so LED replacements don't flicker, flash fast or show bulb-out warnings.",
+            ["led-turn-signals", "led-brake-lights", "led-plate-lights", "led-parking-lights", "led-fog-lights"],
+            "With bulb tests off you won't be warned when one of these lights fails: walk round the car now and then. Low beams and xenons aren't touched."),
+        new("cluster-pack", "Cluster extras: digital speed, live consumption, dials always lit", "KOMBI",
+            "Adds digital speed and an instant fuel consumption page to the trip computer, and keeps the dials lit in daylight.",
+            ["digital-speed", "instant-consumption", "dial-lighting"]),
+    ];
+
+    /// <summary>On when every available option in the preset is on; Unavailable when the module has none of them.</summary>
+    public static ToggleState Combine(IEnumerable<ToggleState> states)
+    {
+        var s = states.Where(x => x != ToggleState.Unavailable).ToList();
+        if (s.Count == 0) return ToggleState.Unavailable;
+        if (s.Any(x => x == ToggleState.Unknown)) return ToggleState.Unknown;
+        if (s.All(x => x == ToggleState.On)) return ToggleState.On;
+        if (s.All(x => x == ToggleState.Off)) return ToggleState.Off;
+        return ToggleState.Mixed;
+    }
+}
+
 public static class CodingToggles
 {
     public static readonly IReadOnlyList<CodingToggle> All =

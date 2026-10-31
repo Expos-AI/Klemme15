@@ -28,25 +28,35 @@ public sealed class CodingBackupItem(string path, CodingBackup backup, Func<Codi
     public AsyncCommand CompareCommand => new(() => compare(this));
 }
 
-public sealed class CodingToggleItem(CodingToggle toggle, ToggleState state, int count, bool canWrite, Action<CodingToggleItem, bool> request) : ViewModelBase
+/// <summary>One comfort option, or a preset (several options switched together in one write).</summary>
+public sealed class CodingToggleItem(string title, string description, string? caveat, IReadOnlyList<CodingToggle> toggles,
+    ToggleState state, int count, bool canWrite, Action<CodingToggleItem, bool> request, bool isPreset = false) : ViewModelBase
 {
-    public CodingToggle Toggle { get; } = toggle;
+    public CodingToggleItem(CodingToggle toggle, ToggleState state, int count, bool canWrite, Action<CodingToggleItem, bool> request)
+        : this(toggle.Title, toggle.Description, toggle.Caveat, [toggle], state, count, canWrite, request) { }
+
+    /// <summary>The options this item switches (one for a single option).</summary>
+    public IReadOnlyList<CodingToggle> Toggles { get; } = toggles;
+    public bool IsPreset { get; } = isPreset;
     public ToggleState State { get; } = state;
-    public string Title => Toggle.Title;
-    public string Description => Toggle.Description;
-    public string Caveat => Toggle.Caveat ?? "";
-    public bool HasCaveat => Toggle.Caveat is not null;
+    public string Title { get; } = title;
+    public string Description { get; } = description;
+    public string Caveat => caveat ?? "";
+    public bool HasCaveat => caveat is not null;
     public string StateText => State switch
     {
-        ToggleState.On => $"On ({count} setting{(count == 1 ? "" : "s")})",
-        ToggleState.Off => "Off (factory)",
+        ToggleState.On => IsPreset ? "All on" : $"On ({count} setting{(count == 1 ? "" : "s")})",
+        ToggleState.Off => IsPreset ? "All off (factory)" : "Off (factory)",
         ToggleState.Mixed => "Partly on",
         ToggleState.Unknown => "Can't tell",
         _ => "Not in this module",
     };
+    public string IncludesText => IsPreset ? "Includes: " + string.Join(" · ", Toggles.Select(t => t.Title.Split(':')[0])) : "";
     public bool Available => State is not ToggleState.Unavailable;
     public bool CanTurnOn => canWrite && State is ToggleState.Off or ToggleState.Mixed;
     public bool CanTurnOff => canWrite && State is ToggleState.On or ToggleState.Mixed;
+    public string OnLabel => IsPreset ? "Apply all" : "Turn on";
+    public string OffLabel => IsPreset ? "Undo all" : "Turn off";
     public RelayCommand TurnOnCommand => new(() => request(this, true));
     public RelayCommand TurnOffCommand => new(() => request(this, false));
 }
@@ -103,6 +113,28 @@ public sealed class CodingViewModel : PageViewModel
     public ObservableCollection<CodingModuleItem> Modules { get; } = [];
     public ObservableCollection<CodingBackupItem> Backups { get; } = [];
     public ObservableCollection<CodingToggleItem> Toggles { get; } = [];
+
+    /// <summary>One-click presets (e.g. every LED bulb warning off), shown above the single options.</summary>
+    public ObservableCollection<CodingToggleItem> Presets { get; } = [];
+    public bool HasPresets => Presets.Count > 0;
+
+    /// <summary>
+    /// When this module has presets but Klemme15 doesn't yet know where their settings live on it, explains what unlocks
+    /// them. Byte positions are never guessed: a wrong bit in a footwell module can switch off lights or worse.
+    /// </summary>
+    public string PresetLockedText
+    {
+        get
+        {
+            if (_selected is not { } m || HasPresets) return "";
+            var names = CodingPresets.All.Where(p => p.Module.Equals(CodingProtocol.ShortName(m.Ecu), StringComparison.OrdinalIgnoreCase)).Select(p => p.Title).ToList();
+            if (names.Count == 0) return "";
+            return $"One-click: {string.Join("; ", names)}. This unlocks as soon as Klemme15 knows exactly where these settings live in your module " +
+                   $"(part {m.Identity?.PartNumber ?? "unknown"}): either pick your NCS Expert data folder and verify it once (step 2), or once someone with " +
+                   "the same module shares a verified map. Klemme15 never guesses coding bits: a wrong bit in this module can switch off lights or worse.";
+        }
+    }
+    public bool HasPresetLocked => PresetLockedText.Length > 0;
     public ObservableCollection<CodingSettingItem> Settings { get; } = [];
 
     public AsyncCommand ReadCommand { get; }
@@ -142,9 +174,11 @@ public sealed class CodingViewModel : PageViewModel
     }
 
     public string PendingText => _pending is { } p
-        ? $"{(p.On ? "Turn on" : "Turn off")}: {p.Item.Title} on {ModuleTitle}? Klemme15 saves a backup first, writes only these settings' bits, reads everything back and puts the original back if anything looks wrong."
+        ? $"{(p.On ? (p.Item.IsPreset ? "Apply" : "Turn on") : (p.Item.IsPreset ? "Undo" : "Turn off"))}: {p.Item.Title} on {ModuleTitle}? Klemme15 saves a backup first, writes only these settings' bits in one go, reads everything back and puts the original back if anything looks wrong."
         : "";
     public bool HasPending => _pending is not null;
+    public bool PendingIsPreset => _pending is { Item.IsPreset: true };
+    public bool PendingIsToggle => _pending is { Item.IsPreset: false };
 
     private (CodingToggleItem Item, bool On)? Pending
     {
@@ -154,6 +188,8 @@ public sealed class CodingViewModel : PageViewModel
             _pending = value;
             Raise(nameof(PendingText));
             Raise(nameof(HasPending));
+            Raise(nameof(PendingIsPreset));
+            Raise(nameof(PendingIsToggle));
             ConfirmCommand.RaiseCanExecuteChanged();
         }
     }
@@ -308,18 +344,22 @@ public sealed class CodingViewModel : PageViewModel
     private void FillToggles()
     {
         Toggles.Clear();
+        Presets.Clear();
         if (_selected is { } m && _blocks is not null)
         {
-            var mine = CodingToggles.All.Where(t => t.Module.Equals(CodingProtocol.ShortName(m.Ecu), StringComparison.OrdinalIgnoreCase)).ToList();
+            var shortName = CodingProtocol.ShortName(m.Ecu);
+            var mine = CodingToggles.All.Where(t => t.Module.Equals(shortName, StringComparison.OrdinalIgnoreCase)).ToList();
+            var states = new Dictionary<string, (ToggleState State, int Count)>();
+            bool canWrite = false;
             if (_module is not null && _layout is not null)
             {
-                var canWrite = IsVerified && Experimental;
-                foreach (var t in mine)
-                    Toggles.Add(new CodingToggleItem(t, CodingToggles.StateOf(t, _module, _layout, _blocks), t.Match(_module).Count, canWrite, (item, on) => Pending = (item, on)));
+                canWrite = IsVerified && Experimental;
+                foreach (var t in mine) states[t.Id] = (CodingToggles.StateOf(t, _module, _layout, _blocks), t.Match(_module).Count);
             }
             else if (_shared is { } shared)
             {
                 // No NCS data, but a community-verified map for this exact module: use it.
+                canWrite = Experimental;
                 foreach (var t in mine.Where(t => shared.Toggles.ContainsKey(t.Id)))
                 {
                     var state = VerifiedWriter.StateOf(shared, t.Id, _blocks) switch
@@ -327,11 +367,24 @@ public sealed class CodingViewModel : PageViewModel
                         VerifiedState.On => ToggleState.On, VerifiedState.Off => ToggleState.Off,
                         VerifiedState.Mixed => ToggleState.Mixed, VerifiedState.Unavailable => ToggleState.Unavailable, _ => ToggleState.Unknown,
                     };
-                    Toggles.Add(new CodingToggleItem(t, state, shared.Toggles[t.Id].Count, Experimental, (item, on) => Pending = (item, on)));
+                    states[t.Id] = (state, shared.Toggles[t.Id].Count);
                 }
+            }
+            foreach (var t in mine.Where(t => states.ContainsKey(t.Id)))
+                Toggles.Add(new CodingToggleItem(t, states[t.Id].State, states[t.Id].Count, canWrite, (item, on) => Pending = (item, on)));
+            foreach (var preset in CodingPresets.All.Where(p => p.Module.Equals(shortName, StringComparison.OrdinalIgnoreCase)))
+            {
+                var members = preset.Toggles.Where(t => states.TryGetValue(t.Id, out var st) && st.State != ToggleState.Unavailable).ToList();
+                if (members.Count < 2) continue;   // a preset of one is just the option itself
+                var combined = CodingPresets.Combine(members.Select(t => states[t.Id].State));
+                Presets.Add(new CodingToggleItem(preset.Title, preset.Description, preset.Caveat, members, combined,
+                    members.Sum(t => states[t.Id].Count), canWrite, (item, on) => Pending = (item, on), isPreset: true));
             }
         }
         Raise(nameof(HasToggles));
+        Raise(nameof(HasPresets));
+        Raise(nameof(PresetLockedText));
+        Raise(nameof(HasPresetLocked));
         Raise(nameof(HasShared));
         Raise(nameof(SharedText));
         Raise(nameof(IsVerified));
@@ -498,14 +551,15 @@ public sealed class CodingViewModel : PageViewModel
             CodingResult result;
             if (evidence is not null)
             {
-                var changes = CodingToggles.ChangesFor(p.Item.Toggle, evidence.Module, p.On);
+                var changes = p.Item.Toggles.SelectMany(t => CodingToggles.ChangesFor(t, evidence.Module, p.On)).DistinctBy(c => c.Setting.Key).ToList();
                 _session.Log.Note($"Coding {m.Name}: {p.Item.Title} {(p.On ? "on" : "off")} ({string.Join(", ", changes.Select(c => $"{c.Setting.Key}={c.Value}"))})");
                 result = await CodingWriter.ApplyAsync(Raw, m.Ecu, evidence, changes, backup, new Progress<string>(s => Status = s));
             }
             else
             {
                 _session.Log.Note($"Coding {m.Name} (community-verified map): {p.Item.Title} {(p.On ? "on" : "off")}");
-                result = await VerifiedWriter.ApplyAsync(Raw, m.Ecu, m.Identity, shared!, p.Item.Toggle.Id, p.On, backup, new Progress<string>(s => Status = s));
+                result = await VerifiedWriter.ApplyAsync(Raw, m.Ecu, m.Identity, shared!,
+                    p.Item.Toggles.Select(t => t.Id).Where(shared!.Toggles.ContainsKey).ToList(), p.On, backup, new Progress<string>(s => Status = s));
             }
             _session.Log.Note($"  -> {result.Message}");
             Status = result.Message;

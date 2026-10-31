@@ -200,6 +200,9 @@ public sealed class VirtualCar : ITransport
                 foreach (var (code, status) in ecu.InfoMemory) body.AddRange([(byte)(code >> 8), (byte)code, status]);
                 return [.. body];
             }
+            case 0x31 when req.Length == 2 && req[1] == 0x06:
+                ecu.InfoMemory.Clear();
+                return [0x71, 0x06];
             case 0x21 when req.Length == 2 && req[1] == 0x09 && ecu.Address == 0x60:
             {
                 var body = new List<byte> { 0x61, 0x09, (byte)ecu.CheckControl.Count };
@@ -350,6 +353,9 @@ public sealed class VirtualCar : ITransport
                                .ToList(),
                 ObdCodes = faults.Where(f => f.IsObd).Select(f => ObdCodeToRaw(f.Code)).ToList(),
                 CheckControl = CheckControlDescriber.IsCluster(def) ? model.DemoCheckControl.Select(i => (ushort)i).ToList() : [],
+                // A short history, so the demo shows how earlier dash messages look (washer fluid, a low battery once).
+                CheckControlHistory = CheckControlDescriber.IsCluster(def) && model.DemoCheckControl.Count > 0 ? [(164, 96_400), (229, 98_112)] : [],
+                InfoMemory = def.Id.EndsWith(".CAS", StringComparison.OrdinalIgnoreCase) ? [(0xA0C4, 0x20)] : [],
             });
         }
         return new VirtualCar($"Demo {model.FamilyId} {model.Name}", ecus) { IdleRpm = model.IdleRpm, Turbo = model.Turbo };

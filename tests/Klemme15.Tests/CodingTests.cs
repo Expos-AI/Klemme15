@@ -313,6 +313,40 @@ public class CodingTests
     }
 
     [Fact]
+    public async Task Preset_writes_several_options_at_once_and_refuses_conflicts()
+    {
+        var (module, car, trace) = Build();
+        var entry = VerifiedCodingExport.FromEvidence(Frm, FrmId, "E9x", new NcsEvidence(module, trace, BlocksOf(car)))!;
+        var ops = entry.Toggles["led-turn-signals"];
+        // Same bits, opposite wish: must be refused before anything is written.
+        var clash = entry with
+        {
+            Toggles = new Dictionary<string, IReadOnlyList<CodingOp>>(entry.Toggles)
+            {
+                ["clash"] = ops.Select(o => o with { OnByte = o.OffByte, OffByte = o.OnByte }).ToList(),
+            },
+        };
+        var refused = await VerifiedWriter.ApplyAsync(car, Frm, FrmId, clash, ["led-turn-signals", "clash"], true, Backup(car));
+        Assert.False(refused.Success);
+        Assert.Empty(car.Writes);
+
+        var ok = await VerifiedWriter.ApplyAsync(car, Frm, FrmId, entry, entry.Toggles.Keys.ToList(), true, Backup(car));
+        Assert.True(ok.Success, ok.Message);
+        Assert.All(entry.Toggles.Keys, id => Assert.Equal(VerifiedState.On, VerifiedWriter.StateOf(entry, id, BlocksOf(car))));
+    }
+
+    [Fact]
+    public void Preset_state_combines_its_options()
+    {
+        Assert.Equal(ToggleState.On, CodingPresets.Combine([ToggleState.On, ToggleState.On, ToggleState.Unavailable]));
+        Assert.Equal(ToggleState.Mixed, CodingPresets.Combine([ToggleState.On, ToggleState.Off]));
+        Assert.Equal(ToggleState.Unavailable, CodingPresets.Combine([ToggleState.Unavailable]));
+        var led = CodingPresets.All.Single(p => p.Id == "led-pack");
+        Assert.Equal(5, led.Toggles.Count);
+        Assert.All(led.Toggles, t => Assert.Equal("FRM", t.Module));
+    }
+
+    [Fact]
     public void Malformed_verified_entries_are_rejected_without_losing_the_rest()
     {
         var (module, car, trace) = Build();

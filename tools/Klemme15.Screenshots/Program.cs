@@ -13,6 +13,7 @@ using Klemme15.App.Views;
 var outDir = Path.GetFullPath(args.Length > 0 ? args[0] : "screenshots");
 Directory.CreateDirectory(outDir);
 var problems = new List<string>();
+var layout = new List<string>();   // clipped or overlapping text, found by walking the visual tree
 Logger.Sink = new CollectingSink(problems);
 
 AppBuilder.Configure<App>()
@@ -119,6 +120,22 @@ Connect();
 ScanAndWait();
 Shot("15-e46-330i-vehicle");
 
+// Every page again at a 1080p laptop with 150 % scaling (1280 x 720 logical pixels), dark theme.
+window.Width = 1280; window.Height = 720;
+vm.Garage.SelectModel("E9x-325i");
+Connect();
+ScanAndWait();
+foreach (var page in vm.Pages)
+{
+    vm.CurrentPage = page;
+    Pump(200);
+    Shot($"s-{page.Title.ToLowerInvariant()}");
+}
+vm.CurrentPage = vm.Vehicle;
+if (vm.Vehicle.Markers.FirstOrDefault(m => m.IsFaultSource) is { } src) { vm.Vehicle.Select(src); Shot("s-vehicle-selected"); vm.Vehicle.Select(null); }
+
+File.WriteAllLines(Path.Combine(outDir, "ui-layout.txt"), layout.Distinct());
+problems.AddRange(layout.Distinct().Select(l => "[Layout] " + l));
 File.WriteAllLines(Path.Combine(outDir, "ui-warnings.txt"), problems.Distinct());
 Console.WriteLine($"Saved screenshots to {outDir}; {problems.Distinct().Count()} distinct UI warnings.");
 return 0;
@@ -144,6 +161,7 @@ void Shot(string name)
     var frame = window.CaptureRenderedFrame();
     if (frame is null) { problems.Add($"{name}: no frame rendered"); return; }
     frame.Save(Path.Combine(outDir, name + ".png"));
+    foreach (var issue in LayoutCheck.Find(window)) layout.Add($"{name} ({window.Width:0}x{window.Height:0}): {issue}");
     Console.WriteLine($"  {name}.png");
 }
 
@@ -176,6 +194,65 @@ sealed class NoDialogs : IDialogService
     public Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<string?>(null);
     public Task OpenUrlAsync(string url) => Task.CompletedTask;
     public Task ShowAboutAsync(string version) => Task.CompletedTask;
+}
+
+/// <summary>
+/// Finds text that doesn't fit: a single-line TextBlock cut off by its parent, or two visible TextBlocks drawn on top
+/// of each other. Uses the real layout of the real views, so it catches what a person would see as jumbled text.
+/// </summary>
+static class LayoutCheck
+{
+    public static IEnumerable<string> Find(Avalonia.Controls.Window window)
+    {
+        var texts = new List<(Avalonia.Controls.TextBlock Tb, Rect Box)>();
+        foreach (var v in Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(window))
+        {
+            if (v is not Avalonia.Controls.TextBlock tb || !tb.IsEffectivelyVisible || string.IsNullOrWhiteSpace(tb.Text)) continue;
+            if (Hidden(tb)) continue;
+            if (tb.TransformToVisual(window) is not { } m) continue;
+            var box = new Rect(tb.Bounds.Size).TransformToAABB(m);
+            if (box.Width < 1 || box.Height < 1) continue;
+            if (!new Rect(0, 0, window.Width, window.Height).Intersects(box)) continue;
+            // Inside a scroller, only what's in its viewport is visible.
+            if (Viewport(tb, window) is { } vp) { if (!vp.Intersects(box)) continue; box = box.Intersect(vp); }
+            texts.Add((tb, box));
+            if (tb.TextWrapping == Avalonia.Media.TextWrapping.NoWrap && tb.TextTrimming == Avalonia.Media.TextTrimming.None)
+            {
+                var needed = tb.TextLayout.WidthIncludingTrailingWhitespace + tb.Padding.Left + tb.Padding.Right;
+                if (needed > tb.Bounds.Width + 2)
+                    yield return $"cut off: \"{Short(tb.Text)}\" needs {needed:0}px, has {tb.Bounds.Width:0}px";
+            }
+        }
+        for (var i = 0; i < texts.Count; i++)
+            for (var j = i + 1; j < texts.Count; j++)
+            {
+                var o = texts[i].Box.Intersect(texts[j].Box);
+                if (o.Width > 3 && o.Height > 3)
+                    yield return $"overlap: \"{Short(texts[i].Tb.Text)}\" and \"{Short(texts[j].Tb.Text)}\"";
+            }
+    }
+
+    private static bool Hidden(Avalonia.Visual v)
+    {
+        for (Avalonia.Visual? p = v; p is not null; p = Avalonia.VisualTree.VisualExtensions.GetVisualParent(p))
+            if (p.Opacity <= 0.01) return true;
+        return false;
+    }
+
+    private static Rect? Viewport(Avalonia.Visual v, Avalonia.Visual root)
+    {
+        Rect? clip = null;
+        for (var p = Avalonia.VisualTree.VisualExtensions.GetVisualParent(v); p is not null && p != root; p = Avalonia.VisualTree.VisualExtensions.GetVisualParent(p))
+        {
+            if (p is not Avalonia.Controls.Presenters.ScrollContentPresenter && !p.ClipToBounds) continue;
+            if (p.TransformToVisual(root) is not { } m) continue;
+            var r = new Rect(p.Bounds.Size).TransformToAABB(m);
+            clip = clip is { } c ? c.Intersect(r) : r;
+        }
+        return clip;
+    }
+
+    private static string Short(string? s) => s is null ? "" : s.Length > 40 ? s[..40] + "..." : s;
 }
 
 /// <summary>Collects binding errors and other warnings so CI can report them.</summary>

@@ -43,7 +43,7 @@ public sealed class CheckControlCatalog : ICheckControlCatalog
             var sources = e.TryGetProperty("sources", out var src) && src.ValueKind == JsonValueKind.Array
                 ? src.EnumerateArray().Where(x => x.ValueKind == JsonValueKind.String).Select(x => x.GetString()!).ToList()
                 : [];
-            _entries[id] = new CheckControlInfo(title.Trim(), Str(e, "description"), severity, Str(e, "hint"), Str(e, "confidence") ?? "medium", sources);
+            _entries[id] = new CheckControlInfo(title.Trim(), Str(e, "description"), severity, Str(e, "hint"), Str(e, "confidence") ?? "medium", sources, Str(e, "module"));
         }
     }
 

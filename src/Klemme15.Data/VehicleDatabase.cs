@@ -212,12 +212,21 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
         else if (officialText is not null) { description = officialText; origin = "bmw-de"; confidence = "official"; }
         else { description = fault.Description ?? fallbackText; origin = description is null ? null : fault.DescriptionOrigin; confidence = fault.Confidence; }
 
+        string? generalHint = null;
+        if (description is null)
+        {
+            // Never leave a code without a meaning: the number range and module give a likely one, with next steps.
+            (description, generalHint) = FaultFallback.For(fault, ecu, _official.Count > 0);
+            origin = FaultFallback.Origin;
+            confidence = null;
+        }
+
         return fault with
         {
             Description = description,
             DescriptionOrigin = origin,
             Confidence = confidence,
-            Hint = fault.Hint ?? community?.Hint,
+            Hint = fault.Hint ?? community?.Hint ?? generalHint,
             UsuallyHarmless = fault.UsuallyHarmless || community?.UsuallyHarmless == true,
             Sources = community?.Sources is { Count: > 0 } src ? src : fault.Sources,
             OfficialText = officialText,

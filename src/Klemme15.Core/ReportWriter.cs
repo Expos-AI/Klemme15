@@ -275,6 +275,7 @@ section{margin-top:24px}
                     "bmw-en" => $"<br><span class=\"muted\">BMW's own text ({H(f.OfficialSource)})</span>",
                     "bmw-de-glossary" => $"<br><span class=\"muted\">BMW's German text, translated with Klemme15's glossary ({H(f.OfficialSource)})</span>",
                     "bmw-de" => $"<br><span class=\"muted\">BMW's German text ({H(f.OfficialSource)})</span>",
+                    "klemme15-generic" => "<br><span class=\"muted\">General meaning from the code range and module (no specific text on file)</span>",
                     _ => null,
                 } ?? f.Confidence switch
                 {

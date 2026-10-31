@@ -114,6 +114,7 @@ klemme15 live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1 -
 klemme15 faults --module DME --port COM3
 klemme15 readings --module DME --port COM3 --ediabas "C:\ISTA\Ediabas\Ecu" --filter lambda
 klemme15 clear --module DME --port COM3
+klemme15 clear --all --port COM3                # every module: faults and Shadow / Info memory
 klemme15 service                                 # list service functions
 klemme15 service battery-registration --port COM3 --experimental
 klemme15 service service-reset --item oil --port COM3 --ediabas "C:\ISTA\Ediabas\Ecu" --experimental

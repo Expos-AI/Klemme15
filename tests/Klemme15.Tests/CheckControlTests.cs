@@ -93,14 +93,14 @@ public class CheckControlTests
             { "messages": [
               { "id": 67, "title": "My key text", "severity": "warning" },
               { "id": "x", "title": "bad id" },
-              { "id": 999, "title": "" },
+              { "id": 4001, "title": "" },
               { "id": 4000, "title": "New one", "severity": "critical" }
             ] }
             """);
         var db = VehicleDatabase.Load(folder);
         Assert.Equal("My key text", db.LookupCheckControl(67)!.Title);
         Assert.Equal(CcSeverity.Critical, db.LookupCheckControl(4000)!.Severity);
-        Assert.Null(db.LookupCheckControl(999));
+        Assert.Null(db.LookupCheckControl(4001));
         Assert.NotNull(db.LookupCheckControl(164));   // built-in entries remain
     }
 
@@ -130,7 +130,8 @@ public class CheckControlTests
     {
         var cas = Db.Modules.Single(m => m.Id == "E9x.CAS");
         Assert.True(InfoMemory.Offered(cas));
-        Assert.False(InfoMemory.Offered(Db.Modules.Single(m => m.Id == "E9x.KOMBI")));
+        Assert.True(InfoMemory.Offered(Db.Modules.Single(m => m.Id == "E9x.KOMBI")));
+        Assert.False(InfoMemory.Offered(Db.Modules.Single(m => m.Id == "E46.IKE")));   // DS2: not this protocol
         var entries = InfoMemory.Parse(cas, [0x62, 0x20, 0x00, 0xA0, 0xC4, 0x20, 0x00, 0x00, 0x00]);
         var f = Assert.Single(entries);
         Assert.Equal("A0C4", f.Code);
@@ -188,5 +189,52 @@ public class CheckControlTests
     {
         Assert.Equal("Motor überhitzt! Vorsichtig anhalten", SgbdFolderSource.CleanCc("Motor überhitzt! Vor- sichtig anhalten"));
         Assert.Equal("Außentemperatur", SgbdFolderSource.CleanCc("Außentemperatur %s"));
+    }
+
+    [Fact]
+    public void MasterListCoversCommonIdsAndUsesBmwNumbering()
+    {
+        var entries = Db.CheckControl.Entries;
+        Assert.True(entries.Count >= 390);
+        foreach (var id in new[] { 14, 63, 67, 71, 88, 134, 164, 213, 229, 345, 608, 811 }) Assert.True(entries.ContainsKey(id), $"CC {id}");
+        Assert.Contains("Left", entries[123].Title);   // community lists say right; BMW's table says left
+        Assert.All(entries.Values, e => Assert.False(string.IsNullOrWhiteSpace(e.Description)));
+    }
+
+    [Fact]
+    public void InfoMemoryClearIsExactlyRoutine06()
+    {
+        // $31 02 would erase flash: these bytes must never change.
+        Assert.Equal([0x31, 0x06], InfoMemory.ClearRequest);
+        Assert.True(InfoMemory.Cleared([0x71, 0x06]));
+        Assert.False(InfoMemory.Cleared([0x7F, 0x31, 0x12]));
+        Assert.True(InfoMemory.Supported([0x62, 0x20, 0x00]));
+        Assert.False(InfoMemory.Supported([0x7F, 0x22, 0x12]));
+    }
+
+    [Fact]
+    public async Task ClearingAlsoEmptiesTheInfoMemory()
+    {
+        var car = VirtualCar.E90_325i();
+        await using var backend = new NativeBackend(car, new NativeBackendOptions { Mode = CableMode.DCan, ProbeTimeout = TimeSpan.FromMilliseconds(80) });
+        await backend.ConnectAsync();
+        var cas = Db.Modules.Single(m => m.Id == "E9x.CAS");
+        Assert.Contains(await backend.ReadFaultsAsync(cas), f => f.IsShadow);
+        await backend.ClearFaultsAsync(cas);
+        Assert.DoesNotContain(await backend.ReadFaultsAsync(cas), f => f.IsShadow);
+        await backend.ClearFaultsAsync(Db.Modules.Single(m => m.Id == "E9x.KOMBI"));   // no info memory: left alone, no error
+    }
+
+    [Fact]
+    public void UnknownCodesStillGetAMeaning()
+    {
+        var dsc = Db.Modules.Single(m => m.Id == "E9x.DSC");
+        var bus = Db.Describe(new Fault { EcuId = dsc.Id, Code = "D35B", Source = FaultSource.Bmw }, dsc, null);
+        Assert.Contains("communication", bus.Description);
+        Assert.Equal(FaultFallback.Origin, bus.DescriptionOrigin);
+        Assert.NotNull(bus.Hint);
+        var other = Db.Describe(new Fault { EcuId = dsc.Id, Code = "5FFF", Source = FaultSource.Bmw }, dsc, null);
+        Assert.Contains("5FFF", other.Description);
+        Assert.Contains("download", other.Hint!.ToLowerInvariant());
     }
 }
