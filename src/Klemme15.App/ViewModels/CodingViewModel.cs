@@ -278,8 +278,7 @@ public sealed partial class CodingViewModel : PageViewModel
             _busy = false;
             Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand, ExportCommand);
             RefreshLearn();
-            VerifyLatestCommand.RaiseCanExecuteChanged();
-            ShareCommand.RaiseCanExecuteChanged();
+            UpdateSetup();
         }
     }
 
