@@ -14,7 +14,16 @@ Klemme15 reads both, and keeps them apart from real faults.
 
 Reading these is read-only. Nothing is written to the car.
 
-**Reply layouts.** `$21 09` answers `61 09`, sometimes a count byte, then 2 bytes per ID (high byte first). Klemme15 tells the two forms apart by length. `$21 0F` is read as 4 bytes per entry: the ID, then the mileage in 8 km steps. That layout comes from BMW's result descriptions and **has not been confirmed on a car yet**. Klemme15 drops a reply that doesn't fit, rather than guessing. The raw replies are kept in the traffic log, so please attach a log if something looks wrong.
+**Reply layouts.** These were confirmed on a real E90 (KOMBI, CAS3, MSV70):
+
+- **`$21 09`** answers `61 09` followed by 2 bytes per ID, high byte first, with no count byte. A count byte first is accepted too; Klemme15 tells the two apart by length.
+- **`$21 0F`** answers `61 0F` followed by 4 bytes per entry: the ID, then the mileage in 8 km steps, oldest first. The same message can appear many times.
+- **`$22 2000`** on the CAS answers `62 20 00`, a count byte, then 3 bytes per entry (code, status).
+- **MSV70 engine computer** declines `$22 2000` (`7F 22 12`), which is expected and ignored.
+
+Replies that don't fit these layouts are dropped rather than guessed at. The raw bytes are always kept in the traffic log.
+
+**Tip:** in the history, several messages at the *same* mileage (DSC, brake assist, hill start, flat tyre monitor, "charge battery") usually mean one event, almost always a voltage dip from a weak battery or a long crank. They don't mean five separate faults.
 
 ## Where the meanings come from
 

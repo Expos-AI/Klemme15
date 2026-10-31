@@ -85,8 +85,9 @@ public interface ICheckControlCatalog
 /// <item><c>$21 09</c> → <c>61 09 [count] id id ...</c>: the IDs showing now, 2 bytes each, high byte first.
 /// BMW's description gives the count and the 2-byte IDs; whether the count byte is present can differ between
 /// clusters, so the length decides (odd payload = count first).</item>
-/// <item><c>$21 0F</c> → <c>61 0F ...</c>: the message history, 4 bytes per entry (ID, then mileage in 8 km steps).
-/// This layout is inferred from BMW's result list and not yet confirmed on a car.</item>
+/// <item><c>$21 0F</c> → <c>61 0F ...</c>: the message history, 4 bytes per entry (ID, then mileage in 8 km steps),
+/// oldest first.</item>
+/// Both layouts confirmed on a real E90 cluster (no count byte in either reply).
 /// </list>
 /// </summary>
 public static class CheckControlParser
@@ -176,7 +177,7 @@ public static class CheckControlDescriber
             Id = id,
             Title = info?.Title ?? official?.Text ?? $"Check Control message {id}",
             Description = info?.Description ?? (official is null
-                ? "Not in Klemme15's list yet. The message text on the dash says what it is; please add it to the database."
+                ? "Not in Klemme15's list yet: check the text on the dash, and please tell us what it says."
                 : null),
             Severity = info?.Severity ?? CcSeverity.Warning,
             Hint = info?.Hint,

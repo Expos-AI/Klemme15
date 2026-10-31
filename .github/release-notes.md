@@ -1,6 +1,10 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.13.1:**
+**New in 0.13.2:**
+- **Dash messages confirmed on a real E90.** The cluster's message list and history and the key module's info memory now decode as seen on a real car. Four more messages added: brake and stability control failed (42), right reversing light out (115), parking brake applied (308), hill start assist off (354).
+- Vehicle page: dash message rows no longer overlap when the history shows mileage, and a long list scrolls instead of pushing the faults off screen.
+
+**0.13.1:**
 - **Faster-feeling startup.** The splash screen now does real setup work while it shows: it loads the vehicle database, finds your EDIABAS/INPA/ISTA files, loads official fault texts and checks cable ports, with each step on the progress bar. The Garage page opens ready instead of showing "Looking for..." first.
 - The splash lasts only as long as that work plus a short intro (about a second), with no added waiting, so the skip-on-click has been removed. It shows the version and "Not affiliated with BMW AG".
 

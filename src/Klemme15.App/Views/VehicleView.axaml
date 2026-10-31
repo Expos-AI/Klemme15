@@ -151,20 +151,21 @@
               </StackPanel>
               <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding DashExplainsTriangle}"
                          Text="This is why the warning triangle is on. Dash messages aren't fault codes, so the fault memory can be empty." />
+              <ScrollViewer MaxHeight="380" HorizontalScrollBarVisibility="Disabled">
               <ItemsControl ItemsSource="{Binding DashMessages}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate DataType="vm:CheckControlItem">
                     <StackPanel Spacing="2" Margin="0,4">
-                      <DockPanel>
-                        <TextBlock DockPanel.Dock="Right" Classes="muted small" Text="{Binding StateText}" VerticalAlignment="Center" Margin="8,0,0,0" />
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                          <Ellipse Width="9" Height="9" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsRed}" VerticalAlignment="Center" />
-                          <Ellipse Width="9" Height="9" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsYellow}" VerticalAlignment="Center" />
-                          <Ellipse Width="9" Height="9" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" IsVisible="{Binding IsHistory}" VerticalAlignment="Center" />
-                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                          <TextBlock Classes="code muted small" Text="{Binding Code}" VerticalAlignment="Center" />
+                      <Grid ColumnDefinitions="17,*,Auto">
+                        <Ellipse Width="9" Height="9" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsRed}" VerticalAlignment="Top" Margin="0,6,0,0" HorizontalAlignment="Left" />
+                        <Ellipse Width="9" Height="9" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsYellow}" VerticalAlignment="Top" Margin="0,6,0,0" HorizontalAlignment="Left" />
+                        <Ellipse Width="9" Height="9" Stroke="{DynamicResource SteelFaintBrush}" StrokeThickness="1.5" IsVisible="{Binding IsHistory}" VerticalAlignment="Top" Margin="0,6,0,0" HorizontalAlignment="Left" />
+                        <TextBlock Grid.Column="1" Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="10,2,0,0" VerticalAlignment="Top">
+                          <TextBlock Classes="code muted small" Text="{Binding Code}" />
+                          <TextBlock Classes="muted small" Text="{Binding StateText}" />
                         </StackPanel>
-                      </DockPanel>
+                      </Grid>
                       <TextBlock Classes="muted small" Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}" Margin="17,0,0,0" />
                       <TextBlock Classes="muted small" Text="{Binding Hint}" TextWrapping="Wrap" IsVisible="{Binding HasHint}" Margin="17,0,0,0" />
                       <TextBlock Classes="muted small" Text="{Binding Official}" TextWrapping="Wrap" IsVisible="{Binding HasOfficial}" Margin="17,0,0,0" />
@@ -172,6 +173,7 @@
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
+              </ScrollViewer>
             </StackPanel>
           </Border>
           <TextBlock DockPanel.Dock="Top" Classes="muted small" TextWrapping="Wrap" Margin="6,0,0,10" Text="{Binding DashNote}" IsVisible="{Binding HasDashNote}" />

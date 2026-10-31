@@ -8,9 +8,9 @@ namespace Klemme15.Protocols;
 /// weak battery, a crank that was aborted, a voltage dip. Read for the modules where it helps most (CAS and the
 /// engine ECU); others are left to EDIABAS mode.
 ///
-/// The reply is <c>62 20 00</c> followed by 3 bytes per entry (code high, code low, status), sometimes with a count
-/// byte first, like the fault memory. The layout is inferred and not yet confirmed on every module, so entries are
-/// only kept when the length fits.
+/// The reply is <c>62 20 00</c>, a count byte, then 3 bytes per entry (code high, code low, status), as seen from a
+/// real E90's CAS3. Replies without the count byte are accepted too; anything whose length doesn't fit is ignored.
+/// The MSV70 engine computer declines the request (7F 22 12), which is fine.
 /// </summary>
 public static class InfoMemory
 {
