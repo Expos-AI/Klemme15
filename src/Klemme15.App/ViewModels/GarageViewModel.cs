@@ -37,9 +37,11 @@ public sealed class GarageViewModel : PageViewModel
     private string _faultDataStatus = "Checking for official BMW fault texts...";
     private string? _downloadText;
     private bool _downloading;
+    private StartupInfo? _startup;
 
-    public GarageViewModel(SessionState session, IDialogService dialogs, AppSettings settings, Action onConnected)
+    public GarageViewModel(SessionState session, IDialogService dialogs, AppSettings settings, Action onConnected, StartupInfo? startup = null)
     {
+        _startup = startup;
         _session = session;
         _dialogs = dialogs;
         _settings = settings;
@@ -77,7 +79,9 @@ public sealed class GarageViewModel : PageViewModel
         RebuildPreview();
         RefreshPorts();
         if (EdiabasAvailable) _ = FindEdiabasAsync();
-        _ = RefreshFaultDataAsync();
+        if (startup?.Official is { } official) ShowFaultData(official);
+        else _ = RefreshFaultDataAsync();
+        _startup = null;   // only for the first look; later refreshes look again
     }
 
     // ------------------------------------------------------------------ official fault texts
@@ -145,7 +149,11 @@ public sealed class GarageViewModel : PageViewModel
     private async Task RefreshFaultDataAsync()
     {
         var folder = _settings.EcuFolder ?? _settings.EdiabasPath;
-        var status = await Task.Run(() => OfficialSetup.Apply(_session.Database, folder));
+        ShowFaultData(await Task.Run(() => OfficialSetup.Apply(_session.Database, folder)));
+    }
+
+    private void ShowFaultData(OfficialStatus status)
+    {
         FaultDataStatus = status.Summary;
         NeedsFaultData = !status.Any;
         Raise(nameof(DownloadButtonText));
@@ -200,7 +208,7 @@ public sealed class GarageViewModel : PageViewModel
             return;
         }
         EdiabasStatus = "Looking for EDIABAS, INPA or ISTA files on this computer...";
-        var found = await Task.Run(EdiabasLocator.Find);
+        var found = _startup is { EdiabasSearched: true } done ? done.Ediabas : await Task.Run(EdiabasLocator.Find);
         if (found is null)
         {
             EdiabasStatus = "No EDIABAS files found. Klemme15 will use its own protocol stack; choose a folder if you have them elsewhere.";
@@ -348,7 +356,7 @@ public sealed class GarageViewModel : PageViewModel
         Ports.Clear();
         try
         {
-            foreach (var p in PortDiscovery.List()) Ports.Add(p);
+            foreach (var p in _startup?.Ports ?? PortDiscovery.List()) Ports.Add(p);
         }
         catch (Exception e)
         {
