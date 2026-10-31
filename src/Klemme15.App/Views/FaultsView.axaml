@@ -34,7 +34,7 @@
           <ItemsControl ItemsSource="{Binding Story}" IsVisible="{Binding StoryOpen}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:StoryItem">
-                <Grid ColumnDefinitions="128,22,*" Margin="0,4">
+                <Grid ColumnDefinitions="170,22,*" Margin="0,4">
                   <TextBlock Classes="mono small" Text="{Binding When}" TextWrapping="Wrap" Margin="0,2,8,0" />
                   <Grid Grid.Column="1">
                     <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsRed}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
