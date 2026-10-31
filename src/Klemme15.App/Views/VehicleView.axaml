@@ -63,7 +63,7 @@
           <TextBlock Classes="muted small" Text="{Binding CopiedText}" VerticalAlignment="Center" Margin="6,0,0,0" />
         </StackPanel>
         <StackPanel Margin="18,0" VerticalAlignment="Center" Spacing="5">
-          <TextBlock Text="{Binding Summary}" IsVisible="{Binding HasScan}" />
+          <TextBlock Text="{Binding Summary}" IsVisible="{Binding HasScan}" TextWrapping="Wrap" />
           <TextBlock Text="{Binding ProgressText}" Classes="muted" IsVisible="{Binding IsScanning}" />
           <ProgressBar Value="{Binding Progress, Mode=OneWay}" Maximum="100" Height="3" MinHeight="3" IsVisible="{Binding IsScanning}" MaxWidth="360" HorizontalAlignment="Left" />
           <TextBlock Classes="muted" Text="Connect a car in the garage first." IsVisible="{Binding NotConnected}" />

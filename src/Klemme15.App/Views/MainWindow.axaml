@@ -53,13 +53,13 @@
           </Border>
           <TextBlock Text="{Binding Version}" Classes="muted" FontSize="10" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0" />
         </StackPanel>
-        <ListBox Classes="rail" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}"
+        <ListBox x:Name="Rail" Classes="rail" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}"
                  ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:PageViewModel">
-              <StackPanel Spacing="4" HorizontalAlignment="Center">
+              <StackPanel Spacing="4" HorizontalAlignment="Center" ToolTip.Tip="{Binding Title}">
                 <PathIcon Data="{Binding Icon}" Width="18" Height="18" HorizontalAlignment="Center" />
-                <TextBlock Text="{Binding Title}" FontSize="11.5" FontWeight="Medium" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="72" />
+                <TextBlock Classes="raillabel" Text="{Binding Title}" FontSize="11.5" FontWeight="Medium" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="72" />
               </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>
