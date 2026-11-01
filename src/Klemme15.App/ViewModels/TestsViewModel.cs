@@ -29,6 +29,7 @@ public sealed class GuidedTestViewModel(GuidedTestInfo info) : ViewModelBase
     private bool _isSelected;
     public GuidedTestInfo Info { get; } = info;
     public string Title => Info.Title;
+    public bool DrivesParts => Info.DrivesParts;
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
 }
@@ -44,7 +45,7 @@ public sealed class GuideItemViewModel(Guide guide) : ViewModelBase
 
 /// <summary>
 /// Guided tests: Klemme15 measures the engine while telling you what to do (idle, hold 2,500 rpm, blip the throttle)
-/// and explains what the numbers mean. Read-only: nothing is changed on the car.
+/// and explains what the numbers mean. Read-only except the tests marked "drives a part", which switch one part on through the engine computer.
 /// </summary>
 public sealed class TestsViewModel : PageViewModel
 {
@@ -90,6 +91,25 @@ public sealed class TestsViewModel : PageViewModel
     public ObservableCollection<TestFindingViewModel> Findings { get; } = [];
     public ObservableCollection<TestValueViewModel> Values { get; } = [];
     public ObservableCollection<GuideItemViewModel> Guides { get; } = [];
+
+    /// <summary>The test's graphs, live while it runs and kept afterwards.</summary>
+    public ObservableCollection<ChartViewModel> Charts { get; } = [];
+    public bool HasCharts => Charts.Count > 0;
+
+    private void ShowTraces(IReadOnlyList<TestTrace>? traces)
+    {
+        if (traces is null) return;
+        Charts.Clear();
+        foreach (var c in ChartViewModel.From(traces)) Charts.Add(c);
+        Raise(nameof(HasCharts));
+    }
+
+    private string _savedNote = "";
+    /// <summary>Whether the result went into the car's health history, and if not, why.</summary>
+    public string SavedNote { get => _savedNote; private set { if (Set(ref _savedNote, value)) Raise(nameof(HasSavedNote)); } }
+    public bool HasSavedNote => _savedNote.Length > 0;
+
+    public bool DrivesParts => _selected?.DrivesParts == true;
 
     /// <summary>The how-to guide being read, when one is picked instead of a test.</summary>
     public GuideViewModel? Guide
@@ -167,9 +187,11 @@ public sealed class TestsViewModel : PageViewModel
         _selected = test;
         Findings.Clear();
         Values.Clear();
+        Charts.Clear();
+        SavedNote = "";
         Instruction = Status = "";
         Fraction = 0;
-        foreach (var p in new[] { nameof(TestTitle), nameof(Summary), nameof(Requirements), nameof(Duration), nameof(HasResult), nameof(HasValues) })
+        foreach (var p in new[] { nameof(TestTitle), nameof(Summary), nameof(Requirements), nameof(Duration), nameof(HasResult), nameof(HasValues), nameof(HasCharts), nameof(DrivesParts) })
             Raise(p);
         Changed();
     }
@@ -179,23 +201,32 @@ public sealed class TestsViewModel : PageViewModel
     private async Task RunAsync()
     {
         if (_selected is not { } test || _session.Backend is not { } backend || Engine is not { } engine) return;
-        ISignalSource signals = _session.IsDemo && _session.Measurements is { } demo
-            ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine)
-            : new EngineSignals(backend, engine, _session.Measurements);
+        var demoSignals = _session.IsDemo && _session.Measurements is { } demo ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine) : null;
+        ISignalSource signals = demoSignals is not null ? demoSignals : new EngineSignals(backend, engine, _session.Measurements);
+        IActuator? actuator = !test.Info.DrivesParts ? null
+            : demoSignals is not null ? new Klemme15.App.Services.DemoPumpActuator(demoSignals)
+            : Klemme15.App.Services.JobPumpActuator.For(_session, engine);
         Findings.Clear();
         Values.Clear();
+        Charts.Clear();
+        SavedNote = "";
         Raise(nameof(HasResult));
         Raise(nameof(HasValues));
+        Raise(nameof(HasCharts));
         _cts = new CancellationTokenSource();
         IsRunning = true;
         _session.Log.Note($"Guided test '{test.Title}' started");
         try
         {
-            var progress = new Progress<TestProgress>(p => { Instruction = p.Instruction; Status = p.Status; Fraction = p.Fraction * 100; });
+            var progress = new Progress<TestProgress>(p => { Instruction = p.Instruction; Status = p.Status; Fraction = p.Fraction * 100; ShowTraces(p.Traces); });
             Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults =
                 test.Info.Id == "no-start" ? StartChainFaultsAsync : null;
-            var report = await GuidedTests.RunAsync(test.Info.Id, signals, progress, _cts.Token, Speed, faults);
+            var report = await GuidedTests.RunAsync(test.Info.Id, signals, progress, _cts.Token, Speed, faults, actuator);
             foreach (var f in report.Findings) Findings.Add(new TestFindingViewModel(f));
+            if (report.Traces.Count > 0) ShowTraces(report.Traces);
+            SavedNote = report.Verdict == TestSeverity.Unknown ? ""
+                : _session.RecordTest(test.Info, report) ? "Saved to this car's health history: the Faults page shows if it gets worse over time."
+                : _session.IsDemo ? "" : "Not saved to the health history: run a quick test first so Klemme15 knows which car this is.";
             var max = report.Values.Count == 0 ? 0 : report.Values.Max(v => Math.Abs(v.Value));
             foreach (var v in report.Values) Values.Add(new TestValueViewModel(v.Key, v.Value, report.Unit, max));
             Instruction = "Finished.";

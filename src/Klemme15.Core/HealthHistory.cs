@@ -70,13 +70,36 @@ public sealed record HealthSnapshot
     }
 }
 
+/// <summary>One finished guided test, kept with the car's health history so a part wearing out shows as a trend.</summary>
+public sealed record TestRecord
+{
+    public required DateTimeOffset Time { get; init; }
+    public required string TestId { get; init; }
+    public required string Title { get; init; }
+    public required TestSeverity Verdict { get; init; }
+    public string Summary { get; init; } = "";
+    public IReadOnlyDictionary<string, double> Values { get; init; } = new Dictionary<string, double>();
+
+    public static TestRecord From(GuidedTestInfo test, TestReport report, DateTimeOffset time) => new()
+    {
+        Time = time,
+        TestId = test.Id,
+        Title = test.Title,
+        Verdict = report.Verdict,
+        Summary = report.Findings.FirstOrDefault(f => f.Severity == report.Verdict)?.Title ?? "",
+        Values = report.Values.GroupBy(v => v.Key).ToDictionary(g => g.Key, g => Math.Round(g.First().Value, 2)),
+    };
+}
+
 public enum TrendLevel { Info, Watch, Act }
 
 /// <summary>What the health history says, attached to a scan so pages and reports can show it.</summary>
 public sealed record HealthSummary(int Scans, DateTimeOffset Since, IReadOnlyList<HealthTrend> Trends, bool MadeUp = false)
 {
-    public static HealthSummary? From(IReadOnlyList<HealthSnapshot> history, Func<int, string>? ccName = null, bool madeUp = false) =>
-        history.Count == 0 ? null : new(history.Count, history[0].Time, HealthTrends.Analyze(history, ccName), madeUp);
+    public static HealthSummary? From(IReadOnlyList<HealthSnapshot> history, Func<int, string>? ccName = null, bool madeUp = false,
+        IReadOnlyList<TestRecord>? tests = null) =>
+        history.Count == 0 ? null : new(history.Count, history[0].Time,
+            HealthTrends.Analyze(history, ccName).Concat(HealthTrends.AnalyzeTests(tests ?? [])).OrderByDescending(t => t.Level).ToList(), madeUp);
 }
 
 /// <summary>Something Klemme15 noticed by comparing scans over time.</summary>
@@ -169,6 +192,28 @@ public static class HealthTrends
         return list.OrderByDescending(t => t.Level).ToList();
     }
 
+    /// <summary>What the guided tests say over time: the latest result of each test, and whether it got worse.</summary>
+    public static IReadOnlyList<HealthTrend> AnalyzeTests(IReadOnlyList<TestRecord> records)
+    {
+        static int Rank(TestSeverity s) => s switch { TestSeverity.Ok => 0, TestSeverity.Watch => 1, TestSeverity.Problem => 2, _ => -1 };
+        var list = new List<HealthTrend>();
+        foreach (var g in records.Where(r => r.Verdict != TestSeverity.Unknown).OrderBy(r => r.Time).GroupBy(r => r.TestId))
+        {
+            var runs = g.ToList();
+            var last = runs[^1];
+            var best = runs.Take(runs.Count - 1).Select(r => Rank(r.Verdict)).DefaultIfEmpty(-1).Min();
+            var when = $"{last.Time.LocalDateTime:d MMM yyyy}";
+            if (best >= 0 && Rank(last.Verdict) > best)
+                list.Add(new(last.Verdict == TestSeverity.Problem ? TrendLevel.Act : TrendLevel.Watch, $"{last.Title}: getting worse",
+                    $"Better in an earlier run; on {when}: {last.Summary}. A part that tests worse each time is wearing out."));
+            else if (last.Verdict == TestSeverity.Problem)
+                list.Add(new(TrendLevel.Act, $"{last.Title}: problem", $"Last run on {when}: {last.Summary}."));
+            else if (last.Verdict == TestSeverity.Watch)
+                list.Add(new(TrendLevel.Watch, $"{last.Title}: worth watching", $"Last run on {when}: {last.Summary}."));
+        }
+        return list;
+    }
+
     private static string Short(string key) => key.Contains('.') ? key[(key.IndexOf('.') + 1)..].Replace(":", " ") : key;
 }
 
@@ -204,6 +249,7 @@ public sealed class HealthHistoryStore(string folder)
     {
         if (!Directory.Exists(Folder)) return [];
         return Directory.EnumerateFiles(Folder, "*.jsonl")
+            .Where(f => !f.EndsWith(".tests.jsonl", StringComparison.OrdinalIgnoreCase))
             .Select(f => Load(Path.GetFileNameWithoutExtension(f)).LastOrDefault())
             .OfType<HealthSnapshot>()
             .OrderByDescending(s => s.Time)
@@ -212,10 +258,31 @@ public sealed class HealthHistoryStore(string folder)
 
     public void Forget(string carKey)
     {
-        var path = PathOf(carKey);
-        if (File.Exists(path)) File.Delete(path);
+        foreach (var path in new[] { PathOf(carKey), TestsPathOf(carKey) })
+            if (File.Exists(path)) File.Delete(path);
     }
 
-    private string PathOf(string carKey) =>
-        Path.Combine(Folder, new string(carKey.Where(char.IsLetterOrDigit).ToArray()) + ".jsonl");
+    public void AddTest(string carKey, TestRecord record)
+    {
+        Directory.CreateDirectory(Folder);
+        File.AppendAllText(TestsPathOf(carKey), JsonSerializer.Serialize(record, Json) + "\n");
+    }
+
+    public IReadOnlyList<TestRecord> LoadTests(string carKey)
+    {
+        var path = TestsPathOf(carKey);
+        if (!File.Exists(path)) return [];
+        var list = new List<TestRecord>();
+        foreach (var line in File.ReadLines(path))
+        {
+            if (string.IsNullOrWhiteSpace(line)) continue;
+            try { if (JsonSerializer.Deserialize<TestRecord>(line, Json) is { } r) list.Add(r); }
+            catch (JsonException) { }
+        }
+        return list.OrderBy(r => r.Time).ToList();
+    }
+
+    private static string Safe(string carKey) => new(carKey.Where(char.IsLetterOrDigit).ToArray());
+    private string PathOf(string carKey) => Path.Combine(Folder, Safe(carKey) + ".jsonl");
+    private string TestsPathOf(string carKey) => Path.Combine(Folder, Safe(carKey) + ".tests.jsonl");
 }

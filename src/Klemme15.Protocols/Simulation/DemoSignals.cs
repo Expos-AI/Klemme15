@@ -11,6 +11,9 @@ public sealed class DemoSignals(IMeasurementReader measurements, EcuDefinition e
     private readonly Random _random = new(7);
     private int _reads;
 
+    /// <summary>What the demo "actuator" last asked the pump for (0-1), or null when the engine computer drives it.</summary>
+    public double? PumpCommand { get; set; }
+
     private double J(double centre, double spread) => centre + (_random.NextDouble() - 0.5) * 2 * spread;
 
     public async Task<IReadOnlyDictionary<string, double>> ReadAsync(IReadOnlyCollection<string> signals, CancellationToken ct = default)
@@ -25,6 +28,21 @@ public sealed class DemoSignals(IMeasurementReader measurements, EcuDefinition e
             ["stft1"] = loaded ? J(1, 2) : J(4, 2), ["ltft1"] = loaded ? J(2, 0.5) : J(10, 0.5),
             ["stft2"] = loaded ? J(0, 2) : J(3, 2), ["ltft2"] = loaded ? J(1, 0.5) : J(9, 0.5),
         };
+        // A slightly tired electric water pump: it reaches about 90 % of what's asked, a bit less at high demand.
+        if (PumpCommand is { } cmd)
+        {
+            values["rpm"] = 0;
+            values["voltage"] = 12.5;
+            values["coolant"] = 24;
+            values["pump_target"] = cmd * 100;
+            values["pump_speed"] = Math.Max(0, cmd * 100 * (cmd > 0.7 ? 0.82 : 0.92) + J(0, 1.5));
+        }
+        else
+        {
+            var target = loaded ? 72 : 38;
+            values["pump_target"] = target;
+            values["pump_speed"] = target * (loaded ? 0.86 : 0.93) + J(0, 1.2);
+        }
         var bmw = signals.Where(s => !values.ContainsKey(s) && EngineSignals.BmwNames.ContainsKey(s)).ToList();
         if (bmw.Count > 0)
         {
