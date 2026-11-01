@@ -388,7 +388,7 @@ public sealed class VehicleViewModel : PageViewModel
             ProgressText = scan.Cancelled ? "Quick test stopped." : "";
             var final = scan with { BatteryVoltage = battery };
             _session.RecordHealth(final, _engineReadings);
-            _session.PublishScan(final);
+            _session.PublishScan(_session.WithHealth(final));
             UpdateFrmNotice(scan);
         }
         finally

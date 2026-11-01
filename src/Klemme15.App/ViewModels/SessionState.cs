@@ -41,6 +41,20 @@ public sealed class SessionState : ViewModelBase
         return snapshot;
     }
 
+    /// <summary>Attaches what the health history says about this car (the demo car gets a made-up history).</summary>
+    public VehicleScanResult WithHealth(VehicleScanResult scan)
+    {
+        IReadOnlyList<HealthSnapshot> history;
+        try
+        {
+            history = _isDemo ? Klemme15.App.Services.DemoHistory.For(scan)
+                : scan.Vin is { Length: 17 } vin ? History.Load(HealthSnapshot.KeyFor(vin)) : [];
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { history = []; }
+        var catalog = Database.CheckControl;
+        return scan with { Health = HealthSummary.From(history, id => CheckControlDescriber.Describe(id, catalog, active: true).Title, madeUp: _isDemo) };
+    }
+
     public void ForgetCar(string carKey)
     {
         try { History.Forget(carKey); } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }

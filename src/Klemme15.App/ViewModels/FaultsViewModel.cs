@@ -138,7 +138,6 @@ public sealed class FaultsViewModel : PageViewModel
         _openUrl = openUrl;
         RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && _session.LastScan is not null, e => Error = e.Message);
         _session.ScanUpdated += () => OnUi(Rebuild);
-        _session.HistoryChanged += () => OnUi(RebuildTrends);
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.LastScan)) RefreshCommand.RaiseCanExecuteChanged();
@@ -173,22 +172,15 @@ public sealed class FaultsViewModel : PageViewModel
     {
         Trends.Clear();
         TrendsHeadline = TrendsNote = "";
-        if (_session.LastScan is { } scan)
+        if (_session.LastScan?.Health is { } h)
         {
-            var history = _session.IsDemo ? DemoHistory.For(scan)
-                : scan.Vin is { Length: 17 } vin ? _session.History.Load(HealthSnapshot.KeyFor(vin)) : [];
-            if (history.Count > 0)
-            {
-                var catalog = _session.Database.CheckControl;
-                foreach (var t in HealthTrends.Analyze(history, id => CheckControlDescriber.Describe(id, catalog, active: true).Title)) Trends.Add(new TrendItem(t));
-                var since = history[0].Time.LocalDateTime;
-                TrendsHeadline = $"Health over time · {history.Count} scan{(history.Count == 1 ? "" : "s")} since {since:d MMM yyyy}";
-                TrendsNote = Trends.Count > 0
-                    ? (_session.IsDemo ? "A made-up history for the demo car. " : "") + "Klemme15 compares every quick test of this car on this computer, so slow changes show up before they become faults."
-                    : history.Count < 3
-                        ? "Nothing to compare yet. Each quick test is saved on this computer; after a few, slow changes (a battery resting lower, fuel trims creeping) show up here."
-                        : "Nothing is drifting. Battery, charging, fuel trims and faults look the same as in earlier scans.";
-            }
+            foreach (var t in h.Trends) Trends.Add(new TrendItem(t));
+            TrendsHeadline = $"Health over time · {h.Scans} scan{(h.Scans == 1 ? "" : "s")} since {h.Since.LocalDateTime:d MMM yyyy}";
+            TrendsNote = Trends.Count > 0
+                ? (h.MadeUp ? "A made-up history for the demo car. " : "") + "Klemme15 compares every quick test of this car on this computer, so slow changes show up before they become faults."
+                : h.Scans < 3
+                    ? "Nothing to compare yet. Each quick test is saved on this computer; after a few, slow changes (a battery resting lower, fuel trims creeping) show up here."
+                    : "Nothing is drifting. Battery, charging, fuel trims and faults look the same as in earlier scans.";
         }
         Raise(nameof(HasTrends));
         Raise(nameof(ShowTrendsCard));

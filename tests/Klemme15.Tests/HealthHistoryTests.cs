@@ -95,3 +95,25 @@ public class HealthHistoryTests
         finally { if (Directory.Exists(dir)) Directory.Delete(dir, true); }
     }
 }
+
+public class HealthReportTests
+{
+    [Fact]
+    public void ReportsAndForumPostCarryTheTrends()
+    {
+        var trends = new List<HealthTrend> { new(TrendLevel.Watch, "Fuel trims creeping leaner", "From +1 % to +7 % over 30 days.") };
+        var scan = new VehicleScanResult
+        {
+            Started = DateTimeOffset.Now, Backend = "test", Ecus = [], Vin = "WBAVB13586PT00000",
+            Health = new HealthSummary(5, DateTimeOffset.Now.AddDays(-30), trends),
+        };
+        Assert.Contains("Health over time", ReportWriter.ToMarkdown(scan));
+        Assert.Contains("Fuel trims creeping leaner", ReportWriter.ToHtml(scan));
+        var post = ReportWriter.ToForumPost(scan);
+        Assert.Contains("Changes over time", post);
+        Assert.Contains("5 scans", post);
+        Assert.Contains("watch", post);
+        var none = scan with { Health = new HealthSummary(1, DateTimeOffset.Now, []) };
+        Assert.False(ReportWriter.ToMarkdown(none).Contains("Health over time"));
+    }
+}

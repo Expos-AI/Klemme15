@@ -210,6 +210,9 @@ public sealed record VehicleScanResult
     /// <summary>The cluster's warning history told as events (null when the cluster gave no history).</summary>
     public CarStoryResult? Story { get; init; }
 
+    /// <summary>Trends across earlier scans of this car on this computer (null when there is no history).</summary>
+    public HealthSummary? Health { get; init; }
+
     public int RespondingEcus => Ecus.Count(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults);
     public int TotalFaults => Ecus.Sum(e => e.Faults.Count(f => !f.IsInfo));
     public int InfoEntries => Ecus.Sum(e => e.Faults.Count(f => f.IsInfo));

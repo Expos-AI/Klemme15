@@ -56,8 +56,27 @@ public static class ReportWriter
             }
         }
         MarkdownInfoMemory(sb, scan, forum: false);
+        MarkdownHealth(sb, scan, forum: false);
         MarkdownStory(sb, scan, forum: false);
         return sb.ToString();
+    }
+
+    private static string HealthIntro(HealthSummary h) =>
+        $"Compared across {h.Scans} scan{(h.Scans == 1 ? "" : "s")} since {h.Since:yyyy-MM-dd}" + (h.MadeUp ? " (made-up demo history)" : "") + ".";
+
+    private static string Level(TrendLevel l) => l switch { TrendLevel.Act => "act", TrendLevel.Watch => "watch", _ => "note" };
+
+    /// <summary>What's changing across earlier scans: drift that hasn't become a fault yet.</summary>
+    private static void MarkdownHealth(StringBuilder sb, VehicleScanResult scan, bool forum)
+    {
+        if (scan.Health is not { Trends.Count: > 0 } h) return;
+        sb.AppendLine();
+        sb.AppendLine(forum ? "**Changes over time**" : "## Health over time");
+        sb.AppendLine();
+        sb.AppendLine(HealthIntro(h));
+        sb.AppendLine();
+        foreach (var t in h.Trends.Take(forum ? 5 : 20))
+            sb.AppendLine($"- **{t.Title}** ({Level(t.Level)}): {(forum ? Scrub(t.Detail) : t.Detail)}");
     }
 
     /// <summary>The cluster's warning history, told as events (newest first).</summary>
@@ -169,6 +188,7 @@ public static class ReportWriter
         if (all.Count == 0) sb.AppendLine(scan.ActiveCheckControl > 0 ? "No fault codes stored (the dash message above is not a fault code)." : "No faults stored.");
         else if (background - infoMemory > 0) sb.AppendLine($"_Plus {background - infoMemory} background entr{(background - infoMemory == 1 ? "y" : "ies")} (one-off events) left out._");
         MarkdownInfoMemory(sb, scan, forum: true);
+        MarkdownHealth(sb, scan, forum: true);
         MarkdownStory(sb, scan, forum: true);
         sb.AppendLine();
         sb.AppendLine($"_Read with Klemme15 {scan.Started:yyyy-MM-dd} (open-source BMW diagnostics). VIN removed._");
@@ -252,6 +272,7 @@ section{margin-top:24px}
 .cc.red{border-left-color:var(--bad)}.cc h2{margin:0 0 6px;font-size:17px}.cc ul{margin:6px 0;padding-left:20px}
 .tri{display:inline-block;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:14px solid var(--warn);vertical-align:-2px;margin-right:6px}
 .tri.red{border-bottom-color:var(--bad)}
+.bad{color:var(--bad);font-weight:600}.warn{color:var(--warn);font-weight:600}
 .brand{display:flex;align-items:center;gap:10px;margin-bottom:18px;font-weight:600;font-size:17px}.brand svg{width:32px;height:32px;flex:none}
 @media (prefers-color-scheme:light){.brand svg rect:first-child{stroke:var(--line);stroke-width:8}}
 </style></head><body><main>
@@ -299,6 +320,13 @@ section{margin-top:24px}
                 };
                 sb.Append($"<tr><td><code>{H(f.Code)}</code></td><td>{state}</td><td>{H(f.DisplayDescription)}{hint}{origin}</td><td class=\"muted\">{H(details)}</td></tr>");
             }
+            sb.Append("</table></div></section>");
+        }
+        if (scan.Health is { Trends.Count: > 0 } health)
+        {
+            sb.Append($"<section><h2>Health over time</h2><p class=\"muted\">{H(HealthIntro(health))} Slow changes show up here before they become faults.</p><div class=\"table-wrap\"><table><tr><th>Level</th><th>Finding</th></tr>");
+            foreach (var t in health.Trends)
+                sb.Append($"<tr><td>{(t.Level == TrendLevel.Act ? "<span class=\"bad\">Act</span>" : t.Level == TrendLevel.Watch ? "<span class=\"warn\">Watch</span>" : "Note")}</td><td><b>{H(t.Title)}</b><br><span class=\"muted\">{H(t.Detail)}</span></td></tr>");
             sb.Append("</table></div></section>");
         }
         if (scan.Story is { IsEmpty: false } story)
