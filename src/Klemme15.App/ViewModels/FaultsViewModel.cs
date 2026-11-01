@@ -84,6 +84,7 @@ public sealed class FaultGroupViewModel : ViewModelBase
             item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
             item.TranslateCommand = new RelayCommand(() => _openUrl(item.TranslateUrl));
             if (_session.Database.Guides.For(f, Ecu) is { } guide) item.Guide = BuildGuide(guide);
+            if (_session.Database.Checks.For(f, Ecu) is { } check) item.Check = BuildGuide(check);
             Faults.Add(item);
         }
         Raise(nameof(CountText));

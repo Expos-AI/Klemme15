@@ -1,0 +1,185 @@
+{
+  "$comment": "Multimeter checks, in Klemme15's own words. Each check uses a method that works without BMW's pin-out (comparing a part with its identical twin, checking supply and ground, voltage drop, swapping parts), so nothing here is copied from BMW documents and nothing depends on a pin number. Want to add one, or a pin note from your own car? See docs/CONTRIBUTING-DATA.md: write it in your own words and give a source.",
+  "checks": [
+    {
+      "id": "check-connector",
+      "title": "Check a connector before buying a part",
+      "summary": "Most electrical faults on older cars are the plug, not the part: corrosion, a pin pushed back, a cracked lock that lets it work loose. Five minutes here saves buying a sensor you didn't need.",
+      "obd": [],
+      "keywords": ["open circuit", "short circuit", "*unterbrechung*", "*kurzschluss*", "signal implausible", "*plausib*", "no signal", "connector", "*stecker*", "wiring", "*leitung*"],
+      "modules": [],
+      "safety": [
+        "Ignition off and the key out of the car (or away from it) before unplugging anything.",
+        "Release the plug's lock before pulling. On old cars the locks are brittle: support the plug, don't pull on the wires."
+      ],
+      "steps": [
+        { "text": "Find the part the fault names (Show on car on the fault helps) and follow its wire to the plug." },
+        { "text": "Unplug it and look into both halves with a torch: green or white crust, a pin sitting lower than its neighbours, a bent pin, or water. Any of these is likely your fault." },
+        { "text": "Clean corrosion with electrical contact cleaner and a small brush, let it dry, and plug it back in until the lock clicks." },
+        { "text": "Wiggle the harness near the plug with the engine idling (or the ignition on) while watching the value on the Readings or Live data page. A value that jumps or drops out while you wiggle points at the wire or plug." },
+        { "text": "Clear the fault, drive, and scan again. Only if it comes back is it time to test the part itself." }
+      ],
+      "sources": [
+        "https://www.fluke.com/en-us/learn/blog/automotive/electrical-automotive-troubleshooting",
+        "https://www.hagerty.com/media/maintenance-and-tech/measuring-voltage-drop/"
+      ]
+    },
+    {
+      "id": "check-ground",
+      "title": "Check a ground with a voltage drop test",
+      "summary": "A ground can show perfect continuity with the meter's tiny test current and still fail under load. Measuring the voltage across it while it carries current finds the bad ones.",
+      "obd": [],
+      "keywords": ["ground", "earth", "*masse*", "undervoltage", "*unterspannung*", "low voltage", "supply voltage", "*versorgung*"],
+      "modules": [],
+      "safety": [
+        "Keep hands, sleeves and meter leads away from the belt and fan when the engine runs.",
+        "Use the meter's volts (DC) setting. Never measure resistance on a live circuit."
+      ],
+      "steps": [
+        { "text": "Set the meter to DC volts. Put the black lead on the battery's negative post itself (not the clamp) and the red lead on the ground point or the ground side of the part you suspect." },
+        { "text": "Switch the circuit on so current flows: ignition on, the part working, or the engine cranking for the starter and engine grounds." },
+        { "text": "A healthy ground shows close to 0 V, typically well under a few tenths of a volt. More than that means resistance between the two points: clean and tighten the ground strap or eyelet, then measure again." },
+        { "text": "The same trick works on the supply side: red lead on the battery's positive post, black lead on the part's feed, circuit working. A large reading means a bad fuse contact, plug or wire on the way." }
+      ],
+      "sources": [
+        "https://www.fluke.com/en-us/learn/blog/automotive/electrical-automotive-troubleshooting",
+        "https://www.delphiautoparts.com/resource-center/article/how-to-perform-a-voltage-drop-test",
+        "https://www.hagerty.com/media/maintenance-and-tech/measuring-voltage-drop/"
+      ]
+    },
+    {
+      "id": "check-vanos-solenoid",
+      "title": "Check a VANOS solenoid",
+      "summary": "Intake and exhaust VANOS solenoids are the same part on most of these engines, which makes the best test free: swap them and see whether the fault follows.",
+      "obd": ["P0010", "P0011", "P0012", "P0013", "P0014", "P0015", "P0020", "P0021"],
+      "keywords": ["vanos", "camshaft", "*nockenwell*", "*einlassspreizung*", "*auslassspreizung*"],
+      "modules": ["DME"],
+      "safety": [
+        "Let the engine cool: the solenoids sit at the front of the hot cylinder head.",
+        "Expect a little oil when a solenoid comes out. Clean around it first so no dirt falls into the head."
+      ],
+      "steps": [
+        { "text": "Write down the fault code, then clear it." },
+        { "text": "Unplug both solenoids at the front of the head and check the plugs for oil inside: oil wicking into the connector is a known cause of VANOS faults." },
+        { "text": "Measure the resistance across each solenoid's two pins with the meter on ohms. Both should read about the same; one that reads open (OL) or very different from its twin is the bad one." },
+        { "text": "Swap the two solenoids (same part on most N5x engines: check the part numbers match first), clear the faults and drive. If the fault moves from intake to exhaust or back, the solenoid is bad. If it stays, look at wiring, oil level and quality, and the VANOS unit itself." },
+        { "text": "Run the VANOS test on the Tests page before and after: it graphs target against actual for both camshafts." }
+      ],
+      "sources": [
+        "https://www.bimmerfest.com/threads/exhaust-vanos-solenoid-on-n52.972281/",
+        "https://bmwtuning.co/diagnosing-a-failing-bmw-vanos-system/",
+        "https://www.rmeuropean.com/bmw-e90-vanos-solenoid-replacement.aspx"
+      ]
+    },
+    {
+      "id": "check-ignition-coil",
+      "title": "Check an ignition coil (swap test)",
+      "summary": "A misfire on one cylinder is most often its coil, then its plug, then its injector. Swapping the coil with a neighbour shows which in one drive, with no special tools.",
+      "obd": ["P0300", "P0301", "P0302", "P0303", "P0304", "P0305", "P0306"],
+      "keywords": ["misfire", "*verbrennungsaussetzer*", "*aussetzer*", "ignition coil", "*zuendspule*", "*zündspule*"],
+      "modules": ["DME"],
+      "safety": [
+        "Engine off and the key away before touching coils: they carry very high voltage when the engine runs.",
+        "On the N52 the coil cover clips are brittle plastic. Release them gently."
+      ],
+      "steps": [
+        { "text": "Note which cylinder misfires (the fault names it; the cylinder roughness test on the Tests page shows it too)." },
+        { "text": "Swap that cylinder's coil with a neighbouring cylinder's coil. Clear the faults." },
+        { "text": "Drive until the misfire returns, then scan. If it moved to the other cylinder, replace the coil. If it stayed, swap the spark plugs the same way." },
+        { "text": "If the misfire stays with the cylinder after coil and plug swaps, the injector or compression is next: a workshop compression test settles it." }
+      ],
+      "sources": [
+        "https://www.fcpeuro.com/blog/how-to-diagnose-and-replace-bad-ignition-coils-",
+        "https://cobbtuning.atlassian.net/wiki/spaces/PRS/pages/393511300/BMW+Misfire+Diagnose+and+Repair+Tutorial",
+        "https://www.e90post.com/forums/showthread.php?t=1674584"
+      ]
+    },
+    {
+      "id": "check-electric-water-pump",
+      "title": "Check the electric water pump",
+      "summary": "Before replacing the expensive electric pump, make sure it gets power and ground, and see whether it can follow the engine computer's request.",
+      "obd": [],
+      "keywords": ["water pump", "coolant pump", "*wasserpumpe*", "ewap", "*kuehlmittelpumpe*", "*kühlmittelpumpe*"],
+      "modules": ["DME"],
+      "safety": [
+        "Never open the coolant cap on a hot engine.",
+        "Never run the pump dry: the cooling system must be full before any pump test."
+      ],
+      "steps": [
+        { "text": "Run the Water pump health test on the Tests page with a warm engine. It graphs the speed the engine computer asks for against what the pump reports, and is often all you need." },
+        { "text": "If the pump doesn't run at all: check its fuse first (the car's fuse chart lists it), then its plug low at the front of the engine for corrosion or a broken lock." },
+        { "text": "With the plug off and the ignition on, the thick feed pin should show battery voltage against a good ground. If it doesn't, the fault is the fuse, relay or wiring, not the pump." },
+        { "text": "Do the voltage drop test on its ground (see Check a ground). A pump starved by a bad ground runs slow and sets the same faults as a worn one." }
+      ],
+      "sources": [
+        "https://www.fluke.com/en-us/learn/blog/automotive/electrical-automotive-troubleshooting",
+        "https://www.delphiautoparts.com/resource-center/article/how-to-perform-a-voltage-drop-test"
+      ]
+    },
+    {
+      "id": "check-oxygen-sensor-heater",
+      "title": "Check an oxygen sensor heater",
+      "summary": "Heater faults are usually the sensor's own heater element or its plug. Each sensor has an identical twin on the other bank on six-cylinder engines, which makes a comparison easy.",
+      "obd": ["P0030", "P0031", "P0032", "P0036", "P0037", "P0038", "P0050", "P0051", "P0052", "P0056", "P0057", "P0058", "P0135", "P0141", "P0155", "P0161"],
+      "keywords": ["oxygen sensor heater", "*lambdasondenheizung*", "*sondenheizung*", "heater circuit"],
+      "modules": ["DME"],
+      "safety": [
+        "Exhaust parts stay hot long after the engine stops. Let it cool.",
+        "The sensor plugs are clipped high on the gearbox or bulkhead. Don't pull the sensor wire to free them."
+      ],
+      "steps": [
+        { "text": "Find the sensor the fault names (before or after the catalytic converter, bank 1 or 2) and follow its wire to the plug." },
+        { "text": "Unplug it. Of the sensor's wires, two belong to the heater. Measure across pairs on the sensor side with the meter on ohms: the heater is the pair with a low reading, usually a few ohms. Do the same on the twin sensor of the other bank and compare." },
+        { "text": "An open reading (OL) or one very different from its twin means the heater is dead: replace the sensor." },
+        { "text": "If both read alike, check the car side of the plug: with the ignition on, one heater pin should have battery voltage. No voltage points at a fuse or wiring." }
+      ],
+      "sources": [
+        "https://www.fluke.com/en-us/learn/blog/automotive/electrical-automotive-troubleshooting"
+      ]
+    },
+    {
+      "id": "check-wheel-speed-sensor",
+      "title": "Check a wheel speed sensor",
+      "summary": "ABS, DSC and flat tyre warnings together often come from one wheel speed sensor or its wire, which flexes with the suspension and fails with age.",
+      "obd": [],
+      "keywords": ["wheel speed", "*raddrehzahl*", "speed sensor", "*drehzahlfuehler*", "*drehzahlfühler*"],
+      "modules": ["DSC"],
+      "safety": [
+        "Support the car on stands, never only on a jack, before reaching behind a wheel.",
+        "Leave the brake system closed: nothing in this check opens it."
+      ],
+      "steps": [
+        { "text": "Note which wheel the fault names (the fault text or the Show on car view tells you)." },
+        { "text": "Follow that sensor's wire from the hub to its plug in the wheel arch. Look for chafing, a pulled wire or a cracked plug." },
+        { "text": "Swap test: on most cars the left and right sensors of the same axle are the same part. Swap them and see whether the fault changes side." },
+        { "text": "Rust building up under the sensor in the hub can push it out of position. Remove it, clean the bore, and refit it." }
+      ],
+      "sources": [
+        "https://www.fluke.com/en-us/learn/blog/automotive/electrical-automotive-troubleshooting"
+      ]
+    },
+    {
+      "id": "check-mirror-sensors",
+      "title": "Check the sensors behind the mirror cover (rain, light, misting)",
+      "summary": "The rain/light sensor and, on cars with automatic climate control, the misting (condensation) sensor sit in the cover behind the rear-view mirror. Their faults are often the plug in that cover or a sensor that came loose from the glass.",
+      "obd": [],
+      "keywords": ["rain sensor", "light sensor", "*regensensor*", "*regen-licht*", "rls", "misting", "condensation", "*beschlag*", "solar sensor"],
+      "modules": ["FZD", "RLS", "IHKA"],
+      "safety": [
+        "The mirror cover clips are thin plastic: use a plastic trim tool and go slowly.",
+        "Don't pry against the windscreen itself."
+      ],
+      "steps": [
+        { "text": "Unclip the cover behind the rear-view mirror (it comes apart in two halves on most E9x cars)." },
+        { "text": "Check the plug at each sensor is fully home and its lock is intact. A plug that has backed out is a common cause." },
+        { "text": "Look at how the sensor sits on the glass: it must sit flat on its gel pad. After a windscreen replacement or with an old pad, it can sit loose and give faults or false readings." },
+        { "text": "Clear the fault, drive a few days and read again. If it comes back with a good plug and seating, the sensor itself is the likely culprit." }
+      ],
+      "sources": [
+        "https://www.e90post.com/forums/showthread.php?t=661393",
+        "https://www.recambiosyaccesoriosbmw.com/en/blogs/bmw-mini-and-motorrad-universe-blog/sensor-lluvia-bmw-fallos-ajuste",
+        "https://www.bimmerfest.com/threads/replacement-windshield-problem-with-rain-sensor.755041/"
+      ]
+    }
+  ]
+}

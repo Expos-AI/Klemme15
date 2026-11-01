@@ -63,7 +63,7 @@ public sealed class TestsViewModel : PageViewModel
     {
         _session = session;
         _openUrl = openUrl ?? (_ => { });
-        foreach (var g in session.Database.Guides.All.OrderBy(g => g.ReferenceOnly ? 0 : 1).ThenBy(g => g.Title))
+        foreach (var g in session.Database.Guides.All.OrderBy(g => g.ReferenceOnly ? 0 : 1).ThenBy(g => g.Title).Concat(session.Database.Checks.All.OrderBy(g => g.Title)))
         {
             var item = new GuideItemViewModel(g);
             item.SelectCommand = new RelayCommand(() => SelectGuide(item));
