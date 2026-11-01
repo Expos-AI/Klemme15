@@ -7,6 +7,7 @@ Early alpha. Scan, faults, readings, live data, guided tests and experimental se
 - **Results become trends.** Every test result is saved with the car's health history. When a part tests worse than it did before, the Faults page says so, and reports carry it too.
 - **Health in reports.** The Markdown and HTML reports and the forum post now include "Health over time".
 - **How to check it.** Faults now offer multimeter checks next to the troubleshooting steps: connectors, voltage-drop tests on grounds, the VANOS solenoid swap, the coil swap, the water pump's power, oxygen sensor heaters, wheel speed sensors, the sensors behind the mirror. In our own words with sources, using methods that don't need BMW pin-outs. Share your own with the new "Share a check or pin note" form.
+- **Security: patched SQLite.** The optional full-database download now uses SQLite 3.53.3 (SQLitePCLRaw 2.1.12), fixing CVE-2025-6965 in the bundled SQLite.
 - **Coding map library.** The Coding page lists every coding map Klemme15 knows, where it came from and whether it fits your car. One click fetches the latest community maps between releases; maps someone sends you can be imported. Maps for modules Klemme15 never codes (key, engine, brakes, airbag) are refused.
 
 **0.17.0:**
