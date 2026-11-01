@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:c="using:Klemme15.App.Controls"
              xmlns:sys="using:System"
              x:Class="Klemme15.App.Views.TestsView"
              x:DataType="vm:TestsViewModel">
@@ -36,7 +37,10 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:GuidedTestViewModel">
             <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
-              <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="Drives a part · experimental" IsVisible="{Binding DrivesParts}" />
+              </StackPanel>
             </Button>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
@@ -49,7 +53,10 @@
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:GuideItemViewModel">
             <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
-              <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+              <StackPanel Spacing="2">
+                <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+                <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="Drives a part · experimental" IsVisible="{Binding DrivesParts}" />
+              </StackPanel>
             </Button>
           </DataTemplate>
         </ItemsControl.ItemTemplate>
@@ -104,6 +111,9 @@
           <TextBlock Text="{Binding Requirements}" TextWrapping="Wrap" />
           <TextBlock Classes="muted small" Text="{Binding Duration}" />
         </StackPanel>
+        <Border Classes="panel" Padding="14,10" IsVisible="{Binding DrivesParts}" BorderBrush="{DynamicResource AmberBrush}">
+          <TextBlock TextWrapping="Wrap" Text="This test switches a part on through the engine computer. It isn't confirmed on a real car yet: stay with the car, and press Stop if anything sounds wrong. Klemme15 switches the part off at the end and when you stop." />
+        </Border>
 
         <Border Classes="panel" Padding="18,14">
           <StackPanel Spacing="10">
@@ -117,8 +127,23 @@
           </StackPanel>
         </Border>
 
+        <ItemsControl ItemsSource="{Binding Charts}" IsVisible="{Binding HasCharts}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ChartViewModel">
+              <Border Classes="panel" Padding="14,10" Margin="0,0,0,10">
+                <StackPanel Spacing="6">
+                  <TextBlock Classes="muted small" Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                  <c:TraceChart Traces="{Binding Traces}" Height="190" Primary="{DynamicResource LitBrush}" Secondary="{DynamicResource AmberBrush}"
+                                Tertiary="{DynamicResource SteelBrush}" Grid="{DynamicResource LineBrush}" Label="{DynamicResource MutedBrush}" />
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
         <StackPanel Spacing="8" IsVisible="{Binding HasResult}">
           <TextBlock Classes="section" FontSize="16" Text="What it means" />
+          <TextBlock Classes="muted small" Text="{Binding SavedNote}" TextWrapping="Wrap" IsVisible="{Binding HasSavedNote}" />
           <ItemsControl ItemsSource="{Binding Findings}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:TestFindingViewModel">

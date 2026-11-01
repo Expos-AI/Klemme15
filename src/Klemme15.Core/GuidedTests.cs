@@ -109,22 +109,69 @@ public static class GuidedAnalysis
     }
 }
 
-/// <summary>What a running guided test shows: what the user should do now, and how far along it is.</summary>
-public sealed record TestProgress(string Instruction, string Status, double Fraction);
+/// <summary>What a running guided test shows: what the user should do now, how far along it is, and the graph so far.</summary>
+public sealed record TestProgress(string Instruction, string Status, double Fraction, IReadOnlyList<TestTrace>? Traces = null);
+
+/// <summary>One line on a test's graph: a value over the seconds of the test. Targets are drawn dashed.</summary>
+public sealed record TestTrace(string Name, string Unit, IReadOnlyList<double> Seconds, IReadOnlyList<double> Values, bool Target = false);
+
+/// <summary>Collects graph lines while a test runs, in the order they were first added.</summary>
+public sealed class TraceRecorder
+{
+    private readonly List<(string Name, string Unit, bool Target, List<double> T, List<double> V)> _lines = [];
+
+    public void Add(string name, string unit, double seconds, double value, bool target = false)
+    {
+        var i = _lines.FindIndex(l => l.Name == name);
+        if (i < 0) { _lines.Add((name, unit, target, [], [])); i = _lines.Count - 1; }
+        _lines[i].T.Add(Math.Round(seconds, 2));
+        _lines[i].V.Add(value);
+    }
+
+    public void Add(string name, string unit, double seconds, IReadOnlyDictionary<string, double> values, string key, bool target = false)
+    {
+        if (values.TryGetValue(key, out var v)) Add(name, unit, seconds, v, target);
+    }
+
+    public IReadOnlyList<TestTrace> Snapshot() =>
+        _lines.Where(l => l.V.Count > 0).Select(l => new TestTrace(l.Name, l.Unit, l.T.ToArray(), l.V.ToArray(), l.Target)).ToList();
+}
 
 /// <summary>The outcome of a guided test: findings plus the numbers behind them (for a chart or table).</summary>
 public sealed record TestReport(IReadOnlyList<TestFinding> Findings, IReadOnlyList<KeyValuePair<string, double>> Values, string Unit = "")
 {
     public static TestReport Stop(string title, string why) => new([new TestFinding(TestSeverity.Unknown, title, why)], []);
+
+    /// <summary>The graph of the whole test, when it records one.</summary>
+    public IReadOnlyList<TestTrace> Traces { get; init; } = [];
+
+    /// <summary>The worst finding: Problem over Watch over OK; Unknown only when nothing was measured.</summary>
+    public TestSeverity Verdict =>
+        Findings.Any(f => f.Severity == TestSeverity.Problem) ? TestSeverity.Problem
+        : Findings.Any(f => f.Severity == TestSeverity.Watch) ? TestSeverity.Watch
+        : Findings.Any(f => f.Severity == TestSeverity.Ok) ? TestSeverity.Ok
+        : TestSeverity.Unknown;
 }
 
-public sealed record GuidedTestInfo(string Id, string Title, string Summary, string Requirements, string Duration);
+/// <param name="DrivesParts">The test switches a part on through the engine computer (not read-only).</param>
+public sealed record GuidedTestInfo(string Id, string Title, string Summary, string Requirements, string Duration, bool DrivesParts = false);
+
+/// <summary>
+/// Switches a part on through the engine computer's own test job, for the tests that drive a part. Supplied by the app
+/// only for connections and module versions that have the job.
+/// </summary>
+public interface IActuator
+{
+    /// <param name="fraction">0 to 1 of the part's range.</param>
+    Task SetAsync(double fraction, int seconds, CancellationToken ct);
+    Task StopAsync(CancellationToken ct);
+}
 
 /// <summary>
 /// Guided tests that measure the engine and explain the result: fuel trims at idle and 2,500 rpm, VANOS target vs
-/// actual, and cylinder-by-cylinder roughness. They only read values; nothing is changed on the car.
+/// actual, cylinder-by-cylinder roughness, the water pump. They only read values, except the tests marked DrivesParts.
 /// </summary>
-public static class GuidedTests
+public static partial class GuidedTests
 {
     public static readonly IReadOnlyList<GuidedTestInfo> All =
     [
@@ -148,14 +195,24 @@ public static class GuidedTests
             "Walks you through BMW's own bleed routine on engines with an electric water pump (N51, N52, N53, N54, N55): with the engine off you hold the accelerator to the floor, and the engine computer runs the pump through its 12-minute bleed cycle by itself. Klemme15 watches the pump speed, coolant temperature and battery voltage and tells you whether the cycle ran. It only reads values.",
             "Engine OFF, ignition ON, battery charger connected, expansion tank filled to MAX, heater set to maximum temperature with the blower on its lowest setting. Never open the cap on a hot engine.",
             "About 13 minutes"),
+        new("water-pump", "Water pump health (requested vs actual speed)",
+            "Graphs the speed the engine computer asks of the electric water pump against the speed the pump reports, at idle and at 3,000 rpm. A pump that can't keep up (worn bearing, failing electronics) shows up here before it overheats the engine. Read-only.",
+            "Warm engine (coolant above 70 °C), idling, in P or neutral, handbrake on. You'll be asked to hold 3,000 rpm for about 15 seconds.",
+            "40 seconds"),
+        new("water-pump-sweep", "Water pump sweep (drives the pump)",
+            "Klemme15 asks the engine computer to run the electric water pump at 30, 60 and 90 % and graphs what the pump actually does at each step. A healthy pump speeds up step by step. Experimental: drives the pump through BMW's own test job and needs your BMW files.",
+            "Engine OFF, ignition ON, cooling system FULL (never run the pump dry), battery charger connected if you can.",
+            "30 seconds", DrivesParts: true),
     ];
 
     private static readonly TimeSpan Tick = TimeSpan.FromMilliseconds(500);
 
     /// <param name="faults">Optional: reads the start-chain modules' fault memories, for the no-start triage.</param>
     public static Task<TestReport> RunAsync(string id, ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1,
-        Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults = null) => id switch
+        Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults = null, IActuator? actuator = null) => id switch
     {
+        "water-pump" => WaterPumpAsync(signals, progress, ct, speed),
+        "water-pump-sweep" => WaterPumpSweepAsync(signals, actuator, progress, ct, speed),
         "fuel-trims" => FuelTrimsAsync(signals, progress, ct, speed),
         "vanos" => VanosAsync(signals, progress, ct, speed),
         "roughness" => RoughnessAsync(signals, progress, ct, speed),
@@ -181,6 +238,8 @@ public static class GuidedTests
     {
         if (await Ready(signals, progress, ct) is { } stop) return stop;
         string[] wanted = ["rpm", "stft1", "ltft1", "stft2", "ltft2"];
+        var graph = new TraceRecorder();
+        var clock = 0;
 
         async Task<TrimSample?> Phase(string instruction, double minRpm, double maxRpm, int needed, int timeoutTicks, double start, double share)
         {
@@ -190,13 +249,17 @@ public static class GuidedTests
                 var v = await signals.ReadAsync(wanted, ct);
                 var rpm = v.GetValueOrDefault("rpm");
                 var inBand = rpm >= minRpm && rpm <= maxRpm;
+                var sec = clock++ * Tick.TotalSeconds;
+                if (v.TryGetValue("stft1", out var gs1) && v.TryGetValue("ltft1", out var gl1)) graph.Add("Bank 1 total trim", "%", sec, gs1 + gl1);
+                if (v.TryGetValue("stft2", out var gs2) && v.TryGetValue("ltft2", out var gl2)) graph.Add("Bank 2 total trim", "%", sec, gs2 + gl2);
+                graph.Add("Engine speed", "rpm", sec, v, "rpm");
                 if (inBand && v.TryGetValue("stft1", out var s1) && v.TryGetValue("ltft1", out var l1))
                 {
                     b1.Add(s1 + l1);
                     if (v.TryGetValue("stft2", out var s2) && v.TryGetValue("ltft2", out var l2)) b2.Add(s2 + l2);
                 }
                 progress?.Report(new(instruction, inBand ? $"{rpm:0} rpm: measuring ({b1.Count}/{needed})" : $"{rpm:0} rpm: waiting for {minRpm:0}-{maxRpm:0} rpm",
-                    start + share * b1.Count / needed));
+                    start + share * b1.Count / needed, graph.Snapshot()));
                 await Wait(speed, ct);
             }
             if (b1.Count < needed / 2) return null;
@@ -211,7 +274,7 @@ public static class GuidedTests
 
         var values = new List<KeyValuePair<string, double>> { new("Bank 1 at idle", idle.Bank1), new("Bank 1 at 2,500 rpm", load.Bank1) };
         if (idle.Bank2 is { } i2 && load.Bank2 is { } l2) { values.Add(new("Bank 2 at idle", i2)); values.Add(new("Bank 2 at 2,500 rpm", l2)); }
-        return new TestReport(GuidedAnalysis.FuelTrims(idle, load), values, "%");
+        return new TestReport(GuidedAnalysis.FuelTrims(idle, load), values, "%") { Traces = graph.Snapshot() };
     }
 
     public static async Task<TestReport> VanosAsync(ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1)
@@ -219,14 +282,20 @@ public static class GuidedTests
         if (await Ready(signals, progress, ct) is { } stop) return stop;
         string[] wanted = ["rpm", "vanos_in_target", "vanos_in_actual", "vanos_ex_target", "vanos_ex_actual"];
         var intake = new List<(double, double)>(); var exhaust = new List<(double, double)>();
+        var graph = new TraceRecorder();
         const int ticks = 60;
         for (var tick = 0; tick < ticks; tick++)
         {
             var v = await signals.ReadAsync(wanted, ct);
+            var sec = tick * Tick.TotalSeconds;
+            graph.Add("Intake target", "°", sec, v, "vanos_in_target", target: true);
+            graph.Add("Intake actual", "°", sec, v, "vanos_in_actual");
+            graph.Add("Exhaust target", "°", sec, v, "vanos_ex_target", target: true);
+            graph.Add("Exhaust actual", "°", sec, v, "vanos_ex_actual");
             if (v.TryGetValue("vanos_in_target", out var it) && v.TryGetValue("vanos_in_actual", out var ia)) intake.Add((it, ia));
             if (v.TryGetValue("vanos_ex_target", out var et) && v.TryGetValue("vanos_ex_actual", out var ea)) exhaust.Add((et, ea));
             var instruction = tick < 16 ? "Let the engine idle." : "Blip the throttle to about 3,000 rpm and let it drop, a few times.";
-            progress?.Report(new(instruction, $"{v.GetValueOrDefault("rpm"):0} rpm", (double)tick / ticks));
+            progress?.Report(new(instruction, $"{v.GetValueOrDefault("rpm"):0} rpm", (double)tick / ticks, graph.Snapshot()));
             await Wait(speed, ct);
         }
         if (intake.Count == 0 && exhaust.Count == 0)
@@ -237,7 +306,7 @@ public static class GuidedTests
         var values = new List<KeyValuePair<string, double>>();
         if (intake.Count > 0) values.Add(new("Intake average deviation", intake.Average(s => Math.Abs(s.Item1 - s.Item2))));
         if (exhaust.Count > 0) values.Add(new("Exhaust average deviation", exhaust.Average(s => Math.Abs(s.Item1 - s.Item2))));
-        return new TestReport(findings, values, "°");
+        return new TestReport(findings, values, "°") { Traces = graph.Snapshot() };
     }
 
     /// <summary>Reads a short "does the start chain work?" picture, then routes the stored faults. The immobiliser is never queried.</summary>
@@ -245,12 +314,15 @@ public static class GuidedTests
         Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faultProvider = null)
     {
         double minV = 99, maxRpm = 0; var ticks = 40;
+        var graph = new TraceRecorder();
         for (var tick = 0; tick < ticks; tick++)
         {
             var v = await signals.ReadAsync(["voltage", "rpm"], ct);
+            graph.Add("Battery voltage", "V", tick * Tick.TotalSeconds, v, "voltage");
+            graph.Add("Engine speed", "rpm", tick * Tick.TotalSeconds, v, "rpm");
             if (v.TryGetValue("voltage", out var volt) && volt > 1) minV = Math.Min(minV, volt);
             if (v.TryGetValue("rpm", out var rpm)) maxRpm = Math.Max(maxRpm, rpm);
-            progress?.Report(new("Turn the key to start now (crank it) if you can, while this runs.", $"lowest voltage {(minV < 99 ? minV.ToString("0.0") : "?")} V, highest rpm {maxRpm:0}", (double)tick / ticks));
+            progress?.Report(new("Turn the key to start now (crank it) if you can, while this runs.", $"lowest voltage {(minV < 99 ? minV.ToString("0.0") : "?")} V, highest rpm {maxRpm:0}", (double)tick / ticks, graph.Snapshot()));
             await Wait(speed, ct);
         }
 
@@ -267,7 +339,7 @@ public static class GuidedTests
         }
         bool? cranked = maxRpm > 200 ? true : maxRpm > 0 ? false : null;
         var findings = NoStartTriage.Assess(minV < 99 ? minV : null, cranked, faults).ToList();
-        return new TestReport(findings, values, "");
+        return new TestReport(findings, values, "") { Traces = graph.Snapshot() };
     }
 
     /// <summary>Seconds the engine computer's bleed routine runs (BMW's documented cycle is about 12 minutes).</summary>
@@ -317,9 +389,14 @@ public static class GuidedTests
         var runningTicks = 0; var stoppedFor = 0; double sumSpeed = 0; var speedSamples = 0;
         double maxCoolant = first.GetValueOrDefault("coolant");
         var tickDone = 0;
+        var graph = new TraceRecorder();
         for (; tickDone < total; tickDone++)
         {
             var v = await signals.ReadAsync(wanted, ct);
+            var sec = tickDone * Tick.TotalSeconds;
+            graph.Add("Pump requested", "pump", sec, v, "pump_target", target: true);
+            graph.Add("Pump actual", "pump", sec, v, "pump_speed");
+            graph.Add("Battery voltage", "V", sec, v, "voltage");
             if (v.TryGetValue("voltage", out var volt) && volt > 1) minVolt = Math.Min(minVolt, volt);
             if (v.TryGetValue("coolant", out var c)) maxCoolant = Math.Max(maxCoolant, c);
             if (v.TryGetValue("pump_speed", out var ps)) { sumSpeed += ps; speedSamples++; }
@@ -329,7 +406,7 @@ public static class GuidedTests
             var left = (int)((total - tickDone) / ticksPerSecond);
             progress?.Report(new("Leave the ignition on. Top up the expansion tank if the level drops; don't start the engine.",
                 $"{left / 60}:{left % 60:00} left" + (v.TryGetValue("pump_speed", out var sp) ? $" · pump {sp:0}" : "") + (v.TryGetValue("voltage", out var vv) ? $" · {vv:0.0} V" : ""),
-                0.05 + 0.95 * tickDone / total));
+                0.05 + 0.95 * tickDone / total, tickDone % 4 == 0 ? graph.Snapshot() : null));
             await Wait(speed, ct);
         }
         progress?.Report(new("Done. Check the coolant level.", "", 1));
@@ -351,7 +428,7 @@ public static class GuidedTests
         var values = new List<KeyValuePair<string, double>> { new("Minutes the pump ran", Math.Round(minutes, 1)) };
         if (speedSamples > 0) values.Add(new("Average pump speed", Math.Round(sumSpeed / speedSamples, 0)));
         if (minVolt < 99) values.Add(new("Lowest battery voltage", Math.Round(minVolt, 1)));
-        return new TestReport(findings, values);
+        return new TestReport(findings, values) { Traces = graph.Snapshot() };
     }
 
     public static async Task<TestReport> RoughnessAsync(ISignalSource signals, IProgress<TestProgress>? progress, CancellationToken ct, double speed = 1)

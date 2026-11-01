@@ -51,8 +51,22 @@ public sealed class SessionState : ViewModelBase
                 : scan.Vin is { Length: 17 } vin ? History.Load(HealthSnapshot.KeyFor(vin)) : [];
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { history = []; }
+        IReadOnlyList<TestRecord> tests = [];
+        try { if (!_isDemo && scan.Vin is { Length: 17 } v) tests = History.LoadTests(HealthSnapshot.KeyFor(v)); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
         var catalog = Database.CheckControl;
-        return scan with { Health = HealthSummary.From(history, id => CheckControlDescriber.Describe(id, catalog, active: true).Title, madeUp: _isDemo) };
+        return scan with { Health = HealthSummary.From(history, id => CheckControlDescriber.Describe(id, catalog, active: true).Title, madeUp: _isDemo, tests: tests) };
+    }
+
+    /// <summary>Saves a finished guided test to the car's health history (real cars with a quick test only), then refreshes the trends.</summary>
+    public bool RecordTest(GuidedTestInfo test, TestReport report)
+    {
+        if (_isDemo || _lastScan?.Vin is not { Length: 17 } vin) return false;
+        try { History.AddTest(HealthSnapshot.KeyFor(vin), TestRecord.From(test, report, DateTimeOffset.Now)); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
+        PublishScan(WithHealth(_lastScan));
+        HistoryChanged?.Invoke();
+        return true;
     }
 
     public void ForgetCar(string carKey)
