@@ -1,6 +1,15 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.17.0:**
+**New in 0.18.0:**
+- **Component tests you can watch.** Tests now draw live graphs as they run: requested against actual for VANOS, fuel trims and engine speed, battery voltage while cranking, the pump through the 12-minute bleed.
+- **Water pump health test.** The electric water pump (N51-N55) is a known wear part that fails without warning. With a warm engine, Klemme15 graphs the speed the engine computer asks for against what the pump actually does and tells you whether it keeps up. Read-only, works with the plain cable.
+- **Water pump sweep (experimental).** With your BMW files, Klemme15 runs the pump at 30, 60 and 90 % (engine off) and graphs each step. Marked "drives a part"; the pump is always switched off at the end or when you press Stop.
+- **Results become trends.** Every test result is saved with the car's health history. When a part tests worse than it did before, the Faults page says so, and reports carry it too.
+- **Health in reports.** The Markdown and HTML reports and the forum post now include "Health over time".
+- **How to check it.** Faults now offer multimeter checks next to the troubleshooting steps: connectors, voltage-drop tests on grounds, the VANOS solenoid swap, the coil swap, the water pump's power, oxygen sensor heaters, wheel speed sensors, the sensors behind the mirror. In our own words with sources, using methods that don't need BMW pin-outs. Share your own with the new "Share a check or pin note" form.
+- **Coding map library.** The Coding page lists every coding map Klemme15 knows, where it came from and whether it fits your car. One click fetches the latest community maps between releases; maps someone sends you can be imported. Maps for modules Klemme15 never codes (key, engine, brakes, airbag) are refused.
+
+**0.17.0:**
 - **Health over time.** Every quick test of a real car now leaves a small snapshot on your computer (battery voltage, charging, fuel trims, faults, dash messages). The Faults page compares them and tells you what's drifting *before* it becomes a fault: a battery that rests a little lower each week, charging voltage out of range, long-term fuel trims creeping lean (the early sign of a vacuum leak), a fault that keeps coming back after you clear it, and what's new since last time. Open the demo car to see it with a made-up two-month history.
 - **Your cars.** The Garage page lists every car you've scanned on this computer: last scan, mileage, battery, faults to fix and the most important trend. One click selects its model. Run a few cars? This is your fleet view, with no account and no cloud.
 - **Private by design.** The history holds no VIN (cars are told apart by a one-way hash), never leaves your computer, and each car can be forgotten with one click. See the [privacy policy](https://github.com/Expos-AI/Klemme15/blob/main/PRIVACY.md).
