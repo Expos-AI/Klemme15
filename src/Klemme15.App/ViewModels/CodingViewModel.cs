@@ -101,6 +101,7 @@ public sealed partial class CodingViewModel : PageViewModel
         ExportCommand = new AsyncCommand(ExportAsync, () => IsVerified && !_busy, e => Status = e.Message);
         CancelCommand = new RelayCommand(() => Pending = null);
         InitQuickCodes();
+        InitLibrary();
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.LastScan) or nameof(SessionState.Backend)) Refresh();
@@ -221,6 +222,7 @@ public sealed partial class CodingViewModel : PageViewModel
             : _session.Backend is not IRawRequests ? "Coding uses Klemme15's own connection: reconnect without \"Use my own BMW files\"."
             : scan is null ? "Run the quick test first: Klemme15 codes only modules that answered it." : "";
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
+        RebuildLibrary();
     }
 
     private static void Refresh(params AsyncCommand[] commands)

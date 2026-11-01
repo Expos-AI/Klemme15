@@ -36,6 +36,7 @@ public sealed record VerifiedCoding
 
     /// <summary>Every op in the entry points at a real coding block and stores distinct, in-mask bytes.</summary>
     public bool WellFormed => !string.IsNullOrWhiteSpace(PartNumber) && !string.IsNullOrWhiteSpace(CodingIndex)
+        && CodingProtocol.CodableModules.Contains(Module) && !CodingProtocol.NeverCoded.Contains(Module)
         && Toggles.Count > 0 && Toggles.Values.All(ops => ops.Count > 0 && ops.All(o => o.Valid));
 }
 
@@ -242,7 +243,6 @@ public sealed class VerifiedCodingLibrary
         catch (JsonException) { return new VerifiedCodingLibrary([]); }
     }
 
-    /// <summary>The verified entry for the module now on the car, if there is one.</summary>
     /// <summary>
     /// Everything known for the module on the car. Several entries for the same module (the shipped map, one the user
     /// taught Klemme15) are merged; the first entry that has an option wins, so shipped maps take precedence.
