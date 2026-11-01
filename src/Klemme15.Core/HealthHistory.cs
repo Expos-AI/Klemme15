@@ -72,6 +72,13 @@ public sealed record HealthSnapshot
 
 public enum TrendLevel { Info, Watch, Act }
 
+/// <summary>What the health history says, attached to a scan so pages and reports can show it.</summary>
+public sealed record HealthSummary(int Scans, DateTimeOffset Since, IReadOnlyList<HealthTrend> Trends, bool MadeUp = false)
+{
+    public static HealthSummary? From(IReadOnlyList<HealthSnapshot> history, Func<int, string>? ccName = null, bool madeUp = false) =>
+        history.Count == 0 ? null : new(history.Count, history[0].Time, HealthTrends.Analyze(history, ccName), madeUp);
+}
+
 /// <summary>Something Klemme15 noticed by comparing scans over time.</summary>
 public sealed record HealthTrend(TrendLevel Level, string Title, string Detail);
 
