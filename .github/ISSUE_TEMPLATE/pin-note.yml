@@ -1,0 +1,44 @@
+name: Share a check or pin note
+description: How you tested a part or found a connector on your car, so the next owner with the same fault gets there faster.
+title: "Check: "
+labels: ["pin-note"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks! Klemme15 shows these notes on matching faults under **How to check it**. Please write it **in your own
+        words** (don't paste from BMW's documents or a paid service manual) and link where you learned it, if anywhere.
+        Pin numbers are welcome only if you checked them on your own car; say so.
+  - type: input
+    id: part
+    attributes:
+      label: Part or fault
+      description: e.g. "Exhaust VANOS solenoid", or a fault code like "2A87".
+    validations:
+      required: true
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Model, engine and year, e.g. "E90 325i N52 2006".
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to check it
+      description: Where the part or plug is, how to reach it, what you measured and what a good and a bad reading look like.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources
+      description: Links to the forum threads, videos or articles you used (not BMW's own documents).
+  - type: checkboxes
+    id: own
+    attributes:
+      label: Checks
+      options:
+        - label: I wrote this in my own words, and the measurements are from my own car or a source I linked.
+          required: true

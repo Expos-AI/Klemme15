@@ -4,6 +4,49 @@
              xmlns:vm="using:Klemme15.App.ViewModels"
              x:Class="Klemme15.App.Views.FaultsView"
              x:DataType="vm:FaultsViewModel">
+  <UserControl.DataTemplates>
+    <DataTemplate DataType="vm:GuideViewModel">
+      <StackPanel Spacing="8">
+                              <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                              <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" />
+                              <ItemsControl ItemsSource="{Binding Safety}" IsVisible="{Binding HasSafety}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="sys:String">
+                                    <TextBlock Classes="red small" Text="{Binding}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                              <ItemsControl ItemsSource="{Binding Steps}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="vm:GuideStepViewModel">
+                                    <Grid ColumnDefinitions="26,*" Margin="0,3">
+                                      <TextBlock Classes="lit" Text="{Binding Number}" FontWeight="SemiBold" />
+                                      <StackPanel Grid.Column="1" Spacing="4">
+                                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
+                                        <StackPanel Orientation="Horizontal" Spacing="6">
+                                          <Button Classes="quiet" Content="Show readings" Command="{Binding ReadingsCommand}" IsVisible="{Binding HasReadings}" FontSize="12" Padding="4,0" />
+                                          <Button Classes="quiet" Content="Open Live data" Command="{Binding LiveCommand}" IsVisible="{Binding HasLive}" FontSize="12" Padding="4,0" />
+                                        </StackPanel>
+                                      </StackPanel>
+                                    </Grid>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                              <ItemsControl ItemsSource="{Binding Sources}" IsVisible="{Binding HasSources}">
+                                <ItemsControl.ItemsPanel>
+                                  <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="vm:SourceLink">
+                                    <Button Classes="quiet" Content="{Binding Label}" Command="{Binding OpenCommand}" FontSize="12" Padding="4,0" ToolTip.Tip="{Binding Url}" />
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                              <TextBlock Classes="muted small" TextWrapping="Wrap"
+                                         Text="Guides are written by Klemme15 contributors as a starting point. If you're unsure, or a step needs tools you don't have, ask a mechanic." />
+                            </StackPanel>
+    </DataTemplate>
+  </UserControl.DataTemplates>
   <DockPanel Margin="36,26,36,0">
     <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,18">
       <DockPanel>
@@ -126,45 +169,12 @@
                           <!-- Troubleshooting guide -->
                           <Border IsVisible="{Binding GuideOpen}" Padding="14,12" Margin="0,6,0,0" CornerRadius="6"
                                   Background="{DynamicResource LitSoftBrush}">
-                            <StackPanel Spacing="8" DataContext="{Binding Guide}" x:DataType="vm:GuideViewModel">
-                              <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
-                              <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" />
-                              <ItemsControl ItemsSource="{Binding Safety}" IsVisible="{Binding HasSafety}">
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="sys:String">
-                                    <TextBlock Classes="red small" Text="{Binding}" TextWrapping="Wrap" FontWeight="SemiBold" />
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                              <ItemsControl ItemsSource="{Binding Steps}">
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="vm:GuideStepViewModel">
-                                    <Grid ColumnDefinitions="26,*" Margin="0,3">
-                                      <TextBlock Classes="lit" Text="{Binding Number}" FontWeight="SemiBold" />
-                                      <StackPanel Grid.Column="1" Spacing="4">
-                                        <TextBlock Text="{Binding Text}" TextWrapping="Wrap" />
-                                        <StackPanel Orientation="Horizontal" Spacing="6">
-                                          <Button Classes="quiet" Content="Show readings" Command="{Binding ReadingsCommand}" IsVisible="{Binding HasReadings}" FontSize="12" Padding="4,0" />
-                                          <Button Classes="quiet" Content="Open Live data" Command="{Binding LiveCommand}" IsVisible="{Binding HasLive}" FontSize="12" Padding="4,0" />
-                                        </StackPanel>
-                                      </StackPanel>
-                                    </Grid>
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                              <ItemsControl ItemsSource="{Binding Sources}" IsVisible="{Binding HasSources}">
-                                <ItemsControl.ItemsPanel>
-                                  <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                  <DataTemplate x:DataType="vm:SourceLink">
-                                    <Button Classes="quiet" Content="{Binding Label}" Command="{Binding OpenCommand}" FontSize="12" Padding="4,0" ToolTip.Tip="{Binding Url}" />
-                                  </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                              </ItemsControl>
-                              <TextBlock Classes="muted small" TextWrapping="Wrap"
-                                         Text="Guides are written by Klemme15 contributors as a starting point. If you're unsure, or a step needs tools you don't have, ask a mechanic." />
-                            </StackPanel>
+                            <ContentControl Content="{Binding Guide}" />
+                          </Border>
+                          <!-- Multimeter check -->
+                          <Border IsVisible="{Binding CheckOpen}" Padding="14,12" Margin="0,6,0,0" CornerRadius="6"
+                                  Background="{DynamicResource LitSoftBrush}">
+                            <ContentControl Content="{Binding Check}" />
                           </Border>
                           <StackPanel Orientation="Horizontal" Spacing="6">
                             <TextBlock Classes="muted small" Text="Check here:" />
@@ -190,6 +200,8 @@
                           <Button Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" HorizontalAlignment="Right" />
                           <Button Classes="quiet" Content="{Binding GuideButtonText}" Command="{Binding ToggleGuideCommand}" IsVisible="{Binding HasGuide}" HorizontalAlignment="Right"
                                   ToolTip.Tip="Step-by-step checks for this kind of fault" />
+                          <Button Classes="quiet" Content="{Binding CheckButtonText}" Command="{Binding ToggleCheckCommand}" IsVisible="{Binding HasCheck}" HorizontalAlignment="Right"
+                                  ToolTip.Tip="Test the part with a multimeter or a swap before buying it" />
                         </StackPanel>
                       </Grid>
                     </Border>

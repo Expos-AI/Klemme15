@@ -59,6 +59,18 @@ Key by module id, then the 4-digit hex code as Klemme15 displays it:
 
 Good descriptions say what the module detected and, where known, a common cause. Keep guesses out or label them "common cause".
 
+## Multimeter checks and pin notes (`checks.json`)
+
+Each check shows on faults whose text matches its `keywords` (or whose OBD-II code is in `obd`), under **How to check it**,
+and in the guide list on the Tests page. It has the same shape as a guide in `guides.json`: `id`, `title`, `summary`,
+`safety`, `steps`, `keywords`, `modules`, `sources`.
+
+- Write it in your own words and give at least one source. Never copy BMW documents or paid service manuals.
+- Prefer methods that don't need a pin-out: compare a part with its identical twin, swap two identical parts and see
+  whether the fault moves, check supply and ground with a voltage drop test.
+- A pin number or a resistance value goes in only if you measured it on your own car or a linked source states it; say which.
+- Not comfortable editing JSON? Open a **Share a check or pin note** issue and a maintainer will add it.
+
 ## OBD-II codes (`obd-codes.json`)
 
 Generic codes are standardized; improve the wording or add a `hint` with practical E-series advice:

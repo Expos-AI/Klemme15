@@ -169,6 +169,17 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public RelayCommand ToggleGuideCommand => _toggle ??= new RelayCommand(() => GuideOpen = !GuideOpen);
     private RelayCommand? _toggle;
 
+    private GuideViewModel? _check;
+    private bool _checkOpen;
+
+    /// <summary>A multimeter check for the part this fault is about, if there is one.</summary>
+    public GuideViewModel? Check { get => _check; set { _check = value; Raise(nameof(HasCheck)); } }
+    public bool HasCheck => _check is not null;
+    public bool CheckOpen { get => _checkOpen; set { Set(ref _checkOpen, value); Raise(nameof(CheckButtonText)); } }
+    public string CheckButtonText => _checkOpen ? "Hide check" : "How to check it";
+    public RelayCommand ToggleCheckCommand => _toggleCheck ??= new RelayCommand(() => CheckOpen = !CheckOpen);
+    private RelayCommand? _toggleCheck;
+
     /// <summary>Clickable source links (community entries only).</summary>
     public IReadOnlyList<SourceLink> SourceLinks { get; init; } = [];
     public bool HasSourceLinks => SourceLinks.Count > 0;

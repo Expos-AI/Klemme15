@@ -28,6 +28,11 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>Klemme15's troubleshooting guides (db/guides.json).</summary>
     public GuideLibrary Guides => _guides ??= GuideLibrary.Load();
 
+    private GuideLibrary? _checks;
+
+    /// <summary>Multimeter checks (db/checks.json), offered on faults next to the troubleshooting guide.</summary>
+    public GuideLibrary Checks => _checks ??= GuideLibrary.LoadChecks();
+
     private ServiceLibrary? _service;
 
     /// <summary>Klemme15's service functions (db/service.json).</summary>

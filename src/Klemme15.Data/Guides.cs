@@ -48,14 +48,19 @@ public sealed class GuideLibrary
 
     public IReadOnlyList<Guide> All => _guides;
 
-    public static GuideLibrary Load()
+    public static GuideLibrary Load() => Load("guides.json", "guides");
+
+    /// <summary>The multimeter checks (db/checks.json): same shape as guides, offered alongside them.</summary>
+    public static GuideLibrary LoadChecks() => Load("checks.json", "checks");
+
+    private static GuideLibrary Load(string file, string root)
     {
-        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data.guides.json");
+        using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data." + file);
         if (stream is null) return new GuideLibrary([]);
         using var doc = JsonDocument.Parse(stream);
         static IReadOnlyList<string> List(JsonElement e, string name) =>
             e.TryGetProperty(name, out var a) && a.ValueKind == JsonValueKind.Array ? a.EnumerateArray().Select(x => x.GetString()!).ToList() : [];
-        var guides = doc.RootElement.GetProperty("guides").EnumerateArray().Select(g => new Guide(
+        var guides = doc.RootElement.GetProperty(root).EnumerateArray().Select(g => new Guide(
             g.GetProperty("id").GetString()!,
             g.GetProperty("title").GetString()!,
             g.GetProperty("summary").GetString()!,
