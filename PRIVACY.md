@@ -14,6 +14,7 @@ Klemme15 is a desktop application that runs on your own computer. It is not a we
 Klemme15 connects to the internet only when you ask it to, and only to these:
 
 - **Downloading the optional fault database or engine-readings data**, if you choose to (from the public `bmw-unified-db` project and package hosts). This downloads data *to* you; it sends nothing about your car.
+- **Getting the latest community coding maps**, when you press that button on the Coding page (from the project's GitHub page). This downloads maps *to* you; it sends nothing about your car.
 - **Opening a link** (About, Support, Privacy, Buy me a coffee) in your browser, when you click it.
 - **A network cable** (`rfc2217://` or `tcp://`) or `klemme15 serve`, which talk only to the devices and brokers you configure on your own network.
 

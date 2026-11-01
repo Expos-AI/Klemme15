@@ -195,6 +195,7 @@ public sealed partial class CodingViewModel
         _learnBefore = null;
         FillToggles();
         RefreshLearn();
+        RebuildLibrary();
         return Task.CompletedTask;
     }
 

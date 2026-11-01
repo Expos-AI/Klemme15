@@ -46,13 +46,62 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
 
     private Klemme15.Core.Coding.VerifiedCodingLibrary LoadVerifiedCoding()
     {
-        var jsons = new List<string>();
+        string? shipped = null;
         using (var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data.coding-verified.json"))
-            if (stream is not null) { using var reader = new StreamReader(stream); jsons.Add(reader.ReadToEnd()); }
-        var userPath = Path.Combine(OverrideFolder, "coding-verified.json");
-        if (File.Exists(userPath)) { try { jsons.Add(File.ReadAllText(userPath)); } catch (IOException) { } }
-        var entries = jsons.SelectMany(j => Klemme15.Core.Coding.VerifiedCodingLibrary.Load(j).Entries).ToList();
-        return Klemme15.Core.Coding.VerifiedCodingLibrary.FromEntries(entries);
+            if (stream is not null) { using var reader = new StreamReader(stream); shipped = reader.ReadToEnd(); }
+        static string? Read(string path) { try { return File.Exists(path) ? File.ReadAllText(path) : null; } catch (IOException) { return null; } }
+        var maps = new List<CodingMapEntry>();
+        void Add(string? json, CodingMapOrigin origin)
+        {
+            foreach (var e in Klemme15.Core.Coding.VerifiedCodingLibrary.Load(json).Entries) maps.Add(new(e, origin));
+        }
+        // Order matters: for the same module, the first map that has an option wins (shipped, then downloaded, then yours).
+        Add(shipped, CodingMapOrigin.Shipped);
+        Add(Read(Path.Combine(OverrideFolder, CommunityMapsFile)), CodingMapOrigin.Downloaded);
+        Add(Read(Path.Combine(OverrideFolder, "coding-verified.json")), CodingMapOrigin.Yours);
+        _codingMaps = maps;
+        return Klemme15.Core.Coding.VerifiedCodingLibrary.FromEntries(maps.Select(m => m.Map));
+    }
+
+    private IReadOnlyList<CodingMapEntry>? _codingMaps;
+
+    /// <summary>Every coding map Klemme15 knows, with where it came from (for the library on the Coding page).</summary>
+    public IReadOnlyList<CodingMapEntry> CodingMaps
+    {
+        get { _ = VerifiedCoding; return _codingMaps ?? []; }
+    }
+
+    public const string CommunityMapsFile = "coding-community.json";
+
+    /// <summary>The community maps on the project's main branch: newer than the ones shipped with this version.</summary>
+    public const string CommunityMapsUrl = "https://raw.githubusercontent.com/Expos-AI/Klemme15/main/src/Klemme15.Data/db/coding-verified.json";
+
+    /// <summary>
+    /// Downloads the latest community coding maps (only when the user asks). Only well-formed maps for modules Klemme15 may
+    /// code are kept. Returns how many maps the download holds.
+    /// </summary>
+    public async Task<int> DownloadCommunityMapsAsync(HttpClient? http = null, CancellationToken ct = default)
+    {
+        http ??= new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+        var json = await http.GetStringAsync(CommunityMapsUrl, ct);
+        var maps = Klemme15.Core.Coding.VerifiedCodingLibrary.Load(json).Entries;
+        Directory.CreateDirectory(OverrideFolder);
+        File.WriteAllText(Path.Combine(OverrideFolder, CommunityMapsFile), Klemme15.Core.Coding.CodingLearner.ToFileJson(maps));
+        _verifiedCoding = null;
+        _codingMaps = null;
+        return maps.Count;
+    }
+
+    /// <summary>
+    /// Adds maps from a file someone shared (the JSON from "Share this map", a single entry or a whole file). Only well-formed
+    /// maps for modules Klemme15 may code are taken. Returns how many were added.
+    /// </summary>
+    public int ImportCodingMaps(string json)
+    {
+        var trimmed = json.Trim();
+        var maps = Klemme15.Core.Coding.VerifiedCodingLibrary.Load(trimmed.StartsWith('{') && !trimmed.Contains("\"entries\"") ? $"[{trimmed}]" : trimmed).Entries;
+        foreach (var m in maps) SaveUserCoding(m with { Source = m.Source ?? "imported" });
+        return maps.Count;
     }
 
     /// <summary>
@@ -67,6 +116,7 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
         Directory.CreateDirectory(OverrideFolder);
         File.WriteAllText(path, Klemme15.Core.Coding.CodingLearner.ToFileJson(merged));
         _verifiedCoding = null;   // reload with the new entry
+        _codingMaps = null;
         return path;
     }
 
@@ -493,3 +543,8 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
         };
     }
 }
+
+public enum CodingMapOrigin { Shipped, Downloaded, Yours }
+
+/// <summary>One coding map and where it came from.</summary>
+public sealed record CodingMapEntry(Klemme15.Core.Coding.VerifiedCoding Map, CodingMapOrigin Origin);
