@@ -52,9 +52,9 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConditionRow">
                   <Grid ColumnDefinitions="2*,1.3*,90,Auto,70,Auto,Auto" Margin="0,0,0,8">
-                    <ComboBox Grid.Column="0" ItemsSource="{Binding $parent[ItemsControl].((vm:TriggerViewModel)DataContext).Signals}"
+                    <ComboBox Grid.Column="0" ItemsSource="{Binding Signals}"
                               SelectedItem="{Binding Signal}" HorizontalAlignment="Stretch" PlaceholderText="Value" />
-                    <ComboBox Grid.Column="1" ItemsSource="{Binding $parent[ItemsControl].((vm:TriggerViewModel)DataContext).OperatorChoices}"
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding Operators}"
                               SelectedItem="{Binding Operator}" HorizontalAlignment="Stretch" Margin="6,0" />
                     <TextBox Grid.Column="2" Text="{Binding Threshold}" Watermark="value" />
                     <TextBlock Grid.Column="3" Classes="muted small" Text="for" VerticalAlignment="Center" Margin="8,0" />

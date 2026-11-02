@@ -129,7 +129,7 @@ public static class BaselineAligner
         if (!BaselineSignals.Has(log, curve.X) || !BaselineSignals.Has(log, curve.Y)) return null;
         var bins = Bin(log, curve.X, curve.Y, curve.Filter, curve.BinWidth, minSamples: 1);
         var cache = new Dictionary<string, LogChannel?>();
-        int inside = 0, counted = 0;
+        int inside = 0, counted = 0, filteredOut = 0;
         var offsets = new List<double>();
         foreach (var b in bins)
         {
@@ -141,11 +141,13 @@ public static class BaselineAligner
         for (var i = 0; i < log.Count; i++)
         {
             if (BaselineSignals.At(log, curve.X, i, cache) is not { } x || BaselineSignals.At(log, curve.Y, i, cache) is not { } y) continue;
-            if (filter is not null && !filter.IsTrue(Vars(log, i, cache))) continue;
+            if (filter is not null && !filter.IsTrue(Vars(log, i, cache))) { filteredOut++; continue; }
             if (Nearest(curve, x) is not { } r) continue;
             counted++;
             if (y >= r.P10 && y <= r.P90) inside++;
         }
+        if (counted == 0 && filteredOut > 0)
+            return new(bins, 0, 0, 0, $"This baseline only counts readings where {curve.Filter}, and none of your log does (a cold engine runs richer on purpose). Record a drive once the engine is warm.");
         if (counted == 0) return new(bins, 0, 0, 0, $"None of your log falls in the range this baseline covers ({curve.Points[0].X:0}-{curve.Points[^1].X:0} {Unit(curve.X)}).");
         var share = (double)inside / counted;
         var offset = offsets.Count > 0 ? offsets.Average() : 0;

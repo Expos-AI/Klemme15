@@ -12,13 +12,15 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Coding**: backup, compare, restore; quick codes verified against NCS Expert, learned from another tool, or from shared coding maps; FRM3 protection.
 - **Share**: reports, forum posts without the VIN, snapshots (.k15) others open read-only, headless mode with a phone dashboard and MQTT, network cables.
 - **Reasoning**: community diagnostic chains (Vacuum leak hunter, Charging system check), retrofit checker, pre-purchase check.
+- **Catch and compare**: the Ghost Hunter (trigger-based captures with a minute before and after), known good baselines on the Analyse page, live values on the car drawing.
 
 ## Next
 
 - Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
 - **Battery drain finder**: read the engine computer's own record of sleep-current problems, then a guided fuse-pull hunt with a "how many days until flat" calculator.
 - The same depth (dash history, health trends, graphed tests) for the E46, E39 and E53.
-- The first community coding maps, checks and chains in the library.
+- The first community coding maps, checks and chains in the library, and the first real baselines (three or more healthy cars per engine, starting with the N52).
+- Wheel speeds on the car drawing, from the stability control module, once the value names are confirmed on real cars.
 - More chains: thermostat, misfire triage, boost leaks on the N54/N55.
 
 ## Later

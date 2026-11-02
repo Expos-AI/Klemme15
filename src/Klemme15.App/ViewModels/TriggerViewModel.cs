@@ -24,14 +24,19 @@ public sealed class ConditionRow : ViewModelBase
     private OperatorOption _op;
     private string _threshold = "", _hold = "1";
 
-    public ConditionRow(IReadOnlyList<OperatorOption> operators, Action<ConditionRow> remove)
+    public ConditionRow(IReadOnlyList<OperatorOption> operators, IReadOnlyList<SignalOption> signals, Action<ConditionRow> remove)
     {
+        Operators = operators;
+        Signals = signals;
         _op = operators[0];
         RemoveCommand = new RelayCommand(() => remove(this));
     }
 
+    // The choices live on the row so the combo boxes have them before a selection is applied.
+    public IReadOnlyList<OperatorOption> Operators { get; }
+    public IReadOnlyList<SignalOption> Signals { get; }
     public SignalOption? Signal { get => _signal; set => Set(ref _signal, value); }
-    public OperatorOption Operator { get => _op; set => Set(ref _op, value); }
+    public OperatorOption Operator { get => _op; set { if (value is not null) Set(ref _op, value); } }
     public string Threshold { get => _threshold; set => Set(ref _threshold, value); }
     public string Hold { get => _hold; set => Set(ref _hold, value); }
     public RelayCommand RemoveCommand { get; }
@@ -196,13 +201,7 @@ public sealed class TriggerViewModel : PageViewModel
 
     // ---------------------------------------------------------------- what the car reports
 
-    private ISignalSource? Source()
-    {
-        if (_session.Backend is not { } backend || _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine) is not { } engine) return null;
-        return _session.IsDemo && _session.Measurements is { } demo
-            ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine)
-            : new EngineSignals(backend, engine, _session.Measurements);
-    }
+    private ISignalSource? Source() => _session.EngineSignalSource();
 
     private async Task ProbeAsync()
     {
@@ -238,7 +237,7 @@ public sealed class TriggerViewModel : PageViewModel
 
     private void AddCondition()
     {
-        var row = new ConditionRow(Operators, r => { NewConditions.Remove(r); });
+        var row = new ConditionRow(Operators, Signals, r => { NewConditions.Remove(r); });
         row.Signal = Signals.FirstOrDefault();
         NewConditions.Add(row);
     }

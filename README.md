@@ -48,13 +48,14 @@ scoop install klemme15
 - **Every code explained**: 203 BMW codes researched in our own words with sources and confidence, all 2,066 standard OBD-II codes, and a meaning from its number range and module for any code no source describes. Optionally, BMW's own meaning for your exact module version, from the free [bmw-unified-db](https://github.com/gediz/bmw-unified-db) download or your own ISTA/INPA files ([how](docs/FAULT-DATA.md)).
 - **Dash messages (Check Control)**: why the triangle is lit even with no fault code. 396 messages decoded in our own words, with severity and what to do ([details](docs/CHECK-CONTROL.md)).
 - **Your car's story**: the instrument cluster remembers its last few dozen dash warnings with the mileage. Klemme15 tells them as a timeline and spots the patterns: five systems complaining at once is a voltage dip, not five faults.
-- **See where it is**: a top view of the car with each module where it sits and each fault pinned to the part it points at.
+- **See where it is**: a top view of the car with each module where it sits and each fault pinned to the part it points at. **Show live values** puts coolant, battery voltage, oil and intake temperature, engine and road speed on the drawing, where each one happens.
 
 ### Get help from anyone, anywhere
 - **Snapshots (.k15)**: save your whole car in one file (modules, faults, dash messages, the car's story, health trends, the last minute of live data, test graphs) and attach it to a forum post. Whoever opens it explores your car read-only, as if they were plugged in, with your note on top. The VIN is removed everywhere ([how it works](docs/SNAPSHOTS.md)).
 - **Buying a used BMW?** The pre-purchase check compares the mileage the modules recorded with the odometer, flags safety faults and freshly cleared memories, and saves a buyer's report.
 
 ### Keep an eye on it over time
+- **Ghost Hunter**: for the fault that only happens sometimes. Pick a condition (a voltage dip, running hot, a lean spike, a rough cylinder at high rpm, or your own rule), drive, and Klemme15 saves a snapshot with the minute before and the minute after each time it happens.
 - **Health over time**: each quick test of a real car saves a small snapshot on your computer (no VIN, never uploaded). Klemme15 flags what's drifting before it becomes a fault: a battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back, parts that test worse than last time.
 - **Your cars**: the Garage lists every car you've scanned, with its latest state and most important trend. A fleet view for a household or a small shop.
 
@@ -62,7 +63,7 @@ scoop install klemme15
 - **Guided tests with live graphs**: fuel trims at idle and 2,500 rpm (vacuum leak or fuel delivery?), VANOS target against actual, cylinder roughness, "why won't it start?", the electric water pump's requested against actual speed, and a 12-minute cooling bleed assistant. Each ends with a plain verdict.
 - **Diagnostic chains**: a mechanic's reasoning, written by the community and run step by step: the Vacuum leak hunter compares trims at idle and 2,500 rpm, checks airflow against engine size and asks about the crankcase vent valve; the Charging system check tells a tired battery from a weak alternator. Offered under matching faults; anyone can write one ([how](docs/CHAINS.md)).
 - **How to check it**: multimeter and swap checks under matching faults (connectors, grounds, VANOS solenoids, coils, pump power, oxygen sensor heaters, wheel speed sensors, the sensors behind the mirror), plus troubleshooting guides and how-to guides with where things are. In our own words with sources.
-- **Readings and live data**: every value each module reports (sensor voltages, fuel trims per bank, VANOS, injectors, knock, wheel speeds, steering angle, learned values), live data with CSV recording, and an **Analyse** page to scatter and replay a log.
+- **Readings and live data**: every value each module reports (sensor voltages, fuel trims per bank, VANOS, injectors, knock, wheel speeds, steering angle, learned values), live data with CSV recording, and an **Analyse** page to scatter and replay a log, with **known good baselines** drawn behind your points: the healthy range across engine speed, and a line saying where your engine leaves it ([how baselines work](docs/BASELINES.md)).
 
 ### Do the workshop jobs yourself
 - **Service functions** (experimental): 75 functions, including service reminder reset, battery registration (confirmed on a real E90), adaptation resets, Valvetronic and DISA learning, cylinder cut-out, component tests, diesel, DSC, gearbox and body functions. Each checks the car first and asks you to confirm every requirement ([full list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).

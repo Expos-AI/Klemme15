@@ -185,6 +185,15 @@ public sealed class SessionState : ViewModelBase
     /// <summary>BMW measurement values by name (for guided tests): from the user's files, the demo, or the downloaded tables.</summary>
     public IMeasurementReader? Measurements => _backend as IMeasurementReader ?? Readings as IMeasurementReader;
 
+    /// <summary>Engine values (rpm, coolant, voltage...) from the connected car, or null when there's no engine computer.</summary>
+    public ISignalSource? EngineSignalSource()
+    {
+        if (Backend is not { } backend || Vehicle?.Modules.FirstOrDefault(m => m.IsEngine) is not { } engine) return null;
+        return IsDemo && Measurements is { } demo
+            ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine)
+            : new EngineSignals(backend, engine, Measurements);
+    }
+
     /// <summary>The module version to read native values for: from its part number when the quick test read it, else the engine.</summary>
     private string? VariantForReadings(EcuDefinition ecu)
     {

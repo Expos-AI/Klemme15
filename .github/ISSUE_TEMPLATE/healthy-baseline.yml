@@ -1,0 +1,48 @@
+name: Share a healthy baseline
+description: Your car runs well? Share a baseline made from its log, so owners of the same engine can compare against a known good curve.
+title: "Baseline: "
+labels: ["baseline"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Make the baseline on the **Analyse** page with **Make a baseline from this log**, then attach the `.json` file here.
+        It holds only curves of values across engine speed: no VIN, no location. Please only share one from a car you
+        believe is healthy (no fuel or misfire faults, no known leaks, warm engine). See [how baselines work](https://github.com/Expos-AI/Klemme15/blob/main/docs/BASELINES.md).
+  - type: input
+    id: car
+    attributes:
+      label: Car and engine
+      description: Chassis, model, engine code and year, e.g. "E90 325i N52B30 2006". The engine computer (MSV70, MSD80...) helps too.
+    validations:
+      required: true
+  - type: input
+    id: mileage
+    attributes:
+      label: Approximate mileage
+  - type: textarea
+    id: health
+    attributes:
+      label: Why you think it's healthy
+      description: Recent quick test result, recent work (new intake boot, crankcase vent valve...), any modifications (intake, exhaust, tune). Modified cars are welcome but are kept apart from stock ones.
+    validations:
+      required: true
+  - type: textarea
+    id: drive
+    attributes:
+      label: The drive
+      description: Warm engine? Idle, steady cruise, gentle acceleration? Weather (cold air reads differently).
+  - type: textarea
+    id: file
+    attributes:
+      label: Baseline file
+      description: Drag the .json file here.
+    validations:
+      required: true
+  - type: checkboxes
+    id: ok
+    attributes:
+      label: Sharing
+      options:
+        - label: I'm happy for this baseline to be combined with others and shipped with Klemme15 under the project's license.
+          required: true

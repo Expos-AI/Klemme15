@@ -30,6 +30,7 @@ public sealed class VehicleViewModel : PageViewModel
     {
         _session = session;
         _dialogs = dialogs;
+        Topology = new TopologyOverlayViewModel(session) { PageBusy = () => _isScanning || _isDiscovering };
         RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
@@ -114,6 +115,7 @@ public sealed class VehicleViewModel : PageViewModel
             RunCommand.RaiseCanExecuteChanged();
             CancelCommand.RaiseCanExecuteChanged();
             DiscoverCommand.RaiseCanExecuteChanged();
+            Topology.RaiseCanRun();
             Raise(nameof(BeforeScan));
         }
     }
@@ -245,6 +247,7 @@ public sealed class VehicleViewModel : PageViewModel
     {
         ConfirmClearAll = false;
         if (_session.Backend is not { } backend || _session.LastScan is not { } scan) return;
+        await Topology.StopAndWaitAsync();
         var failed = new List<string>();
         var skipped = new List<string>();
         foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
@@ -326,6 +329,7 @@ public sealed class VehicleViewModel : PageViewModel
     {
         if (_session.Backend is not IModuleDiscovery discovery || _session.Vehicle is not { } vehicle) return;
         var addresses = Klemme15.Data.VehicleDatabase.UnlistedAddresses(vehicle);
+        await Topology.StopAndWaitAsync();
         _isDiscovering = true;
         DiscoverCommand.RaiseCanExecuteChanged();
         RunCommand.RaiseCanExecuteChanged();
@@ -344,6 +348,7 @@ public sealed class VehicleViewModel : PageViewModel
         finally
         {
             _isDiscovering = false;
+            Topology.RaiseCanRun();
             DiscoverCommand.RaiseCanExecuteChanged();
             RunCommand.RaiseCanExecuteChanged();
         }
@@ -352,6 +357,11 @@ public sealed class VehicleViewModel : PageViewModel
     public AsyncCommand ExportHtmlCommand { get; }
     public AsyncCommand ExportMarkdownCommand { get; }
     public AsyncCommand ExportJsonCommand { get; }
+
+    /// <summary>Live values pinned to the car drawing.</summary>
+    public TopologyOverlayViewModel Topology { get; }
+
+    public override void OnHidden() => Topology.Stop();
 
     public override void OnShown()
     {
@@ -364,6 +374,7 @@ public sealed class VehicleViewModel : PageViewModel
         var backend = _session.Backend;
         var vehicle = _session.Vehicle;
         if (backend is null || vehicle is null) return;
+        await Topology.StopAndWaitAsync();
 
         Error = null;
         Warning = null;

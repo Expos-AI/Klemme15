@@ -95,6 +95,32 @@
       <Viewbox Stretch="Uniform">
         <Grid Width="1000" Height="460">
           <c:CarDrawing />
+          <!-- Live values pinned to the drawing (under the module markers, which stay clickable). -->
+          <ItemsControl Classes="tiles" ItemsSource="{Binding Topology.Tiles}" IsVisible="{Binding Topology.IsOn}" IsHitTestVisible="False">
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate><Canvas Width="1000" Height="460" ClipToBounds="False" /></ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.Styles>
+              <Style Selector="ItemsControl.tiles > ContentPresenter" x:DataType="vm:TopologyTile">
+                <Setter Property="Canvas.Left" Value="{Binding Left}" />
+                <Setter Property="Canvas.Top" Value="{Binding Top}" />
+              </Style>
+              <Style Selector="Border.tile.warn"><Setter Property="Background" Value="{DynamicResource AmberSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource AmberBrush}" /></Style>
+              <Style Selector="Border.tile.bad"><Setter Property="Background" Value="{DynamicResource RedSoftBrush}" /><Setter Property="BorderBrush" Value="{DynamicResource RedBrush}" /></Style>
+            </ItemsControl.Styles>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate DataType="vm:TopologyTile">
+                <Border Classes="tile" Classes.warn="{Binding IsWarn}" Classes.bad="{Binding IsBad}" IsVisible="{Binding HasValue}"
+                        Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1.5"
+                        CornerRadius="7" Padding="9,4" MinWidth="92" Opacity="0.94">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Label}" FontSize="12" Foreground="{DynamicResource MutedBrush}" />
+                    <TextBlock Text="{Binding Value}" FontSize="19" FontWeight="SemiBold" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
           <ItemsControl Classes="markers" ItemsSource="{Binding Markers}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate><Canvas Width="1000" Height="460" ClipToBounds="False" /></ItemsPanelTemplate>
@@ -111,6 +137,11 @@
       </Viewbox>
 
       <WrapPanel HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,22,4">
+          <Button Content="{Binding Topology.ToggleLabel}" Command="{Binding Topology.ToggleCommand}" Padding="10,4"
+                  ToolTip.Tip="Coolant, battery voltage, oil, intake air, engine and road speed, live on the drawing. Reads the engine computer only." />
+          <TextBlock Classes="muted small" Text="{Binding Topology.Status}" VerticalAlignment="Center" />
+        </StackPanel>
         <StackPanel Orientation="Horizontal" Spacing="7" Margin="0,0,22,4">
           <Border Width="11" Height="11" CornerRadius="3" Background="{DynamicResource LitBrush}" VerticalAlignment="Center" />
           <TextBlock Classes="muted small" Text="Module answered" />

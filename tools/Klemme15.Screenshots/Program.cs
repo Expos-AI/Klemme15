@@ -43,6 +43,14 @@ Pump(300);
 Shot("05-vehicle-scanned");
 vm.Vehicle.Select(vm.Vehicle.Markers.First(m => m.IsFaultSource));
 Shot("06-vehicle-fault-selected");
+vm.Vehicle.Select(null);
+vm.Vehicle.Topology.Start();
+WaitUntil(() => vm.Vehicle.Topology.Tiles.Any(t => t.HasValue), 10000);
+Pump(600);
+Shot("31-vehicle-live-values");
+if (!vm.Vehicle.Topology.Tiles.Any(t => t.HasValue)) problems.Add("31-vehicle-live-values: no live values on the drawing");
+var stopping = vm.Vehicle.Topology.StopAndWaitAsync();
+WaitUntil(() => stopping.IsCompleted);
 vm.CurrentPage = vm.Faults;
 Shot("07-faults");
 if (vm.Faults.Groups.SelectMany(g => g.Faults).FirstOrDefault(f => f.HasGuide) is { } guided)
@@ -69,7 +77,19 @@ vm.Live.AnalyseCommand.Execute(null);
 Pump(200);
 vm.Analyse.Position = vm.Analyse.MaxPosition / 2;
 Shot("22-analyse");
-// The "known good" overlay: the example baseline behind the demo car's recording.
+// The "known good" overlay: the example baseline behind a made-up warm drive with a small vacuum leak (lean at idle).
+{
+    var rng = new Random(15);
+    var csv = new System.Text.StringBuilder("time,\"Engine speed (rpm)\",\"Coolant temperature (°C)\",\"Short-term fuel trim bank 1 (%)\",\"Long-term fuel trim bank 1 (%)\",\"Engine load (%)\"\n");
+    for (var i = 0; i < 400; i++)
+    {
+        var rpm = i < 120 ? 760 + rng.Next(-20, 20) : 900 + (i - 120) * 14 + rng.Next(-60, 60);
+        var lean = Math.Max(0, 13 - (rpm - 760) / 120.0);
+        csv.AppendLine(System.FormattableString.Invariant($"{i * 0.25:0.00},{rpm},91,{lean * 0.3 + rng.NextDouble() * 3 - 1.5:0.0},{lean * 0.7 + 1:0.0},{18 + rpm / 220.0:0}"));
+    }
+    vm.Analyse.Load(Klemme15.Core.DataLog.Parse(csv.ToString()), "a made-up warm drive");
+    Pump(200);
+}
 if ((vm.Analyse.Baselines.FirstOrDefault(b => b.Curve?.Y == "stft1+ltft1") ?? vm.Analyse.Baselines.Skip(1).FirstOrDefault()) is { } baseline)
 {
     vm.Analyse.Baseline = baseline;
