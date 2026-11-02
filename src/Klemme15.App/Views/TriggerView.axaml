@@ -68,16 +68,17 @@
             <ItemsControl ItemsSource="{Binding NewConditions}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:ConditionRow">
-                  <Grid ColumnDefinitions="2*,1.3*,90,Auto,70,Auto,Auto" Margin="0,0,0,8">
-                    <ComboBox Grid.Column="0" ItemsSource="{Binding Signals}"
-                              SelectedItem="{Binding Signal}" HorizontalAlignment="Stretch" PlaceholderText="Value" />
-                    <ComboBox Grid.Column="1" ItemsSource="{Binding Operators}"
-                              SelectedItem="{Binding Operator}" HorizontalAlignment="Stretch" Margin="6,0" />
-                    <TextBox Grid.Column="2" Text="{Binding Threshold}" Watermark="value" />
-                    <TextBlock Grid.Column="3" Classes="muted small" Text="for" VerticalAlignment="Center" Margin="8,0" />
-                    <TextBox Grid.Column="4" Text="{Binding Hold}" Watermark="s" />
-                    <TextBlock Grid.Column="5" Classes="muted small" Text="s" VerticalAlignment="Center" Margin="6,0" />
-                    <Button Grid.Column="6" Classes="quiet" Content="Remove" Command="{Binding RemoveCommand}" VerticalAlignment="Center" />
+                  <!-- Two lines, so long value names ("Short-term trim, leaner bank") are never cut off. -->
+                  <Grid ColumnDefinitions="1.3*,90,Auto,70,Auto,Auto" RowDefinitions="Auto,Auto" Margin="0,0,0,12">
+                    <ComboBox Grid.Row="0" Grid.ColumnSpan="6" ItemsSource="{Binding Signals}"
+                              SelectedItem="{Binding Signal}" HorizontalAlignment="Stretch" PlaceholderText="Value" Margin="0,0,0,6" />
+                    <ComboBox Grid.Row="1" Grid.Column="0" ItemsSource="{Binding Operators}"
+                              SelectedItem="{Binding Operator}" HorizontalAlignment="Stretch" Margin="0,0,6,0" />
+                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Threshold}" Watermark="value" />
+                    <TextBlock Grid.Row="1" Grid.Column="2" Classes="muted small" Text="for" VerticalAlignment="Center" Margin="8,0" />
+                    <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding Hold}" Watermark="s" />
+                    <TextBlock Grid.Row="1" Grid.Column="4" Classes="muted small" Text="s" VerticalAlignment="Center" Margin="6,0" />
+                    <Button Grid.Row="1" Grid.Column="5" Classes="quiet" Content="Remove" Command="{Binding RemoveCommand}" VerticalAlignment="Center" />
                   </Grid>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
