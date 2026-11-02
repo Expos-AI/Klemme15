@@ -79,6 +79,9 @@ public sealed record SnapshotManifest
     /// <summary>The owner's own words: what's wrong, what they already tried.</summary>
     public string? Note { get; init; }
 
+    /// <summary>Why the snapshot was taken, when the Ghost Hunter caught something (older Klemme15 versions ignore it).</summary>
+    public Klemme15.Core.GhostHunter.TriggerEvent? Trigger { get; init; }
+
     public IReadOnlyList<SnapshotSection> Sections { get; init; } = [];
 }
 

@@ -75,7 +75,7 @@ public sealed class LiveViewModel : PageViewModel
     {
         _session = session;
         _dialogs = dialogs;
-        StartCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_running && Parameters.Any(p => p.IsSelected), e => Error = e.Message);
+        StartCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsWatching && !_running && Parameters.Any(p => p.IsSelected), e => Error = e.Message);
         StopCommand = new RelayCommand(Stop, () => _running);
         RecordCommand = new RelayCommand(() =>
         {
@@ -90,6 +90,7 @@ public sealed class LiveViewModel : PageViewModel
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(SessionState.Backend)) OnUi(LoadParameters);
+            if (e.PropertyName == nameof(SessionState.IsWatching)) OnUi(StartCommand.RaiseCanExecuteChanged);
         };
     }
 

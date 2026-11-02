@@ -112,6 +112,11 @@ public sealed class SessionState : ViewModelBase
         ? $"Viewing a snapshot from {s.Manifest.Created.LocalDateTime:d MMM yyyy HH:mm} · {s.Manifest.ModelName ?? s.Manifest.Chassis ?? "BMW"} · nothing is connected, nothing can be changed"
         : "";
 
+    private bool _isWatching;
+
+    /// <summary>The Ghost Hunter is reading the car in the background: other work waits, because there's one diagnostic bus.</summary>
+    public bool IsWatching { get => _isWatching; set => Set(ref _isWatching, value); }
+
     /// <summary>The last minute of live data (filled while live data or a test runs), for snapshots.</summary>
     public LiveBuffer LiveBuffer { get; } = new();
 
