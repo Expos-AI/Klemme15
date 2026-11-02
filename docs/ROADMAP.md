@@ -1,42 +1,29 @@
 # Roadmap
 
-## 0.1 — foundation
-- Native protocol stack: DS2, KWP2000/BMW-FAST on D-CAN, OBD-II on K-line
-- EDIABAS backend (Windows) using the user's own SGBDs
-- Quick test, faults, live data, expert job runner, traffic log, reports
-- Desktop app (Windows, macOS, Linux) and CLI
-- Virtual E46 and E90 for development and demos
+What's done, what's next, and what Klemme15 will never do. The [release notes](https://github.com/Expos-AI/Klemme15/releases) list every change.
 
-## 0.2 — see the car
-- Garage with every E46 and E9x model, each with its own demo car
-- Top-view car drawing: modules light up where they sit, faults pinned to the part they point at
-- New visual design with dark and light themes
-- Automatic UI screenshots in CI
+## Done
 
-## 0.3 — ISTA-grade results (this release)
-- EDIABAS mode finds the user's own SGBD files automatically and reads fault details and info memory like ISTA
-- 202 researched BMW codes with sources and confidence; all standard OBD-II codes
-- Every known E90-family and E46 module address; one-broadcast module detection
-- Battery check before scans, clear all faults
+- **Foundation**: native DS2, KWP2000 on D-CAN and OBD-II stacks; optional EDIABAS mode with your own BMW files; desktop app for Windows, macOS and Linux; command line; demo cars.
+- **Diagnose**: one-broadcast quick test of every module; faults sorted by priority; researched meanings with sources; BMW's own texts from your files or bmw-unified-db; Shadow / Info memory read and cleared; Check Control messages and history; the car's story; readings for every module; live data, recording and analysis.
+- **Confirmed on a real E90 325i**: module identification, faults, clearing, dash messages, live data, fuel trim test, battery registration.
+- **Over time**: health history with drift trends, Your cars, test results as trends.
+- **Test and fix**: guided tests with live graphs (fuel trims, VANOS, roughness, no-start, cooling bleed, water pump), multimeter checks, troubleshooting and how-to guides, 75 service functions (experimental).
+- **Coding**: backup, compare, restore; quick codes verified against NCS Expert, learned from another tool, or from shared coding maps; FRM3 protection.
+- **Share**: reports, forum posts without the VIN, headless mode with a phone dashboard and MQTT, network cables.
 
-## 0.4 — proven on real cars
-- Verify module addresses on E46 and E90 cars from community test reports
-- Replay real captured traffic in tests
-- Ident layouts per module family (part number, HW/SW, coding index)
-- More vehicle families: E39, E53, E60/E61, E70, E8x, each with its own drawing
+## Next
 
-## 0.5 — deeper diagnostics
-- DS2 fault-memory decoders for common E46 modules
-- Freeze-frame / environment data for faults
-- Guided checks: "lean codes" walkthrough using live fuel trims, misfire counters, VANOS checks
-- Service functions with explicit confirmation: battery registration, service interval reset
+- Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
+- **Battery drain finder**: read the engine computer's own record of sleep-current problems, then a guided fuse-pull hunt with a "how many days until flat" calculator.
+- The same depth (dash history, health trends, graphed tests) for the E46, E39 and E53.
+- The first community coding maps and checks in the library.
 
 ## Later
-- Code-signed Windows builds so there's no SmartScreen prompt on a direct download (free for open source via SignPath Foundation); winget and Scoop already avoid it at no cost.
-- F-series and G-series over ENET (HSFZ / UDS)
-- Coding: more comfort options, and a shared list of module files people have verified, so fewer users need NCS Expert's trace
-- Android build
-- Community knowledge base of fixes linked to fault codes
+
+- Code-signed Windows builds, so a direct download shows no SmartScreen prompt (free for open source via SignPath Foundation).
+- F- and G-series over Ethernet (ENET), once someone can test on a car.
+- BLE adapters; an Android build.
 
 ## Not planned, on purpose
 

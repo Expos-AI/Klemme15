@@ -8,9 +8,15 @@ The most valuable contribution right now is confirming Klemme15 on real cars.
 
 1. Connect, run a quick test, and if you can, read live data with the engine running.
 2. Save the report (Quick test page > Save report) and the traffic log (Log page > Save log).
-3. Open an issue titled `Test: <chassis> <engine> <year>` (e.g. `Test: E90 N52 2007`) and attach both files. Say which cable you used and anything that looked wrong.
+3. Open a [test drive report](https://github.com/Expos-AI/Klemme15/issues/new?template=test-drive.yml) and attach both files. Say which cable you used and anything that looked wrong.
 
 Traffic logs contain your VIN. Remove it if you prefer.
+
+## Share what you know
+
+- **Coding maps**: after verifying or teaching an option on the Coding page, press **Share this map**. It opens a pre-filled issue.
+- **Checks and pin notes**: how you tested a part or found a connector, in your own words: [share a check](https://github.com/Expos-AI/Klemme15/issues/new?template=pin-note.yml).
+- **Dash messages**: if Klemme15 shows a Check Control message as unknown, tell us the text your dash showed.
 
 ## Code
 
