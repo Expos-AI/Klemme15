@@ -2,8 +2,12 @@ name: build
 
 # Docs-only pushes skip CI. Pull requests always run it, so the checks a protected main branch requires always report.
 # Public repo: standard GitHub-hosted runners are free.
+# Pushes: main and release tags only. Other branches (yours, Dependabot's) are tested through their pull request,
+# so nothing runs twice and only main publishes screenshots.
 on:
   push:
+    branches: [main]
+    tags: ["v*"]
     paths-ignore: ["**.md", "docs/**", "LICENSE"]
   pull_request:
   workflow_dispatch:
@@ -56,7 +60,7 @@ jobs:
   screenshots:
     name: UI screenshots
     needs: cross-platform
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
