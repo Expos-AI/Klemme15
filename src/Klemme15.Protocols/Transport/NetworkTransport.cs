@@ -76,7 +76,7 @@ public sealed class NetworkTransport : ITransport
         var client = new TcpClient { NoDelay = true };
         try
         {
-            if (!client.ConnectAsync(_host, _port).Wait(TimeSpan.FromSeconds(5)))
+            if (!client.ConnectAsync(_host, _port).Wait(TimeSpan.FromSeconds(10)))
                 throw new IOException($"No answer from {_host}:{_port}. Check the adapter's Wi-Fi and address.");
         }
         catch (AggregateException e) when (e.InnerException is SocketException se)

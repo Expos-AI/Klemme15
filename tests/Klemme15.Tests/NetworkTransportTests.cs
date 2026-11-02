@@ -5,6 +5,11 @@ using Xunit;
 
 namespace Klemme15.Tests;
 
+/// <summary>Real sockets on loopback: run on their own, so a busy test machine can't starve the connect.</summary>
+[CollectionDefinition("Network", DisableParallelization = true)]
+public sealed class NetworkCollection;
+
+[Collection("Network")]
 public class NetworkTransportTests
 {
     [Fact]
