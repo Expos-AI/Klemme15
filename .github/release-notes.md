@@ -1,6 +1,12 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.21.0:**
+**New in 0.22.0:**
+- **Verify your download.** Every release now comes with `SHA256SUMS.txt` and a signed build provenance: proof, signed through Sigstore, that each zip was built by this repository's GitHub workflow from a specific commit. Check a download with `gh attestation verify <zip> -R Expos-AI/Klemme15`, or compare its SHA-256 with `SHA256SUMS.txt` ([how](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download)).
+- **Security fix:** the phone dashboard's build tool (esbuild) is updated past a moderate advisory, and the dashboard moves to React 19. The dashboard now needs iOS 14.5 or newer (phones from 2021 on).
+- **A safer project.** CodeQL scans every change, Dependabot watches every dependency, workflows run with read-only permissions unless a job needs more, and `main` only changes through pull requests that pass every check. Contributions need a [Developer Certificate of Origin](https://github.com/Expos-AI/Klemme15/blob/main/CONTRIBUTING.md#sign-off-your-commits-dco) sign-off. A fuller [security policy](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md) explains how to report a problem privately.
+- The About window now credits Klemme15's creator and lead developer, Kindric Castro.
+
+**0.21.0:**
 - **Ghost Hunter templates: say what you're chasing, not how to measure it.** Eight ready-made traps in plain words: *Catch an intermittent misfire*, *a voltage dip*, *a lean condition while driving*, *a lean idle* (vacuum leak hunting), *a rich condition*, *overheating*, *a charging dropout*, *a stall*. Each says when to use it and how to drive for it. Tick one and go, or pick it from **Start from a template** to fill the rule builder and adjust the numbers. The misfire trap watches every cylinder at once and names the rough one; the lean and rich traps watch both banks. Rules now read in words ("Engine speed below 1,000 rpm and Short-term trim, leaner bank above 12 % for 3 s").
 - **N52 physics model baseline.** A first baseline for the N52, worked out from the engine's size and how full its cylinders get, with air mass split into idle / no load and full throttle and wide bands. It's labelled in the app as a model, not measured: it catches big problems, like a lean idle, and will be replaced by real logs from healthy cars ([how it's built](https://github.com/Expos-AI/Klemme15/blob/main/docs/BASELINES.md#the-n52-physics-model)).
 - **Logs from other tools.** The Analyse page now recognises columns like `STFT_Bank1(%)`, `CoolantTemp(C)` and `MAF(kg/h)`, and shows air mass in kg/h as g/s.
