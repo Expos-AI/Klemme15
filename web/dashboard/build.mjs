@@ -9,7 +9,7 @@ const options = {
   bundle: true,
   minify: true,
   format: "iife",
-  target: ["es2019", "safari13"],
+  target: ["es2020", "safari14.1"],   // phones from 2021 on (iOS 14.5+): esbuild 0.28 no longer rewrites destructuring for older Safari
   jsx: "automatic",
   define: { "process.env.NODE_ENV": '"production"' },
   outfile: new URL("dashboard.js", out).pathname,
