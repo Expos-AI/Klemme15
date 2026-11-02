@@ -29,6 +29,7 @@ public sealed class MainViewModel : ViewModelBase
             CurrentPage = Readings;
             Readings.ShowModule(ecu.Id, "");
         };
+        Faults.Purchase = new PurchaseCheckViewModel(Session, dialogs);
         Faults.Share = new SnapshotShareViewModel(Session, dialogs, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "");
         Faults.GuideActions = new GuideActions(
             (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },

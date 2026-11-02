@@ -51,10 +51,51 @@
     <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,18">
       <DockPanel>
         <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="{Binding Purchase.ToggleText}" Command="{Binding Purchase.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
+                ToolTip.Tip="A pre-purchase check for someone looking at a used car: mileage records, safety faults, signs of cleared codes" />
         <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding Share.ToggleText}" Command="{Binding Share.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
                 ToolTip.Tip="Save the whole car as a .k15 file someone else can open in Klemme15 and explore, read-only" />
         <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
+      <!-- Buying this car? -->
+      <Border Classes="panel" Padding="18,14" IsVisible="{Binding Purchase.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Spacing="8" DataContext="{Binding Purchase}" x:DataType="vm:PurchaseCheckViewModel">
+          <TextBlock Classes="section" FontSize="16" Text="{Binding Headline}" TextWrapping="Wrap" />
+          <TextBlock Classes="muted small" TextWrapping="Wrap"
+                     Text="Looking at a used car? Type the odometer reading from the dash: Klemme15 compares it with the mileage the car's modules recorded, and looks for safety faults and signs of freshly cleared codes. Read-only." />
+          <StackPanel Orientation="Horizontal" Spacing="10">
+            <TextBox Watermark="Odometer reading" Text="{Binding Odometer}" Width="180" />
+            <CheckBox Content="Miles" IsChecked="{Binding Miles}" VerticalAlignment="Center" />
+            <Button Content="Save buyer's report..." Command="{Binding SaveCommand}" />
+          </StackPanel>
+          <ItemsControl ItemsSource="{Binding Items}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:PurchaseItemViewModel">
+                <Grid ColumnDefinitions="22,*" Margin="0,4">
+                  <Grid>
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsWarn}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsAsk}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsGood}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5" IsVisible="{Binding IsInfo}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                  </Grid>
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="small" Text="Not covered" FontWeight="SemiBold" />
+          <ItemsControl ItemsSource="{Binding NotChecked}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="sys:String">
+                <TextBlock Classes="muted small" Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
       <!-- Share snapshot -->
       <Border Classes="panel" Padding="18,14" IsVisible="{Binding Share.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
         <StackPanel Spacing="8" DataContext="{Binding Share}" x:DataType="vm:SnapshotShareViewModel">
