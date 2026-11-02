@@ -10,13 +10,13 @@
     "check": "tsc -p ."
   },
   "dependencies": {
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
   },
   "devDependencies": {
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "esbuild": "0.24.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "esbuild": "0.28.2",
     "typescript": "^5.6.3"
   }
 }
