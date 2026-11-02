@@ -245,7 +245,8 @@ public static class ReportWriter
         sb.Append("</div>");
     }
 
-    public static string ToHtml(VehicleScanResult scan)
+    /// <param name="purchase">A pre-purchase check to put at the top (the buyer's report), or null.</param>
+    public static string ToHtml(VehicleScanResult scan, PurchaseReport? purchase = null)
     {
         static string H(string? s) => WebUtility.HtmlEncode(s ?? "");
         var sb = new StringBuilder();
@@ -287,6 +288,19 @@ section{margin-top:24px}
         if (scan.BatteryVoltage is { } v) sb.Append($"<div class=\"stat\"><b>{v:0.0} V</b>battery</div>");
         if (scan.ActiveCheckControl > 0) sb.Append($"<div class=\"stat\"><b>{scan.ActiveCheckControl}</b>dash messages</div>");
         sb.Append("</div>");
+        if (purchase is not null)
+        {
+            sb.Append($"<section><h2>Pre-purchase check: {H(purchase.Headline)}</h2><div class=\"table-wrap\"><table><tr><th></th><th>Finding</th></tr>");
+            foreach (var i in purchase.Items)
+            {
+                var tag = i.Level switch { CheckLevel.Warn => "<span class=\"bad\">Check</span>", CheckLevel.Ask => "<span class=\"warn\">Ask</span>", CheckLevel.Good => "<span class=\"Ok\">Good</span>", _ => "Note" };
+                sb.Append($"<tr><td>{tag}</td><td><b>{H(i.Title)}</b><br><span class=\"muted\">{H(i.Detail)}</span></td></tr>");
+            }
+            sb.Append("</table></div>");
+            if (purchase.NotChecked.Count > 0)
+                sb.Append("<p class=\"muted\">Not covered: " + string.Join(" ", purchase.NotChecked.Select(H)) + "</p>");
+            sb.Append("<p class=\"muted\">A pre-purchase check reads what the car's modules remember. It is not a substitute for an inspection by a workshop.</p></section>");
+        }
         HtmlCheckControl(sb, scan, H);
         sb.Append("<div class=\"table-wrap\"><table><tr><th>Module</th><th>Address</th><th>Status</th><th>Faults</th><th>Identification</th></tr>");
         foreach (var e in scan.Ecus)

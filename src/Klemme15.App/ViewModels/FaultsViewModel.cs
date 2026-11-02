@@ -194,6 +194,9 @@ public sealed class FaultsViewModel : PageViewModel
 
     public bool ShowTrendsCard => TrendsHeadline.Length > 0;
 
+    /// <summary>"Buying this car?" (set by the main window, which owns the dialogs).</summary>
+    public PurchaseCheckViewModel? Purchase { get; set; }
+
     /// <summary>"Share snapshot" (set by the main window, which owns the dialogs).</summary>
     public SnapshotShareViewModel? Share { get; set; }
 
