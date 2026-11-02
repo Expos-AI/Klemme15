@@ -1,19 +1,67 @@
 # Security policy
 
-Klemme15 talks to cars, so safety and security bugs matter more than most.
+Klemme15 talks to cars, so safety and security bugs matter more than most. Thank you for taking the time to report one responsibly.
 
-## Reporting
+## Reporting a vulnerability
 
-Please report security problems **privately** through GitHub's [private vulnerability reporting](https://github.com/Expos-AI/Klemme15/security/advisories/new), not in a public issue. Include the version, what you did and what happened. You'll get a reply within a week.
+**Please don't open a public issue, discussion or pull request for a security problem.** Report it privately:
 
-Report there, too, anything that could make Klemme15 write to a car in a way it shouldn't: a write without a backup, a coding change outside the option's bits, a service function running when its checks failed, or anything reaching the key module or immobiliser.
+1. Go to [Report a vulnerability](https://github.com/Expos-AI/Klemme15/security/advisories/new) (GitHub's private vulnerability reporting). Only the maintainer can see it.
+2. Include:
+   - the Klemme15 version (bottom of the left rail, or the About window) and your operating system;
+   - what you did, what happened, and what you expected;
+   - steps or a file to reproduce it (a `.k15` snapshot, a CSV, a coding map), with personal data and your VIN removed;
+   - what an attacker could do with it, as far as you know.
+
+If you can't use GitHub, say so in a public issue titled "Security contact request" **without any details**, and the maintainer will reach out.
+
+## What happens next
+
+| When | What |
+|---|---|
+| Within 7 days | You get a reply confirming the report was received and read. |
+| Within 30 days | An assessment: confirmed or not, how severe, and a plan. |
+| Fix released | A new release with the fix, and a GitHub security advisory crediting you (unless you'd rather stay anonymous). |
+
+Please give us a reasonable time to release a fix (90 days at most, usually much less) before you publish details. We'll keep you updated and agree a disclosure date with you.
+
+## What counts
+
+Report privately anything that could:
+
+- make Klemme15 **write to a car** in a way it shouldn't: a write without a backup, a coding change outside the option's bits, a service function running when its checks failed, or anything reaching the key module (CAS) or the immobiliser;
+- run code or read files through a file someone sends you: a `.k15` snapshot, a coding map, a baseline, a chain, a CSV;
+- leak your VIN or personal data, or make Klemme15 connect anywhere you didn't ask it to;
+- tamper with the release downloads, the install recipes (winget, Scoop) or the build pipeline;
+- expose the headless mode's dashboard or MQTT data beyond the network you pointed it at.
+
+Not security issues (open a normal issue): wrong fault meanings, a test giving the wrong verdict, crashes with no security impact, and problems that need someone to already control your computer.
+
+## Good-faith research
+
+We won't pursue or support legal action against anyone who researches and reports a vulnerability in good faith under this policy: testing only on cars and computers you own or have permission to use, not accessing other people's data, and giving us time to fix it before going public.
 
 ## Supported versions
 
-Only the latest release gets fixes. Klemme15 is early alpha and updates often; winget and Scoop keep you current.
+Only the **latest release** gets security fixes. Klemme15 is early alpha and updates often; winget and Scoop keep you current.
 
-## By design
+## Verifying your download
+
+Every release is built by GitHub Actions from this repository, and comes with:
+
+- **`SHA256SUMS.txt`**: the SHA-256 checksum of every zip. After downloading, check yours matches:
+  - Linux: `sha256sum -c SHA256SUMS.txt --ignore-missing`
+  - macOS: `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`
+  - Windows (PowerShell): `Get-FileHash .\Klemme15-v0.22.0-win-x64.zip` and compare with the line in `SHA256SUMS.txt`
+- **A signed build provenance attestation**: proof, signed through Sigstore, that the zip was built by this repository's workflow from a specific commit. With the GitHub CLI: `gh attestation verify Klemme15-v0.22.0-win-x64.zip -R Expos-AI/Klemme15`. This is the stronger check, because it doesn't depend on a file stored next to the download.
+
+Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-AI/Klemme15/releases), winget (`Expos-AI.Klemme15`) or the project's Scoop bucket.
+
+## How the project protects itself
 
 - No network access except what you ask for (see [PRIVACY.md](PRIVACY.md)).
 - No flashing, no key or immobiliser functions, no coding of the key, engine, gearbox, brake or airbag modules.
-- Dependencies are watched by Dependabot, and every release is built by GitHub Actions from this repository.
+- Files from other people (snapshots, maps, baselines, chains) are size-limited, checked and validated before anything is shown or used.
+- CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; third-party workflow actions are pinned to exact commits.
+- Workflows run with read-only permissions unless a job needs more.
+- Contributions require a [Developer Certificate of Origin](CONTRIBUTING.md#sign-off-your-commits-dco) sign-off.

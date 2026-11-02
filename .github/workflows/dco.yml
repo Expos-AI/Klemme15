@@ -1,0 +1,50 @@
+name: DCO
+
+# Every commit in a pull request must carry a "Signed-off-by:" line matching its author: the Developer Certificate of
+# Origin (https://developercertificate.org/). See CONTRIBUTING.md. Written as a plain script, with no third-party
+# action, so the check itself can't be a supply-chain risk.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+jobs:
+  dco:
+    name: DCO sign-off
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+      - name: Check every commit is signed off
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+          # The repository owner's own pull requests and bots (Dependabot) are exempt: the DCO is a promise
+          # contributors make to the owner.
+          EXEMPT: ${{ github.event.pull_request.author_association == 'OWNER' || endsWith(github.event.pull_request.user.login, '[bot]') }}
+        run: |
+          set -euo pipefail
+          if [ "$EXEMPT" = "true" ]; then echo "Owner or bot pull request: DCO not required."; exit 0; fi
+          missing=0
+          for sha in $(git rev-list --no-merges "$BASE..$HEAD"); do
+            author=$(git log -1 --format='%an <%ae>' "$sha")
+            if git log -1 --format='%B' "$sha" | grep -qiF "Signed-off-by: $author"; then
+              echo "ok      $sha  $author"
+            else
+              echo "::error::Commit $sha by $author has no 'Signed-off-by: $author' line."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            echo
+            echo "Sign off with 'git commit -s' (or 'git rebase --signoff $BASE' for every commit) and force-push."
+            echo "Signing off certifies the Developer Certificate of Origin: https://developercertificate.org/"
+            exit 1
+          fi
+
+      - name: License headers on new files
+        run: python3 scripts/license-headers.py --check

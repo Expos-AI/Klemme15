@@ -5,8 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <Authors>Klemme15 contributors</Authors>
-    <Copyright>Klemme15 contributors, GPL-3.0-or-later</Copyright>
+    <Authors>Kindric Castro</Authors>
+    <Copyright>Copyright (C) 2026 Kindric Castro. GPL-3.0-or-later.</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     <Version>0.21.0</Version>
   </PropertyGroup>

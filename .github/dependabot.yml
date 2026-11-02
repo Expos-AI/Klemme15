@@ -1,0 +1,38 @@
+# Dependabot: weekly checks for newer versions, and immediate pull requests for security fixes (CVEs).
+# Security updates also need "Dependabot security updates" switched on in Settings > Code security.
+version: 2
+updates:
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    groups:
+      # Minor and patch bumps arrive together; major versions get their own pull request to review.
+      nuget-minor-and-patch:
+        update-types: ["minor", "patch"]
+      avalonia:
+        patterns: ["Avalonia*"]
+
+  - package-ecosystem: npm
+    directory: "/web/dashboard"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    groups:
+      npm-minor-and-patch:
+        update-types: ["minor", "patch"]
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    labels: ["dependencies"]
+    groups:
+      actions:
+        patterns: ["*"]

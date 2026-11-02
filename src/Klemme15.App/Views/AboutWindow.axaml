@@ -1,3 +1,16 @@
+<!--
+  Klemme15: open-source BMW diagnostics
+  Copyright (C) 2026 Kindric Castro
+
+  This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+  Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+  option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+  WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details. You should have received a copy of the GNU General Public License
+  along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+  SPDX-License-Identifier: GPL-3.0-or-later
+-->
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:Klemme15.App.ViewModels"
@@ -18,6 +31,7 @@
     </StackPanel>
 
     <TextBlock Text="{Binding Tagline}" FontWeight="SemiBold" />
+    <TextBlock Text="{Binding Author}" FontWeight="SemiBold" />
     <TextBlock Text="{Binding Blurb}" TextWrapping="Wrap" Classes="muted" />
     <TextBlock Text="{Binding Confirmed}" TextWrapping="Wrap" Classes="muted small" />
 
@@ -30,6 +44,7 @@
 
     <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0">
       <StackPanel Spacing="6">
+        <TextBlock Text="{Binding Copyright}" Classes="muted small" TextWrapping="Wrap" />
         <TextBlock Text="{Binding License}" Classes="muted small" TextWrapping="Wrap" />
         <TextBlock Text="{Binding Independent}" Classes="muted small" TextWrapping="Wrap" />
       </StackPanel>
