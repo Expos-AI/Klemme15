@@ -1,3 +1,15 @@
+// Klemme15: open-source BMW diagnostics
+// Copyright (C) 2026 Kindric Castro
+//
+// This program is free software: you can redistribute it and/or modify it under the terms of the GNU General
+// Public License as published by the Free Software Foundation, either version 3 of the License, or (at your
+// option) any later version. This program is distributed in the hope that it will be useful, but WITHOUT ANY
+// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+// General Public License for more details. You should have received a copy of the GNU General Public License
+// along with this program. If not, see <https://www.gnu.org/licenses/>.
+//
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 using Avalonia.Media;
 using Klemme15.App.Services;
 
@@ -30,6 +42,8 @@ public sealed class AboutViewModel : ViewModelBase
         "BMW's own data and tested against demo cars — please report results from your car.";
     public string Independent =>
         "Independent project, not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.";
+    public string Author => "Created and lead developed by Kindric Castro";
+    public string Copyright => "Copyright (C) 2026 Kindric Castro";
     public string License => "Licensed under GPLv3. Your data stays on your computer — see the privacy policy.";
 
     public bool HasCoffee => !string.IsNullOrWhiteSpace(Links.Coffee);

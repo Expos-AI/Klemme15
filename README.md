@@ -195,4 +195,6 @@ The most useful help is **testing on your car**: run a quick test and send the r
 
 ## License
 
-GPL-3.0-or-later. See [LICENSE](LICENSE).
+Copyright (C) 2026 Kindric Castro. Created and lead developed by Kindric Castro.
+
+GPL-3.0-or-later. See [LICENSE](LICENSE) and [COPYRIGHT](COPYRIGHT). Contributions are accepted under the same license with a [Developer Certificate of Origin](CONTRIBUTING.md#sign-off-your-commits-dco) sign-off.
