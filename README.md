@@ -38,7 +38,7 @@ scoop install klemme15
 
 **Any platform (direct download):** grab the `.zip` for your system from the [latest release](https://github.com/Expos-AI/Klemme15/releases/latest), unzip it anywhere and run `Klemme15`. It's portable: there's no installer.
 
-> Windows may show a SmartScreen prompt on a directly downloaded `.zip` because the build isn't code-signed yet (on the [roadmap](docs/ROADMAP.md)). winget and Scoop avoid it. Otherwise click **More info → Run anyway**, or first check the download's SHA-256 against the release notes.
+> Windows may show a SmartScreen prompt on a directly downloaded `.zip` because the build isn't code-signed yet (on the [roadmap](docs/ROADMAP.md)). winget and Scoop avoid it. Otherwise click **More info → Run anyway**, after checking the download: every release from 0.22.0 on comes with a `SHA256SUMS.txt` and a signed build provenance ([how to verify](SECURITY.md#verifying-your-download)).
 
 ## What it does
 
