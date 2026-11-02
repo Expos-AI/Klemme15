@@ -38,6 +38,8 @@ public sealed partial class CodingViewModel
     private RetrofitOption? _retrofit;
     public RetrofitGuide? Retrofit => _retrofit?.Guide;
     public bool HasRetrofit => _retrofit is not null;
+    public string RetrofitTitle => Retrofit?.Title ?? "";
+    public string RetrofitSummary => Retrofit?.Summary ?? "";
     public IReadOnlyList<string> RetrofitNeeds => Retrofit?.Needs ?? [];
     public IReadOnlyList<string> RetrofitHelps => Retrofit?.Klemme15 ?? [];
     public IReadOnlyList<SourceLink> RetrofitSources => Retrofit?.Sources.Select(u => new SourceLink(u, url => _ = _dialogs.OpenUrlAsync(url))).ToList() ?? [];
@@ -62,7 +64,7 @@ public sealed partial class CodingViewModel
         foreach (var o in RetrofitOptions) o.IsSelected = o == option;
         _retrofit = option;
         RetrofitCheckText = "";
-        foreach (var p in new[] { nameof(Retrofit), nameof(HasRetrofit), nameof(RetrofitNeeds), nameof(RetrofitHelps), nameof(RetrofitSources) }) Raise(p);
+        foreach (var p in new[] { nameof(Retrofit), nameof(HasRetrofit), nameof(RetrofitTitle), nameof(RetrofitSummary), nameof(RetrofitNeeds), nameof(RetrofitHelps), nameof(RetrofitSources) }) Raise(p);
         CheckRetrofitCommand.RaiseCanExecuteChanged();
         if (_session.LastScan is not null) CheckRetrofit();
     }
