@@ -46,13 +46,17 @@ public sealed class MainViewModel : ViewModelBase
         };
         Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url));
         Expert = new ExpertViewModel(Session, settings);
+        Ghost = new TriggerViewModel(Session, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "")
+        {
+            OpenSnapshot = data => Garage.OpenSnapshotAsync(data),
+        };
         Log = new LogViewModel(Session, dialogs);
         Session.SnapshotOpened += snapshot =>
         {
             if (snapshot.HasLive) Analyse.Load(Klemme15.Core.DataLog.Parse(snapshot.LiveCsv), "the snapshot's live data");
             CurrentPage = Faults;
         };
-        Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Service, Coding, Analyse, Expert, Log];
+        Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Ghost, Service, Coding, Analyse, Expert, Log];
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
@@ -81,6 +85,7 @@ public sealed class MainViewModel : ViewModelBase
     public AnalyseViewModel Analyse { get; }
     public TestsViewModel Tests { get; }
     public ExpertViewModel Expert { get; }
+    public TriggerViewModel Ghost { get; }
     public LogViewModel Log { get; }
     public IReadOnlyList<PageViewModel> Pages { get; }
 

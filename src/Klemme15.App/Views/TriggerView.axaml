@@ -1,0 +1,127 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:Klemme15.App.ViewModels"
+             x:Class="Klemme15.App.Views.TriggerView"
+             x:DataType="vm:TriggerViewModel">
+  <UserControl.Styles>
+    <Style Selector="Border.card">
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid ColumnDefinitions="*,*" Margin="36,26,36,0">
+    <!-- Left: rules and the builder -->
+    <ScrollViewer Grid.Column="0" Margin="0,0,18,0">
+      <StackPanel Spacing="14" Margin="0,0,12,32">
+        <TextBlock Classes="title" Text="Ghost Hunter" />
+        <TextBlock Classes="muted" TextWrapping="Wrap"
+                   Text="Catch a fault that only happens sometimes. Pick what to watch for, start, and drive: Klemme15 reads the car in the background and saves a snapshot with the minute before and the minute after, every time it happens. Read-only." />
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="quiet" Content="Check again" Command="{Binding ProbeCommand}" VerticalAlignment="Center" />
+          <TextBlock Classes="muted small" Text="{Binding SignalsText}" TextWrapping="Wrap" VerticalAlignment="Center" />
+        </DockPanel>
+
+        <TextBlock Classes="section" FontSize="16" Text="Watch for" />
+        <ItemsControl ItemsSource="{Binding Rules}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:RuleItem">
+              <Border Classes="card" Margin="0,0,0,8">
+                <DockPanel>
+                  <Button DockPanel.Dock="Right" Classes="quiet" Content="Delete" Command="{Binding DeleteCommand}" IsVisible="{Binding CanDelete}" VerticalAlignment="Center" />
+                  <CheckBox IsChecked="{Binding IsArmed}" IsEnabled="{Binding IsAvailable}" VerticalAlignment="Top">
+                    <StackPanel Spacing="2">
+                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <TextBlock Classes="mono muted small" Text="{Binding Describe}" TextWrapping="Wrap" />
+                      <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="{Binding Unavailable}" TextWrapping="Wrap" IsVisible="{Binding HasUnavailable}" />
+                    </StackPanel>
+                  </CheckBox>
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border Classes="panel" Padding="18,14">
+          <StackPanel Spacing="10">
+            <TextBlock Classes="section" FontSize="16" Text="Make your own rule" />
+            <TextBox Watermark="Name, e.g. Stumble when warm" Text="{Binding NewTitle}" />
+            <TextBlock Classes="muted small" Text="All of these at once:" />
+            <ItemsControl ItemsSource="{Binding NewConditions}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:ConditionRow">
+                  <Grid ColumnDefinitions="2*,1.3*,90,Auto,70,Auto,Auto" Margin="0,0,0,8">
+                    <ComboBox Grid.Column="0" ItemsSource="{Binding $parent[ItemsControl].((vm:TriggerViewModel)DataContext).Signals}"
+                              SelectedItem="{Binding Signal}" HorizontalAlignment="Stretch" PlaceholderText="Value" />
+                    <ComboBox Grid.Column="1" ItemsSource="{Binding $parent[ItemsControl].((vm:TriggerViewModel)DataContext).OperatorChoices}"
+                              SelectedItem="{Binding Operator}" HorizontalAlignment="Stretch" Margin="6,0" />
+                    <TextBox Grid.Column="2" Text="{Binding Threshold}" Watermark="value" />
+                    <TextBlock Grid.Column="3" Classes="muted small" Text="for" VerticalAlignment="Center" Margin="8,0" />
+                    <TextBox Grid.Column="4" Text="{Binding Hold}" Watermark="s" />
+                    <TextBlock Grid.Column="5" Classes="muted small" Text="s" VerticalAlignment="Center" Margin="6,0" />
+                    <Button Grid.Column="6" Classes="quiet" Content="Remove" Command="{Binding RemoveCommand}" VerticalAlignment="Center" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Button Classes="quiet" Content="Add a condition" Command="{Binding AddConditionCommand}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <TextBlock Classes="muted small" Text="Keep" VerticalAlignment="Center" />
+              <TextBox Text="{Binding Before}" Width="60" />
+              <TextBlock Classes="muted small" Text="s before and" VerticalAlignment="Center" />
+              <TextBox Text="{Binding After}" Width="60" />
+              <TextBlock Classes="muted small" Text="s after" VerticalAlignment="Center" />
+            </StackPanel>
+            <TextBlock Classes="small" Foreground="{DynamicResource RedBrush}" Text="{Binding BuilderError}" TextWrapping="Wrap" IsVisible="{Binding HasBuilderError}" />
+            <Button Classes="primary" Content="Save rule" Command="{Binding SaveRuleCommand}" HorizontalAlignment="Left" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Right: start, status, captures -->
+    <ScrollViewer Grid.Column="1" Margin="18,0,0,0">
+      <StackPanel Spacing="14" Margin="0,0,0,32">
+        <Border Classes="panel" Padding="22,20">
+          <StackPanel Spacing="12">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+              <Button Classes="primary" Content="Start watching" Command="{Binding StartCommand}" FontSize="16" Padding="22,10" IsVisible="{Binding NotWatching}" />
+              <Button Content="Stop" Command="{Binding StopCommand}" FontSize="16" Padding="22,10" IsVisible="{Binding IsWatching}" />
+            </StackPanel>
+            <TextBlock Text="{Binding Status}" FontSize="20" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Classes="muted small" Text="{Binding StartHint}" TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
+        <Border Padding="18,14" CornerRadius="8" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" BorderThickness="1"
+                IsVisible="{Binding HasBanner}">
+          <TextBlock Text="{Binding Banner}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
+        </Border>
+
+        <TextBlock Classes="section" FontSize="16" Text="Captures" />
+        <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding !HasCaptures}"
+                   Text="Nothing caught yet. Each capture is a snapshot on this computer: open it to see the car's modules, faults and the two minutes of live data on the Analyse page, or share it on a forum." />
+        <ItemsControl ItemsSource="{Binding Captures}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:CaptureItem">
+              <Border Classes="card" Margin="0,0,0,8">
+                <DockPanel>
+                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+                    <Button Content="Open" Command="{Binding OpenCommand}" />
+                    <Button Classes="quiet" Content="Delete" Command="{Binding DeleteCommand}" />
+                  </StackPanel>
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding When}" />
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</UserControl>

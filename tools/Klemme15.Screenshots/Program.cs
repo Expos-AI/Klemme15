@@ -112,6 +112,24 @@ if (vm.Coding.Modules.FirstOrDefault(m => m.Ecu.Id.EndsWith(".FRM", StringCompar
     Shot("20-coding");
 }
 else problems.Add("20-coding: no codable module answered on the demo car");
+// The Ghost Hunter on the demo car: a rule that fires when the demo "driver" revs, caught and saved by itself.
+vm.CurrentPage = vm.Ghost;
+WaitUntil(() => vm.Ghost.Signals.Count > 0, 30000);
+vm.Ghost.NewTitle = "Revving above 2,000 rpm (demo)";
+vm.Ghost.NewConditions[0].Signal = vm.Ghost.Signals.First(x => x.Id == "rpm");
+vm.Ghost.NewConditions[0].Operator = TriggerViewModel.Operators[0];
+vm.Ghost.NewConditions[0].Threshold = "2000";
+vm.Ghost.NewConditions[0].Hold = "1";
+vm.Ghost.Before = "5";
+vm.Ghost.After = "3";
+vm.Ghost.SaveRuleCommand.Execute(null);
+if (vm.Ghost.HasBuilderError) problems.Add("29-ghost-hunter: " + vm.Ghost.BuilderError);
+vm.Ghost.StartCommand.Execute(null);
+WaitUntil(() => vm.Ghost.HasCaptures, 90000);
+Shot("29-ghost-hunter");
+vm.Ghost.StopCommand.Execute(null);
+WaitUntil(() => !vm.Ghost.IsWatching);
+
 vm.CurrentPage = vm.Expert;
 Shot("09-expert");
 vm.CurrentPage = vm.Log;

@@ -1,0 +1,382 @@
+using System.Collections.ObjectModel;
+using System.Globalization;
+using System.Text.Json;
+using Avalonia.Media;
+using Klemme15.Core;
+using Klemme15.Core.GhostHunter;
+
+namespace Klemme15.App.ViewModels;
+
+public sealed record SignalOption(string Id, string Label)
+{
+    public override string ToString() => Label;
+}
+
+public sealed record OperatorOption(TriggerOperator Value, string Label)
+{
+    public override string ToString() => Label;
+}
+
+/// <summary>One condition row in the builder: value, comparison, threshold, how long it must hold.</summary>
+public sealed class ConditionRow : ViewModelBase
+{
+    private SignalOption? _signal;
+    private OperatorOption _op;
+    private string _threshold = "", _hold = "1";
+
+    public ConditionRow(IReadOnlyList<OperatorOption> operators, Action<ConditionRow> remove)
+    {
+        _op = operators[0];
+        RemoveCommand = new RelayCommand(() => remove(this));
+    }
+
+    public SignalOption? Signal { get => _signal; set => Set(ref _signal, value); }
+    public OperatorOption Operator { get => _op; set => Set(ref _op, value); }
+    public string Threshold { get => _threshold; set => Set(ref _threshold, value); }
+    public string Hold { get => _hold; set => Set(ref _hold, value); }
+    public RelayCommand RemoveCommand { get; }
+
+    public TriggerCondition? ToCondition(out string? problem)
+    {
+        problem = null;
+        if (_signal is null) { problem = "Pick a value for every condition."; return null; }
+        if (!double.TryParse(_threshold.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var t)) { problem = $"{_signal.Label}: the threshold isn't a number."; return null; }
+        if (!double.TryParse(_hold.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var h) || h < 0) { problem = $"{_signal.Label}: hold for how many seconds?"; return null; }
+        return new TriggerCondition { Parameter = _signal.Id, Operator = _op.Value, Threshold = t, HoldDuration = TimeSpan.FromSeconds(h) };
+    }
+}
+
+/// <summary>A rule in the list: armed or not.</summary>
+public sealed class RuleItem : ViewModelBase
+{
+    private bool _armed;
+
+    public RuleItem(TriggerRule rule, bool preset, Action<RuleItem>? delete)
+    {
+        Rule = rule;
+        IsPreset = preset;
+        DeleteCommand = delete is null ? null : new RelayCommand(() => delete(this));
+    }
+
+    public TriggerRule Rule { get; }
+    public bool IsPreset { get; }
+    public string Title => Rule.Title;
+    public string Describe => $"{Rule.Describe()} · keeps {Rule.Before.TotalSeconds:0} s before and {Rule.After.TotalSeconds:0} s after";
+    public bool IsArmed { get => _armed; set => Set(ref _armed, value); }
+    public RelayCommand? DeleteCommand { get; }
+    public bool CanDelete => DeleteCommand is not null;
+    public bool IsAvailable { get; set; } = true;
+    public string? Unavailable { get; set; }
+    public bool HasUnavailable => Unavailable is not null;
+}
+
+/// <summary>A saved capture (.k15) in the captures folder.</summary>
+public sealed class CaptureItem(string path, string title, string when, Func<Task> open, Action delete)
+{
+    public string Path { get; } = path;
+    public string Title { get; } = title;
+    public string When { get; } = when;
+    public AsyncCommand OpenCommand { get; } = new(open);
+    public RelayCommand DeleteCommand { get; } = new(delete);
+}
+
+/// <summary>
+/// The Ghost Hunter: rules that watch live values in the background and save a snapshot with the minute before and after
+/// an intermittent fault, so nobody has to watch a laptop while driving. Read-only.
+/// </summary>
+public sealed class TriggerViewModel : PageViewModel
+{
+    private readonly SessionState _session;
+    private readonly string _version;
+    private CancellationTokenSource? _cts;
+    private bool _watching, _probing;
+    private string _status = "", _banner = "", _builderError = "", _newTitle = "", _before = "60", _after = "60", _signalsText = "";
+    private HashSet<string>? _available;
+
+    public static readonly IReadOnlyList<OperatorOption> Operators =
+    [
+        new(TriggerOperator.Above, "above"), new(TriggerOperator.Below, "below"), new(TriggerOperator.AtOrAbove, "at or above"),
+        new(TriggerOperator.AtOrBelow, "at or below"), new(TriggerOperator.Equal, "equal to"), new(TriggerOperator.NotEqual, "not equal to"),
+    ];
+
+    /// <summary>Values worth watching; only those the car actually reports are offered.</summary>
+    private static readonly string[] Candidates =
+        ["rpm", "speed", "coolant", "voltage", "load", "maf", "iat", "throttle", "map", "stft1", "ltft1", "stft2", "ltft2", "oiltemp", "timing",
+         "rough1", "rough2", "rough3", "rough4", "rough5", "rough6", "rough7", "rough8"];
+
+    public TriggerViewModel(SessionState session, string version)
+    {
+        _session = session;
+        _version = version;
+        foreach (var r in TriggerPresets.All) Rules.Add(new RuleItem(r, preset: true, null));
+        foreach (var r in LoadCustom()) Rules.Add(new RuleItem(r, preset: false, DeleteRule));
+        AddConditionCommand = new RelayCommand(AddCondition);
+        SaveRuleCommand = new RelayCommand(SaveRule);
+        StartCommand = new AsyncCommand(StartAsync, () => CanStart, e => Status = e.Message);
+        StopCommand = new RelayCommand(Stop, () => _watching);
+        ProbeCommand = new AsyncCommand(ProbeAsync, () => _session.IsConnected && !_session.IsSnapshot && !_watching && !_probing, e => SignalsText = e.Message);
+        AddCondition();
+        LoadCaptures();
+        _session.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.LastScan))
+                OnUi(() => { if (e.PropertyName == nameof(SessionState.Backend)) { _available = null; Signals.Clear(); SignalsText = ""; } Changed(); });
+        };
+        Status = "Pick the rules to watch, then start. Klemme15 reads the car in the background and saves a snapshot when one holds.";
+    }
+
+    public override string Title => "Ghost Hunter";
+    public override Geometry Icon => Icons.GhostHunter;
+
+    public static string CapturesFolder =>
+        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "Klemme15", "captures");
+
+    private static string RulesFile =>
+        System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData, Environment.SpecialFolderOption.Create), "Klemme15", "ghost-hunter-rules.json");
+
+    public ObservableCollection<RuleItem> Rules { get; } = [];
+    public ObservableCollection<ConditionRow> NewConditions { get; } = [];
+    public ObservableCollection<SignalOption> Signals { get; } = [];
+    public ObservableCollection<CaptureItem> Captures { get; } = [];
+    public IReadOnlyList<OperatorOption> OperatorChoices => Operators;
+
+    public string NewTitle { get => _newTitle; set => Set(ref _newTitle, value); }
+    public string Before { get => _before; set => Set(ref _before, value); }
+    public string After { get => _after; set => Set(ref _after, value); }
+    public string BuilderError { get => _builderError; private set { if (Set(ref _builderError, value)) Raise(nameof(HasBuilderError)); } }
+    public bool HasBuilderError => _builderError.Length > 0;
+    public string SignalsText { get => _signalsText; private set => Set(ref _signalsText, value); }
+
+    public bool IsWatching { get => _watching; private set { if (Set(ref _watching, value)) { Raise(nameof(NotWatching)); Changed(); } } }
+    public bool NotWatching => !_watching;
+    public string Status { get => _status; private set => Set(ref _status, value); }
+    public string Banner { get => _banner; private set { if (Set(ref _banner, value)) Raise(nameof(HasBanner)); } }
+    public bool HasBanner => _banner.Length > 0;
+    public bool HasCaptures => Captures.Count > 0;
+
+    public bool CanStart => _session.IsConnected && !_session.IsSnapshot && !_watching && _session.LastScan is not null && Rules.Any(r => r.IsArmed);
+
+    public string StartHint => !_session.IsConnected ? "Connect to the car (or a demo car) in the Garage first."
+        : _session.IsSnapshot ? "Watching needs a car: this is a snapshot."
+        : _session.LastScan is null ? "Run a quick test first: every capture includes it, so whoever opens it sees the car's modules and faults too."
+        : !Rules.Any(r => r.IsArmed) ? "Tick at least one rule."
+        : "Nothing to tap while driving: captures are saved by themselves. Stop when you park.";
+
+    public RelayCommand AddConditionCommand { get; }
+    public RelayCommand SaveRuleCommand { get; }
+    public AsyncCommand StartCommand { get; }
+    public RelayCommand StopCommand { get; }
+    public AsyncCommand ProbeCommand { get; }
+
+    private void Changed()
+    {
+        StartCommand.RaiseCanExecuteChanged();
+        StopCommand.RaiseCanExecuteChanged();
+        ProbeCommand.RaiseCanExecuteChanged();
+        Raise(nameof(StartHint));
+        Raise(nameof(CanStart));
+    }
+
+    public override void OnShown()
+    {
+        foreach (var r in Rules) r.PropertyChanged -= OnRuleChanged;
+        foreach (var r in Rules) r.PropertyChanged += OnRuleChanged;
+        LoadCaptures();
+        Changed();
+        if (_available is null && _session.IsConnected && !_session.IsSnapshot && !_watching) ProbeCommand.Execute(null);
+    }
+
+    // Watching carries on when the page is hidden: that's the point.
+    public override void OnHidden() { }
+
+    private void OnRuleChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(RuleItem.IsArmed)) Changed();
+    }
+
+    // ---------------------------------------------------------------- what the car reports
+
+    private ISignalSource? Source()
+    {
+        if (_session.Backend is not { } backend || _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine) is not { } engine) return null;
+        return _session.IsDemo && _session.Measurements is { } demo
+            ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine)
+            : new EngineSignals(backend, engine, _session.Measurements);
+    }
+
+    private async Task ProbeAsync()
+    {
+        if (Source() is not { } source) return;
+        _probing = true;
+        Changed();
+        SignalsText = "Checking which values this car reports...";
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            var read = await source.ReadAsync(Candidates, cts.Token);
+            _available = read.Keys.ToHashSet();
+            Signals.Clear();
+            foreach (var id in Candidates.Where(_available.Contains)) Signals.Add(new SignalOption(id, SignalLabels.Header(id)));
+            SignalsText = _available.Count == 0 ? "The engine computer didn't report any live values on this connection." : $"This car reports {_available.Count} values to watch.";
+            foreach (var r in Rules)
+            {
+                var missing = r.Rule.Parameters.Where(p => !_available.Contains(p)).ToList();
+                r.IsAvailable = missing.Count == 0;
+                r.Unavailable = missing.Count == 0 ? null : $"Not reported on this connection: {string.Join(", ", missing.Select(SignalLabels.Name))}";
+                if (!r.IsAvailable) r.IsArmed = false;
+            }
+            var refreshed = Rules.ToList();
+            Rules.Clear();
+            foreach (var r in refreshed) Rules.Add(r);
+            foreach (var row in NewConditions) row.Signal ??= Signals.FirstOrDefault();
+        }
+        catch (OperationCanceledException) { SignalsText = "The car didn't answer in time. Check the connection and try again."; }
+        finally { _probing = false; Changed(); }
+    }
+
+    // ---------------------------------------------------------------- the builder
+
+    private void AddCondition()
+    {
+        var row = new ConditionRow(Operators, r => { NewConditions.Remove(r); });
+        row.Signal = Signals.FirstOrDefault();
+        NewConditions.Add(row);
+    }
+
+    private void SaveRule()
+    {
+        BuilderError = "";
+        var conditions = new List<TriggerCondition>();
+        foreach (var row in NewConditions)
+        {
+            if (row.ToCondition(out var problem) is { } c) conditions.Add(c);
+            else { BuilderError = problem ?? "Check the conditions."; return; }
+        }
+        if (!double.TryParse(_before, NumberStyles.Float, CultureInfo.InvariantCulture, out var before) ||
+            !double.TryParse(_after, NumberStyles.Float, CultureInfo.InvariantCulture, out var after))
+        { BuilderError = "Seconds before and after must be numbers."; return; }
+        var rule = new TriggerRule
+        {
+            Id = "custom-" + Guid.NewGuid().ToString("N")[..8],
+            Title = string.IsNullOrWhiteSpace(_newTitle) ? string.Join(" and ", conditions.Select(c => c.ToString())) : _newTitle.Trim(),
+            Conditions = conditions,
+            Before = TimeSpan.FromSeconds(before),
+            After = TimeSpan.FromSeconds(after),
+        };
+        var problems = rule.Validate(_available);
+        if (problems.Count > 0) { BuilderError = string.Join(" ", problems); return; }
+        var item = new RuleItem(rule, preset: false, DeleteRule) { IsArmed = true };
+        item.PropertyChanged += OnRuleChanged;
+        Rules.Add(item);
+        SaveCustom();
+        NewTitle = "";
+        NewConditions.Clear();
+        AddCondition();
+        Changed();
+    }
+
+    private void DeleteRule(RuleItem item)
+    {
+        if (_watching) return;
+        Rules.Remove(item);
+        SaveCustom();
+        Changed();
+    }
+
+    private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
+
+    private static IEnumerable<TriggerRule> LoadCustom()
+    {
+        try { return File.Exists(RulesFile) ? JsonSerializer.Deserialize<List<TriggerRule>>(File.ReadAllText(RulesFile), Json) ?? [] : []; }
+        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException) { return []; }
+    }
+
+    private void SaveCustom()
+    {
+        try
+        {
+            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(RulesFile)!);
+            File.WriteAllText(RulesFile, JsonSerializer.Serialize(Rules.Where(r => !r.IsPreset).Select(r => r.Rule).ToList(), Json));
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { BuilderError = $"Couldn't save your rules: {e.Message}"; }
+    }
+
+    // ---------------------------------------------------------------- watching
+
+    private async Task StartAsync()
+    {
+        if (Source() is not { } source || _session.LastScan is null) return;
+        var rules = Rules.Where(r => r.IsArmed).Select(r => r.Rule).ToList();
+        var baseSnapshot = _session.BuildSnapshot(null, includeLive: false, includeTests: false, includeCoding: false, includeLog: false, _version);
+        var ids = TriggerMonitor.SignalsFor(rules).Where(id => _available is null || _available.Contains(id)).ToList();
+        var monitor = new TriggerMonitor(rules, (capture, ct) => SaveCaptureAsync(capture, baseSnapshot));
+        monitor.Fired += ev => OnUi(() => Banner = $"Caught {ev.At.LocalDateTime:HH:mm:ss}: {ev.Title}. Recording {rules.First(r => r.Id == ev.RuleId).After.TotalSeconds:0} s more...");
+        monitor.Captured += c => OnUi(() => { LoadCaptures(); Banner = $"Saved {c.Event.At.LocalDateTime:HH:mm:ss}: {c.Event.Title}. Open it below."; });
+        monitor.StatusChanged += st => OnUi(() => Status = st.State == WatchState.Stopped ? $"Stopped. {st.Captures} capture{(st.Captures == 1 ? "" : "s")} this drive."
+            : $"Watching {st.ArmedRules} rule{(st.ArmedRules == 1 ? "" : "s")} · {st.FramesPerSecond:0.0} readings/s · {st.Captures} caught");
+
+        _cts = new CancellationTokenSource();
+        IsWatching = true;
+        _session.IsWatching = true;
+        Banner = "";
+        _session.Log.Note($"Ghost Hunter started: {string.Join("; ", rules.Select(r => r.Title))}");
+        try
+        {
+            var poller = TriggerPoller.RunAsync(source, ids, monitor.Input, _cts.Token, onError: e => _session.Log.Note($"Ghost Hunter read skipped: {e.Message}"));
+            await Task.Run(() => monitor.RunAsync(_cts.Token));
+            await poller;
+        }
+        finally
+        {
+            _cts.Dispose();
+            _cts = null;
+            IsWatching = false;
+            _session.IsWatching = false;
+            _session.Log.Note("Ghost Hunter stopped");
+        }
+    }
+
+    private void Stop() => _cts?.Cancel();
+
+    private static async Task SaveCaptureAsync(TriggerCapture capture, CarSnapshot baseSnapshot)
+    {
+        Directory.CreateDirectory(CapturesFolder);
+        var name = $"ghost-{capture.Event.RuleId}-{capture.Event.At.LocalDateTime:yyyyMMdd-HHmmss}{SnapshotFile.Extension}";
+        await File.WriteAllBytesAsync(System.IO.Path.Combine(CapturesFolder, name), SnapshotFile.Write(capture.ToSnapshot(baseSnapshot)));
+    }
+
+    private void LoadCaptures()
+    {
+        Captures.Clear();
+        try
+        {
+            if (Directory.Exists(CapturesFolder))
+                foreach (var f in new DirectoryInfo(CapturesFolder).GetFiles("*" + SnapshotFile.Extension).OrderByDescending(f => f.LastWriteTime).Take(50))
+                {
+                    var title = f.Name;
+                    try { if (SnapshotFile.Read(File.ReadAllBytes(f.FullName)).Manifest.Trigger is { } t) title = t.Title + (t.Partial ? " (stopped early)" : ""); }
+                    catch (SnapshotException) { title += " (can't be read)"; }
+                    var path = f.FullName;
+                    Captures.Add(new CaptureItem(path, title, f.LastWriteTime.ToString("d MMM yyyy HH:mm:ss", CultureInfo.CurrentCulture),
+                        () => OpenCaptureAsync(path), () => DeleteCapture(path)));
+                }
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        Raise(nameof(HasCaptures));
+    }
+
+    /// <summary>Opens a capture like any snapshot: read-only, live data on the Analyse page. Watching stops first.</summary>
+    public Func<byte[], Task>? OpenSnapshot { get; set; }
+
+    private async Task OpenCaptureAsync(string path)
+    {
+        if (_watching) { Banner = "Stop watching before opening a capture: opening it disconnects from the car."; return; }
+        if (OpenSnapshot is { } open) await open(await File.ReadAllBytesAsync(path));
+    }
+
+    private void DeleteCapture(string path)
+    {
+        try { File.Delete(path); } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        LoadCaptures();
+    }
+}
