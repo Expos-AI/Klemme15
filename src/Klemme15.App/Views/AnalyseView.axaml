@@ -54,6 +54,10 @@
             <StackPanel Spacing="10">
               <TextBlock Classes="section" FontSize="16" Text="Scatter" />
               <WrapPanel Orientation="Horizontal">
+                <StackPanel Margin="0,0,10,6" IsVisible="{Binding HasBaselines}">
+                  <TextBlock Classes="muted small" Text="Compare with a healthy baseline" />
+                  <ComboBox ItemsSource="{Binding Baselines}" SelectedItem="{Binding Baseline}" MinWidth="260" />
+                </StackPanel>
                 <StackPanel Margin="0,0,10,6">
                   <TextBlock Classes="muted small" Text="Y (up)" />
                   <ComboBox ItemsSource="{Binding Channels}" SelectedItem="{Binding ScatterY}" MinWidth="180" />
@@ -64,11 +68,28 @@
                 </StackPanel>
               </WrapPanel>
               <Border Background="{DynamicResource RaisedBrush}" CornerRadius="6" Height="300">
-                <c:ScatterPlot Points="{Binding ScatterPoints}" Highlight="{Binding Highlight}"
-                               AxisBrush="{DynamicResource LineBrush}" Margin="8" />
+                <c:ScatterPlot Points="{Binding ScatterPoints}" Highlight="{Binding Highlight}" Band="{Binding Band}"
+                               AxisBrush="{DynamicResource LineBrush}" BandBrush="{DynamicResource LitBrush}" Margin="8" />
               </Border>
+              <Border IsVisible="{Binding HasBand}" Padding="10,8" CornerRadius="6"
+                      Background="{DynamicResource LitSoftBrush}">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{Binding BaselineSummary}" TextWrapping="Wrap" FontWeight="SemiBold" />
+                  <TextBlock Classes="muted small" Text="{Binding BaselineTrust}" TextWrapping="Wrap" />
+                  <TextBlock Classes="muted small" TextWrapping="Wrap"
+                             Text="The shaded band is where 80 % of healthy readings fall; the dashed line is their middle. Outside the band is a clue, not a verdict." />
+                </StackPanel>
+              </Border>
+              <TextBlock Classes="muted small" Text="{Binding BaselineSummary}" TextWrapping="Wrap"
+                         IsVisible="{Binding !HasBand}" />
               <TextBlock Classes="muted small" Text="{Binding ScatterCaption}" />
               <TextBlock Classes="muted small" Text="Points run blue (start) to orange (end), so drift over the log shows. The ringed point is where playback is." TextWrapping="Wrap" />
+              <WrapPanel Orientation="Horizontal">
+                <Button Content="Make a baseline from this log" Command="{Binding MakeBaselineCommand}" Margin="0,4,8,0"
+                        ToolTip.Tip="For when you know the car runs well: save its curves to compare later drives against, or to share." />
+                <Button Content="Add a baseline file…" Command="{Binding ImportBaselineCommand}" Margin="0,4,8,0" />
+              </WrapPanel>
+              <TextBlock Classes="muted small" Text="{Binding BaselineStatus}" TextWrapping="Wrap" />
             </StackPanel>
           </Border>
 

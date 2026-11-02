@@ -35,7 +35,7 @@ public sealed class ChannelReadoutViewModel(LogChannel channel) : ViewModelBase
 /// RPM or load), see a value averaged over a tuning-style map, and play the log back with a scrubber while every channel
 /// reads out in step. Nothing here touches the car.
 /// </summary>
-public sealed class AnalyseViewModel : PageViewModel
+public sealed partial class AnalyseViewModel : PageViewModel
 {
     private readonly IDialogService _dialogs;
     private DataLog _log = new([], []);
@@ -53,6 +53,8 @@ public sealed class AnalyseViewModel : PageViewModel
         PlayCommand = new RelayCommand(TogglePlay, () => HasData);
         var speeds = new[] { 0.5, 1, 2, 4 };
         CycleSpeedCommand = new RelayCommand(() => { Speed = speeds[(Array.IndexOf(speeds, _speed) + 1) % speeds.Length]; });
+        ImportBaselineCommand = new AsyncCommand(ImportBaselineAsync, null, e => BaselineStatus = e.Message);
+        MakeBaselineCommand = new AsyncCommand(MakeBaselineAsync, () => HasData, e => BaselineStatus = e.Message);
     }
 
     public override string Title => "Analyse";
@@ -113,7 +115,7 @@ public sealed class AnalyseViewModel : PageViewModel
     public double Speed { get => _speed; private set { if (Set(ref _speed, value)) Raise(nameof(SpeedLabel)); } }
     public string SpeedLabel => $"{Speed:0.#}×";
 
-    private void RaiseScatter() { Raise(nameof(ScatterPoints)); Raise(nameof(ScatterCaption)); }
+    private void RaiseScatter() { Raise(nameof(ScatterPoints)); Raise(nameof(ScatterCaption)); RaiseBand(); }
     private void RaiseMap() { Raise(nameof(MapBins)); Raise(nameof(MapCaption)); Raise(nameof(MapAxes)); Raise(nameof(MapDiverging)); }
 
     public override void OnHidden() => Pause();
@@ -131,6 +133,7 @@ public sealed class AnalyseViewModel : PageViewModel
     public void Load(DataLog log, string fileName)
     {
         Pause();
+        log = WithTotalTrims(log);
         _log = log;
         _fileName = fileName;
         Channels.Clear();
@@ -153,6 +156,8 @@ public sealed class AnalyseViewModel : PageViewModel
             Raise(p);
         RaiseScatter(); RaiseMap();
         PlayCommand.RaiseCanExecuteChanged();
+        MakeBaselineCommand.RaiseCanExecuteChanged();
+        RefreshBaselines();
     }
 
     private void TogglePlay()

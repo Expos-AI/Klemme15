@@ -3,6 +3,8 @@ using Avalonia.Styling;
 using Klemme15.App.Services;
 using Klemme15.Data;
 
+using Klemme15.Core;
+
 namespace Klemme15.App.ViewModels;
 
 public sealed class MainViewModel : ViewModelBase
@@ -38,7 +40,13 @@ public sealed class MainViewModel : ViewModelBase
         Live = new LiveViewModel(Session, dialogs);
         Service = new ServiceViewModel(Session, settings);
         Coding = new CodingViewModel(Session, settings, dialogs);
-        Analyse = new AnalyseViewModel(dialogs);
+        Analyse = new AnalyseViewModel(dialogs)
+        {
+            ShippedBaselines = () => Session.Database.Baselines,
+            EngineCode = () => Session.Model?.EngineCode,
+            Store = new BaselineStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData,
+                Environment.SpecialFolderOption.Create), "Klemme15", "baselines")),
+        };
         Live.AnalyseRecording = csv =>
         {
             Analyse.Load(Klemme15.Core.DataLog.Parse(csv), "this recording");
