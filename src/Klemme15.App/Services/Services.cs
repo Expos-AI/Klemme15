@@ -23,6 +23,12 @@ public interface IDialogService
 
     /// <summary>Puts text on the clipboard. Returns false if that isn't possible here.</summary>
     Task<bool> CopyTextAsync(string text);
+
+    /// <summary>Asks where to save and writes the bytes. Returns the chosen file name, or null if cancelled.</summary>
+    Task<string?> SaveBytesAsync(string title, string suggestedName, string extension, string description, byte[] content);
+
+    /// <summary>Asks for a file and returns its bytes and name, or null if cancelled.</summary>
+    Task<(byte[] Data, string Name)?> OpenBytesAsync(string title, string description, IReadOnlyList<string> patterns);
 }
 
 public sealed class DialogService(Window owner) : IDialogService
@@ -74,6 +80,36 @@ public sealed class DialogService(Window owner) : IDialogService
         await using var stream = await files[0].OpenReadAsync();
         using var reader = new StreamReader(stream, System.Text.Encoding.Latin1);
         return await reader.ReadToEndAsync();
+    }
+
+    public async Task<string?> SaveBytesAsync(string title, string suggestedName, string extension, string description, byte[] content)
+    {
+        var file = await owner.StorageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = title,
+            SuggestedFileName = suggestedName,
+            DefaultExtension = extension,
+            FileTypeChoices = [new FilePickerFileType(description) { Patterns = [$"*.{extension}"] }],
+        });
+        if (file is null) return null;
+        await using var stream = await file.OpenWriteAsync();
+        await stream.WriteAsync(content);
+        return file.Name;
+    }
+
+    public async Task<(byte[] Data, string Name)?> OpenBytesAsync(string title, string description, IReadOnlyList<string> patterns)
+    {
+        var files = await owner.StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter = [new FilePickerFileType(description) { Patterns = patterns }],
+        });
+        if (files.Count == 0) return null;
+        await using var stream = await files[0].OpenReadAsync();
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        return (ms.ToArray(), files[0].Name);
     }
 
     public async Task<string?> PickFolderAsync(string title)

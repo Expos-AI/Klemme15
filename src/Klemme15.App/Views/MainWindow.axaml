@@ -67,7 +67,7 @@
       </DockPanel>
     </Border>
 
-    <Grid Grid.Column="1" RowDefinitions="Auto,*">
+    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
       <!-- Header: which car, how it's connected -->
       <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="28,14">
         <DockPanel>
@@ -88,7 +88,15 @@
         </DockPanel>
       </Border>
 
-      <ContentControl Grid.Row="1" Content="{Binding CurrentPage}" />
+      <!-- Snapshot banner: always visible while a snapshot is open -->
+      <Border Grid.Row="1" IsVisible="{Binding IsSnapshot}" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" BorderThickness="0,0,0,1" Padding="28,8">
+        <StackPanel Spacing="2">
+          <TextBlock Text="{Binding SnapshotBanner}" FontWeight="SemiBold" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding SnapshotNote}" TextWrapping="Wrap" IsVisible="{Binding HasSnapshotNote}" />
+        </StackPanel>
+      </Border>
+
+      <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" />
     </Grid>
   </Grid>
 </Window>

@@ -114,5 +114,12 @@ public partial class App : Application
         window.Closing += (_, _) => main.Shutdown();
         desktop.MainWindow = window;
         if (show) window.Show();
+        // Started with a .k15 file (double-clicked, or "Open with Klemme15"): open it straight away.
+        if (desktop.Args?.FirstOrDefault(a => a.EndsWith(Klemme15.Core.SnapshotFile.Extension, StringComparison.OrdinalIgnoreCase) && File.Exists(a)) is { } path)
+            Dispatcher.UIThread.Post(async () =>
+            {
+                try { await main.Garage.OpenSnapshotAsync(await File.ReadAllBytesAsync(path)); }
+                catch (IOException e) { main.Garage.Error = $"Couldn't open {Path.GetFileName(path)}: {e.Message}"; }
+            });
     }
 }

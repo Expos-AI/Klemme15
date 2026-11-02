@@ -137,6 +137,8 @@
           <WrapPanel>
             <Button Classes="primary" Content="Open demo car" Command="{Binding OpenDemoCommand}" Margin="0,0,10,8" />
             <Button Content="Connect to my car" Command="{Binding ShowCableCommand}" IsVisible="{Binding !ShowCable}" Margin="0,0,10,8" />
+            <Button Content="Open a snapshot..." Command="{Binding OpenSnapshotCommand}" Margin="0,0,10,8"
+                    ToolTip.Tip="Open a .k15 file someone shared and explore their car as it was, read-only" />
             <Button Content="Disconnect" Command="{Binding DisconnectCommand}" IsVisible="{Binding IsConnected}" Margin="0,0,10,8" />
           </WrapPanel>
           <TextBlock Text="{Binding DemoSummary}" Classes="muted" TextWrapping="Wrap" />

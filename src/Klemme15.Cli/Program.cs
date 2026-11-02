@@ -17,6 +17,7 @@ internal static class Cli
           ports                         List serial ports (K+DCAN cables are marked)
           vehicles                      List supported vehicles and their modules
           scan                          Quick test: identify every module and read faults
+          open <file.k15>               Show a snapshot someone shared (add --report or --forum to export it)
           faults  --module <id>         Read one module's fault memory
           readings --module <id>        Read every status value a module offers (needs --ediabas, or --demo)
                    [--filter lambda] [--job STATUS_X]
@@ -64,6 +65,8 @@ internal static class Cli
           --trust-dsr        Your cable reports ignition on DSR; refuse to run with ignition off
           --report <file>    Save the scan as .html, .md or .json
           --forum            After a scan, print a short summary for a forum post (VIN removed)
+          --snapshot <file>  After a scan, save a .k15 snapshot others can open in Klemme15 (VIN removed)
+          --note "<text>"    With --snapshot: what's wrong, shown to whoever opens it
           --csv <file>       Log live data to CSV
           --log <file>       Save the raw cable traffic (attach this to bug reports)
 
@@ -188,6 +191,8 @@ internal static class Cli
                 if (ports.Count == 0) Console.WriteLine("No serial ports found. Is the cable plugged in and its driver installed?");
                 foreach (var p in ports) Console.WriteLine($"{p.Name,-22} {p.Description}{(p.LikelyKDCan ? "   <- likely K+DCAN" : "")}");
                 return 0;
+            case "open":
+                return OpenSnapshot(a);
             case "test" when a.Positional.Count == 0:
                 foreach (var t in GuidedTests.All) Console.WriteLine($"  {t.Id,-12} {t.Title}\n               {t.Requirements}");
                 return 0;
@@ -550,6 +555,61 @@ internal static class Cli
             Console.WriteLine("----- forum post (VIN removed), copy from here -----");
             Console.WriteLine(ReportWriter.ToForumPost(scan));
         }
+        if (a.Get("snapshot") is { } snapFile)
+        {
+            var snapshot = new CarSnapshot
+            {
+                Manifest = new SnapshotManifest
+                {
+                    App = typeof(Program).Assembly.GetName().Version?.ToString(3), Created = DateTimeOffset.Now,
+                    FamilyId = vehicle.Id, ModelId = vehicle.Models.FirstOrDefault(m => m.Name.Equals(a.Get("model"), StringComparison.OrdinalIgnoreCase) || m.Id == a.Get("model"))?.Id,
+                    ModelName = a.Get("model"), Chassis = scan.Chassis ?? vehicle.Id, Note = a.Get("note"),
+                },
+                Scan = scan,
+            };
+            var path = snapFile.EndsWith(SnapshotFile.Extension, StringComparison.OrdinalIgnoreCase) ? snapFile : snapFile + SnapshotFile.Extension;
+            File.WriteAllBytes(path, SnapshotFile.Write(snapshot));
+            Console.WriteLine($"Snapshot saved to {path} (VIN removed). Anyone can open it in Klemme15's Garage, or with 'klemme15 open {Path.GetFileName(path)}'.");
+        }
+        return 0;
+    }
+
+    /// <summary>Prints what a shared .k15 snapshot holds, and exports it as a report or forum post.</summary>
+    private static int OpenSnapshot(Args a)
+    {
+        var file = a.Positional.ElementAtOrDefault(0) ?? throw new DiagnosticException("Usage: klemme15 open <file.k15>");
+        CarSnapshot snap;
+        try { snap = SnapshotFile.Read(File.ReadAllBytes(file)); }
+        catch (SnapshotException e) { Console.Error.WriteLine($"error: {e.Message}"); return 1; }
+        var m = snap.Manifest;
+        Console.WriteLine($"Snapshot of {m.ModelName ?? m.Chassis ?? "a BMW"} from {m.Created:yyyy-MM-dd HH:mm} (Klemme15 {m.App})");
+        if (m.Note is { } note) Console.WriteLine($"Owner's note: {note}");
+        var scan = snap.Scan;
+        Console.WriteLine($"{scan.RespondingEcus}/{scan.Ecus.Count} modules answered | {scan.TotalFaults} fault(s) | dash messages: {scan.ActiveCheckControl}" +
+                          (scan.BatteryVoltage is { } v ? $" | battery {v:0.0} V" : ""));
+        foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
+        {
+            Console.WriteLine();
+            Console.WriteLine($"{e.Ecu.Name}:");
+            PrintFaults(e.Faults);
+        }
+        PrintCheckControl(scan);
+        if (scan.Health is { Trends.Count: > 0 } h)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Health over time:");
+            foreach (var t in h.Trends) Console.WriteLine($"  [{t.Level}] {t.Title}: {t.Detail}");
+        }
+        foreach (var t in snap.Tests) Console.WriteLine($"\nTest: {t.Title} ({t.Time:yyyy-MM-dd}): {string.Join("; ", t.Report.Findings.Select(f => $"{f.Severity}: {f.Title}"))}");
+        if (snap.HasLive) Console.WriteLine($"\nLive data: {DataLog.Parse(snap.LiveCsv).Duration.TotalSeconds:0} s recorded ({string.Join(", ", DataLog.Parse(snap.LiveCsv).Channels.Select(c => c.Name))})");
+        if (snap.Coding.Count > 0) Console.WriteLine($"Coding included (view only): {string.Join(", ", snap.Coding.Select(c => c.Module))}");
+        if (a.Get("report") is { } report)
+        {
+            var ext = Path.GetExtension(report).ToLowerInvariant();
+            File.WriteAllText(report, ext switch { ".json" => ReportWriter.ToJson(scan), ".md" => ReportWriter.ToMarkdown(scan), _ => ReportWriter.ToHtml(scan) });
+            Console.WriteLine($"Report saved to {report}");
+        }
+        if (a.Has("forum")) { Console.WriteLine(); Console.WriteLine(ReportWriter.ToForumPost(scan, m.ModelName)); }
         return 0;
     }
 

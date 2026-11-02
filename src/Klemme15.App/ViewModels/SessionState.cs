@@ -34,7 +34,7 @@ public sealed class SessionState : ViewModelBase
     /// <summary>Saves a snapshot of a finished quick test on a real car. Demo cars and scans without a VIN are skipped.</summary>
     public HealthSnapshot? RecordHealth(VehicleScanResult scan, IReadOnlyDictionary<string, double> engine)
     {
-        if (_isDemo || HealthSnapshot.From(scan, _model?.Id, _model?.Name, engine) is not { } snapshot) return null;
+        if (_isDemo || IsSnapshot || HealthSnapshot.From(scan, _model?.Id, _model?.Name, engine) is not { } snapshot) return null;
         try { History.Add(snapshot); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return null; }
         HistoryChanged?.Invoke();
@@ -61,6 +61,11 @@ public sealed class SessionState : ViewModelBase
     /// <summary>Saves a finished guided test to the car's health history (real cars with a quick test only), then refreshes the trends.</summary>
     public bool RecordTest(GuidedTestInfo test, TestReport report)
     {
+        if (report.Verdict != TestSeverity.Unknown || report.Traces.Count > 0)
+        {
+            TestResults.Add(new SnapshotTest(test.Id, test.Title, DateTimeOffset.Now, report));
+            if (TestResults.Count > 40) TestResults.RemoveAt(0);
+        }
         if (_isDemo || _lastScan?.Vin is not { Length: 17 } vin) return false;
         try { History.AddTest(HealthSnapshot.KeyFor(vin), TestRecord.From(test, report, DateTimeOffset.Now)); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
@@ -96,6 +101,70 @@ public sealed class SessionState : ViewModelBase
     public VehicleModel? Model { get => _model; private set => Set(ref _model, value); }
     public bool IsConnected => _backend is not null;
     public bool IsDemo { get => _isDemo; private set => Set(ref _isDemo, value); }
+
+    private CarSnapshot? _snapshot;
+
+    /// <summary>The snapshot being viewed, when one is open instead of a car.</summary>
+    public CarSnapshot? Snapshot { get => _snapshot; private set { if (Set(ref _snapshot, value)) { Raise(nameof(IsSnapshot)); Raise(nameof(SnapshotBanner)); } } }
+    public bool IsSnapshot => _snapshot is not null;
+
+    public string SnapshotBanner => _snapshot is { } s
+        ? $"Viewing a snapshot from {s.Manifest.Created.LocalDateTime:d MMM yyyy HH:mm} · {s.Manifest.ModelName ?? s.Manifest.Chassis ?? "BMW"} · nothing is connected, nothing can be changed"
+        : "";
+
+    /// <summary>The last minute of live data (filled while live data or a test runs), for snapshots.</summary>
+    public LiveBuffer LiveBuffer { get; } = new();
+
+    /// <summary>Guided tests finished in this session, for snapshots.</summary>
+    public List<SnapshotTest> TestResults { get; } = [];
+
+    /// <summary>The latest coding read per comfort module in this session, for snapshots (view only).</summary>
+    public Dictionary<string, SnapshotCoding> CodingReads { get; } = [];
+
+    /// <summary>Raised after a snapshot was opened, so pages can load what it carries (the Analyse page its live data).</summary>
+    public event Action<CarSnapshot>? SnapshotOpened;
+
+    /// <summary>Opens a snapshot in place of a car: every page shows the car as it was; nothing can be written.</summary>
+    public async Task OpenSnapshotAsync(CarSnapshot snapshot)
+    {
+        await DisconnectAsync();
+        var family = (snapshot.Manifest.FamilyId is { } f ? Database.FindVehicle(f) : null) ?? Database.Vehicles.FirstOrDefault()
+                     ?? throw new DiagnosticException("No vehicle families are loaded.");
+        // Modules the snapshot knows but this version's database doesn't still show, with the snapshot's own definition.
+        Vehicle = family;
+        Model = family.Models.FirstOrDefault(m => m.Id == snapshot.Manifest.ModelId);
+        IsDemo = false;
+        Snapshot = snapshot;
+        Backend = new SnapshotBackend(snapshot);
+        Connection = $"Snapshot {snapshot.Manifest.Created.LocalDateTime:d MMM yyyy}";
+        Status = SnapshotBanner;
+        PublishScan(snapshot.Scan);
+        SnapshotOpened?.Invoke(snapshot);
+    }
+
+    /// <summary>Builds a snapshot of the car now: the last quick test, live data, tests and (if asked) coding and the traffic log.</summary>
+    public CarSnapshot BuildSnapshot(string? note, bool includeLive, bool includeTests, bool includeCoding, bool includeLog, string appVersion)
+    {
+        var scan = _lastScan ?? throw new DiagnosticException("Run a quick test first: the snapshot is built around it.");
+        return new CarSnapshot
+        {
+            Manifest = new SnapshotManifest
+            {
+                App = appVersion,
+                Created = DateTimeOffset.Now,
+                FamilyId = _vehicle?.Id,
+                ModelId = _model?.Id,
+                ModelName = _model?.Name,
+                Chassis = scan.Chassis ?? _vehicle?.Id,
+                Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim(),
+            },
+            Scan = scan,
+            LiveCsv = includeLive ? LiveBuffer.ToCsv() : "",
+            Tests = includeTests ? TestResults.TakeLast(20).ToList() : [],
+            Coding = includeCoding ? CodingReads.Values.ToList() : [],
+            TrafficLog = includeLog ? Log.Export() : null,
+        };
+    }
     public bool SupportsJobs => _backend is IJobRunner;
 
     /// <summary>Module readings (BMW's status jobs) when the connection can run them, or the demo's made-up ones.</summary>
@@ -200,7 +269,11 @@ public sealed class SessionState : ViewModelBase
     public async Task DisconnectAsync()
     {
         var b = _backend;
-        var wasCar = b is not null && !IsDemo;
+        var wasCar = b is not null && !IsDemo && !IsSnapshot;
+        Snapshot = null;
+        LiveBuffer.Clear();
+        TestResults.Clear();
+        CodingReads.Clear();
         Backend = null;
         Voltage = null;
         PublishScan(null);

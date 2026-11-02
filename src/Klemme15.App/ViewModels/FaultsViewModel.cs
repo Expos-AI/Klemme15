@@ -189,6 +189,9 @@ public sealed class FaultsViewModel : PageViewModel
 
     public bool ShowTrendsCard => TrendsHeadline.Length > 0;
 
+    /// <summary>"Share snapshot" (set by the main window, which owns the dialogs).</summary>
+    public SnapshotShareViewModel? Share { get; set; }
+
     /// <summary>Navigates to the Readings page for a module.</summary>
     public Action<EcuDefinition>? OpenReadings { get; set; }
 

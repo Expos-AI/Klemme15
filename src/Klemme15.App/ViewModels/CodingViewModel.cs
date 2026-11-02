@@ -218,7 +218,10 @@ public sealed partial class CodingViewModel : PageViewModel
         var again = Modules.FirstOrDefault(m => m.Ecu.Id == keep);
         if (again is not null) Select(again);
         else if (_selected is not null) Select(null);
-        Status = _session.Backend is null ? "Connect to the car (or a demo car) in the Garage first."
+        Status = _session.Snapshot is { } snap
+            ? "Viewing a snapshot: nothing can be read from or written to a car. " + (snap.Coding.Count == 0 ? "The owner didn't include any coding."
+                : "The owner included the coding of " + string.Join(", ", snap.Coding.Select(c => $"{c.Module} (part {c.PartNumber}, CI {c.CodingIndex}, {c.Blocks.Count} blocks)")) + ". It's there to look at: it can never be written to a car from a snapshot.")
+            : _session.Backend is null ? "Connect to the car (or a demo car) in the Garage first."
             : _session.Backend is not IRawRequests ? "Coding uses Klemme15's own connection: reconnect without \"Use my own BMW files\"."
             : scan is null ? "Run the quick test first: Klemme15 codes only modules that answered it." : "";
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
@@ -305,6 +308,7 @@ public sealed partial class CodingViewModel : PageViewModel
             Status = "Reading the coding...";
             _blocks = await CodingProtocol.DiscoverAsync(Raw, m.Ecu, new Progress<string>(s => Status = s));
             _session.Log.Note($"Coding read from {m.Ecu.Name}: {_blocks.Count} blocks");
+            RememberForSnapshot(m, _blocks);
             if (_blocks.Count == 0) { Status = $"{m.Name} didn't return any coding blocks."; return 0; }
             Status = $"Read {_blocks.Count} coding blocks.";
             PickModuleFile(null);
@@ -419,6 +423,11 @@ public sealed partial class CodingViewModel : PageViewModel
         return backup;
     }
 
+    /// <summary>Keeps the latest reading for a snapshot the owner may share (view-only; never written back from a snapshot).</summary>
+    private void RememberForSnapshot(CodingModuleItem m, IReadOnlyList<CodingBlock> blocks) =>
+        _session.CodingReads[CodingProtocol.ShortName(m.Ecu)] = new SnapshotCoding(CodingProtocol.ShortName(m.Ecu), m.Identity?.PartNumber, m.Identity?.CodingIndex,
+            blocks.Select(b => new SnapshotCodingBlock(b.Id, Convert.ToHexString(b.Data))).ToList());
+
     private async Task BackupAsync()
     {
         if (_selected is null) return;
@@ -427,6 +436,7 @@ public sealed partial class CodingViewModel : PageViewModel
             _blocks = null; // always a fresh read
             var b = await TakeBackupAsync(null);
             _blocks = b.Blocks;
+            RememberForSnapshot(_selected, b.Blocks);
             Status = $"Backup saved: {b.Blocks.Count} blocks. Keep a copy somewhere safe: it is the way back if any coding tool goes wrong.";
             return 0;
         });

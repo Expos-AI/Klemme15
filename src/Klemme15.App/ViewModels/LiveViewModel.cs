@@ -191,6 +191,7 @@ public sealed class LiveViewModel : PageViewModel
                 var values = await backend.ReadLiveAsync(engine, selected.Select(p => p.Parameter).ToList(), _cts.Token);
                 foreach (var v in values)
                     if (byId.TryGetValue(v.Parameter.Id, out var vm)) vm.Update(v);
+                _session.LiveBuffer.Add(DateTimeOffset.Now, selected.ToDictionary(p => string.IsNullOrEmpty(p.Parameter.Unit) ? p.Name : $"{p.Name} ({p.Parameter.Unit})", p => p.Latest));
                 _recording?.AppendLine(DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "," +
                     string.Join(",", _columns.Select(p => byId.ContainsKey(p.Parameter.Id) ? p.Latest?.ToString(CultureInfo.InvariantCulture) ?? "" : "")));
                 frames++;
