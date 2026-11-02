@@ -16,7 +16,8 @@ Klemme15 is an independent project. It is not affiliated with or endorsed by BMW
 | Faults, health and the car's story | Component tests with live graphs |
 |---|---|
 | ![Faults](https://github.com/Expos-AI/Klemme15/raw/screenshots/07-faults.png) | ![Tests](https://github.com/Expos-AI/Klemme15/raw/screenshots/19-tests.png) |
-| ![Vehicle view](https://github.com/Expos-AI/Klemme15/raw/screenshots/11-e90-325i-vehicle.png) | ![Garage](https://github.com/Expos-AI/Klemme15/raw/screenshots/02-garage-335i.png) |
+| **A shared snapshot, opened read-only** | **A diagnostic chain asking its question** |
+| ![Snapshot](https://github.com/Expos-AI/Klemme15/raw/screenshots/24-snapshot-faults.png) | ![Chain](https://github.com/Expos-AI/Klemme15/raw/screenshots/25-chain-question.png) |
 
 Screenshots are rendered by CI from the demo cars on every push, so they always show the current build. [All of them](https://github.com/Expos-AI/Klemme15/tree/screenshots).
 
@@ -49,12 +50,17 @@ scoop install klemme15
 - **Your car's story**: the instrument cluster remembers its last few dozen dash warnings with the mileage. Klemme15 tells them as a timeline and spots the patterns: five systems complaining at once is a voltage dip, not five faults.
 - **See where it is**: a top view of the car with each module where it sits and each fault pinned to the part it points at.
 
+### Get help from anyone, anywhere
+- **Snapshots (.k15)**: save your whole car in one file (modules, faults, dash messages, the car's story, health trends, the last minute of live data, test graphs) and attach it to a forum post. Whoever opens it explores your car read-only, as if they were plugged in, with your note on top. The VIN is removed everywhere ([how it works](docs/SNAPSHOTS.md)).
+- **Buying a used BMW?** The pre-purchase check compares the mileage the modules recorded with the odometer, flags safety faults and freshly cleared memories, and saves a buyer's report.
+
 ### Keep an eye on it over time
 - **Health over time**: each quick test of a real car saves a small snapshot on your computer (no VIN, never uploaded). Klemme15 flags what's drifting before it becomes a fault: a battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back, parts that test worse than last time.
 - **Your cars**: the Garage lists every car you've scanned, with its latest state and most important trend. A fleet view for a household or a small shop.
 
 ### Test before you buy parts
 - **Guided tests with live graphs**: fuel trims at idle and 2,500 rpm (vacuum leak or fuel delivery?), VANOS target against actual, cylinder roughness, "why won't it start?", the electric water pump's requested against actual speed, and a 12-minute cooling bleed assistant. Each ends with a plain verdict.
+- **Diagnostic chains**: a mechanic's reasoning, written by the community and run step by step: the Vacuum leak hunter compares trims at idle and 2,500 rpm, checks airflow against engine size and asks about the crankcase vent valve; the Charging system check tells a tired battery from a weak alternator. Offered under matching faults; anyone can write one ([how](docs/CHAINS.md)).
 - **How to check it**: multimeter and swap checks under matching faults (connectors, grounds, VANOS solenoids, coils, pump power, oxygen sensor heaters, wheel speed sensors, the sensors behind the mirror), plus troubleshooting guides and how-to guides with where things are. In our own words with sources.
 - **Readings and live data**: every value each module reports (sensor voltages, fuel trims per bank, VANOS, injectors, knock, wheel speeds, steering angle, learned values), live data with CSV recording, and an **Analyse** page to scatter and replay a log.
 
@@ -65,6 +71,7 @@ scoop install klemme15
 ### Code comfort options, safely
 - **Back up, compare and restore** any comfort module's coding with no BMW data at all.
 - **Quick codes** (experimental): LED conversion (every bulb warning off in one write), digital speed, mirror fold, windows closing on lock and more. An option only unlocks when Klemme15 knows exactly where it lives on your exact module: verified against your NCS Expert reading, learned by watching another coding tool, or a shared **coding map** from the library. Every write is backed up, read back and put back automatically if anything is off ([walkthrough](docs/QUICK-CODES.md), [details](docs/CODING.md)).
+- **Retrofit checker**: notices replaced and added modules from their part numbers, explains what common jobs need (LCI tail lights, LED bulbs, a used FRM or cluster, a different battery, parking sensors), and checks the car afterwards. It never writes the vehicle order, flashes or touches mileage.
 - **FRM3 protection**: the footwell module that can corrupt itself on a voltage dip is recognised from its part number and only written to at 13.0 V or more.
 - The key module (CAS), engine, gearbox, brakes and airbag modules are **never coded**.
 
