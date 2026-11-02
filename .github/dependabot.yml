@@ -23,7 +23,11 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     labels: ["dependencies"]
+    # The dashboard's built files are committed, so npm updates also need 'npm run build' and a commit before the
+    # "Phone dashboard" check passes. React and its types move together, or the build breaks.
     groups:
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
       npm-minor-and-patch:
         update-types: ["minor", "patch"]
 
