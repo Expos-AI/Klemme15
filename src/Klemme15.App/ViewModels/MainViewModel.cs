@@ -29,6 +29,7 @@ public sealed class MainViewModel : ViewModelBase
             CurrentPage = Readings;
             Readings.ShowModule(ecu.Id, "");
         };
+        Faults.Share = new SnapshotShareViewModel(Session, dialogs, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "");
         Faults.GuideActions = new GuideActions(
             (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },
             () => CurrentPage = Live!);
@@ -44,6 +45,11 @@ public sealed class MainViewModel : ViewModelBase
         Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url));
         Expert = new ExpertViewModel(Session, settings);
         Log = new LogViewModel(Session, dialogs);
+        Session.SnapshotOpened += snapshot =>
+        {
+            if (snapshot.HasLive) Analyse.Load(Klemme15.Core.DataLog.Parse(snapshot.LiveCsv), "the snapshot's live data");
+            CurrentPage = Faults;
+        };
         Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Service, Coding, Analyse, Expert, Log];
         _currentPage = Garage;
         _isDark = settings.Theme != "Light";
@@ -55,8 +61,8 @@ public sealed class MainViewModel : ViewModelBase
 
         Session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection) or nameof(SessionState.Voltage))
-                foreach (var p in new[] { nameof(CarTitle), nameof(CarSubtitle), nameof(Connection), nameof(IsConnected), nameof(HasCar) })
+            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection) or nameof(SessionState.Voltage) or nameof(SessionState.Snapshot))
+                foreach (var p in new[] { nameof(CarTitle), nameof(CarSubtitle), nameof(Connection), nameof(IsConnected), nameof(HasCar), nameof(IsSnapshot), nameof(SnapshotBanner), nameof(SnapshotNote), nameof(HasSnapshotNote) })
                     Raise(p);
         };
     }
@@ -95,6 +101,10 @@ public sealed class MainViewModel : ViewModelBase
     public string CarSubtitle => Session.Model is { } m && Session.IsConnected ? m.Engine : "Pick your car in the garage";
     public string Connection => Session.VoltageText.Length > 0 ? $"{Session.Connection} · {Session.VoltageText}" : Session.Connection;
     public bool IsConnected => Session.IsConnected;
+    public bool IsSnapshot => Session.IsSnapshot;
+    public string SnapshotBanner => Session.SnapshotBanner;
+    public string SnapshotNote => Session.Snapshot?.Manifest.Note is { Length: > 0 } n ? $"The owner says: \u201c{n}\u201d" : "";
+    public bool HasSnapshotNote => SnapshotNote.Length > 0;
 
     public bool IsDark
     {

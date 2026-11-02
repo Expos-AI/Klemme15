@@ -51,8 +51,28 @@
     <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,18">
       <DockPanel>
         <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding Share.ToggleText}" Command="{Binding Share.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
+                ToolTip.Tip="Save the whole car as a .k15 file someone else can open in Klemme15 and explore, read-only" />
         <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
+      <!-- Share snapshot -->
+      <Border Classes="panel" Padding="18,14" IsVisible="{Binding Share.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Spacing="8" DataContext="{Binding Share}" x:DataType="vm:SnapshotShareViewModel">
+          <TextBlock Classes="section" FontSize="16" Text="Share a snapshot of your car" />
+          <TextBlock Classes="muted small" TextWrapping="Wrap"
+                     Text="Saves the whole car as it is now in one .k15 file. Attach it to your E90Post, Reddit or GitHub post: anyone with Klemme15 opens it in the Garage and explores your car as if they were plugged in, read-only. Klemme15 uploads nothing itself." />
+          <TextBox Watermark="What's wrong, and what have you tried? (shown to whoever opens it)" Text="{Binding Note}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" />
+          <TextBlock Classes="small" Text="{Binding Contents}" TextWrapping="Wrap" />
+          <CheckBox IsChecked="{Binding IncludeLive}"><TextBlock Text="{Binding LiveText}" TextWrapping="Wrap" /></CheckBox>
+          <CheckBox IsChecked="{Binding IncludeTests}"><TextBlock Text="{Binding TestsText}" TextWrapping="Wrap" /></CheckBox>
+          <CheckBox IsChecked="{Binding IncludeCoding}"><TextBlock Text="{Binding CodingText}" TextWrapping="Wrap" /></CheckBox>
+          <CheckBox IsChecked="{Binding IncludeLog}"><TextBlock Text="Traffic log (for bug reports; VIN scrubbed)" TextWrapping="Wrap" /></CheckBox>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Classes="primary" Content="Save snapshot..." Command="{Binding SaveCommand}" />
+          </StackPanel>
+          <TextBlock Classes="small" Text="{Binding Status}" TextWrapping="Wrap" IsVisible="{Binding HasStatus}" />
+        </StackPanel>
+      </Border>
       <TextBlock Text="{Binding Headline}" Classes="muted" FontSize="16" />
       <DockPanel>
         <CheckBox DockPanel.Dock="Right" Content="Show background entries" IsChecked="{Binding ShowBackground}" IsVisible="{Binding HasBackground}"

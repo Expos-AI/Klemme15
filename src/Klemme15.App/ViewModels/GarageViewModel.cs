@@ -57,6 +57,7 @@ public sealed class GarageViewModel : PageViewModel
         _trustDsr = settings.TrustDsr;
 
         OpenDemoCommand = new AsyncCommand(() => ConnectAsync(demo: true), () => !_busy && _model is not null, e => Error = e.Message);
+        OpenSnapshotCommand = new AsyncCommand(OpenSnapshotAsync, () => !_busy, e => Error = e.Message);
         ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && _model is not null && (_port is not null || UsesNetwork), e => Error = e.Message);
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected);
@@ -311,6 +312,28 @@ public sealed class GarageViewModel : PageViewModel
     public bool HasError => !string.IsNullOrEmpty(_error);
 
     public AsyncCommand OpenDemoCommand { get; }
+    public AsyncCommand OpenSnapshotCommand { get; }
+
+    private async Task OpenSnapshotAsync()
+    {
+        Error = null;
+        var file = await _dialogs.OpenBytesAsync("Open a snapshot", "Klemme15 snapshot", ["*.k15"]);
+        if (file is not { } f) return;
+        await OpenSnapshotAsync(f.Data);
+    }
+
+    /// <summary>Opens a snapshot's bytes (from the button, or a .k15 file the app was started with).</summary>
+    public async Task OpenSnapshotAsync(byte[] data)
+    {
+        Error = null;
+        try
+        {
+            var snapshot = Klemme15.Core.SnapshotFile.Read(data);
+            if (snapshot.Manifest.ModelId is { } id) SelectModel(id);
+            await _session.OpenSnapshotAsync(snapshot);
+        }
+        catch (Klemme15.Core.SnapshotException e) { Error = e.Message; }
+    }
     public AsyncCommand ConnectCarCommand { get; }
     public RelayCommand ShowCableCommand { get; }
     public AsyncCommand DisconnectCommand { get; }

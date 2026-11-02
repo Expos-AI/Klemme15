@@ -75,11 +75,11 @@ public sealed class TestsViewModel : PageViewModel
             vm.SelectCommand = new RelayCommand(() => Select(vm));
             Tests.Add(vm);
         }
-        StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && Engine is not null);
+        StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && Engine is not null);
         StopCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.Backend)) OnUi(() => { Raise(nameof(NotConnected)); Changed(); });
+            if (e.PropertyName is nameof(SessionState.Backend)) OnUi(() => { Raise(nameof(NotConnected)); Changed(); if (_selected is { } t) Select(t); });
         };
         Select(Tests[0]);
     }
@@ -191,12 +191,28 @@ public sealed class TestsViewModel : PageViewModel
         SavedNote = "";
         Instruction = Status = "";
         Fraction = 0;
+        // Viewing a snapshot: show the owner's own run of this test, graphs and all.
+        if (_session.Snapshot?.Tests.LastOrDefault(t => t.TestId == test.Info.Id) is { } recorded) ShowReport(recorded.Report, $"From the snapshot: the owner ran this test on {recorded.Time.LocalDateTime:d MMM yyyy HH:mm}.");
+        else if (_session.IsSnapshot) Instruction = "The snapshot has no result for this test.";
         foreach (var p in new[] { nameof(TestTitle), nameof(Summary), nameof(Requirements), nameof(Duration), nameof(HasResult), nameof(HasValues), nameof(HasCharts), nameof(DrivesParts) })
             Raise(p);
         Changed();
     }
 
     public override void OnHidden() => _cts?.Cancel();
+
+    private void ShowReport(TestReport report, string note)
+    {
+        Findings.Clear();
+        Values.Clear();
+        foreach (var f in report.Findings) Findings.Add(new TestFindingViewModel(f));
+        var max = report.Values.Count == 0 ? 0 : report.Values.Max(v => Math.Abs(v.Value));
+        foreach (var v in report.Values) Values.Add(new TestValueViewModel(v.Key, v.Value, report.Unit, max));
+        ShowTraces(report.Traces);
+        SavedNote = note;
+        Raise(nameof(HasResult));
+        Raise(nameof(HasValues));
+    }
 
     private async Task RunAsync()
     {

@@ -30,7 +30,7 @@ public sealed class VehicleViewModel : PageViewModel
     {
         _session = session;
         _dialogs = dialogs;
-        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_isScanning && !_isDiscovering, e => Error = e.Message);
+        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
         AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasAnythingToClear);
