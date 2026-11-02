@@ -5,7 +5,7 @@
     <Description>Real K+DCAN cable transport (USB serial / FTDI).</Description>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Ports" Version="10.0.0" />
+    <PackageReference Include="System.IO.Ports" Version="10.0.14" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Klemme15.Protocols\Klemme15.Protocols.csproj" />
