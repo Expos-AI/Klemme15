@@ -220,6 +220,8 @@
                           <Button Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" HorizontalAlignment="Right" />
                           <Button Classes="quiet" Content="{Binding GuideButtonText}" Command="{Binding ToggleGuideCommand}" IsVisible="{Binding HasGuide}" HorizontalAlignment="Right"
                                   ToolTip.Tip="Step-by-step checks for this kind of fault" />
+                          <Button Classes="quiet" Content="{Binding ChainButtonText}" Command="{Binding RunChainCommand}" IsVisible="{Binding HasChain}" HorizontalAlignment="Right"
+                                  ToolTip.Tip="{Binding ChainTitle}" />
                           <Button Classes="quiet" Content="{Binding CheckButtonText}" Command="{Binding ToggleCheckCommand}" IsVisible="{Binding HasCheck}" HorizontalAlignment="Right"
                                   ToolTip.Tip="Test the part with a multimeter or a swap before buying it" />
                         </StackPanel>

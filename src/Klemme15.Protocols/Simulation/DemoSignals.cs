@@ -24,7 +24,7 @@ public sealed class DemoSignals(IMeasurementReader measurements, EcuDefinition e
         var rpm = loaded ? J(2500, 60) : J(760, 15);
         var values = new Dictionary<string, double>
         {
-            ["rpm"] = rpm, ["coolant"] = 92, ["voltage"] = 14.1,
+            ["rpm"] = rpm, ["coolant"] = 92, ["voltage"] = 14.1, ["maf"] = loaded ? J(11.5, 0.4) : J(3.6, 0.15), ["load"] = loaded ? J(24, 1) : J(18, 1),
             ["stft1"] = loaded ? J(1, 2) : J(4, 2), ["ltft1"] = loaded ? J(2, 0.5) : J(10, 0.5),
             ["stft2"] = loaded ? J(0, 2) : J(3, 2), ["ltft2"] = loaded ? J(1, 0.5) : J(9, 0.5),
         };

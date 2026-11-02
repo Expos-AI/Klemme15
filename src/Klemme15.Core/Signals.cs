@@ -43,7 +43,7 @@ public sealed class EngineSignals(IDiagnosticBackend backend, EcuDefinition engi
         ["pump_current"] = ["STAT_WASSERPUMPE_STROM_WERT"],
     };
 
-    private static readonly HashSet<string> ObdIds = ["rpm", "coolant", "voltage", "stft1", "stft2", "ltft1", "ltft2", "speed"];
+    private static readonly HashSet<string> ObdIds = ["rpm", "coolant", "voltage", "stft1", "stft2", "ltft1", "ltft2", "speed", "maf", "load", "iat", "map", "throttle", "timing", "baro", "o2b1s1", "o2b1s2", "oiltemp", "ambient"];
 
     /// <summary>Reads the signals it can. BMW's fuel trims are factors (1.05 = +5 %); they are turned into percent.</summary>
     public async Task<IReadOnlyDictionary<string, double>> ReadAsync(IReadOnlyCollection<string> signals, CancellationToken ct = default)

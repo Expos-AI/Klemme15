@@ -28,6 +28,26 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>Klemme15's troubleshooting guides (db/guides.json).</summary>
     public GuideLibrary Guides => _guides ??= GuideLibrary.Load();
 
+    private IReadOnlyList<DiagnosticChain>? _chains;
+
+    /// <summary>Community diagnostic chains (db/chains.json). Chains that don't validate are left out and listed in LoadWarnings.</summary>
+    public IReadOnlyList<DiagnosticChain> Chains
+    {
+        get
+        {
+            if (_chains is not null) return _chains;
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data.chains.json");
+            if (stream is null) return _chains = [];
+            using var reader = new StreamReader(stream);
+            var (chains, problems) = ChainLoader.Load(reader.ReadToEnd());
+            foreach (var p in problems) _warnings.Add($"chains.json: {p}");
+            return _chains = chains;
+        }
+    }
+
+    /// <summary>The chains offered for a fault code (BMW or OBD-II).</summary>
+    public IEnumerable<DiagnosticChain> ChainsFor(string code) => Chains.Where(c => c.Faults.Contains(code, StringComparer.OrdinalIgnoreCase));
+
     private GuideLibrary? _checks;
 
     /// <summary>Multimeter checks (db/checks.json), offered on faults next to the troubleshooting guide.</summary>

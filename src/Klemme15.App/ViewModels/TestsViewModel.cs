@@ -24,14 +24,25 @@ public sealed class TestValueViewModel(string label, double value, string unit, 
     public double BarWidth { get; } = max <= 0 ? 0 : Math.Max(2, 260 * Math.Abs(value) / max);
 }
 
-public sealed class GuidedTestViewModel(GuidedTestInfo info) : ViewModelBase
+public sealed class GuidedTestViewModel(GuidedTestInfo info, DiagnosticChain? chain = null) : ViewModelBase
 {
     private bool _isSelected;
     public GuidedTestInfo Info { get; } = info;
+
+    /// <summary>A community diagnostic chain, rather than one of Klemme15's built-in tests.</summary>
+    public DiagnosticChain? Chain { get; } = chain;
+    public bool IsChain => Chain is not null;
     public string Title => Info.Title;
     public bool DrivesParts => Info.DrivesParts;
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
+}
+
+/// <summary>One answer button while a chain asks a question.</summary>
+public sealed class ChainChoiceViewModel(ChainChoice choice, Action<string> pick)
+{
+    public string Label => choice.Label;
+    public RelayCommand PickCommand { get; } = new(() => pick(choice.Value));
 }
 
 public sealed class GuideItemViewModel(Guide guide) : ViewModelBase
@@ -47,7 +58,7 @@ public sealed class GuideItemViewModel(Guide guide) : ViewModelBase
 /// Guided tests: Klemme15 measures the engine while telling you what to do (idle, hold 2,500 rpm, blip the throttle)
 /// and explains what the numbers mean. Read-only except the tests marked "drives a part", which switch one part on through the engine computer.
 /// </summary>
-public sealed class TestsViewModel : PageViewModel
+public sealed class TestsViewModel : PageViewModel, IChainPrompt
 {
     private readonly SessionState _session;
     private GuidedTestViewModel? _selected;
@@ -75,6 +86,12 @@ public sealed class TestsViewModel : PageViewModel
             vm.SelectCommand = new RelayCommand(() => Select(vm));
             Tests.Add(vm);
         }
+        foreach (var c in session.Database.Chains)
+        {
+            var vm = new GuidedTestViewModel(c.Info, c);
+            vm.SelectCommand = new RelayCommand(() => Select(vm));
+            Chains.Add(vm);
+        }
         StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && Engine is not null);
         StopCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
@@ -88,6 +105,34 @@ public sealed class TestsViewModel : PageViewModel
     public override Geometry Icon => Icons.Tests;
 
     public ObservableCollection<GuidedTestViewModel> Tests { get; } = [];
+
+    /// <summary>Community diagnostic chains (db/chains.json), listed under the built-in tests.</summary>
+    public ObservableCollection<GuidedTestViewModel> Chains { get; } = [];
+
+    /// <summary>Selects a test or chain by id (from a fault's "Run the ... chain" button).</summary>
+    public void SelectById(string id)
+    {
+        if (Tests.Concat(Chains).FirstOrDefault(t => t.Info.Id == id) is { } t) Select(t);
+    }
+
+    // ---------------------------------------------------------------- questions a chain asks
+
+    private TaskCompletionSource<string>? _answer;
+    private string _question = "";
+    public ObservableCollection<ChainChoiceViewModel> Choices { get; } = [];
+    public string Question { get => _question; private set { if (Set(ref _question, value)) Raise(nameof(IsAsking)); } }
+    public bool IsAsking => _question.Length > 0;
+
+    public async Task<string> AskAsync(string question, IReadOnlyList<ChainChoice> choices, CancellationToken ct)
+    {
+        _answer = new TaskCompletionSource<string>(TaskCreationOptions.RunContinuationsAsynchronously);
+        Choices.Clear();
+        foreach (var c in choices) Choices.Add(new ChainChoiceViewModel(c, v => _answer?.TrySetResult(v)));
+        Question = question;
+        await using var _ = ct.Register(() => _answer?.TrySetCanceled());
+        try { return await _answer.Task; }
+        finally { Question = ""; Choices.Clear(); }
+    }
     public ObservableCollection<TestFindingViewModel> Findings { get; } = [];
     public ObservableCollection<TestValueViewModel> Values { get; } = [];
     public ObservableCollection<GuideItemViewModel> Guides { get; } = [];
@@ -124,7 +169,7 @@ public sealed class TestsViewModel : PageViewModel
     private void SelectGuide(GuideItemViewModel item)
     {
         if (_running) return;
-        foreach (var t in Tests) t.IsSelected = false;
+        foreach (var t in Tests.Concat(Chains)) t.IsSelected = false;
         foreach (var g in Guides) g.IsSelected = g == item;
         var steps = item.Guide.StepsFor(_session.Model?.EngineCode).Select((s, i) => new GuideStepViewModel(i + 1, s.Text, null, null)).ToList();
         Guide = new GuideViewModel(item.Guide.Title, item.Guide.Summary, item.Guide.Safety, steps, item.Guide.SourceList.Select(u => new SourceLink(u, _openUrl)).ToList());
@@ -181,7 +226,7 @@ public sealed class TestsViewModel : PageViewModel
     private void Select(GuidedTestViewModel test)
     {
         if (_running) return;
-        foreach (var t in Tests) t.IsSelected = t == test;
+        foreach (var t in Tests.Concat(Chains)) t.IsSelected = t == test;
         foreach (var g in Guides) g.IsSelected = false;
         Guide = null;
         _selected = test;
@@ -200,6 +245,11 @@ public sealed class TestsViewModel : PageViewModel
     }
 
     public override void OnHidden() => _cts?.Cancel();
+
+    /// <summary>"N52 3.0 L inline-6" → 3.0 (0 when unknown).</summary>
+    public static double Displacement(string? engine) =>
+        engine is not null && System.Text.RegularExpressions.Regex.Match(engine, @"(\d\.\d)\s*L") is { Success: true } m
+            ? double.Parse(m.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) : 0;
 
     private void ShowReport(TestReport report, string note)
     {
@@ -237,7 +287,9 @@ public sealed class TestsViewModel : PageViewModel
             var progress = new Progress<TestProgress>(p => { Instruction = p.Instruction; Status = p.Status; Fraction = p.Fraction * 100; ShowTraces(p.Traces); });
             Func<CancellationToken, Task<IReadOnlyList<NoStartTriage.ModuleFault>>>? faults =
                 test.Info.Id == "no-start" ? StartChainFaultsAsync : null;
-            var report = await GuidedTests.RunAsync(test.Info.Id, signals, progress, _cts.Token, Speed, faults, actuator);
+            var report = test.Chain is { } chain
+                ? await ChainRunner.RunAsync(chain, signals, this, progress, _cts.Token, Speed, Displacement(_session.Model?.Engine))
+                : await GuidedTests.RunAsync(test.Info.Id, signals, progress, _cts.Token, Speed, faults, actuator);
             foreach (var f in report.Findings) Findings.Add(new TestFindingViewModel(f));
             if (report.Traces.Count > 0) ShowTraces(report.Traces);
             SavedNote = report.Verdict == TestSeverity.Unknown ? ""

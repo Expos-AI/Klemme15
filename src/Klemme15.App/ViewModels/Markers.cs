@@ -169,6 +169,12 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public RelayCommand ToggleGuideCommand => _toggle ??= new RelayCommand(() => GuideOpen = !GuideOpen);
     private RelayCommand? _toggle;
 
+    /// <summary>A community diagnostic chain written for this fault, and the command that opens it on the Tests page.</summary>
+    public string? ChainTitle { get; set; }
+    public bool HasChain => ChainTitle is not null;
+    public string ChainButtonText => "Run the chain";
+    public RelayCommand? RunChainCommand { get; set; }
+
     private GuideViewModel? _check;
     private bool _checkOpen;
 

@@ -7,7 +7,7 @@ using Klemme15.Data;
 namespace Klemme15.App.ViewModels;
 
 /// <summary>Where a guide step's buttons take the user.</summary>
-public sealed record GuideActions(Action<string, string> OpenReadings, Action OpenLive);
+public sealed record GuideActions(Action<string, string> OpenReadings, Action OpenLive, Action<string>? OpenTest = null);
 
 public sealed class FaultGroupViewModel : ViewModelBase
 {
@@ -85,6 +85,11 @@ public sealed class FaultGroupViewModel : ViewModelBase
             item.TranslateCommand = new RelayCommand(() => _openUrl(item.TranslateUrl));
             if (_session.Database.Guides.For(f, Ecu) is { } guide) item.Guide = BuildGuide(guide);
             if (_session.Database.Checks.For(f, Ecu) is { } check) item.Check = BuildGuide(check);
+            if (_session.Database.ChainsFor(f.Code).FirstOrDefault() is { } chain && _guideActions?.OpenTest is { } openTest)
+            {
+                item.ChainTitle = chain.Title;
+                item.RunChainCommand = new RelayCommand(() => openTest(chain.Id));
+            }
             Faults.Add(item);
         }
         Raise(nameof(CountText));

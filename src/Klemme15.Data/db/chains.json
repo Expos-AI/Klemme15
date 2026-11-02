@@ -1,0 +1,82 @@
+{
+  "$comment": "Community diagnostic chains: a mechanic's reasoning as data. Steps: require (a value in range or the chain stops), ask (a question with buttons), measure (average values while a condition holds), compute (an expression), suggest (point to an existing test). Chains can only read and ask; they never switch anything on. Verdicts are checked in order; the first MaxVerdicts that hold are shown. Expressions: numbers, measured names (idle.stft1_ltft1), + - * /, < <= > >= == !=, and or not, abs() min() max(). See docs/CHAINS.md. Thresholds are rules of thumb with sources, and verdicts say 'points to', never 'definitely'.",
+  "chains": [
+    {
+      "id": "vacuum-leak-hunter",
+      "title": "Vacuum leak hunter (lean codes)",
+      "summary": "For lean mixture faults. Compares the fuel trims at idle and at 2,500 rpm, checks the air mass reading against the engine's size, and asks one quick question about the crankcase vent valve. A vacuum leak shows as lean at idle that improves with rpm; an under-reading air mass meter or weak fuel delivery stays lean everywhere.",
+      "requirements": "Warm engine (coolant above 70 °C), idling, in P or neutral, handbrake on. You'll be asked to hold 2,500 rpm for about 15 seconds, and to lift the oil filler cap once.",
+      "duration": "About 2 minutes",
+      "faults": ["29E0", "29E1", "2A2E", "2A2F", "P0171", "P0174"],
+      "sources": [
+        "https://www.go-parts.com/garage/obd-p0171-bmw-1-series-2008-2013-n52-3-0l",
+        "https://www.pelicanparts.com/BMW/techarticles/BMW-3-Series-E90/ENGINE-Crankcase_Breather_Valve_Replacement/ENGINE-Crankcase_Breather_Valve_Replacement.htm",
+        "https://www.youcanic.com/video/maf-sensor-live-data-explained-how-many-grams-per-second-is-normal/"
+      ],
+      "steps": [
+        { "type": "require", "signal": "rpm", "min": 400, "stop": "Start the engine and let it idle, then run the chain again." },
+        { "type": "require", "signal": "coolant", "min": 70, "stop": "Warm the engine up first (drive about 10 minutes): mixture readings on a cold engine mislead." },
+        { "type": "measure", "id": "idle", "say": "Let the engine idle. Don't touch the pedal.", "signals": ["stft1+ltft1"], "optional": ["stft2+ltft2", "maf"], "while": "rpm", "min": 500, "max": 1100, "samples": 20, "timeoutSeconds": 60 },
+        { "type": "measure", "id": "high", "say": "Now hold the engine at about 2,500 rpm with the pedal, steady.", "signals": ["stft1+ltft1"], "optional": ["stft2+ltft2", "maf"], "while": "rpm", "min": 2200, "max": 2900, "samples": 20, "timeoutSeconds": 120 },
+        { "type": "compute", "id": "lean_idle", "expr": "max(idle.stft1_ltft1, idle.stft2_ltft2) > 10 or idle.stft1_ltft1 > 10" },
+        { "type": "ask", "id": "cap", "when": "lean_idle", "say": "Let it idle and lift the oil filler cap slowly. Is it hard to lift (sucked down), or do you hear a whistle or squeal near the cap or the vent valve on the cylinder head?",
+          "choices": [ { "value": "suction", "label": "Hard to lift, or whistling" }, { "value": "normal", "label": "Lifts easily, no whistle" }, { "value": "skip", "label": "Didn't check" } ] },
+        { "type": "suggest", "when": "lean_idle", "say": "Next: a smoke test finds a vacuum leak fastest", "test": "A smoke machine pushes visible smoke into the intake and shows exactly where it leaks out. Afterwards, run the Fuel trim test to confirm the repair." }
+      ],
+      "verdicts": [
+        { "when": "lean_idle and high.stft1_ltft1 < idle.stft1_ltft1 - 6 and cap.suction == 1", "severity": "problem",
+          "title": "Points to the crankcase vent valve",
+          "text": "Lean at idle ({idle.stft1_ltft1:+0.0;-0.0} %), much better at 2,500 rpm ({high.stft1_ltft1:+0.0;-0.0} %), and the oil filler cap is sucked down. That's the classic sign of a failed crankcase vent valve (its diaphragm lets unmetered air in). On the N52 it's built into the valve cover; on others it's a separate valve." },
+        { "when": "lean_idle and high.stft1_ltft1 < idle.stft1_ltft1 - 6 and not (cap.suction == 1)", "severity": "problem",
+          "title": "Points to a vacuum leak",
+          "text": "Lean at idle ({idle.stft1_ltft1:+0.0;-0.0} %) but much better at 2,500 rpm ({high.stft1_ltft1:+0.0;-0.0} %): air is getting in after the air mass meter, which matters most at idle. Check, in order: crankcase vent valve and its hoses, the intake boot between air mass meter and throttle, the oil filler cap seal, DISA valve and intake manifold gaskets, the brake booster hose. A smoke test finds it fastest." },
+        { "when": "displacement > 0 and idle.maf < 0.6 * displacement", "severity": "watch",
+          "title": "The air mass reading looks low",
+          "text": "{idle.maf:0.0} g/s at warm idle for a {displacement:0.0} L engine. A rough rule is about 1 g/s per litre at warm idle (it varies with idle speed and what's switched on). An air mass meter that reads low makes the engine run lean, worst under load. Clean it with MAF cleaner (never touch the wire) before replacing it." },
+        { "when": "idle.stft1_ltft1 > 10 and high.stft1_ltft1 > 10", "severity": "problem",
+          "title": "Lean everywhere: fuel delivery or air mass meter",
+          "text": "Lean at idle ({idle.stft1_ltft1:+0.0;-0.0} %) and at 2,500 rpm ({high.stft1_ltft1:+0.0;-0.0} %). A leak alone would improve with rpm. Check fuel pressure (pump, filter, regulator; on direct injection also the high-pressure pump), then the air mass meter, then exhaust leaks before the oxygen sensors." },
+        { "when": "idle.stft1_ltft1 < -10 and high.stft1_ltft1 < -10", "severity": "problem",
+          "title": "Rich everywhere, not lean",
+          "text": "The engine is taking fuel away ({idle.stft1_ltft1:+0.0;-0.0} % at idle, {high.stft1_ltft1:+0.0;-0.0} % at 2,500 rpm), so this isn't a vacuum leak. Look at a leaking injector, the purge valve (Service > Test the purge valve) and fuel pressure." },
+        { "when": "abs(idle.stft1_ltft1) <= 8 and abs(high.stft1_ltft1) <= 8", "severity": "ok",
+          "title": "No vacuum leak found right now",
+          "text": "Fuel trims are healthy at idle ({idle.stft1_ltft1:+0.0;-0.0} %) and at 2,500 rpm ({high.stft1_ltft1:+0.0;-0.0} %). If a lean fault keeps coming back, the leak may only open up when cold or under load: run this again on a cold start." }
+      ],
+      "otherwise": { "when": "true", "severity": "watch", "title": "Slightly off, no clear pattern",
+        "text": "Idle {idle.stft1_ltft1:+0.0;-0.0} %, 2,500 rpm {high.stft1_ltft1:+0.0;-0.0} %. Not far enough out to point at one cause. Run it again after a drive; if it gets worse, start with the crankcase vent valve and intake boot." }
+    },
+    {
+      "id": "charging-check",
+      "title": "Charging system check (battery and alternator)",
+      "summary": "Measures the battery resting, then charging at idle, then with headlights, blower and rear window heater on at 2,000 rpm. Tells a tired battery from an alternator that can't keep up or overcharges.",
+      "requirements": "Start with the engine OFF and the ignition on (the chain tells you when to start it). You'll switch on headlights, blower and rear window heater and hold about 2,000 rpm.",
+      "duration": "About 2 minutes",
+      "faults": ["2DEB", "2DEC", "2E98", "P0562", "P0563", "P0620"],
+      "sources": [
+        "https://europremiumparts.com/blogs/buying-guides/bmw-charging-malfunction-causes-what-it-means-and-how-to-diagnose-it",
+        "https://www.fluke.com/en-us/learn/blog/digital-multimeters/how-to-check-starter-circuit-voltage-drop-with-a-multimeter"
+      ],
+      "steps": [
+        { "type": "require", "signal": "voltage", "min": 9, "stop": "The battery voltage reads too low to test. Charge the battery first." },
+        { "type": "measure", "id": "rest", "say": "Engine off, ignition on. Don't start it yet.", "signals": ["voltage"], "while": "rpm", "max": 100, "samples": 6, "timeoutSeconds": 30 },
+        { "type": "measure", "id": "idle", "say": "Now start the engine and let it idle.", "signals": ["voltage"], "while": "rpm", "min": 500, "max": 1100, "samples": 16, "timeoutSeconds": 120 },
+        { "type": "measure", "id": "loaded", "say": "Switch on the headlights, the blower on full and the rear window heater, then hold about 2,000 rpm.", "signals": ["voltage"], "while": "rpm", "min": 1700, "max": 2400, "samples": 16, "timeoutSeconds": 120 },
+        { "type": "suggest", "say": "When you're done: switch the extra loads off again" }
+      ],
+      "maxVerdicts": 2,
+      "verdicts": [
+        { "when": "max(idle.voltage.max, loaded.voltage.max) > 15.0", "severity": "problem", "title": "Overcharging",
+          "text": "The voltage reached {loaded.voltage.max:0.0} V. Above about 15 V the alternator's regulator isn't controlling it, which cooks batteries and bulbs. Have the alternator (regulator) checked." },
+        { "when": "loaded.voltage < 13.5", "severity": "problem", "title": "The alternator can't keep up under load",
+          "text": "{loaded.voltage:0.00} V at 2,000 rpm with headlights, blower and rear heater on. A healthy system holds about 13.8-14.8 V there. Check the belt and tensioner, the alternator's main cable and ground strap (a voltage drop test finds a bad one), then the alternator." },
+        { "when": "idle.voltage < 13.0 and loaded.voltage >= 13.5", "severity": "watch", "title": "Low at idle, fine under load",
+          "text": "{idle.voltage:0.00} V at idle but {loaded.voltage:0.00} V under load. Some BMWs deliberately charge less at idle and while cruising when the battery is full, so this can be normal. If the battery also rests low, look at the battery first." },
+        { "when": "rest.voltage < 12.2", "severity": "watch", "title": "The battery rests low",
+          "text": "{rest.voltage:0.00} V with the engine off (a charged battery rests around 12.6 V). If the alternator checks out, charge the battery fully and have it tested; if it keeps going flat while parked, look for a drain." },
+        { "when": "rest.voltage >= 12.2 and loaded.voltage >= 13.5 and loaded.voltage <= 15.0", "severity": "ok", "title": "Charging system healthy",
+          "text": "Rest {rest.voltage:0.00} V, idle {idle.voltage:0.00} V, loaded {loaded.voltage:0.00} V. The battery holds its charge and the alternator keeps up under load." }
+      ]
+    }
+  ]
+}

@@ -47,6 +47,17 @@
       </ItemsControl>
       <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
                  Text="Connect to your car (or open a demo car) in the Garage first." />
+      <TextBlock Classes="title" FontSize="18" Text="Diagnostic chains" Margin="0,14,0,0" />
+      <TextBlock Classes="muted small" TextWrapping="Wrap" Text="A mechanic's reasoning, written by the community: measure, ask, compare, conclude. Read-only." />
+      <ItemsControl ItemsSource="{Binding Chains}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:GuidedTestViewModel">
+            <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
+              <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
       <TextBlock Classes="title" FontSize="18" Text="How-to guides" Margin="0,14,0,0" />
       <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Where things are, wiring notes and common fixes, in plain words with sources." />
       <ItemsControl ItemsSource="{Binding Guides}">
@@ -121,6 +132,22 @@
             <TextBlock Text="{Binding Instruction}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
             <TextBlock Classes="mono muted" Text="{Binding Status}" />
             <ProgressBar Value="{Binding Fraction}" Minimum="0" Maximum="100" IsVisible="{Binding IsRunning}" Height="6" />
+            <!-- A chain's question -->
+            <Border IsVisible="{Binding IsAsking}" Padding="14,12" CornerRadius="6" Background="{DynamicResource LitSoftBrush}">
+              <StackPanel Spacing="10">
+                <TextBlock Text="{Binding Question}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                <ItemsControl ItemsSource="{Binding Choices}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:ChainChoiceViewModel">
+                      <Button Content="{Binding Label}" Command="{Binding PickCommand}" Margin="0,0,8,8" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
           </StackPanel>
         </Border>
 
