@@ -7,19 +7,24 @@
 
 *Named after terminal 15 (Klemme 15), the ignition-on line every BMW diagnosis starts with.*
 
-**Open-source BMW diagnostics for everyone.** Scan every module, read and clear faults, watch live engine data and export shareable reports. Use a cheap K+DCAN cable on Windows, macOS or Linux.
+**Free, open-source, offline diagnostics for older BMWs.** Scan every module, find out what each fault and dash warning really means, watch your car's health over time, test parts before you buy them, run workshop service functions and back up or code comfort modules. One cheap K+DCAN cable, on Windows, macOS or Linux. No account, no subscription, no cloud.
 
-> **Status: early alpha.** Confirmed on a real 2006 E90 325i over D-CAN: 12 modules identified with part numbers, faults read and cleared, live data recorded, fuel trim test run. The other families and the service functions are built from BMW's data and tested against demo cars. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
+> **Status: early alpha, tested on a real car.** Confirmed on a 2006 E90 325i over D-CAN: every module identified with part numbers, faults and Shadow / Info memory read and cleared, dash message history decoded, live data recorded, fuel trim test run, and battery registration done on the engine computer. Everything else is built from BMW's data and tested against demo cars; features that change something on the car are marked experimental until someone confirms them. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
 
-Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.
+Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA, NCS Expert and EDIABAS are trademarks of BMW AG.
 
-**See it running:** [screenshots of the current build](https://github.com/Expos-AI/Klemme15/tree/screenshots) (rendered automatically by CI on every push). <!-- Add a short demo GIF here once you've filmed a real scan: ![demo](docs/demo.gif) -->
+| Faults, health and the car's story | Component tests with live graphs |
+|---|---|
+| ![Faults](https://github.com/Expos-AI/Klemme15/raw/screenshots/07-faults.png) | ![Tests](https://github.com/Expos-AI/Klemme15/raw/screenshots/19-tests.png) |
+| ![Vehicle view](https://github.com/Expos-AI/Klemme15/raw/screenshots/11-e90-325i-vehicle.png) | ![Garage](https://github.com/Expos-AI/Klemme15/raw/screenshots/02-garage-335i.png) |
+
+Screenshots are rendered by CI from the demo cars on every push, so they always show the current build. [All of them](https://github.com/Expos-AI/Klemme15/tree/screenshots).
 
 ---
 
 ## Install
 
-**Windows (recommended — no security warning):**
+**Windows (recommended, no security warning):**
 
 ```powershell
 winget install Expos-AI.Klemme15
@@ -30,65 +35,45 @@ scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15
 scoop install klemme15
 ```
 
-**Any platform (direct download):** grab the `.zip` for your system from the [latest release](https://github.com/Expos-AI/Klemme15/releases), unzip it anywhere and run `Klemme15`. The downloads are portable — there's no installer.
+**Any platform (direct download):** grab the `.zip` for your system from the [latest release](https://github.com/Expos-AI/Klemme15/releases/latest), unzip it anywhere and run `Klemme15`. It's portable: there's no installer.
 
-> Windows may show a SmartScreen prompt on a freshly downloaded `.zip` because the build isn't yet code-signed (signing is [on the roadmap](docs/ROADMAP.md)). Installing via **winget** or **Scoop** avoids it. If you downloaded directly, click **More info → Run anyway**, or verify the download's SHA-256 against the release notes first. Everything Klemme15 does stays on your computer — see [the privacy policy](PRIVACY.md).
+> Windows may show a SmartScreen prompt on a directly downloaded `.zip` because the build isn't code-signed yet (on the [roadmap](docs/ROADMAP.md)). winget and Scoop avoid it. Otherwise click **More info → Run anyway**, or first check the download's SHA-256 against the release notes.
 
----
+## What it does
 
-## Why Klemme15
+### Find out what's wrong
+- **Quick test**: checks the battery, finds every fitted module with one broadcast, identifies each one (part number, coding index) and reads its fault memory. Knows 45 E90-family modules and 23 E46 modules, options included.
+- **Faults sorted by what matters**: fix now, worth checking, and background (Shadow / Info memory, leftovers of battery work), so ten codes don't turn into ten parts. Clear one module or all of them, Shadow / Info memory included, as ISTA does.
+- **Every code explained**: 203 BMW codes researched in our own words with sources and confidence, all 2,066 standard OBD-II codes, and a meaning from its number range and module for any code no source describes. Optionally, BMW's own meaning for your exact module version, from the free [bmw-unified-db](https://github.com/gediz/bmw-unified-db) download or your own ISTA/INPA files ([how](docs/FAULT-DATA.md)).
+- **Dash messages (Check Control)**: why the triangle is lit even with no fault code. 396 messages decoded in our own words, with severity and what to do ([details](docs/CHECK-CONTROL.md)).
+- **Your car's story**: the instrument cluster remembers its last few dozen dash warnings with the mileage. Klemme15 tells them as a timeline and spots the patterns: five systems complaining at once is a voltage dip, not five faults.
+- **See where it is**: a top view of the car with each module where it sits and each fault pinned to the part it points at.
 
-| | Dealer-style tools | Klemme15 |
-|---|---|---|
-| Cost | Licensed or grey-market | Free, GPLv3 |
-| Platforms | Windows only, heavy install | Windows, macOS, Linux; one small app |
-| Quick test speed | Slow, many steps | Built for speed: modules that aren't fitted are skipped after a short timeout (under 1 s for a full E90 scan in the simulator; real-car timing still to be measured) |
-| Without BMW files | — | Works out of the box with Klemme15's own protocol stack |
-| With your BMW files | Yes | Optional **EDIABAS mode** runs your own SGBDs for full coverage (Windows) |
-| Reports | Printouts | HTML / Markdown / JSON you can post on a forum |
-| Transparency | Closed | Every byte on the wire visible in the traffic log |
-| No car handy | — | Built-in **demo car** (E46 and E90) |
+### Keep an eye on it over time
+- **Health over time**: each quick test of a real car saves a small snapshot on your computer (no VIN, never uploaded). Klemme15 flags what's drifting before it becomes a fault: a battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back, parts that test worse than last time.
+- **Your cars**: the Garage lists every car you've scanned, with its latest state and most important trend. A fleet view for a household or a small shop.
 
-## Features
+### Test before you buy parts
+- **Guided tests with live graphs**: fuel trims at idle and 2,500 rpm (vacuum leak or fuel delivery?), VANOS target against actual, cylinder roughness, "why won't it start?", the electric water pump's requested against actual speed, and a 12-minute cooling bleed assistant. Each ends with a plain verdict.
+- **How to check it**: multimeter and swap checks under matching faults (connectors, grounds, VANOS solenoids, coils, pump power, oxygen sensor heaters, wheel speed sensors, the sensors behind the mirror), plus troubleshooting guides and how-to guides with where things are. In our own words with sources.
+- **Readings and live data**: every value each module reports (sensor voltages, fuel trims per bank, VANOS, injectors, knock, wheel speeds, steering angle, learned values), live data with CSV recording, and an **Analyse** page to scatter and replay a log.
 
-- **Garage**: pick your exact model (E46 323i through E90 335i). Every model has its own **demo car** with the modules it actually has and the faults it's known for, so you can try everything without a cable.
-- **See where faults are**: a top-view drawing of the car. Each module lights up where it physically sits as the quick test reaches it, and every fault is pinned to the part it points at: a misfire on cylinder 3, lean codes at the intake, a thermostat at the front of the engine, a fuel pump fault at the tank.
-- **Quick test**: checks battery voltage, finds every fitted module with one broadcast, identifies each and reads its fault memory. Covers all 44 known E90-family modules and 23 E46 modules, including options like xDrive, TPMS, alarm, memory seats and the convertible top.
-- **Health over time and Your cars**: each quick test of a real car saves a small snapshot on your computer (no VIN, never uploaded). Klemme15 compares them and flags what's drifting before it becomes a fault: a battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back. The Garage lists every car you've scanned, so a household or a small shop gets a fleet view with no account and no cloud.
-- **Component tests with live graphs**: fuel trims, VANOS target vs actual, cranking voltage, water pump requested vs actual speed, and an experimental pump sweep. Results are saved with the car's health history, so a part that tests worse each time shows as a trend.
-- **How to check it**: multimeter and swap checks on matching faults (connectors, grounds, VANOS solenoids, coils, pump power, oxygen sensor heaters, wheel speed sensors), in our own words with sources.
-- **Your car's story**: the instrument cluster remembers the last few dozen dash warnings with their mileage. Klemme15 reads that memory and tells it as a timeline (a puncture here, a battery dip there), recognising patterns like several systems complaining at once (a voltage dip, not five faults).
-- **Dash messages (Check Control)**: the quick test also asks the instrument cluster which warning messages it is showing (key battery low, bulb out, washer fluid, brake pads...) and its recent message history, so you can see **why the triangle is lit even when no module has a fault code**. Red or yellow, matching the dash, with what it means and what to do; 396 Check Control messages (IDs 1 to 999) written in our own words with sources and severity, 184 of them cross-checked against BMW's own numbering, BMW's own wording alongside when you have your BMW files. Every module's **Shadow / Info memory** is read too, kept clearly apart from faults, and cleared along with the fault memory, as ISTA does. See [docs/CHECK-CONTROL.md](docs/CHECK-CONTROL.md).
-- **ISTA-grade texts with your own files** (Windows): Klemme15 finds your EDIABAS, INPA or ISTA SGBD files automatically and reads faults the way ISTA does on these cars: official fault text for your exact module version, mileage, frequency, environment conditions, and the info memory.
-- **Official BMW meaning for every code, on any OS**: one click in the Garage downloads the free community fault database [bmw-unified-db](https://github.com/gediz/bmw-unified-db) (13 MB, checksum-verified), or Klemme15 reads the `.prg` files from your own ISTA/INPA install. Klemme15 works out which version of each module your car has (the same code means different things on different versions), shows BMW's English where BMW wrote one, and puts the rest into English with its own glossary, with a Translate button for BMW's original German. See [where meanings come from](docs/FAULT-DATA.md).
-- **Researched meanings without BMW files**: 202 BMW fault codes (106 high confidence) researched from owner forums, shop guides and BMW service bulletins, written in our own words, each with its sources and engine scope; plus all 2,066 standard OBD-II codes.
-- **No code left blank**: a BMW code that no source describes still gets a meaning from its number range and module (codes 0xC000-0xEFFF are almost always communication faults) and what to do next.
-- **Faults**: BMW and OBD-II codes, active vs stored vs info memory, plain-English descriptions, practical tips, a "check here" location, and where each meaning comes from (official SGBD text, or community meaning with confidence and clickable sources). Clear per module or all at once.
-- **Readings**: every status value each module reports, like INPA's module screens: oxygen sensor voltages and fuel trims per bank, VANOS positions, injectors, knock, throttle and pedal, every wheel speed, steering angle, battery sensor, temperatures, switch states and learned values. Grouped by system, labelled in English, searchable, with auto-refresh and one-click pinning to Live data. Values are computed by BMW's own scripts from your ISTA/INPA/EDIABAS files (Windows, macOS and Linux), and nothing is changed on the car. Try it on any demo car.
-- **Troubleshooting guides**: for common problems (mixture, misfires, VANOS/Valvetronic, cooling, fuel pressure, boost, charging, bus faults, wheel speed sensors, steering angle, steering lock, oxygen sensor heaters, secondary air, airbags), a **Troubleshoot** button under the fault gives step-by-step checks, with shortcuts to the readings that confirm each step. Written by contributors in plain words; add your own in `src/Klemme15.Data/db/guides.json`.
-- **Service functions** (experimental): 75 workshop functions. **Service reminder reset** (oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check; E46 oil and inspection), **battery registration**, **engine adaptation reset**, **Valvetronic and DISA learning**, **cylinder cut-out test** to find a misfire, fuel tank leak test, secondary air and catalyst checks, VANOS flush; **component tests** (radiator fan, fuel pump, thermostat, water pump, secondary air pump, throttle, DISA, purge valve); **diesel**: particulate filter service, glow plug reset, EGR/swirl flap learning, injector code programming, cylinder balance, cooling system bleed; **DSC**: steering angle and sensor calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test; **gearbox**: automatic adaptation reset, SMG clutch and gear learning and bleeding, xDrive transfer case relearn; **body**: windows, sunroof, climate flaps, rain sensor, parking sensors, gauge test; **steering lock** (early E90 with a key slot): read why the lock complained and clear its counters, without touching keys or immobiliser codes; **retrofits**: check both flaps after fitting the three-stage intake manifold to an N52. Each one checks the car first, asks you to confirm each requirement, runs BMW's own procedure for your module version and shows the result; tests always switch the part off again. See the [full list](docs/SERVICE-FUNCTIONS.md) and [how they are kept safe](docs/SERVICE.md).
-- **Guided tests with a verdict** (Tests page): a **fuel trim test** (idle, then 2,500 rpm: vacuum leak or fuel delivery?), a **VANOS test** (target vs actual camshaft angle while you blip the throttle), a **cylinder roughness chart** to spot a weak cylinder before it sets a misfire, **"Why won't it start?"**, a read-only triage that reads battery voltage, whether the engine cranked and the start-chain faults (engine, key, steering lock) and routes them to a cause — battery, starter, steering lock, sensor, fuel, ignition, or a genuine immobiliser fault for a shop — and a **cooling system bleed assistant** for engines with an electric water pump (N51-N55): it walks you through BMW's own 12-minute bleed routine and watches the pump run. With or without BMW files.
-- **Coding** (experimental): **back up** the coding of any comfort module (footwell module, cluster, junction box, climate, roof module...) with no BMW data at all, **compare** it later to see exactly what any coding tool changed, and **restore** it in one click with every block read back. With your own NCS Expert data folder, see every setting **by name**, and switch popular options, including a **one-click LED conversion preset** (every bulb warning off in one write) and **LED bulb-check off** (indicators, brake, plate, parking and fog lights), **digital speed** and **instant consumption** in the cluster, **dial lighting always on**, **mirror fold** on locking, windows that keep closing when a door opens, wipers that finish their sweep. Writing unlocks only after Klemme15 decodes the module exactly as NCS Expert does; it saves a backup first, changes only those settings' bits, reads everything back and puts the original back automatically if anything is off. The key module (CAS), engine, gearbox, brakes and airbag modules are never coded. After verifying, you can **export** your module's map to contribute it, and once a map is shipped, an owner with the same module can use its toggles with no NCS data — still with backup, read-back and auto-restore. **Quick codes** set themselves up: Klemme15 finds your NCS Expert install and its latest reading by itself, or learns an option by watching any coding tool you already use (read before, change one option, read after), and one click shares the map so the next owner of that module needs no setup. See the [quick codes walkthrough](docs/QUICK-CODES.md) and See [docs/CODING.md](docs/CODING.md).
-- **How-to guides** (Tests page): where every module sits on an E90, fuses, battery and the B+ cable, a parasitic battery drain test, engine and body connector notes, the trunk lid harness, and the FRM3 problem, all in our own words with sources. Fault-specific guides also appear under the faults they explain.
-- **Faults sorted by what matters**: fix now, worth checking, and background (info and shadow memory, one-off events after battery work), so ten codes don't turn into ten parts.
-- **Restart a frozen module** (iDrive screen, Bluetooth, amplifier, climate, parking sensors and more) with BMW's own reset, instead of disconnecting the battery. Never offered for the engine, brakes, airbag, steering, gearbox or key modules.
-- **FRM3 protection**: Klemme15 tells the footwell module generations apart from the part number (FRM1, FRM2, or the FRM3 that can corrupt itself when the voltage dips during a write) and shows it on the Vehicle page. A fragile FRM is only coded or put through a service function at 13.0 V or more (a charger), and its faults are only cleared at 12.5 V or more; an FRM it can't identify gets the same rules. Every other write needs a solid 12.5 V.
-- **Copy for a forum post**: a short summary of the car, its modules, its dash messages and what needs fixing, with the VIN removed, ready for E90Post, Reddit or Bimmerforums (`klemme15 scan --forum`).
-- **Wi-Fi and network cables**: a K+DCAN cable behind ser2net, an ESP32 bridge or any adapter that shares the serial port on the network (`rfc2217://192.168.4.1:2217` or `tcp://host:port`). Best on D-CAN cars.
-- **Headless mode with a phone dashboard**: `klemme15 serve` on a Raspberry Pi (or laptop) left on the OBD port serves a **phone dashboard** (gauges, live tiles with sparklines, warnings for overheating, charging and fuel trims, and the engine's faults sorted by priority) to any phone on the same Wi-Fi, plus JSON over HTTP and MQTT for Grafana or Home Assistant. See [docs/HEADLESS.md](docs/HEADLESS.md).
-- **Live data**: RPM, temperatures, fuel trims, load, MAF, boost, voltage and more, with sparklines, min/max and CSV recording.
-- **Analyse** (datalogging): load a CSV you recorded here or anywhere, scatter any channel against another (fuel trims against RPM or load), see a value averaged over a tuning-style map (RPM across, load up), and play the whole log back with a scrubber while every channel reads out in step. Record on the Live page and press **Analyse** to jump straight in.
-- **Expert mode** (EDIABAS): Tool32-style job runner; pin any numeric result to the live data page.
-- **Reports**: one click to save a scan as HTML, Markdown or JSON.
-- **Traffic log**: every byte sent and received, savable for bug reports.
-- Dark and light themes. Command line for scripting and headless use.
+### Do the workshop jobs yourself
+- **Service functions** (experimental): 75 functions, including service reminder reset, battery registration (confirmed on a real E90), adaptation resets, Valvetronic and DISA learning, cylinder cut-out, component tests, diesel, DSC, gearbox and body functions. Each checks the car first and asks you to confirm every requirement ([full list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
+- **Restart a frozen module** (iDrive, Bluetooth, amplifier, climate...) with BMW's own reset instead of disconnecting the battery.
 
-| Vehicle | Faults |
-|---|---|
-| ![Vehicle view](https://github.com/Expos-AI/Klemme15/raw/screenshots/11-e90-325i-vehicle.png) | ![Faults](https://github.com/Expos-AI/Klemme15/raw/screenshots/07-faults.png) |
-| ![Garage](https://github.com/Expos-AI/Klemme15/raw/screenshots/02-garage-335i.png) | ![Live data](https://github.com/Expos-AI/Klemme15/raw/screenshots/08-live.png) |
+### Code comfort options, safely
+- **Back up, compare and restore** any comfort module's coding with no BMW data at all.
+- **Quick codes** (experimental): LED conversion (every bulb warning off in one write), digital speed, mirror fold, windows closing on lock and more. An option only unlocks when Klemme15 knows exactly where it lives on your exact module: verified against your NCS Expert reading, learned by watching another coding tool, or a shared **coding map** from the library. Every write is backed up, read back and put back automatically if anything is off ([walkthrough](docs/QUICK-CODES.md), [details](docs/CODING.md)).
+- **FRM3 protection**: the footwell module that can corrupt itself on a voltage dip is recognised from its part number and only written to at 13.0 V or more.
+- The key module (CAS), engine, gearbox, brakes and airbag modules are **never coded**.
 
-Screenshots are rendered automatically by CI from the demo cars on every push, so they always show the current build.
+### Share and automate
+- **Reports** in HTML, Markdown or JSON, and **Copy for a forum post** with the VIN removed.
+- **Traffic log** of every byte, for bug reports.
+- **Command line**, **network cables** (ser2net, ESP32 bridges), and **headless mode** with a phone dashboard and MQTT for Grafana or Home Assistant ([docs](docs/HEADLESS.md)).
+- **Expert mode** (EDIABAS): a Tool32-style job runner.
+- Built-in **demo cars** for every model, dark and light themes.
 
 ## Supported cars
 
@@ -125,7 +110,7 @@ klemme15 service battery-registration --port COM3 --experimental
 klemme15 service service-reset --item oil --port COM3 --ediabas "C:\ISTA\Ediabas\Ecu" --experimental
 klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
 klemme15 scan --port COM3 --forum                # summary for a forum post, VIN removed
-klemme15 test fuel-trims --port COM3             # guided test with a verdict
+klemme15 test fuel-trims --port COM3             # guided test with a verdict (klemme15 test lists them all)
 klemme15 serve --port rfc2217://192.168.4.1:2217 --mqtt 192.168.1.10   # headless, over Wi-Fi
 ```
 
@@ -169,7 +154,7 @@ For EDIABAS mode on Windows, run `scripts\get-ediabaslib.ps1` once (it downloads
  ITransport: K+DCAN serial port  |  virtual car (demo + tests)
 ```
 
-Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Maintainers: [how a release is made](docs/RELEASING.md).
 
 ## Legal and data policy
 
@@ -182,15 +167,15 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Safety
 
-Diagnostics are read-only by default. Clearing faults asks first. Service functions check the car, ask you to confirm each requirement and only run when you press Run; unverified ones need the experimental switch. Coding is limited to comfort modules, always backed up first and verified against NCS Expert's reading of your module before anything is written (see [docs/CODING.md](docs/CODING.md)). Flashing, keys, the key module (CAS) and anything touching the immobiliser are **not** included. Never use Klemme15 while driving; have a passenger watch live data or record it to CSV.
+Diagnostics are read-only by default. Clearing faults asks first. Service functions and tests that switch a part on check the car, ask you to confirm each requirement, always switch the part off again, and stay behind the experimental switch until confirmed on a real car. Coding is limited to comfort modules, needs a solid battery voltage, is always backed up first and only uses settings Klemme15 knows exactly for your module (see [docs/CODING.md](docs/CODING.md)). Flashing, keys, the key module (CAS) and anything touching the immobiliser are **not** included, on purpose ([why](docs/ROADMAP.md#not-planned-on-purpose)). Never use Klemme15 while driving: have a passenger watch, or record to CSV.
 
 ## Privacy
 
-Everything Klemme15 reads from your car stays on your computer. It has no account, no telemetry and no server; it only goes online when you ask it to (downloading the optional fault database, opening a link, or a network cable/`serve` you configure). Your VIN is never transmitted. See [PRIVACY.md](PRIVACY.md).
+Everything Klemme15 reads from your car stays on your computer. There's no account, no telemetry and no server. The only thing saved automatically is the small health history (no VIN, never uploaded, one click to forget a car). It goes online only when you ask: downloading the optional fault database or community coding maps, opening a link, or a network cable you set up. See [PRIVACY.md](PRIVACY.md).
 
 ## Contributing
 
-The fastest way to help is to **test on your car** and send the saved report and traffic log. See [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/CONTRIBUTING-DATA.md](docs/CONTRIBUTING-DATA.md).
+The most useful help is **testing on your car**: run a quick test and send the report and traffic log ([how](CONTRIBUTING.md#report-a-test-drive)). You can also share a **coding map** with one click from the Coding page, a **check or pin note** for a part you've tested, or a fault meaning in your own words ([data guide](docs/CONTRIBUTING-DATA.md)).
 
 ## Credits
 

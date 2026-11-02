@@ -1,0 +1,41 @@
+name: Test drive report
+description: You ran Klemme15 on your car. Tell us what worked and what didn't, so it can be confirmed for everyone with the same car.
+title: "Test: "
+labels: ["test-drive"]
+body:
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Chassis, model, engine and year, e.g. "E90 325i N52 2006".
+    validations:
+      required: true
+  - type: input
+    id: setup
+    attributes:
+      label: Cable and computer
+      description: e.g. "K+DCAN (FTDI), switch on D-CAN, Windows 11". Say if you used EDIABAS mode.
+  - type: input
+    id: version
+    attributes:
+      label: Klemme15 version
+      description: Shown at the bottom of the left rail, e.g. 0.18.0.
+  - type: checkboxes
+    id: worked
+    attributes:
+      label: What worked
+      options:
+        - label: Quick test found the modules
+        - label: Faults read (and cleared, if you tried)
+        - label: Dash messages / car's story
+        - label: Live data or readings
+        - label: A guided test (say which below)
+        - label: A service function (say which below)
+        - label: Coding backup / quick codes
+  - type: textarea
+    id: notes
+    attributes:
+      label: What happened
+      description: Anything that looked wrong or surprising. Attach the saved report and the traffic log (Log page > Save log). Traffic logs contain your VIN; remove it if you prefer.
+    validations:
+      required: true
