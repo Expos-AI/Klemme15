@@ -194,7 +194,7 @@ internal static class Cli
             case "open":
                 return OpenSnapshot(a);
             case "test" when a.Positional.Count == 0:
-                foreach (var t in GuidedTests.All) Console.WriteLine($"  {t.Id,-12} {t.Title}\n               {t.Requirements}");
+                foreach (var t in GuidedTests.All.Concat(db.Chains.Select(c => c.Info))) Console.WriteLine($"  {t.Id,-20} {t.Title}\n                       {t.Requirements}");
                 return 0;
             case "service" when a.Positional.Count == 0:
                 return ListService(db);
@@ -667,7 +667,8 @@ internal static class Cli
         TrafficLog log, Args a, CancellationToken ct)
     {
         var id = a.Positional.ElementAtOrDefault(0);
-        var info = GuidedTests.All.FirstOrDefault(t => t.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+        var chain = db.Chains.FirstOrDefault(c => c.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
+        var info = chain?.Info ?? GuidedTests.All.FirstOrDefault(t => t.Id.Equals(id, StringComparison.OrdinalIgnoreCase));
         if (info is null) { Console.Error.WriteLine($"Unknown test '{id}'. See 'klemme15 test'."); return 2; }
         var engine = vehicle.Modules.First(m => m.IsEngine);
         var measurements = demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : await MeasurementsFor(backend, db, vehicle, model, log, ct);
@@ -700,7 +701,11 @@ internal static class Cli
                 return list;
             };
         }
-        var report = await GuidedTests.RunAsync(info.Id, signals, progress, ct, demo ? 8 : 1, faults);
+        var displacement = model?.Engine is { } eng && System.Text.RegularExpressions.Regex.Match(eng, @"(\d\.\d)\s*L") is { Success: true } dm
+            ? double.Parse(dm.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture) : 0;
+        var report = chain is not null
+            ? await ChainRunner.RunAsync(chain, signals, new ConsolePrompt(demo), progress, ct, demo ? 8 : 1, displacement)
+            : await GuidedTests.RunAsync(info.Id, signals, progress, ct, demo ? 8 : 1, faults);
         Console.WriteLine();
         Console.WriteLine();
         foreach (var v in report.Values) Console.WriteLine($"  {v.Key,-28} {v.Value,8:0.0} {report.Unit}");
@@ -1041,6 +1046,25 @@ internal static class Cli
 }
 
 /// <summary>Tiny argument parser: command, --flags, --key value, and positional values.</summary>
+/// <summary>Asks a chain's questions on the console (the demo car answers the first choice by itself).</summary>
+internal sealed class ConsolePrompt(bool demo) : IChainPrompt
+{
+    public Task<string> AskAsync(string question, IReadOnlyList<ChainChoice> choices, CancellationToken ct)
+    {
+        Console.WriteLine();
+        Console.WriteLine($"?? {question}");
+        for (var i = 0; i < choices.Count; i++) Console.WriteLine($"   {i + 1}. {choices[i].Label}");
+        if (demo) { Console.WriteLine("   (demo car: answering 1)"); return Task.FromResult(choices[0].Value); }
+        while (true)
+        {
+            Console.Write("   Your answer (number): ");
+            var line = Console.ReadLine();
+            if (line is null) return Task.FromResult(choices[^1].Value);
+            if (int.TryParse(line.Trim(), out var n) && n >= 1 && n <= choices.Count) return Task.FromResult(choices[n - 1].Value);
+        }
+    }
+}
+
 internal sealed class Args
 {
     private readonly Dictionary<string, string?> _options = new(StringComparer.OrdinalIgnoreCase);

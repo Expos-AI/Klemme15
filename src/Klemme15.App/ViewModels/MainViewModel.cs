@@ -32,7 +32,8 @@ public sealed class MainViewModel : ViewModelBase
         Faults.Share = new SnapshotShareViewModel(Session, dialogs, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "");
         Faults.GuideActions = new GuideActions(
             (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },
-            () => CurrentPage = Live!);
+            () => CurrentPage = Live!,
+            id => { CurrentPage = Tests!; Tests!.SelectById(id); });
         Live = new LiveViewModel(Session, dialogs);
         Service = new ServiceViewModel(Session, settings);
         Coding = new CodingViewModel(Session, settings, dialogs);
