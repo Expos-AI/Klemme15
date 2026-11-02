@@ -1,0 +1,318 @@
+{
+ "id": "n52-model",
+ "title": "N52 physics model (not measured)",
+ "engines": [
+  "N52"
+ ],
+ "conditions": "Worked out from the engine's size and how full its cylinders get, at sea level and 25 °C. Warm engine only. Air mass is split into idle / no load and full throttle, so it needs engine load in your log. Real cars differ, so the bands are wide: being outside them is worth a look, being inside them doesn't prove the engine is healthy.",
+ "cars": 0,
+ "isModel": true,
+ "sources": [
+  "tools/baseline-model/n52_model.py"
+ ],
+ "curves": [
+  {
+   "name": "Total trim bank 1 across engine speed",
+   "y": "stft1+ltft1",
+   "x": "rpm",
+   "filter": "coolant > 70 and load < 80",
+   "filterRequired": true,
+   "binWidth": 250,
+   "points": [
+    {
+     "x": 750,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 1000,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 1250,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 1500,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 1750,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 2000,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 2250,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 2500,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 2750,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 3000,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 3250,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 3500,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 3750,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    },
+    {
+     "x": 4000,
+     "p10": -10.0,
+     "median": 0.0,
+     "p90": 10.0,
+     "samples": 0
+    }
+   ]
+  },
+  {
+   "name": "Air mass at idle and no load",
+   "y": "maf",
+   "x": "rpm",
+   "filter": "coolant > 70 and load < 40",
+   "filterRequired": true,
+   "binWidth": 250,
+   "points": [
+    {
+     "x": 750,
+     "p10": 3.4,
+     "median": 4.86,
+     "p90": 6.31,
+     "samples": 0
+    },
+    {
+     "x": 1000,
+     "p10": 4.48,
+     "median": 6.39,
+     "p90": 8.31,
+     "samples": 0
+    },
+    {
+     "x": 1250,
+     "p10": 5.52,
+     "median": 7.89,
+     "p90": 10.26,
+     "samples": 0
+    },
+    {
+     "x": 1500,
+     "p10": 6.55,
+     "median": 9.35,
+     "p90": 12.16,
+     "samples": 0
+    },
+    {
+     "x": 1750,
+     "p10": 7.54,
+     "median": 10.77,
+     "p90": 14.0,
+     "samples": 0
+    },
+    {
+     "x": 2000,
+     "p10": 8.5,
+     "median": 12.15,
+     "p90": 15.79,
+     "samples": 0
+    },
+    {
+     "x": 2250,
+     "p10": 9.44,
+     "median": 13.48,
+     "p90": 17.53,
+     "samples": 0
+    },
+    {
+     "x": 2500,
+     "p10": 10.35,
+     "median": 14.78,
+     "p90": 19.21,
+     "samples": 0
+    }
+   ]
+  },
+  {
+   "name": "Air mass at full throttle",
+   "y": "maf",
+   "x": "rpm",
+   "filter": "coolant > 70 and load > 80",
+   "filterRequired": true,
+   "binWidth": 250,
+   "points": [
+    {
+     "x": 2500,
+     "p10": 50.99,
+     "median": 67.99,
+     "p90": 84.99,
+     "samples": 0
+    },
+    {
+     "x": 2750,
+     "p10": 57.92,
+     "median": 77.23,
+     "p90": 96.53,
+     "samples": 0
+    },
+    {
+     "x": 3000,
+     "p10": 63.11,
+     "median": 84.14,
+     "p90": 105.18,
+     "samples": 0
+    },
+    {
+     "x": 3250,
+     "p10": 68.21,
+     "median": 90.94,
+     "p90": 113.68,
+     "samples": 0
+    },
+    {
+     "x": 3500,
+     "p10": 73.23,
+     "median": 97.64,
+     "p90": 122.05,
+     "samples": 0
+    },
+    {
+     "x": 3750,
+     "p10": 78.18,
+     "median": 104.24,
+     "p90": 130.3,
+     "samples": 0
+    },
+    {
+     "x": 4000,
+     "p10": 83.05,
+     "median": 110.74,
+     "p90": 138.42,
+     "samples": 0
+    },
+    {
+     "x": 4250,
+     "p10": 87.84,
+     "median": 117.13,
+     "p90": 146.41,
+     "samples": 0
+    },
+    {
+     "x": 4500,
+     "p10": 92.55,
+     "median": 123.4,
+     "p90": 154.25,
+     "samples": 0
+    },
+    {
+     "x": 4750,
+     "p10": 97.17,
+     "median": 129.56,
+     "p90": 161.95,
+     "samples": 0
+    },
+    {
+     "x": 5000,
+     "p10": 101.7,
+     "median": 135.6,
+     "p90": 169.51,
+     "samples": 0
+    },
+    {
+     "x": 5250,
+     "p10": 106.14,
+     "median": 141.52,
+     "p90": 176.9,
+     "samples": 0
+    },
+    {
+     "x": 5500,
+     "p10": 110.48,
+     "median": 147.31,
+     "p90": 184.13,
+     "samples": 0
+    },
+    {
+     "x": 5750,
+     "p10": 114.72,
+     "median": 152.96,
+     "p90": 191.2,
+     "samples": 0
+    },
+    {
+     "x": 6000,
+     "p10": 118.86,
+     "median": 158.48,
+     "p90": 198.1,
+     "samples": 0
+    },
+    {
+     "x": 6250,
+     "p10": 122.89,
+     "median": 163.85,
+     "p90": 204.82,
+     "samples": 0
+    },
+    {
+     "x": 6500,
+     "p10": 126.81,
+     "median": 169.09,
+     "p90": 211.36,
+     "samples": 0
+    }
+   ]
+  }
+ ]
+}

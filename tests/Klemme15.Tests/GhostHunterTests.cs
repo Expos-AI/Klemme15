@@ -123,4 +123,69 @@ public class GhostHunterTests
         Assert.Contains(DipRule().Validate(new HashSet<string> { "rpm" }), p => p.Contains("doesn't report voltage"));
         Assert.All(TriggerPresets.All, r => Assert.Empty(r.Validate()));
     }
+
+    private sealed class FakeSource(Dictionary<string, double> values) : ISignalSource
+    {
+        public List<string> Asked { get; } = [];
+        public Task<IReadOnlyDictionary<string, double>> ReadAsync(IReadOnlyCollection<string> signals, CancellationToken ct = default)
+        {
+            Asked.AddRange(signals);
+            return Task.FromResult<IReadOnlyDictionary<string, double>>(signals.Where(values.ContainsKey).ToDictionary(s => s, s => values[s]));
+        }
+    }
+
+    [Fact]
+    public async Task Derived_values_name_the_rough_cylinder_and_the_leaner_bank()
+    {
+        var car = new FakeSource(new()
+        {
+            ["rpm"] = 2000, ["stft1"] = 4, ["stft2"] = 17,
+            ["rough1"] = 1.0, ["rough2"] = 1.2, ["rough3"] = 4.5, ["rough4"] = 0.9, ["rough5"] = 1.1, ["rough6"] = 1.0,
+        });
+        var derived = new DerivedSignals(car);
+        var v = await derived.ReadAsync(["rpm", DerivedSignals.RoughRatio, DerivedSignals.RoughCylinder, DerivedSignals.StftMax, DerivedSignals.StftMin]);
+        Assert.Equal(3, v[DerivedSignals.RoughCylinder]);
+        Assert.InRange(v[DerivedSignals.RoughRatio], 3.5, 4.5);
+        Assert.Equal(17, v[DerivedSignals.StftMax]);
+        Assert.Equal(4, v[DerivedSignals.StftMin]);
+        Assert.Equal(2000, v["rpm"]);
+        Assert.False(v.ContainsKey("rough3"), "only what was asked for comes back");
+        Assert.False(car.Asked.Contains(DerivedSignals.RoughRatio), "derived ids are never sent to the car");
+    }
+
+    [Fact]
+    public async Task Derived_values_are_left_out_when_the_car_lacks_them()
+    {
+        var derived = new DerivedSignals(new FakeSource(new() { ["rpm"] = 800, ["rough1"] = 1, ["rough2"] = 1 }));
+        var v = await derived.ReadAsync(["rpm", DerivedSignals.RoughRatio, DerivedSignals.StftMax]);
+        Assert.False(v.ContainsKey(DerivedSignals.RoughRatio), "two cylinders aren't enough to compare");
+        Assert.False(v.ContainsKey(DerivedSignals.StftMax));
+    }
+
+    [Fact]
+    public async Task The_misfire_template_fires_on_one_rough_cylinder()
+    {
+        var rule = TriggerPresets.For("misfire")!.Rule with { Before = TimeSpan.FromSeconds(2), After = TimeSpan.FromSeconds(1) };
+        var frames = Enumerable.Range(0, 40).Select(i => new DatalogFrame(T0.AddSeconds(i * 0.2), new Dictionary<string, double>
+        {
+            ["rpm"] = 2500, [DerivedSignals.RoughRatio] = i is >= 20 and < 26 ? 4.2 : 1.1,
+        }));
+        var captures = await Run(rule, frames);
+        Assert.Single(captures);
+    }
+
+    [Fact]
+    public void Every_template_reads_like_an_owner_wrote_it()
+    {
+        Assert.True(TriggerPresets.Templates.Count >= 6);
+        Assert.All(TriggerPresets.Templates, t =>
+        {
+            Assert.StartsWith("Catch", t.Title);
+            Assert.False(string.IsNullOrWhiteSpace(t.WhenToUse));
+            Assert.False(string.IsNullOrWhiteSpace(t.DriveTip));
+            Assert.Empty(t.Rule.Validate());
+            Assert.All(t.Rule.Parameters, p => Assert.NotEqual(p, SignalLabels.Name(p)));
+        });
+        Assert.Equal(TriggerPresets.Templates.Count, TriggerPresets.All.Select(r => r.Id).Distinct().Count());
+    }
 }

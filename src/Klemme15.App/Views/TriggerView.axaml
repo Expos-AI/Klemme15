@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:gh="using:Klemme15.Core.GhostHunter"
              x:Class="Klemme15.App.Views.TriggerView"
              x:DataType="vm:TriggerViewModel">
   <UserControl.Styles>
@@ -33,7 +34,8 @@
                   <CheckBox IsChecked="{Binding IsArmed}" IsEnabled="{Binding IsAvailable}" VerticalAlignment="Top">
                     <StackPanel Spacing="2">
                       <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                      <TextBlock Classes="mono muted small" Text="{Binding Describe}" TextWrapping="Wrap" />
+                      <TextBlock Classes="small" Text="{Binding WhenToUse}" TextWrapping="Wrap" IsVisible="{Binding HasWhenToUse}" />
+                      <TextBlock Classes="muted small" Text="{Binding Describe}" TextWrapping="Wrap" />
                       <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="{Binding Unavailable}" TextWrapping="Wrap" IsVisible="{Binding HasUnavailable}" />
                     </StackPanel>
                   </CheckBox>
@@ -46,6 +48,21 @@
         <Border Classes="panel" Padding="18,14">
           <StackPanel Spacing="10">
             <TextBlock Classes="section" FontSize="16" Text="Make your own rule" />
+            <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Start from a template and adjust it, or build one from scratch." />
+            <ComboBox ItemsSource="{Binding Templates}" SelectedItem="{Binding SelectedTemplate}" PlaceholderText="Start from a template…"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="gh:TriggerTemplate">
+                  <StackPanel Spacing="1" Margin="0,2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" />
+                    <TextBlock Classes="muted small" Text="{Binding WhenToUse}" TextWrapping="Wrap" MaxWidth="520" />
+                  </StackPanel>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Border Background="{DynamicResource LitSoftBrush}" CornerRadius="6" Padding="10,8" IsVisible="{Binding HasTemplateHint}">
+              <TextBlock Text="{Binding TemplateHint}" TextWrapping="Wrap" />
+            </Border>
             <TextBox Watermark="Name, e.g. Stumble when warm" Text="{Binding NewTitle}" />
             <TextBlock Classes="muted small" Text="All of these at once:" />
             <ItemsControl ItemsSource="{Binding NewConditions}">

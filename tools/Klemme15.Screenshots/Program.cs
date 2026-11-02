@@ -158,6 +158,15 @@ WaitUntil(() => vm.Ghost.HasCaptures, 90000);
 Shot("29-ghost-hunter");
 vm.Ghost.StopCommand.Execute(null);
 WaitUntil(() => !vm.Ghost.IsWatching);
+// A template fills the rule builder: plain words, numbers ready to adjust.
+vm.Ghost.SelectedTemplate = vm.Ghost.Templates.First(t => t.Rule.Id == "lean-idle");
+Pump(200);
+if (Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(window).OfType<Avalonia.Controls.ComboBox>()
+        .FirstOrDefault(c => ReferenceEquals(c.ItemsSource, vm.Ghost.Templates)) is { } templates)
+    templates.BringIntoView();
+Pump(300);
+Shot("32-ghost-template");
+if (vm.Ghost.NewConditions.Count != 3) problems.Add($"32-ghost-template: expected 3 conditions, got {vm.Ghost.NewConditions.Count}");
 
 vm.CurrentPage = vm.Expert;
 Shot("09-expert");

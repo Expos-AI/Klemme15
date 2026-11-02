@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Text;
 using Klemme15.Core;
 using Klemme15.Data;
+using System.Runtime.CompilerServices;
 using Xunit;
 
 namespace Klemme15.Tests;
@@ -106,7 +107,43 @@ public class BaselineTests
         Assert.NotEmpty(db.Baselines);
         Assert.Empty(db.LoadWarnings.Where(w => w.StartsWith("baselines", StringComparison.Ordinal)));
         // Until real healthy cars contribute, everything shipped is a labelled example.
-        Assert.All(db.Baselines, p => Assert.True(p.IsExample || p.Cars >= 1));
+        Assert.All(db.Baselines, p => Assert.True(p.IsExample || p.IsModel || p.Cars >= 1));
+        Assert.All(db.Baselines.Where(p => p.IsModel), p => Assert.StartsWith("Physics model", p.Trust));
+        Assert.All(db.Baselines.Where(p => p.IsModel), p => Assert.Contains("not measured", p.Title));
         Assert.All(db.Baselines.Where(p => p.IsExample), p => Assert.StartsWith("Example", p.Trust));
+    }
+
+    private static string Root([CallerFilePath] string here = "") => Path.GetFullPath(Path.Combine(Path.GetDirectoryName(here)!, "..", ".."));
+
+    [Fact]
+    public void The_N52_model_reads_logs_from_other_tools_and_splits_by_load()
+    {
+        // The reference log uses another tool's names and kg/h: "STFT_Bank1(%)", "MAF(kg/h)", "CoolantTemp(C)".
+        var log = DataLog.Parse(File.ReadAllText(Path.Combine(Root(), "tools", "baseline-model", "n52_model_log.csv")));
+        var model = VehicleDatabase.Load().Baselines.Single(p => p.Id == "n52-model");
+        Assert.True(model.Fits("N52B30"));
+        Assert.False(model.Fits("N54B30"));
+        foreach (var curve in model.Curves)
+        {
+            var c = BaselineAligner.Compare(log, curve);
+            Assert.NotNull(c);
+            Assert.True(c!.Samples > 0, curve.Title);
+            Assert.True(c.ShareInside > 0.95, $"{curve.Title}: {c.ShareInside:P0}");
+        }
+        // kg/h was turned into g/s: idle air is about 4 g/s, not 15.
+        var idle = BaselineAligner.Compare(log, model.Curves.Single(c => c.Name == "Air mass at idle and no load"))!;
+        Assert.InRange(idle.Yours[0].Median, 3.5, 5.5);
+        // Full throttle only counts the pull, not the no-load hold at the same rpm.
+        var wot = BaselineAligner.Compare(log, model.Curves.Single(c => c.Name == "Air mass at full throttle"))!;
+        Assert.True(wot.Yours.All(b => b.Median > 40), "no-load readings leaked into the full-throttle curve");
+    }
+
+    [Fact]
+    public void A_curve_that_needs_load_is_skipped_for_a_log_without_it()
+    {
+        var model = VehicleDatabase.Load().Baselines.Single(p => p.Id == "n52-model");
+        var noLoad = Log(0, 0);   // rpm, coolant, trims, air mass; no load
+        Assert.All(model.Curves, c => Assert.False(BaselineAligner.Applies(noLoad, c)));
+        Assert.Null(BaselineAligner.Compare(noLoad, model.Curves[0]));
     }
 }

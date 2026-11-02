@@ -18,7 +18,9 @@ Only readings with a **warm engine** count (coolant above 70 °C, when the log h
 
 ## Where baselines come from
 
-- **Shipped with Klemme15** (`src/Klemme15.Data/db/baselines.json`). For now this holds only a clearly labelled **example** made up for the demo car, to show how overlays work. It's never shown as a real engine.
+- **Shipped with Klemme15** (`src/Klemme15.Data/db/baselines.json`). For now this holds two profiles, neither measured on a car:
+  - **N52 physics model (not measured).** Worked out from the engine's size and how full its cylinders get (see [the model](#the-n52-physics-model)). Its bands are wide on purpose and it says so in the app. It catches big problems, like a car running far lean at idle; landing inside it doesn't prove an engine is healthy.
+  - A clearly labelled **example** for the demo car, to show how overlays work.
 - **Made by you.** On the Analyse page, **Make a baseline from this log** builds one from the open log (engine speed against total trim per bank, air mass and load, whichever the log has). Do it when your car runs well, and compare later drives against it: your own car is the best baseline for your own car.
 - **Added from a file** someone shares with you (**Add a baseline file…**).
 
@@ -29,7 +31,16 @@ Your own baselines are saved in `Klemme15/baselines` under your application data
 - **One car is a hint, not an answer key.** Every baseline says how many cars it's built from, and one built from fewer than three says "treat it as a hint".
 - Baselines are per engine (N52, N54...). One for another engine isn't offered.
 - Modified cars (intake, exhaust, tune) read differently and are kept apart from stock ones.
-- Klemme15 won't ship a "healthy N52" baseline until real healthy N52 logs from at least three cars are in. A made-up one would send people chasing problems that aren't there.
+- A model is labelled as a model. Klemme15 won't present anything as a measured "healthy N52" until real healthy N52 logs from at least three cars are in: a made-up one would send people chasing problems that aren't there. When they are, the measured baseline replaces the model.
+
+## The N52 physics model
+
+`tools/baseline-model/n52_model.py` writes the model profile and a 60-second reference log (`n52_model_log.csv`: warm idle at 660 rpm, a no-load hold at 2,500 rpm, a full-throttle pull to 6,500 rpm).
+
+- **Air mass** = engine size (2,996 cc) × rpm ÷ 2 (each cylinder fills once every two turns) × air density (1.184 kg/m³, sea level at 25 °C) × how full the cylinders get: about 22 % at idle and no load, where Valvetronic barely opens the valves, and 88-95 % at full throttle. That gives about 4.3 g/s at idle, 15 g/s at a no-load 2,500 rpm and 170 g/s at 6,500 rpm on full throttle.
+- **Bands**: ±30 % around the model at idle and no load, ±25 % at full throttle, and ±10 % total fuel trim. Altitude alone takes about 10 % of the air away per 1,000 m, and the 190 and 218 hp versions, air temperature and each air mass meter differ too.
+- **Split by load**: a no-load 2,500 rpm and a full-throttle 2,500 rpm are very different, so air mass has an idle / no-load curve (load below 40 %) and a full-throttle curve (load above 80 %). These curves need engine load in your log; without it they aren't offered.
+- Logs from other tools work: columns like `STFT_Bank1(%)`, `CoolantTemp(C)` and `MAF(kg/h)` are recognised, and kg/h is shown as g/s.
 
 ## Share yours
 

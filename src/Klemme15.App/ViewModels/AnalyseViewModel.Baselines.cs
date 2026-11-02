@@ -84,7 +84,8 @@ public sealed partial class AnalyseViewModel
         return channel is null ? null : Channels.FirstOrDefault(c => ReferenceEquals(c.Channel, channel));
     }
 
-    /// <summary>Adds "Total trim bank N" (short-term + long-term) when a log has both, since that's what the engine really corrects.</summary>
+    /// <summary>Adds "Total trim bank N" (short-term + long-term) when a log has both, since that's what the engine really corrects,
+    /// and shows air mass in g/s.</summary>
     private static DataLog WithTotalTrims(DataLog log)
     {
         var extra = new List<LogChannel>();
@@ -97,7 +98,11 @@ public sealed partial class AnalyseViewModel
             var samples = Enumerable.Range(0, log.Count).Select(i => BaselineSignals.At(log, id, i, cache)).ToList();
             extra.Add(new LogChannel(name, "%", samples));
         }
-        return extra.Count == 0 ? log : new DataLog(log.Times, [.. log.Channels, .. extra]);
+        // Air mass logged in kg/h is shown in g/s, like Klemme15's own logs and every baseline.
+        var channels = log.Channels.Select(c => BaselineSignals.IsKgPerHour(c) && ReferenceEquals(BaselineSignals.Find(log, "maf"), c)
+            ? new LogChannel(c.Name, "g/s", c.Samples.Select(v => v / 3.6).ToList()) : c).ToList();
+        var converted = channels.Where((c, i) => !ReferenceEquals(c, log.Channels[i])).Any();
+        return extra.Count == 0 && !converted ? log : new DataLog(log.Times, [.. channels, .. extra]);
     }
 
     private void RefreshBaselines()
@@ -108,7 +113,7 @@ public sealed partial class AnalyseViewModel
         var engine = EngineCode();
         var profiles = ShippedBaselines().Concat(Store?.Load() ?? []).Where(p => p.Fits(engine));
         foreach (var p in profiles)
-            foreach (var c in p.Curves.Where(c => BaselineSignals.Has(_log, c.X) && BaselineSignals.Has(_log, c.Y)))
+            foreach (var c in p.Curves.Where(c => BaselineAligner.Applies(_log, c)))
                 Baselines.Add(new BaselineChoice(p, c));
         _baseline = Baselines.FirstOrDefault(b => b.Curve is not null && b.Curve == previous) ?? Baselines[0];
         Raise(nameof(Baseline)); Raise(nameof(HasBaselines));

@@ -65,8 +65,11 @@ public sealed class RuleItem : ViewModelBase
 
     public TriggerRule Rule { get; }
     public bool IsPreset { get; }
-    public string Title => Rule.Title;
-    public string Describe => $"{Rule.Describe()} · keeps {Rule.Before.TotalSeconds:0} s before and {Rule.After.TotalSeconds:0} s after";
+    public TriggerTemplate? Template => IsPreset ? TriggerPresets.For(Rule.Id) : null;
+    public string Title => Template?.Title ?? Rule.Title;
+    public string? WhenToUse => Template?.WhenToUse;
+    public bool HasWhenToUse => WhenToUse is not null;
+    public string Describe => $"{TriggerViewModel.Plain(Rule)} · keeps {Rule.Before.TotalSeconds:0} s before and {Rule.After.TotalSeconds:0} s after";
     public bool IsArmed { get => _armed; set => Set(ref _armed, value); }
     public RelayCommand? DeleteCommand { get; }
     public bool CanDelete => DeleteCommand is not null;
@@ -107,7 +110,69 @@ public sealed class TriggerViewModel : PageViewModel
     /// <summary>Values worth watching; only those the car actually reports are offered.</summary>
     private static readonly string[] Candidates =
         ["rpm", "speed", "coolant", "voltage", "load", "maf", "iat", "throttle", "map", "stft1", "ltft1", "stft2", "ltft2", "oiltemp", "timing",
-         "rough1", "rough2", "rough3", "rough4", "rough5", "rough6", "rough7", "rough8"];
+         "rough1", "rough2", "rough3", "rough4", "rough5", "rough6", "rough7", "rough8",
+         DerivedSignals.StftMax, DerivedSignals.StftMin, DerivedSignals.RoughRatio];
+
+    /// <summary>A rule in words: "Engine speed above 1500 rpm and Short-term trim, leaner bank above 15 % for 2 s".</summary>
+    public static string Plain(TriggerRule rule) => string.Join(" and ", rule.Conditions.Select(c =>
+    {
+        var unit = SignalLabels.Unit(c.Parameter);
+        var op = Operators.First(o => o.Value == c.Operator).Label;
+        var value = c.Threshold.ToString("0.##", CultureInfo.CurrentCulture) + (unit.Length == 0 ? "" : unit is "%" or "×" ? (unit == "%" ? " %" : "×") : " " + unit);
+        return $"{SignalLabels.Name(c.Parameter)} {op} {value}" + (c.HoldDuration > TimeSpan.Zero ? $" for {c.HoldDuration.TotalSeconds:0.#} s" : "");
+    }));
+
+    /// <summary>Ready-made rules to start from: picking one fills the builder.</summary>
+    public IReadOnlyList<TriggerTemplate> Templates => TriggerPresets.Templates;
+
+    private TriggerTemplate? _template;
+    private string _templateHint = "";
+
+    public TriggerTemplate? SelectedTemplate
+    {
+        get => _template;
+        set
+        {
+            if (!Set(ref _template, value) || value is null) return;
+            ApplyTemplate(value);
+        }
+    }
+
+    public string TemplateHint { get => _templateHint; private set { if (Set(ref _templateHint, value)) Raise(nameof(HasTemplateHint)); } }
+    public bool HasTemplateHint => _templateHint.Length > 0;
+
+    /// <summary>Fills the builder from a template: name, every condition, and how much to keep. Everything stays editable.</summary>
+    public void ApplyTemplate(TriggerTemplate template)
+    {
+        var rule = template.Rule;
+        BuilderError = "";
+        NewTitle = rule.Title;
+        Before = rule.Before.TotalSeconds.ToString("0", CultureInfo.InvariantCulture);
+        After = rule.After.TotalSeconds.ToString("0", CultureInfo.InvariantCulture);
+        NewConditions.Clear();
+        var missing = new List<string>();
+        foreach (var c in rule.Conditions)
+        {
+            var option = Signals.FirstOrDefault(o => o.Id == c.Parameter);
+            if (option is null)
+            {
+                if (_available is not null) missing.Add(SignalLabels.Name(c.Parameter));
+                // Not checked against the car yet (or not reported): offer it so the row still reads right.
+                option = new SignalOption(c.Parameter, SignalLabels.Header(c.Parameter));
+                Signals.Add(option);
+            }
+            var row = new ConditionRow(Operators, Signals, r => { NewConditions.Remove(r); })
+            {
+                Signal = option,
+                Operator = Operators.First(o => o.Value == c.Operator),
+                Threshold = c.Threshold.ToString("0.##", CultureInfo.InvariantCulture),
+                Hold = c.HoldDuration.TotalSeconds.ToString("0.##", CultureInfo.InvariantCulture),
+            };
+            NewConditions.Add(row);
+        }
+        TemplateHint = $"{template.WhenToUse} {template.DriveTip}" +
+            (missing.Count > 0 ? $" This car doesn't report {string.Join(", ", missing)} on this connection, so this rule can't be saved for it." : " Adjust the numbers if you like, then add the rule.");
+    }
 
     public TriggerViewModel(SessionState session, string version)
     {
@@ -201,7 +266,7 @@ public sealed class TriggerViewModel : PageViewModel
 
     // ---------------------------------------------------------------- what the car reports
 
-    private ISignalSource? Source() => _session.EngineSignalSource();
+    private ISignalSource? Source() => _session.EngineSignalSource() is { } source ? new DerivedSignals(source) : null;
 
     private async Task ProbeAsync()
     {
@@ -271,6 +336,9 @@ public sealed class TriggerViewModel : PageViewModel
         NewTitle = "";
         NewConditions.Clear();
         AddCondition();
+        _template = null;
+        Raise(nameof(SelectedTemplate));
+        TemplateHint = "";
         Changed();
     }
 

@@ -82,18 +82,114 @@ public sealed record TriggerRule
     }
 }
 
+/// <summary>
+/// A ready-made rule written for owners, not engineers: what it catches, when to use it, and a tip for the drive.
+/// Picking one fills the rule builder, so the numbers can still be adjusted.
+/// </summary>
+public sealed record TriggerTemplate(string Title, string WhenToUse, string DriveTip, TriggerRule Rule);
+
 /// <summary>Ready-made rules for the faults owners chase most. They only use values the engine computer reports.</summary>
 public static class TriggerPresets
 {
     private static TriggerCondition C(string p, TriggerOperator op, double t, double hold = 1) =>
         new() { Parameter = p, Operator = op, Threshold = t, HoldDuration = TimeSpan.FromSeconds(hold) };
 
-    public static readonly IReadOnlyList<TriggerRule> All =
+    public static readonly IReadOnlyList<TriggerTemplate> Templates =
     [
-        new() { Id = "voltage-dip", Title = "Battery voltage dip (random dash warnings)", Conditions = [C("voltage", TriggerOperator.Below, 11.5, 0.5)] },
-        new() { Id = "overheat", Title = "Running hot", Conditions = [C("coolant", TriggerOperator.Above, 108, 2)] },
-        new() { Id = "lean-spike", Title = "Lean spike under way (bank 1)", Conditions = [C("rpm", TriggerOperator.Above, 1500, 0), C("stft1", TriggerOperator.Above, 15, 2)] },
-        new() { Id = "rough-high-rpm", Title = "Cylinder 3 rough at high rpm (misfire hunting)", Conditions = [C("rpm", TriggerOperator.Above, 4000, 0), C("rough3", TriggerOperator.Above, 2.5, 0.5)] },
-        new() { Id = "charging-low", Title = "Not charging while driving", Conditions = [C("rpm", TriggerOperator.Above, 1000, 0), C("voltage", TriggerOperator.Below, 13.0, 3)] },
+        new("Catch an intermittent misfire",
+            "A stumble, shudder or flashing engine light that comes and goes.",
+            "Drive the way it usually happens: often under load, uphill or accelerating. Captures name the rough cylinder.",
+            new() { Id = "misfire", Title = "Intermittent misfire (one cylinder much rougher than the rest)",
+                    Conditions = [C("rpm", TriggerOperator.Above, 500, 0), C(DerivedSignals.RoughRatio, TriggerOperator.AtOrAbove, 3, 0.3)] }),
+        new("Catch a voltage dip",
+            "Random dash warnings, a flickering cluster, iDrive restarting, several unrelated faults at once.",
+            "Drive normally, use the heated seats, rear demister and fan. Dips often show on startup or at idle with everything on.",
+            new() { Id = "voltage-dip", Title = "Battery voltage dip (random dash warnings)", Conditions = [C("voltage", TriggerOperator.Below, 11.5, 0.5)] }),
+        new("Catch a lean condition while driving",
+            "Hesitation, lean fault codes (2A82, 2A87, P0171, P0174) that come back after clearing.",
+            "Cruise and accelerate gently. A lean spike under way points to fuel delivery or the air mass meter.",
+            new() { Id = "lean-spike", Title = "Lean condition under way (either bank)",
+                    Conditions = [C("rpm", TriggerOperator.Above, 1500, 0), C(DerivedSignals.StftMax, TriggerOperator.Above, 15, 2)] }),
+        new("Catch a lean idle",
+            "A bouncing or hunting idle, lean codes that only set when the car sits idling.",
+            "Let it idle warm, at lights or in the driveway. Lean only at idle is the classic vacuum leak sign.",
+            new() { Id = "lean-idle", Title = "Lean at idle (vacuum leak hunting)",
+                    Conditions = [C("rpm", TriggerOperator.Below, 1000, 0), C("coolant", TriggerOperator.Above, 70, 0), C(DerivedSignals.StftMax, TriggerOperator.Above, 12, 3)] }),
+        new("Catch a rich condition",
+            "Fuel smell, black soot at the tailpipe, rich codes that come and go.",
+            "Drive normally. Rich under way can be a leaking injector or a lazy oxygen sensor.",
+            new() { Id = "rich-spike", Title = "Rich condition under way (either bank)",
+                    Conditions = [C("rpm", TriggerOperator.Above, 1000, 0), C(DerivedSignals.StftMin, TriggerOperator.Below, -15, 2)] }),
+        new("Catch overheating",
+            "The temperature warning comes on now and then, or the fan roars after a drive.",
+            "Drive the way it happens: traffic, a hot day, a long climb.",
+            new() { Id = "overheat", Title = "Running hot", Conditions = [C("coolant", TriggerOperator.Above, 112, 2)] }),
+        new("Catch a charging dropout",
+            "The battery light flickers, or the battery is flat again after driving.",
+            "Drive with lights and fan on. Below 13 V for a few seconds while running means the alternator wasn't charging.",
+            new() { Id = "charging-low", Title = "Not charging while driving", Conditions = [C("rpm", TriggerOperator.Above, 1000, 0), C("voltage", TriggerOperator.Below, 13.0, 3)] }),
+        new("Catch a stall",
+            "The engine dies while rolling, at a junction or coming to a stop.",
+            "Drive normally. The capture shows what speed, trims and voltage did in the minute before.",
+            new() { Id = "stall", Title = "Engine stalls while rolling", Conditions = [C("speed", TriggerOperator.Above, 3, 0), C("rpm", TriggerOperator.Below, 300, 0.5)] }),
     ];
+
+    /// <summary>The rules the page lists for ticking, one per template.</summary>
+    public static readonly IReadOnlyList<TriggerRule> All = Templates.Select(t => t.Rule).ToList();
+
+    public static TriggerTemplate? For(string ruleId) => Templates.FirstOrDefault(t => t.Rule.Id == ruleId);
+}
+
+/// <summary>
+/// Values worked out from others, so a rule can say "any cylinder" or "either bank" without needing an OR:
+/// <list type="bullet">
+/// <item><c>roughratio</c>: the roughest cylinder against the typical one (3 or more = a misfire-like cylinder),
+/// the same measure as the cylinder roughness test, so it works whatever unit the engine computer reports.</item>
+/// <item><c>roughcyl</c>: which cylinder that is.</item>
+/// <item><c>stftmax</c> / <c>stftmin</c>: the leaner / richer bank's short-term trim.</item>
+/// </list>
+/// </summary>
+public sealed class DerivedSignals(ISignalSource inner) : ISignalSource
+{
+    public const string RoughRatio = "roughratio", RoughCylinder = "roughcyl", StftMax = "stftmax", StftMin = "stftmin";
+    public static readonly IReadOnlySet<string> Ids = new HashSet<string> { RoughRatio, RoughCylinder, StftMax, StftMin };
+    private static readonly string[] Rough = Enumerable.Range(1, 8).Select(n => $"rough{n}").ToArray();
+
+    public async Task<IReadOnlyDictionary<string, double>> ReadAsync(IReadOnlyCollection<string> signals, CancellationToken ct = default)
+    {
+        var wantRough = signals.Contains(RoughRatio) || signals.Contains(RoughCylinder);
+        var wantTrim = signals.Contains(StftMax) || signals.Contains(StftMin);
+        var request = signals.Where(s => !Ids.Contains(s)).ToList();
+        if (wantRough) request.AddRange(Rough);
+        if (wantTrim) request.AddRange(["stft1", "stft2"]);
+        var read = await inner.ReadAsync(request.Distinct().ToList(), ct);
+        var result = read.Where(kv => signals.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
+        if (wantRough && Roughest(read) is { } r)
+        {
+            if (signals.Contains(RoughRatio)) result[RoughRatio] = r.Ratio;
+            if (signals.Contains(RoughCylinder)) result[RoughCylinder] = r.Cylinder;
+        }
+        if (wantTrim)
+        {
+            var trims = new[] { "stft1", "stft2" }.Where(read.ContainsKey).Select(k => read[k]).ToList();
+            if (trims.Count > 0)
+            {
+                if (signals.Contains(StftMax)) result[StftMax] = trims.Max();
+                if (signals.Contains(StftMin)) result[StftMin] = trims.Min();
+            }
+        }
+        return result;
+    }
+
+    /// <summary>The roughest cylinder and how many times rougher it is than the typical one (needs 3 or more cylinders).</summary>
+    public static (int Cylinder, double Ratio)? Roughest(IReadOnlyDictionary<string, double> values)
+    {
+        var cyl = Enumerable.Range(1, 8).Where(n => values.ContainsKey($"rough{n}")).Select(n => (n, v: Math.Abs(values[$"rough{n}"]))).ToList();
+        if (cyl.Count < 3) return null;
+        var sorted = cyl.Select(c => c.v).Order().ToList();
+        var median = sorted[sorted.Count / 2];
+        var worst = cyl.MaxBy(c => c.v);
+        var floor = Math.Max(median, worst.v * 0.05) + 1e-9;
+        return (worst.n, worst.v <= 0 ? 0 : worst.v / floor);
+    }
 }
