@@ -298,8 +298,8 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
             <StackPanel Spacing="8" IsVisible="{Binding HasRetrofit}">
-              <TextBlock Text="{Binding Retrofit.Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-              <TextBlock Classes="muted" Text="{Binding Retrofit.Summary}" TextWrapping="Wrap" />
+              <TextBlock Text="{Binding RetrofitTitle}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              <TextBlock Classes="muted" Text="{Binding RetrofitSummary}" TextWrapping="Wrap" />
               <TextBlock Classes="small" Text="What it needs" FontWeight="SemiBold" />
               <ItemsControl ItemsSource="{Binding RetrofitNeeds}">
                 <ItemsControl.ItemTemplate>

@@ -178,7 +178,7 @@ public static class ChainRunner
                 case "ask":
                 {
                     if (prompt is null) return Stopped("This chain asks questions", "Run it on the Tests page, where it can ask you.");
-                    progress?.Report(new(step.Say ?? "", "Waiting for your answer...", start, graph.Snapshot()));
+                    progress?.Report(new("Answer the question below.", "Waiting for your answer...", start, graph.Snapshot()));
                     var answer = await prompt.AskAsync(step.Say ?? "", step.Choices, ct);
                     var index = step.Choices.ToList().FindIndex(c => c.Value == answer);
                     vars[step.Id!] = index;

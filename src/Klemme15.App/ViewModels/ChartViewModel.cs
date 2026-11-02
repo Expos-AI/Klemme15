@@ -15,6 +15,9 @@ public sealed class ChartViewModel(string unit, IReadOnlyList<TestTrace> traces)
         "°" => "Camshaft position (°)",
         "V" => "Battery voltage (V)",
         "pump" => "Water pump speed (as the engine computer reports it)",
+        "g/s" => "Air mass (g/s)",
+        "kPa" => "Pressure (kPa)",
+        "°C" => "Temperature (°C)",
         _ => Unit,
     };
 
