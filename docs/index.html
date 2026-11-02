@@ -115,6 +115,56 @@
     .bound { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; font-size: 15px; color: var(--muted); }
     .bound b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
 
+    /* Jump links */
+    .jumps-section { padding: 0 0 56px; border-top: 0; }
+    .jumps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .jump { display: block; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); }
+    .jump:hover { border-color: var(--lit); text-decoration: none; }
+    .jump b { display: block; font-weight: 600; }
+    .jump span { color: var(--muted); font-size: 15px; }
+
+    /* Feature sections */
+    .feature-grid { display: grid; grid-template-columns: 5fr 6fr; gap: 48px; align-items: center; }
+    .feature.flip .feature-grid { grid-template-columns: 6fr 5fr; }
+    .feature.flip .feature-text { order: 2; }
+    .feature .eyebrow { display: block; margin-bottom: 10px; }
+    .feature .section-lede { margin-bottom: 22px; }
+    .ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+    .ticks li { position: relative; padding-left: 26px; color: var(--muted); font-size: 16px; }
+    .ticks li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 10px; height: 6px; border-left: 2px solid var(--lit); border-bottom: 2px solid var(--lit); transform: rotate(-45deg); }
+    .ticks b { color: var(--ink); font-weight: 600; }
+    .shot img { width: 100%; height: auto; }
+    .note { color: var(--muted); font-size: 14px; margin: 18px 0 0; }
+
+    /* Comparison */
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
+    .compare { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 620px; }
+    .compare th, .compare td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    .compare thead th { font: 600 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface); }
+    .compare thead th:last-child { color: var(--lit); }
+    .compare tbody th { font-weight: 500; color: var(--ink); width: 40%; }
+    .compare td { color: var(--muted); }
+    .compare td:last-child { color: var(--ink); }
+    .compare td.yes { color: var(--ink); }
+    .compare td.yes::before { content: "\2713  "; color: var(--lit); font-weight: 700; }
+    .compare td.no::before { content: "\2715  "; color: var(--muted); }
+    .compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+
+    /* Getting started */
+    .step { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--lit-soft); color: var(--lit); font: 600 15px var(--mono); margin-bottom: 14px; }
+    .card code { font: 14px var(--mono); color: var(--ink); background: var(--raised); padding: 1px 6px; border-radius: 5px; }
+    .cars { display: grid; grid-template-columns: 1fr 2fr 1.4fr; gap: 14px; margin-top: 18px; }
+    .cars div { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; color: var(--muted); font-size: 15px; }
+    .cars b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+
+    @media (max-width: 900px) {
+      .jumps { grid-template-columns: 1fr 1fr; }
+      .feature-grid, .feature.flip .feature-grid { grid-template-columns: 1fr; gap: 26px; }
+      .feature.flip .feature-text { order: 0; }
+      .cars { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) { .jumps { grid-template-columns: 1fr; } }
+
     footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
     footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; }
     footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
@@ -137,8 +187,9 @@
     <div class="wrap">
       <a href="./" aria-label="Klemme15 home"><img src="brand/klemme15-lockup-dark.svg" alt="Klemme15" width="111" height="28"></a>
       <nav aria-label="Main">
-        <a href="#features" class="hide-sm">Features</a>
-        <a href="#demos" class="hide-sm">See it work</a>
+        <a href="#find" class="hide-sm">Features</a>
+        <a href="#compare" class="hide-sm">vs ISTA</a>
+        <a href="#start" class="hide-sm">Get started</a>
         <a href="https://github.com/Expos-AI/Klemme15#readme">Docs</a>
         <a href="https://github.com/Expos-AI/Klemme15">GitHub</a>
       </nav>
@@ -178,7 +229,7 @@
 
         <span class="eyebrow">Free · open source · offline</span>
         <h1>The Ultimate Offline BMW Diagnostic Suite</h1>
-        <p class="lede">Scan every module of your E-series BMW, read every fault and dash warning in plain English, test parts before you buy them, and code comfort options with an automatic backup. One cheap K+DCAN cable. No account, no subscription, no cloud.</p>
+        <p class="lede">Find out what's wrong with your E-series BMW, test the part before you buy it, and do the workshop jobs yourself: every module, every fault in plain English, graphed tests, 75 service functions and safe coding. One cheap K+DCAN cable. No account, no subscription, no cloud.</p>
 
         <div class="cta">
           <a class="button primary" href="https://github.com/Expos-AI/Klemme15/releases/latest">
@@ -194,8 +245,130 @@
       </div>
     </section>
 
-    <!-- Feature grid -->
-    <section id="features">
+
+    <!-- What it does: jump links -->
+    <section class="jumps-section">
+      <div class="wrap">
+        <div class="jumps">
+          <a class="jump" href="#find"><b>Find what's wrong</b><span>Every module, every fault, in plain English</span></a>
+          <a class="jump" href="#test"><b>Test before you buy parts</b><span>Graphed tests that point to the cause</span></a>
+          <a class="jump" href="#workshop"><b>Do the workshop jobs</b><span>75 service functions, like ISTA</span></a>
+          <a class="jump" href="#coding"><b>Code comfort options</b><span>With backup and automatic restore</span></a>
+          <a class="jump" href="#health"><b>Keep it healthy</b><span>Trends, your cars, buying a used one</span></a>
+          <a class="jump" href="#share"><b>Get help from anyone</b><span>Share your whole car in one file</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section id="find" class="feature">
+      <div class="wrap feature-grid">
+        <div class="feature-text">
+          <span class="eyebrow">Diagnose</span>
+          <h2>Find out what's wrong, in plain English</h2>
+          <p class="section-lede">Plug in, press one button, and Klemme15 asks every module in the car for its faults, then tells you what each one means and whether it needs fixing.</p>
+          <ul class="ticks">
+              <li><b>Quick test of every module.</b> Finds every fitted module with one broadcast, reads its part number and fault memory. 45 E90-family modules, 23 E46 modules.</li>
+              <li><b>Every code explained.</b> 203 BMW codes researched in our own words with sources, all 2,066 standard OBD-II codes, and BMW's own text for your exact module when you have your BMW files.</li>
+              <li><b>Sorted by what matters.</b> Fix now, worth checking, or background, so ten codes don't turn into ten parts.</li>
+              <li><b>Why the triangle is lit.</b> 396 dash (Check Control) messages decoded, even when no module has a fault code.</li>
+              <li><b>The car's story.</b> The instrument cluster remembers its last warnings with the mileage; Klemme15 tells them as a timeline: a puncture here, a battery dip there.</li>
+              <li><b>Clear like ISTA.</b> Clears faults and the Shadow / Info memory, per module or the whole car, and shows which ones come straight back.</li>
+              <li><b>See where it is.</b> A top view of the car with each fault pinned to the part it points at.</li>
+          </ul>
+        </div>
+        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/07-faults.png" alt="Klemme15 Faults page with faults sorted by priority, health trends and the car's warning history" loading="lazy" width="1440" height="900"></div>
+      </div>
+    </section>
+    <section id="test" class="feature flip">
+      <div class="wrap feature-grid">
+        <div class="feature-text">
+          <span class="eyebrow">Test</span>
+          <h2>Test the part before you buy it</h2>
+          <p class="section-lede">Guided tests tell you what to do (idle, hold 2,500 rpm, blip the throttle), graph what the engine does, and finish with a plain verdict.</p>
+          <ul class="ticks">
+              <li><b>Fuel trim test.</b> Lean at idle but fine at 2,500 rpm is a vacuum leak; lean everywhere is fuel delivery or the air mass meter.</li>
+              <li><b>Vacuum leak hunter.</b> A community-written diagnostic chain that measures, asks you to lift the oil filler cap, and points to the crankcase vent valve or the leak.</li>
+              <li><b>VANOS, cylinder roughness, water pump.</b> Target against actual, cylinder by cylinder, requested pump speed against real speed.</li>
+              <li><b>Charging system check.</b> Battery at rest, alternator at idle and under load: a tired battery or a weak alternator?</li>
+              <li><b>Why won't it start?</b> Battery, cranking and the start-chain faults, routed to a cause.</li>
+              <li><b>How to check it.</b> Multimeter and swap checks under matching faults: connectors, grounds, VANOS solenoids, coils, sensors.</li>
+              <li><b>Readings and live data.</b> Every value each module reports, live graphs, CSV recording and an Analyse page to replay a log.</li>
+          </ul>
+        </div>
+        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/19-tests.png" alt="Klemme15 Tests page with a fuel trim test graph" loading="lazy" width="1440" height="900"></div>
+      </div>
+    </section>
+    <section id="workshop" class="feature">
+      <div class="wrap feature-grid">
+        <div class="feature-text">
+          <span class="eyebrow">Replace the workshop visit</span>
+          <h2>Do the jobs that used to need ISTA</h2>
+          <p class="section-lede">Service functions check the car first, ask you to confirm each requirement, run BMW's own procedure for your module version and show the result.</p>
+          <ul class="ticks">
+              <li><b>Battery registration.</b> After fitting a new battery. Confirmed on a real E90.</li>
+              <li><b>Service reminders.</b> Oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check.</li>
+              <li><b>Engine.</b> Adaptation reset, Valvetronic and DISA learning, cylinder cut-out test, fuel tank leak test, VANOS flush.</li>
+              <li><b>Component tests.</b> Radiator fan, fuel pump, thermostat, electric water pump, throttle, DISA flap, purge valve.</li>
+              <li><b>Brakes, DSC and steering.</b> Steering angle calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test.</li>
+              <li><b>Gearbox, xDrive and diesel.</b> Automatic gearbox adaptation reset, SMG learning, xDrive relearn, glow plugs, EGR, injector codes.</li>
+              <li><b>Body.</b> Windows, sunroof, climate flaps, rain sensor, and restarting a frozen iDrive, Bluetooth or amplifier without pulling the battery.</li>
+          </ul>
+            <p class="note">75 functions in all. Each one is marked experimental until someone confirms it on a real car.</p>
+        </div>
+        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/18-service.png" alt="Klemme15 Service page running a service function" loading="lazy" width="1440" height="900"></div>
+      </div>
+    </section>
+    <section id="coding" class="feature flip">
+      <div class="wrap feature-grid">
+        <div class="feature-text">
+          <span class="eyebrow">Code</span>
+          <h2>Code comfort options, with a way back</h2>
+          <p class="section-lede">Back up a module's coding before any tool touches it, switch popular options, and get the original back automatically if anything reads back wrong.</p>
+          <ul class="ticks">
+              <li><b>Backup, compare, restore.</b> For any comfort module, with no BMW data at all.</li>
+              <li><b>One-click quick codes.</b> LED bulb-check off, digital speed, mirror fold, windows closing on lock, and more.</li>
+              <li><b>Never guesses.</b> An option unlocks only when Klemme15 knows exactly where it lives on your module: verified against NCS Expert, learned from another tool, or a shared coding map.</li>
+              <li><b>FRM3 protection.</b> The footwell module that corrupts itself on a voltage dip is recognised and only written to on a charger.</li>
+              <li><b>Retrofit checker.</b> Notices a swapped or added module and tells you what the job needs.</li>
+          </ul>
+        </div>
+        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/20-coding.png" alt="Klemme15 Coding page with a module backup and comparison" loading="lazy" width="1440" height="900"></div>
+      </div>
+    </section>
+    <section id="health" class="feature">
+      <div class="wrap feature-grid">
+        <div class="feature-text">
+          <span class="eyebrow">Over time</span>
+          <h2>Keep it healthy, and buy the right one</h2>
+          <p class="section-lede">Every quick test leaves a small snapshot on your computer, so Klemme15 can spot what's drifting before it becomes a fault.</p>
+          <ul class="ticks">
+              <li><b>Health over time.</b> A battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back.</li>
+              <li><b>Your cars.</b> Every car you've scanned, with its latest state: a fleet view for a family or a small shop.</li>
+              <li><b>Buying a used BMW?</b> The pre-purchase check compares the mileage the modules recorded with the odometer, and flags safety faults and freshly cleared codes.</li>
+              <li><b>Private.</b> No VIN stored, never uploaded, one click to forget a car.</li>
+          </ul>
+        </div>
+        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/11-e90-325i-vehicle.png" alt="Klemme15 Vehicle page with the top view of an E90 and its modules" loading="lazy" width="1440" height="900"></div>
+      </div>
+    </section>
+    <section id="share" class="feature flip">
+      <div class="wrap feature-grid">
+        <div class="feature-text">
+          <span class="eyebrow">Get help</span>
+          <h2>Get help from anyone, anywhere</h2>
+          <p class="section-lede">Stop pasting codes into forums. Share the whole car, and whoever helps you sees exactly what your car sees.</p>
+          <ul class="ticks">
+              <li><b>Snapshots (.k15).</b> Modules, faults, dash messages, health trends, the last minute of live data and your test graphs, in one file, opened read-only with your note on top. VIN removed.</li>
+              <li><b>Forum post.</b> One click copies a short summary with the VIN removed, ready for E90Post, Reddit or Bimmerforums.</li>
+              <li><b>Reports.</b> HTML, Markdown or JSON.</li>
+              <li><b>Phone dashboard.</b> Leave a Raspberry Pi on the OBD port and watch gauges and faults on your phone.</li>
+          </ul>
+        </div>
+        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" alt="A shared Klemme15 snapshot opened read-only with the owner's note" loading="lazy" width="1440" height="900"></div>
+      </div>
+    </section>
+    <!-- Why -->
+    <section id="why">
       <div class="wrap">
         <h2>Built for owners, not dealerships</h2>
         <p class="section-lede">Factory tools are made for workshops with a licence, a dedicated laptop and an afternoon to install them. Klemme15 is made for you and your car.</p>
@@ -223,7 +396,7 @@
          Put the MP4s in docs/media/. Until they exist, the poster (a CI screenshot of the current build) is shown. -->
     <section id="demos">
       <div class="wrap">
-        <h2>See it work</h2>
+        <h2>See it move</h2>
         <p class="section-lede">Recorded on the built-in demo car, so you can try every one of these without a cable.</p>
 
         <div class="reel">
@@ -270,6 +443,52 @@
       </div>
     </section>
 
+
+    <!-- Honest comparison -->
+    <section id="compare">
+      <div class="wrap">
+        <h2>Klemme15 and ISTA, side by side</h2>
+        <p class="section-lede">ISTA is BMW's workshop software. For what owners do at home, Klemme15 covers the same ground, explains it better, and costs nothing. Where it doesn't, it says so.</p>
+        <div class="table-wrap">
+          <table class="compare">
+            <thead><tr><th scope="col"></th><th scope="col">ISTA</th><th scope="col">Klemme15</th></tr></thead>
+            <tbody>
+            <tr><th scope="row">Read and clear faults in every module, including Shadow / Info memory</th><td class="yes">Yes</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Fault meanings</th><td>BMW's texts, written for workshops</td><td>Plain English, sorted by priority, with what to do next</td></tr>
+            <tr><th scope="row">Live values and module status</th><td class="yes">Yes</td><td class="yes">Yes, with graphs, recording and replay</td></tr>
+            <tr><th scope="row">Guided tests and component tests</th><td class="yes">Yes</td><td class="yes">Yes, graphed, with community diagnostic chains</td></tr>
+            <tr><th scope="row">Service functions (battery registration, resets, calibrations)</th><td class="yes">Yes</td><td>75, experimental until confirmed on a car</td></tr>
+            <tr><th scope="row">Coding comfort options</th><td>A separate tool (NCS Expert)</td><td>Built in, with backup and automatic restore</td></tr>
+            <tr><th scope="row">Health trends, pre-purchase check, shareable snapshots</th><td class="no">No</td><td class="yes">Yes</td></tr>
+            <tr><th scope="row">Programming / flashing modules, keys and immobiliser</th><td class="yes">Yes</td><td class="no">No, never, on purpose</td></tr>
+            <tr><th scope="row">Wiring diagrams</th><td class="yes">Yes</td><td>Connector notes and checks in our own words</td></tr>
+            <tr><th scope="row">F- and G-series cars</th><td class="yes">Yes</td><td>Not yet (E-series)</td></tr>
+            <tr><th scope="row">Install</th><td>A large Windows-only install</td><td>A small portable app: Windows, macOS, Linux</td></tr>
+            <tr><th scope="row">Price</th><td>Licensed</td><td>Free and open source (GPL-3.0)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Supported cars and getting started -->
+    <section id="start">
+      <div class="wrap">
+        <h2>Your car, a cable, ten minutes</h2>
+        <p class="section-lede">Klemme15 talks to E-series BMWs through a K+DCAN cable, the cheap USB cable most owners already have.</p>
+        <div class="grid">
+          <article class="card"><span class="step">1</span><h3>Get the cable</h3><p>A K+DCAN USB cable with a switch. Set it to D-CAN for the E90 family and newer, K-line for the E46 and older.</p></article>
+          <article class="card"><span class="step">2</span><h3>Install Klemme15</h3><p><code>winget install Expos-AI.Klemme15</code> on Windows, or download the .zip for Windows, macOS or Linux and run it. No installer, no account.</p></article>
+          <article class="card"><span class="step">3</span><h3>Run a quick test</h3><p>Ignition on, pick your model in the Garage, press Connect, then Run quick test. No car nearby? Open a demo car.</p></article>
+        </div>
+        <div class="cars">
+          <div><b>Confirmed on a real car</b>E90 3 Series (2006 325i)</div>
+          <div><b>Full support, built from BMW's data</b>E90 / E91 / E92 / E93 3 Series, E81 / E82 / E87 / E88 1 Series, E60 / E61 5 Series, E63 / E64 6 Series, E70 X5, E71 X6, E89 Z4</div>
+          <div><b>Older cars (K-line)</b>E46 3 Series, E39 5 Series, E53 X5, E38 7 Series</div>
+        </div>
+        <p class="note">Got one of the cars that's only been tested on demo cars so far? Please <a href="https://github.com/Expos-AI/Klemme15/issues/new?template=test-drive.yml">report a test drive</a>: one report confirms it for everyone with the same car.</p>
+      </div>
+    </section>
     <!-- Lines we don't cross -->
     <section>
       <div class="wrap">
