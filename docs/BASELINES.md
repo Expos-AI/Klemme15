@@ -6,7 +6,7 @@ A baseline is the healthy range of one value across the engine's operating range
 
 - A **shaded band**: where the middle 80 % of healthy readings fall at each engine speed (the 10th to the 90th percentile).
 - A **dashed line**: the middle (median) of the healthy readings.
-- Your points on top, and a line under the plot: how much of your log sits inside the band, and where it leaves it the most. For example, *"62 % of your readings sit inside the healthy range. Your total trim bank 1 reads above the healthy range around 750 rpm (about 14 % above the median)."* That pattern, lean at idle and fine above it, is the classic sign of a vacuum leak.
+- Your points on top, and a line under the plot: how much of your log sits inside the band, and where it leaves it the most. For example, *"62 % of your readings sit inside the healthy range. Your total trim bank 1 reads above the healthy range around 750 rpm: 13.4 % where healthy engines read 0.5 %."* That pattern, lean at idle and fine above it, is the classic sign of a vacuum leak.
 
 Outside the band is a clue, not a verdict. It tells you where to look; the guided tests, chains and multimeter checks tell you what's wrong.
 

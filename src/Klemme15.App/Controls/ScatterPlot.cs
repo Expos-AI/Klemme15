@@ -99,7 +99,7 @@ public sealed class ScatterPlot : Control
             foreach (var p in band.Reverse()) g.LineTo(map(p.X, p.P10));
             g.EndFigure(true);
         }
-        context.DrawGeometry(new SolidColorBrush(colour, 0.18), null, fill);
+        context.DrawGeometry(new SolidColorBrush(colour, 0.24), null, fill);
 
         var median = new StreamGeometry();
         using (var g = median.Open())

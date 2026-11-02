@@ -144,7 +144,7 @@ public sealed partial class AnalyseViewModel : PageViewModel
         ChannelChoice? Find(params string[] names) => Channels.FirstOrDefault(c => names.Any(n => c.Channel.Name.Contains(n, StringComparison.OrdinalIgnoreCase)));
         var rpm = Find("speed", "rpm", "drehzahl") ?? Channels.FirstOrDefault();
         var load = Find("load", "last") ?? Channels.Skip(1).FirstOrDefault() ?? rpm;
-        var trim = Find("trim", "integrator", "adaption") ?? load;
+        var trim = Find("total trim") ?? Find("trim", "integrator", "adaption") ?? load;
         _scatterX = rpm; _scatterY = trim;
         _mapX = rpm; _mapY = load; _mapValue = trim;
 
