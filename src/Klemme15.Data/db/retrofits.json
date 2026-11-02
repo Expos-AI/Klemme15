@@ -1,0 +1,133 @@
+{
+  "$comment": "Retrofit checker: what common E-series swaps and retrofits usually need, in Klemme15's own words with sources. Klemme15 never writes the vehicle order (it lives in the key module, CAS), never flashes and never changes mileage records; for those steps it says which tool does them. 'modules' are modules whose part number changing (or appearing) suggests this retrofit. 'watchMessages' are Check Control IDs and 'watchWords' fault-text words that mean it isn't finished yet.",
+  "retrofits": [
+    {
+      "id": "lci-tail-lights",
+      "title": "LCI (facelift) LED tail lights on a pre-LCI car",
+      "summary": "The later LED tail lights don't plug straight into an early E90/E91: the outer lights need BMW's adapter harness, and the footwell module has to be coded for them, or the dash reports bulbs out.",
+      "modules": [],
+      "needs": [
+        "BMW's retrofit harness for the outer tail lights (the inner lights plug in directly on most cars).",
+        "Footwell module (FRM) coding for the new lights, done with NCS Expert, ISTA or another coding tool. Some sellers say the conversion works best with an FRM3.",
+        "A charger on the battery while anything is coded: FRM3 modules can corrupt themselves on a voltage dip."
+      ],
+      "klemme15": [
+        "Back up the footwell module's coding first (Coding page), so you can always go back.",
+        "The LED quick code (bulb check off) on the Coding page, once a map for your FRM exists.",
+        "Check after: a quick test shows any light faults and bulb messages still left."
+      ],
+      "watchMessages": [87, 115, 116, 117, 118, 123, 125, 129, 133, 134, 135, 136, 148, 345, 346, 372, 373],
+      "watchWords": ["tail light", "brake light", "rear light", "*schlussleuchte*", "*bremsleuchte*", "*rueckleuchte*"],
+      "sources": [
+        "https://www.fcpeuro.com/products/bmw-retrofit-cable-set-facelift-lights-hinten-61122150786",
+        "https://www.e90post.com/forums/showthread.php?t=553832",
+        "https://www.bimmerfest.com/threads/tail-light-conversion-pre-lci-to-lci.781273/"
+      ]
+    },
+    {
+      "id": "led-bulbs",
+      "title": "LED bulbs or LED angel eyes",
+      "summary": "LED bulbs draw less current than the bulbs they replace, so the footwell module's bulb check can think they've failed: warnings, or flickering as it pulses current to test them.",
+      "modules": [],
+      "needs": [
+        "Turning off the bulb check (cold and hot monitoring) for those lights in the footwell module.",
+        "Or load resistors, which get hot: the coding route is cleaner."
+      ],
+      "klemme15": [
+        "The one-click LED preset on the Coding page (every bulb warning off in one write, with backup and read-back), once a map for your FRM exists or after a one-time setup with NCS Expert or by teaching it from another tool.",
+        "Check after: a quick test shows bulb messages still left."
+      ],
+      "watchMessages": [87, 88, 89, 111, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 196, 197, 345, 346, 371, 378, 379, 380, 381],
+      "watchWords": ["bulb", "*lampe*", "light failure"],
+      "sources": [
+        "https://www.e90post.com/forums/showthread.php?t=553832"
+      ]
+    },
+    {
+      "id": "frm-replacement",
+      "title": "Replacement or used footwell module (FRM)",
+      "summary": "The footwell module runs the lights, windows and mirrors. A new or used one has to be coded to your car from its vehicle order before it behaves; until then lights and windows can act up.",
+      "modules": ["FRM"],
+      "needs": [
+        "Coding the module to the car's vehicle order with NCS Expert or ISTA. The vehicle order lives in the key module (CAS); those tools read it from there.",
+        "A used FRM must suit your car (FRM1, FRM2 or FRM3 by year). Mixing generations can need programming, which only BMW's own software does.",
+        "A charger on the battery during coding (FRM3 can corrupt itself on a voltage dip). Klemme15 shows the FRM generation on the Vehicle page."
+      ],
+      "klemme15": [
+        "Shows which FRM generation is fitted (from its part number) and the 13 V rule for FRM3.",
+        "Back up the new module's coding the moment it's coded and working.",
+        "Check after: lights, windows and mirror faults; bulb messages; the window initialisation service function if the windows don't auto-close."
+      ],
+      "watchMessages": [87, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 129, 131, 132, 133, 134, 135, 136, 148, 231, 345, 346, 372, 373],
+      "watchWords": ["coding", "*codierung*", "not coded", "*nicht codiert*", "window", "*fensterheber*", "mirror", "*spiegel*"],
+      "sources": [
+        "https://www.e90post.com/forums/showthread.php?t=1663940",
+        "https://www.bimmerfest.com/threads/coding-new-frm.786072/",
+        "https://www.go-parts.com/garage/body-control-module-bmw-750i-bmw-740i-bmw-m5-2009-2017"
+      ]
+    },
+    {
+      "id": "battery-change",
+      "title": "Battery of a different type or size",
+      "summary": "Like for like (same type and capacity), you only register the new battery. A different type (AGM instead of flooded) or capacity also has to be entered in the car's coding, or charging is managed for the wrong battery.",
+      "modules": [],
+      "needs": [
+        "Same type and capacity: register the new battery. That's all.",
+        "Different type or capacity: the battery details are part of the car's vehicle order on E-series cars, which then gets coded into the engine computer. That's done with NCS Expert or ISTA; Klemme15 doesn't change the vehicle order.",
+        "Check the label on the old battery (type and Ah) before buying, and match it unless you're prepared to recode."
+      ],
+      "klemme15": [
+        "Register the new battery (Service page; confirmed on a real E90).",
+        "The Charging system check chain on the Tests page confirms the alternator charges the new battery properly.",
+        "Health over time watches the resting voltage week by week."
+      ],
+      "watchMessages": [213, 220, 229, 230, 247],
+      "watchWords": ["battery", "*batterie*", "ibs", "power management", "*energiemanagement*"],
+      "sources": [
+        "https://www.bimmer-tech.net/blog/item/115-bmw-battery-replacement-and-registration",
+        "https://www.bimmerfest.com/threads/how-to-register-agm-battery.1390115/",
+        "https://www.sfbmwcoding.com/replacing-a-bmw-battery/"
+      ]
+    },
+    {
+      "id": "pdc-retrofit",
+      "title": "Parking sensors (PDC) added",
+      "summary": "A retrofitted parking sensor module only works once the car knows it's there: it's added to the vehicle order and coded, and the sensors and wiring have to be right.",
+      "modules": ["PDC"],
+      "needs": [
+        "The PDC module, sensors and harness for your car.",
+        "Adding the option to the vehicle order and coding the PDC module (and usually the instrument cluster or display) with NCS Expert or ISTA. Klemme15 doesn't change the vehicle order."
+      ],
+      "klemme15": [
+        "Shows whether the PDC module answers the quick test and reads its faults (a sensor fault names which sensor).",
+        "Back up its coding once it works."
+      ],
+      "watchMessages": [],
+      "watchWords": ["pdc", "park distance", "sensor", "*sensor*"],
+      "sources": [
+        "https://www.bimmerfest.com/threads/pdc-retrofit-issues.1348707/",
+        "https://www.bimmer-tech.net/category-pdc-park-distance-control-retrofit-oem-pdcretrofit"
+      ]
+    },
+    {
+      "id": "cluster-replacement",
+      "title": "Replacement or used instrument cluster",
+      "summary": "A different cluster has to be coded to the car. The car keeps its mileage in more than one module, and a correctly fitted cluster takes the car's own mileage; anything that changes recorded mileage is odometer tampering, illegal in most countries.",
+      "modules": ["KOMBI"],
+      "needs": [
+        "Coding the cluster to the car with NCS Expert or ISTA.",
+        "Leaving the car's mileage records alone. Klemme15 never changes mileage."
+      ],
+      "klemme15": [
+        "Shows the cluster's part number and whether it answers.",
+        "Reads its dash messages and history (the car's story) so you can see it works.",
+        "Back up its coding once it works."
+      ],
+      "watchMessages": [],
+      "watchWords": ["coding", "*codierung*", "not coded", "*nicht codiert*"],
+      "sources": [
+        "https://www.bimmerfest.com/threads/e90-coding-used-cas-module.956530/"
+      ]
+    }
+  ]
+}

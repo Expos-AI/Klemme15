@@ -102,6 +102,7 @@ public sealed partial class CodingViewModel : PageViewModel
         CancelCommand = new RelayCommand(() => Pending = null);
         InitQuickCodes();
         InitLibrary();
+        InitRetrofits();
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.LastScan) or nameof(SessionState.Backend)) Refresh();
@@ -226,6 +227,7 @@ public sealed partial class CodingViewModel : PageViewModel
             : scan is null ? "Run the quick test first: Klemme15 codes only modules that answered it." : "";
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
         RebuildLibrary();
+        RebuildRetrofits();
     }
 
     private static void Refresh(params AsyncCommand[] commands)

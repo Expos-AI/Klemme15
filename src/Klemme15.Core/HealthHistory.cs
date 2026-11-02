@@ -37,6 +37,9 @@ public sealed record HealthSnapshot
     /// <summary>Check Control IDs showing at the time.</summary>
     public IReadOnlyList<int> DashMessages { get; init; } = [];
 
+    /// <summary>Each module's part number ("FRM" → "7004041"), so a swapped module is noticed at the next scan.</summary>
+    public IReadOnlyDictionary<string, string> Parts { get; init; } = new Dictionary<string, string>();
+
     public bool EngineRunning => Rpm is > 400 || Rpm is null && Voltage is > 13.3;
 
     /// <summary>A stable, one-way id for a car (no VIN stored): the first 12 hex digits of SHA-256 of the VIN.</summary>
@@ -66,6 +69,9 @@ public sealed record HealthSnapshot
             Background = all.Count(x => x.Verdict.Priority == FaultPriority.Background),
             Faults = all.Where(x => x.Verdict.Priority != FaultPriority.Background).Select(x => $"{x.Ecu.Id}:{x.Fault.Code}").Distinct().ToList(),
             DashMessages = scan.CheckControl.Where(m => m.Active).Select(m => m.Id).ToList(),
+            Parts = scan.Ecus.Where(e => e.Identity?.PartNumber is { Length: > 0 })
+                .GroupBy(e => e.Ecu.Id.Contains('.') ? e.Ecu.Id[(e.Ecu.Id.LastIndexOf('.') + 1)..] : e.Ecu.Id)
+                .ToDictionary(g => g.Key, g => g.First().Identity!.PartNumber!),
         };
     }
 }

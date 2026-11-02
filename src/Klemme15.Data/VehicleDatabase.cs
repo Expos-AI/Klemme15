@@ -48,6 +48,23 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     /// <summary>The chains offered for a fault code (BMW or OBD-II).</summary>
     public IEnumerable<DiagnosticChain> ChainsFor(string code) => Chains.Where(c => c.Faults.Contains(code, StringComparer.OrdinalIgnoreCase));
 
+    private IReadOnlyList<RetrofitGuide>? _retrofits;
+
+    /// <summary>What common swaps and retrofits need (db/retrofits.json).</summary>
+    public IReadOnlyList<RetrofitGuide> Retrofits
+    {
+        get
+        {
+            if (_retrofits is not null) return _retrofits;
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data.retrofits.json");
+            if (stream is null) return _retrofits = [];
+            using var doc = JsonDocument.Parse(stream);
+            var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            return _retrofits = doc.RootElement.GetProperty("retrofits").EnumerateArray()
+                .Select(e => e.Deserialize<RetrofitGuide>(options)).OfType<RetrofitGuide>().ToList();
+        }
+    }
+
     private GuideLibrary? _checks;
 
     /// <summary>Multimeter checks (db/checks.json), offered on faults next to the troubleshooting guide.</summary>
