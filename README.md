@@ -95,7 +95,7 @@ The E90 family is confirmed on a real car (a 2006 325i); the others are built fr
 
 ## Quick start
 
-1. Install the cable's FTDI driver (Windows usually does this automatically).
+1. Get a K+DCAN USB cable with a K-line / D-CAN switch and an FTDI chip. Confirmed on a real car: the [AntiBreak K+DCAN cable with switch](https://www.amazon.com/dp/B079KC43WG). Install its FTDI driver if Windows doesn't do it automatically.
 2. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for E46 and older, **D-CAN** for E90 and newer.
 3. Ignition on (key position 2, engine off) for scans; engine running for live data.
 4. Start Klemme15, choose your car and port, press **Connect**, then **Run quick test**.
