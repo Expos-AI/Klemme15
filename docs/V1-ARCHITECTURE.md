@@ -4,6 +4,11 @@ Design for the three v1.0 features. They read and present data only: no flashing
 
 Names in `code` are real types in the codebase today unless marked **new**.
 
+> **Status (0.20.0): built.** What shipped differs from this design in a few places, for good reasons:
+> - **Ghost Hunter**: its own page rather than a Live data panel. A thread-safe `LiveRingBuffer<DatalogFrame>` keeps the last minute; `TriggerMonitor` evaluates frames off the UI thread from a bounded `System.Threading.Channels` queue; `TriggerPoller` reads the car. Rules and presets live in `TriggerCondition.cs` (`TriggerPresets`) rather than `db/triggers.json`. There's no live misfire counter on these engines, so the misfire preset watches cylinder roughness instead.
+> - **Baselines**: a plain JSON `BaselineProfile` (see [BASELINES.md](BASELINES.md)) rather than a `.k15b` pack, since a baseline holds only numbers. `BaselineAligner` bins a log by rpm or load and compares it with the healthy percentiles. Only a labelled demo example ships until real healthy logs come in.
+> - **Live topology**: `TopologyOverlayViewModel` reads engine values on a background loop into a concurrent store and a 4 Hz `DispatcherTimer` pushes them to tiles on the drawing. Tile positions are in the view model for now. Battery voltage comes from the engine computer (the FRM doesn't report it as a live value). Wheel speeds need the stability control module's value names confirmed on real cars, so they're not drawn yet; road speed is.
+
 ---
 
 ## 1. Trigger-based datalogging: the Ghost Hunter

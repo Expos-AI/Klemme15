@@ -65,7 +65,7 @@ public class BaselineTests
     {
         var cold = BaselineAligner.Compare(Log(14, 14, coolant: 40), TrimCurve())!;
         Assert.Equal(0, cold.Samples);
-        Assert.Contains("None of your log", cold.Summary);
+        Assert.Contains("only counts readings where coolant > 70", cold.Summary);
     }
 
     [Fact]
