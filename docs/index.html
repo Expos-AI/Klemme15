@@ -116,6 +116,10 @@
     .bound b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
 
     /* Jump links */
+    .shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
+    .shot-pair figure { margin: 0; }
+    .shot-pair figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; line-height: 1.5; }
+    @media (max-width: 760px) { .shot-pair { grid-template-columns: 1fr; } }
     .jumps-section { padding: 0 0 56px; border-top: 0; }
     .jumps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
     .jump { display: block; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); }
@@ -440,6 +444,12 @@
           </ul>
         </div>
         <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/29-ghost-hunter.png" alt="Klemme15 Ghost Hunter watching for a condition and saving a capture" loading="lazy" width="1440" height="900"></div>
+      </div>
+      <div class="wrap shot-pair">
+        <figure><div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/30-analyse-baseline.png" alt="A healthy fuel trim band drawn behind a log that runs lean at idle" loading="lazy" width="1440" height="900"></div>
+          <figcaption>A healthy band behind your log. This one runs lean at idle and fine above it: the vacuum-leak pattern.</figcaption></figure>
+        <figure><div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/31-vehicle-live-values.png" alt="Coolant, engine speed and battery voltage shown live on the top view of the car" loading="lazy" width="1440" height="900"></div>
+          <figcaption>Live values where they happen: coolant at the engine, voltage at the battery.</figcaption></figure>
       </div>
     </section>
     <section id="share" class="feature">
