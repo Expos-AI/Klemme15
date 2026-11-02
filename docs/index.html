@@ -49,9 +49,10 @@
     .nav nav a:hover { color: var(--ink); text-decoration: none; }
 
     /* Hero */
-    .hero { padding: 40px 0 72px; text-align: center; }
+    .hero { padding: 56px 0 72px; text-align: center; }
     #ignition-stage { margin: 0 auto 36px; max-width: 760px; min-height: 220px; border: 1px solid var(--line); border-radius: var(--radius); background: #0c0e10; display: grid; place-items: center; overflow: hidden; }
-    #ignition-stage:empty::before { content: "ignition animation"; color: var(--muted); font: 13px var(--mono); }
+    /* Hidden until the ignition animation is dropped in, so the live page never shows an empty box. */
+    #ignition-stage:empty { display: none; }
     .eyebrow { color: var(--lit); font: 500 13px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
     h1 { font: 700 clamp(40px, 7vw, 76px)/1.02 var(--display); letter-spacing: -0.01em; margin: 14px auto 18px; max-width: 14ch; }
     .lede { color: var(--muted); font-size: clamp(17px, 2.2vw, 20px); max-width: 640px; margin: 0 auto 32px; }
