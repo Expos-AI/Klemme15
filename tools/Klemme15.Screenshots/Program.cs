@@ -163,7 +163,12 @@ vm.Ghost.SelectedTemplate = vm.Ghost.Templates.First(t => t.Rule.Id == "lean-idl
 Pump(200);
 if (Avalonia.VisualTree.VisualExtensions.GetVisualDescendants(window).OfType<Avalonia.Controls.ComboBox>()
         .FirstOrDefault(c => ReferenceEquals(c.ItemsSource, vm.Ghost.Templates)) is { } templates)
-    templates.BringIntoView();
+{
+    // Scroll the page so the builder is at the top.
+    var scroller = Avalonia.VisualTree.VisualExtensions.GetVisualAncestors(templates).OfType<Avalonia.Controls.ScrollViewer>().FirstOrDefault();
+    if (scroller?.Content is Avalonia.Visual content && templates.TranslatePoint(new Avalonia.Point(0, 0), content) is { } at)
+        scroller.Offset = new Avalonia.Vector(0, Math.Max(0, at.Y - 120));
+}
 Pump(300);
 Shot("32-ghost-template");
 if (vm.Ghost.NewConditions.Count != 3) problems.Add($"32-ghost-template: expected 3 conditions, got {vm.Ghost.NewConditions.Count}");
