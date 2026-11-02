@@ -80,6 +80,15 @@ vm.Tests.StartCommand.Execute(null);
 WaitUntil(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 60000);
 if (!vm.Tests.HasCharts) problems.Add("23-pump-sweep: no graph");
 Shot("23-pump-sweep");
+// A community chain, stopped at its question.
+vm.Tests.SelectById("vacuum-leak-hunter");
+vm.Tests.Speed = 20;
+vm.Tests.StartCommand.Execute(null);
+WaitUntil(() => vm.Tests.IsAsking, 60000);
+Shot("25-chain-question");
+vm.Tests.Choices[0].PickCommand.Execute(null);
+WaitUntil(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 60000);
+Shot("26-chain-verdict");
 vm.Tests.Guides.First(g => g.Guide.Id == "where-is-it").SelectCommand!.Execute(null);
 Shot("21-guide");
 vm.CurrentPage = vm.Service;
@@ -107,6 +116,21 @@ vm.CurrentPage = vm.Expert;
 Shot("09-expert");
 vm.CurrentPage = vm.Log;
 Shot("10-log");
+
+// The Digital Twin: share the demo car as a snapshot, then open it read-only.
+vm.CurrentPage = vm.Faults;
+vm.Faults.Share!.Note = "Rough idle when cold, lean codes after a long drive. Already replaced the oil filler cap.";
+vm.Faults.Share.IsOpen = true;
+Shot("27-share-snapshot");
+vm.Faults.Share.IsOpen = false;
+var snapshotFile = Klemme15.Core.SnapshotFile.Write(vm.Session.BuildSnapshot(vm.Faults.Share.Note, true, true, true, false, "screenshots"));
+vm.CurrentPage = vm.Garage;
+var opening = vm.Garage.OpenSnapshotAsync(snapshotFile);
+WaitUntil(() => opening.IsCompleted && vm.Session.IsSnapshot);
+if (vm.Garage.HasError) problems.Add("24-snapshot: " + vm.Garage.Error);
+Shot("24-snapshot-faults");
+vm.CurrentPage = vm.Analyse;
+Shot("28-snapshot-analyse");
 
 // Another model with an active fault, and the light theme.
 vm.CurrentPage = vm.Garage;
@@ -200,6 +224,8 @@ sealed class NoDialogs : IDialogService
     public Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<string?>(null);
     public Task OpenUrlAsync(string url) => Task.CompletedTask;
     public Task ShowAboutAsync(string version) => Task.CompletedTask;
+    public Task<string?> SaveBytesAsync(string title, string suggestedName, string extension, string description, byte[] content) => Task.FromResult<string?>(null);
+    public Task<(byte[] Data, string Name)?> OpenBytesAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<(byte[] Data, string Name)?>(null);
 }
 
 /// <summary>
