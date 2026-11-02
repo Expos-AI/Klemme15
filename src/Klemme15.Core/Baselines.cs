@@ -19,9 +19,15 @@ public sealed record BaselineCurve
     /// <summary>Only samples where this holds count (a ChainExpression over signal ids, e.g. "coolant > 70").</summary>
     public string? Filter { get; init; }
 
+    /// <summary>When true, a log without the filter's values (e.g. no engine load) isn't compared at all, instead of comparing every reading.</summary>
+    public bool FilterRequired { get; init; }
+
     public double BinWidth { get; init; } = 250;
     public required IReadOnlyList<BaselinePoint> Points { get; init; }
-    public string Title => $"{BaselineSignals.Label(Y)} across {BaselineSignals.Label(X).ToLowerInvariant()}";
+    /// <summary>A name when one profile has several curves of the same value ("Air mass at full throttle").</summary>
+    public string? Name { get; init; }
+
+    public string Title => Name ?? $"{BaselineSignals.Label(Y)} across {BaselineSignals.Label(X).ToLowerInvariant()}";
 }
 
 /// <summary>
@@ -39,11 +45,15 @@ public sealed record BaselineProfile
 
     /// <summary>A made-up example (the demo car), to show how overlays work. Never shown as a real baseline.</summary>
     public bool IsExample { get; init; }
+
+    /// <summary>Worked out from a physics model of the engine, not measured: the band is a wide tolerance, not percentiles of real cars.</summary>
+    public bool IsModel { get; init; }
     public IReadOnlyList<string> Contributors { get; init; } = [];
     public IReadOnlyList<string> Sources { get; init; } = [];
     public required IReadOnlyList<BaselineCurve> Curves { get; init; }
 
     public string Trust => IsExample ? "Example from the demo car: not a real engine"
+        : IsModel ? "Physics model, not measured on a car: a wide band that catches big problems only"
         : Cars >= 3 ? $"Built from {Cars} healthy cars"
         : $"Built from {Cars} car{(Cars == 1 ? "" : "s")}: treat it as a hint";
 
@@ -73,20 +83,27 @@ public sealed record BaselineProfile
 /// <summary>Finds a signal in a datalog by its id, whatever the log called it ("Engine speed (rpm)", "RPM", "rpm").</summary>
 public static class BaselineSignals
 {
+    // Matched after lower-casing and dropping spaces, dashes and underscores, so "Short-term trim bank 1",
+    // "STFT_Bank1" and "stft1" all find the same value.
     private static readonly Dictionary<string, string[]> Aliases = new()
     {
-        ["rpm"] = ["engine speed", "rpm", "engine rpm"],
-        ["maf"] = ["air mass", "mass air flow", "maf", "air flow"],
-        ["load"] = ["engine load", "load", "calculated load"],
-        ["coolant"] = ["coolant temperature", "coolant", "engine coolant temperature"],
-        ["iat"] = ["intake air", "intake air temperature", "iat"],
-        ["stft1"] = ["short-term trim bank 1", "short-term fuel trim bank 1", "stft1"],
-        ["ltft1"] = ["long-term trim bank 1", "long-term fuel trim bank 1", "ltft1"],
-        ["stft2"] = ["short-term trim bank 2", "short-term fuel trim bank 2", "stft2"],
-        ["ltft2"] = ["long-term trim bank 2", "long-term fuel trim bank 2", "ltft2"],
-        ["throttle"] = ["throttle", "throttle position"],
-        ["voltage"] = ["battery voltage", "voltage", "control module voltage"],
+        ["rpm"] = ["enginespeed", "rpm", "enginerpm"],
+        ["maf"] = ["airmass", "massairflow", "maf", "airflow"],
+        ["load"] = ["engineload", "load", "calculatedload"],
+        ["coolant"] = ["coolanttemperature", "coolant", "enginecoolanttemperature", "coolanttemp", "ect"],
+        ["iat"] = ["intakeair", "intakeairtemperature", "iat", "intaketemp"],
+        ["stft1"] = ["shorttermtrimbank1", "shorttermfueltrimbank1", "stft1", "stftbank1", "stftb1"],
+        ["ltft1"] = ["longtermtrimbank1", "longtermfueltrimbank1", "ltft1", "ltftbank1", "ltftb1"],
+        ["stft2"] = ["shorttermtrimbank2", "shorttermfueltrimbank2", "stft2", "stftbank2", "stftb2"],
+        ["ltft2"] = ["longtermtrimbank2", "longtermfueltrimbank2", "ltft2", "ltftbank2", "ltftb2"],
+        ["throttle"] = ["throttle", "throttleposition"],
+        ["voltage"] = ["batteryvoltage", "voltage", "controlmodulevoltage"],
     };
+
+    private static string Norm(string name) => new(name.Where(char.IsLetterOrDigit).Select(char.ToLowerInvariant).ToArray());
+
+    /// <summary>Air mass in kg/h (some tools log it that way) is turned into g/s, the unit Klemme15 and its baselines use.</summary>
+    public static bool IsKgPerHour(LogChannel c) => c.Unit.Replace(" ", "").Equals("kg/h", StringComparison.OrdinalIgnoreCase);
 
     public static string Label(string id) => id switch
     {
@@ -96,7 +113,7 @@ public static class BaselineSignals
 
     public static LogChannel? Find(DataLog log, string id) =>
         Aliases.TryGetValue(id, out var names)
-            ? log.Channels.FirstOrDefault(c => names.Contains(c.Name.Trim().ToLowerInvariant()))
+            ? log.Channels.FirstOrDefault(c => names.Contains(Norm(c.Name)))
             : log.Channel(id);
 
     /// <summary>The value of a signal (or a sum like "stft1+ltft1") at one sample, or null.</summary>
@@ -107,7 +124,7 @@ public static class BaselineSignals
         {
             if (!cache.TryGetValue(part, out var ch)) cache[part] = ch = Find(log, part);
             if (ch?.Samples[sample] is not { } v) return null;
-            total += v;
+            total += part == "maf" && IsKgPerHour(ch) ? v / 3.6 : v;
         }
         return total;
     }
@@ -127,7 +144,7 @@ public static class BaselineAligner
 {
     public static BaselineComparison? Compare(DataLog log, BaselineCurve curve)
     {
-        if (!BaselineSignals.Has(log, curve.X) || !BaselineSignals.Has(log, curve.Y)) return null;
+        if (!Applies(log, curve)) return null;
         var bins = Bin(log, curve.X, curve.Y, curve.Filter, curve.BinWidth, minSamples: 1);
         var cache = new Dictionary<string, LogChannel?>();
         int inside = 0, counted = 0, filteredOut = 0;
@@ -196,6 +213,10 @@ public static class BaselineAligner
             yield return (Math.Round(x / binWidth) * binWidth, y);
         }
     }
+
+    /// <summary>Whether this log has what the curve needs: both axes, and the filter's values when the filter is required.</summary>
+    public static bool Applies(DataLog log, BaselineCurve curve) =>
+        BaselineSignals.Has(log, curve.X) && BaselineSignals.Has(log, curve.Y) && (!curve.FilterRequired || FilterFor(log, curve.Filter) is not null);
 
     private static readonly string[] FilterSignals = ["rpm", "load", "coolant", "iat", "maf", "throttle", "voltage"];
 
