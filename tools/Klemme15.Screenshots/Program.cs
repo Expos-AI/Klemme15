@@ -69,6 +69,15 @@ vm.Live.AnalyseCommand.Execute(null);
 Pump(200);
 vm.Analyse.Position = vm.Analyse.MaxPosition / 2;
 Shot("22-analyse");
+// The "known good" overlay: the example baseline behind the demo car's recording.
+if ((vm.Analyse.Baselines.FirstOrDefault(b => b.Curve?.Y == "stft1+ltft1") ?? vm.Analyse.Baselines.Skip(1).FirstOrDefault()) is { } baseline)
+{
+    vm.Analyse.Baseline = baseline;
+    Pump(200);
+    Shot("30-analyse-baseline");
+    Console.WriteLine("Baseline: " + vm.Analyse.BaselineSummary);
+}
+else Console.WriteLine("Baseline: no baseline fits the demo recording (channels: " + string.Join(", ", vm.Analyse.Channels.Select(c => c.Label)) + ")");
 vm.CurrentPage = vm.Tests;
 vm.Tests.Speed = 10;
 vm.Tests.StartCommand.Execute(null);

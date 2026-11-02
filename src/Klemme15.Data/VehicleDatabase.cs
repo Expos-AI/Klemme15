@@ -45,6 +45,26 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
         }
     }
 
+    private IReadOnlyList<BaselineProfile>? _baselines;
+
+    /// <summary>"Known good" baselines shipped with Klemme15 (db/baselines.json). Profiles that don't validate are skipped.</summary>
+    public IReadOnlyList<BaselineProfile> Baselines
+    {
+        get
+        {
+            if (_baselines is not null) return _baselines;
+            using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Klemme15.Data.baselines.json");
+            if (stream is null) return _baselines = [];
+            using var reader = new StreamReader(stream);
+            var list = new List<BaselineProfile>();
+            using var doc = System.Text.Json.JsonDocument.Parse(reader.ReadToEnd());
+            foreach (var item in doc.RootElement.EnumerateArray())
+                if (BaselineProfile.Parse(item.GetRawText()) is { } profile) list.Add(profile);
+                else _warnings.Add($"baselines.json: a profile didn't validate ({(item.TryGetProperty("id", out var id) ? id.GetString() : "no id")})");
+            return _baselines = list;
+        }
+    }
+
     /// <summary>The chains offered for a fault code (BMW or OBD-II).</summary>
     public IEnumerable<DiagnosticChain> ChainsFor(string code) => Chains.Where(c => c.Faults.Contains(code, StringComparer.OrdinalIgnoreCase));
 
