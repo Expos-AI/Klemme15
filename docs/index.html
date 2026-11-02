@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klemme15 · Offline BMW diagnostics</title>
+  <meta name="description" content="Free, open-source, offline diagnostics for E-series BMWs. Scan every module, read faults and dash warnings in plain English, run graphed tests and service functions, and code comfort options safely. Windows, macOS, Linux.">
+  <meta property="og:title" content="Klemme15: the ultimate offline BMW diagnostic suite">
+  <meta property="og:description" content="Free and open source. Scan, understand, test and fix your E-series BMW with a cheap K+DCAN cable.">
+  <meta property="og:image" content="https://raw.githubusercontent.com/Expos-AI/Klemme15/main/docs/brand/klemme15-social.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="brand/klemme15-icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #121417;
+      --surface: #191c20;
+      --raised: #1f2329;
+      --line: #2b3037;
+      --ink: #e4e8ec;
+      --muted: #8f99a4;
+      --lit: #8ccbea;
+      --lit-soft: rgba(140, 203, 234, 0.12);
+      --amber: #f2a93b;
+      --red: #ef5b4c;
+      --radius: 14px;
+      --max: 1120px;
+      --display: "Barlow Condensed", "Barlow", system-ui, sans-serif;
+      --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+    a { color: var(--lit); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    img, video, svg { max-width: 100%; display: block; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+    :focus-visible { outline: 2px solid var(--lit); outline-offset: 3px; border-radius: 6px; }
+
+    /* Navigation */
+    .nav { position: sticky; top: 0; z-index: 10; background: rgba(18, 20, 23, 0.86); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
+    .nav .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
+    .nav img { height: 28px; width: auto; }
+    .nav nav { margin-left: auto; display: flex; gap: 22px; font-weight: 500; font-size: 15px; }
+    .nav nav a { color: var(--muted); }
+    .nav nav a:hover { color: var(--ink); text-decoration: none; }
+
+    /* Hero */
+    .hero { padding: 40px 0 72px; text-align: center; }
+    #ignition-stage { margin: 0 auto 36px; max-width: 760px; min-height: 220px; border: 1px solid var(--line); border-radius: var(--radius); background: #0c0e10; display: grid; place-items: center; overflow: hidden; }
+    #ignition-stage:empty::before { content: "ignition animation"; color: var(--muted); font: 13px var(--mono); }
+    .eyebrow { color: var(--lit); font: 500 13px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+    h1 { font: 700 clamp(40px, 7vw, 76px)/1.02 var(--display); letter-spacing: -0.01em; margin: 14px auto 18px; max-width: 14ch; }
+    .lede { color: var(--muted); font-size: clamp(17px, 2.2vw, 20px); max-width: 640px; margin: 0 auto 32px; }
+    .cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: stretch; }
+    .button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 16px; }
+    .button.primary { background: var(--lit); color: #0b1218; }
+    .button.primary:hover { text-decoration: none; filter: brightness(1.08); }
+    .code { display: inline-flex; align-items: center; gap: 12px; padding: 0 8px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: 15px var(--mono); color: var(--ink); }
+    .code .prompt { color: var(--muted); user-select: none; }
+    .code > span { white-space: nowrap; overflow-x: auto; padding: 12px 0; }
+    .copy { border: 0; background: var(--raised); color: var(--muted); border-radius: 7px; padding: 8px 10px; font: 500 13px var(--body); cursor: pointer; }
+    .copy:hover { color: var(--ink); }
+    .meta { margin-top: 18px; color: var(--muted); font-size: 14px; }
+    .meta span + span::before { content: "·"; margin: 0 10px; color: var(--line); }
+
+    /* Sections */
+    section { padding: 72px 0; border-top: 1px solid var(--line); }
+    h2 { font: 700 clamp(30px, 4.2vw, 44px)/1.08 var(--display); margin: 0 0 12px; }
+    .section-lede { color: var(--muted); max-width: 640px; margin: 0 0 40px; }
+
+    /* Feature grid */
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 24px; }
+    .card .icon { width: 40px; height: 40px; border-radius: 10px; background: var(--lit-soft); display: grid; place-items: center; margin-bottom: 18px; }
+    .card .icon svg { width: 22px; height: 22px; stroke: var(--lit); }
+    .card h3 { font: 600 22px/1.2 var(--display); margin: 0 0 8px; letter-spacing: .01em; }
+    .card p { color: var(--muted); margin: 0; font-size: 16px; }
+
+    /* Demo reels */
+    .reel { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: center; padding: 32px 0; }
+    .reel + .reel { border-top: 1px dashed var(--line); }
+    .reel.flip { grid-template-columns: 7fr 5fr; }
+    .reel.flip .reel-text { order: 2; }
+    .reel-text .eyebrow { display: block; margin-bottom: 8px; }
+    .reel-text h3 { font: 700 30px/1.1 var(--display); margin: 0 0 12px; }
+    .reel-text p { color: var(--muted); margin: 0 0 14px; }
+    .reel-text ul { margin: 0; padding-left: 18px; color: var(--muted); }
+    .reel-text li { margin: 4px 0; }
+    .frame { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #0c0e10; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.7); }
+    .frame video { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
+
+    /* Lines we don't cross */
+    .bounds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .bound { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; font-size: 15px; color: var(--muted); }
+    .bound b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+
+    footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; }
+    footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
+
+    @media (max-width: 900px) {
+      .grid, .bounds { grid-template-columns: 1fr; }
+      .reel, .reel.flip { grid-template-columns: 1fr; gap: 22px; }
+      .reel.flip .reel-text { order: 0; }
+      .nav nav a.hide-sm { display: none; }
+    }
+    @media (max-width: 520px) {
+      .code { width: 100%; justify-content: space-between; font-size: 12.5px; padding-left: 12px; }
+      .button { width: 100%; justify-content: center; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a href="./" aria-label="Klemme15 home"><img src="brand/klemme15-lockup-dark.svg" alt="Klemme15" width="111" height="28"></a>
+      <nav aria-label="Main">
+        <a href="#features" class="hide-sm">Features</a>
+        <a href="#demos" class="hide-sm">See it work</a>
+        <a href="https://github.com/Expos-AI/Klemme15#readme">Docs</a>
+        <a href="https://github.com/Expos-AI/Klemme15">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" style="border-top: 0">
+      <div class="wrap">
+        <!-- Drop the Klemme15 terminal ignition SVG/JS animation in here. It is sized by its content (min 220 px tall). -->
+        <div id="ignition-stage" role="img" aria-label="Klemme15 starting up"></div>
+
+        <span class="eyebrow">Free · open source · offline</span>
+        <h1>The Ultimate Offline BMW Diagnostic Suite</h1>
+        <p class="lede">Scan every module of your E-series BMW, read every fault and dash warning in plain English, test parts before you buy them, and code comfort options with an automatic backup. One cheap K+DCAN cable. No account, no subscription, no cloud.</p>
+
+        <div class="cta">
+          <a class="button primary" href="https://github.com/Expos-AI/Klemme15/releases/latest">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
+            Download .ZIP
+          </a>
+          <div class="code">
+            <span><span class="prompt">&gt; </span><code id="winget">winget install Expos-AI.Klemme15</code></span>
+            <button class="copy" type="button" data-copy="winget">Copy</button>
+          </div>
+        </div>
+        <p class="meta"><span>Windows, macOS, Linux</span><span>GPL-3.0</span><span>Not affiliated with BMW AG</span></p>
+      </div>
+    </section>
+
+    <!-- Feature grid -->
+    <section id="features">
+      <div class="wrap">
+        <h2>Built for owners, not dealerships</h2>
+        <p class="section-lede">Factory tools are made for workshops with a licence, a dedicated laptop and an afternoon to install them. Klemme15 is made for you and your car.</p>
+        <div class="grid">
+          <article class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+            <h3>Installs in seconds</h3>
+            <p>One small portable app: unzip and run, or one winget command. No multi-gigabyte install, no licence keys, no virtual machine. Runs on the laptop you already have.</p>
+          </article>
+          <article class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.4-8 9-4.6-.6-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
+            <h3>FRM3 hardware safety gates</h3>
+            <p>Klemme15 recognises the footwell module that corrupts itself on a voltage dip from its part number, and writes to it only on a charger. Every coding change is backed up, read back and put back automatically if anything is off.</p>
+          </article>
+          <article class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg></div>
+            <h3>Plain English fault translations</h3>
+            <p>Every fault gets a meaning, sorted into fix now, worth checking and background. Hundreds of BMW codes and dash messages researched in our own words with sources, all standard OBD-II codes, and BMW's own text from your files when you have them.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo reels: videos play only while visible, and not at all for people who prefer reduced motion.
+         Put the MP4s in docs/media/. Until they exist, the poster (a CI screenshot of the current build) is shown. -->
+    <section id="demos">
+      <div class="wrap">
+        <h2>See it work</h2>
+        <p class="section-lede">Recorded on the built-in demo car, so you can try every one of these without a cable.</p>
+
+        <div class="reel">
+          <div class="reel-text">
+            <span class="eyebrow">Digital Twin</span>
+            <h3>Share your whole car in one file</h3>
+            <p>Save a snapshot and attach it to your forum post. Whoever opens it explores your car as if they were plugged in: every module, every fault, the dash warning history, the last minute of live data. Read-only, and the VIN is removed everywhere.</p>
+            <ul><li>Your note on top: what's wrong, what you tried</li><li>Live data replays on the Analyse page</li></ul>
+          </div>
+          <div class="frame">
+            <video autoplay loop muted playsinline preload="none" poster="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" aria-label="Opening a shared snapshot in Klemme15">
+              <source src="media/digital-twin.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+        <div class="reel flip">
+          <div class="reel-text">
+            <span class="eyebrow">Diagnostic Chains</span>
+            <h3>A mechanic's reasoning, step by step</h3>
+            <p>Lean codes? The Vacuum leak hunter compares your fuel trims at idle and 2,500 rpm, checks the airflow against your engine's size, asks you one question and points to the likely cause, with the numbers and graphs to back it up.</p>
+            <ul><li>Written by the community, read-only by design</li><li>Offered right under the fault it explains</li></ul>
+          </div>
+          <div class="frame">
+            <video autoplay loop muted playsinline preload="none" poster="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/25-chain-question.png" aria-label="Running the Vacuum leak hunter diagnostic chain">
+              <source src="media/diagnostic-chains.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+
+        <div class="reel">
+          <div class="reel-text">
+            <span class="eyebrow">Coding with Auto-Restore</span>
+            <h3>One click, and a way back</h3>
+            <p>Back up a module's coding before anything touches it, switch comfort options like LED bulb-check off, and let Klemme15 read every block back. If anything doesn't match, the original goes back in automatically.</p>
+            <ul><li>Comfort modules only: never the key, engine, brakes or airbags</li><li>Only settings Klemme15 knows exactly for your module</li></ul>
+          </div>
+          <div class="frame">
+            <video autoplay loop muted playsinline preload="none" poster="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/20-coding.png" aria-label="Backing up and coding a module with automatic restore">
+              <source src="media/coding-auto-restore.mp4" type="video/mp4">
+            </video>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lines we don't cross -->
+    <section>
+      <div class="wrap">
+        <h2>Lines we don't cross</h2>
+        <p class="section-lede">Some things a free tool should never do to your car. Klemme15 doesn't do them, on purpose.</p>
+        <div class="bounds">
+          <div class="bound"><b>No flashing</b>Module software is never rewritten.</div>
+          <div class="bound"><b>No immobiliser work</b>The key module and immobiliser are never written.</div>
+          <div class="bound"><b>No mileage changes</b>Recorded mileage is read, never touched.</div>
+          <div class="bound"><b>No BMW files bundled</b>Your own files stay yours, and stay on your computer.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>Klemme15 is an independent open-source project, not affiliated with or endorsed by BMW AG. BMW is a trademark of BMW AG.</span>
+      <nav aria-label="Footer">
+        <a href="https://github.com/Expos-AI/Klemme15/releases">Releases</a>
+        <a href="https://github.com/Expos-AI/Klemme15/blob/main/PRIVACY.md">Privacy</a>
+        <a href="https://github.com/Expos-AI/Klemme15/blob/main/LICENSE">License</a>
+        <a href="https://github.com/Expos-AI/Klemme15/issues/new?template=test-drive.yml">Report a test drive</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // Copy the install command.
+    document.querySelectorAll("[data-copy]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var text = document.getElementById(button.dataset.copy).textContent;
+        if (!navigator.clipboard) return;
+        navigator.clipboard.writeText(text).then(function () {
+          button.textContent = "Copied";
+          setTimeout(function () { button.textContent = "Copy"; }, 1600);
+        }).catch(function () {});
+      });
+    });
+
+    // Demo videos: play only while on screen; respect reduced motion (the poster stays instead).
+    (function () {
+      var videos = Array.prototype.slice.call(document.querySelectorAll("video[autoplay]"));
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      videos.forEach(function (v) { v.removeAttribute("autoplay"); v.pause(); });
+      if (still || !("IntersectionObserver" in window)) return;
+      var seen = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          var v = e.target;
+          if (e.isIntersecting) {
+            if (v.preload === "none") { v.preload = "auto"; v.load(); }
+            var p = v.play(); if (p && p.catch) p.catch(function () {});
+          } else v.pause();
+        });
+      }, { threshold: 0.35 });
+      videos.forEach(function (v) { seen.observe(v); });
+    })();
+  </script>
+</body>
+</html>
