@@ -29,8 +29,8 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Build (native backend only)
@@ -61,8 +61,8 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Render the app with the demo cars
@@ -91,8 +91,8 @@ jobs:
     name: Phone dashboard
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Type-check and build
@@ -114,11 +114,11 @@ jobs:
     name: Build with EDIABAS mode
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Fetch EdiabasLib
         shell: bash
         run: ./scripts/get-ediabaslib.sh
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Build app and CLI with EdiabasLib
@@ -148,11 +148,11 @@ jobs:
           - { os: macos-latest, rid: osx-arm64 osx-x64 }
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Fetch EdiabasLib
         shell: bash
         run: ./scripts/get-ediabaslib.sh
-      - uses: actions/setup-dotnet@v5
+      - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
       - name: Publish app and command-line tool
@@ -173,7 +173,7 @@ jobs:
              fi)
           done
           ls -la publish
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: Klemme15-${{ runner.os }}
           path: publish/*.zip
@@ -187,10 +187,10 @@ jobs:
       id-token: write       # to sign the build provenance
       attestations: write
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           sparse-checkout: .github
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           path: dist
           merge-multiple: true
@@ -207,7 +207,7 @@ jobs:
       - name: Signed build provenance
         # A signed statement (Sigstore) that each zip was built by this workflow from this commit. Stronger than the
         # checksums alone, which live next to the files they describe. Verify: gh attestation verify <zip> -R Expos-AI/Klemme15
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: dist/*.zip
       - name: Create release
@@ -231,7 +231,7 @@ jobs:
     env:
       WINGET_TOKEN: ${{ secrets.WINGET_TOKEN }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           ref: main
           fetch-depth: 0
