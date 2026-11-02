@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -114,8 +115,8 @@ public static class BaselineSignals
     public static bool Has(DataLog log, string id) => id.Split('+').All(p => Find(log, p) is not null);
 }
 
-/// <summary>How a log compares with a healthy curve.</summary>
-public sealed record BaselineComparison(IReadOnlyList<BaselinePoint> Yours, double ShareInside, double MedianOffsetPercent, int Samples, string Summary);
+/// <summary>How a log compares with a healthy curve. MedianOffset is your median minus the healthy median, averaged over the curve, in the value's own unit.</summary>
+public sealed record BaselineComparison(IReadOnlyList<BaselinePoint> Yours, double ShareInside, double MedianOffset, int Samples, string Summary);
 
 /// <summary>
 /// Puts a time-series log on the same footing as a baseline: every sample is placed by its operating point (rpm or load),
@@ -135,7 +136,7 @@ public static class BaselineAligner
         {
             var reference = Nearest(curve, b.X);
             if (reference is null) continue;
-            if (Math.Abs(reference.Median) > 1e-6) offsets.Add((b.Median - reference.Median) / Math.Abs(reference.Median) * 100);
+            offsets.Add(b.Median - reference.Median);
         }
         var filter = FilterFor(log, curve.Filter);
         for (var i = 0; i < log.Count; i++)
@@ -240,15 +241,21 @@ public static class BaselineAligner
     private static string Summarise(BaselineCurve curve, IReadOnlyList<BaselinePoint> yours, double share, double offset)
     {
         var y = BaselineSignals.Label(curve.Y).ToLowerInvariant();
+        var unit = Unit(curve.Y.Split('+')[0]);
+        string V(double v) => v.ToString(Math.Abs(v) < 20 ? "0.0" : "0", CultureInfo.CurrentCulture) + (unit.Length > 0 ? (unit == "%" ? " %" : " " + unit) : "");
         var head = $"{share:P0} of your readings sit inside the healthy range.";
-        // The stretch where you're furthest from the median, as a share of the healthy spread.
-        var worst = yours.Select(b => (b, r: Nearest(curve, b.X))).Where(t => t.r is not null)
-            .Select(t => (t.b, t.r, dev: (t.b.Median - t.r!.Median) / Math.Max(1e-6, (t.r.P90 - t.r.P10) / 2))).OrderByDescending(t => Math.Abs(t.dev)).FirstOrDefault();
-        if (worst.r is null || Math.Abs(worst.dev) < 1) return head + $" Your {y} follows the healthy curve.";
+        // The stretch where you're furthest from the median, measured against the healthy spread there.
+        var matched = yours.Select(b => (b, r: Nearest(curve, b.X))).Where(t => t.r is not null)
+            .Select(t => (t.b, r: t.r!, dev: (t.b.Median - t.r!.Median) / Math.Max(1e-6, (t.r.P90 - t.r.P10) / 2))).ToList();
+        if (matched.Count == 0) return head;
+        var worst = matched.MaxBy(t => Math.Abs(t.dev));
+        if (Math.Abs(worst.dev) < 1) return head + $" Your {y} follows the healthy curve.";
         var direction = worst.dev < 0 ? "below" : "above";
-        var pct = Math.Abs(worst.r.Median) > 1e-6 ? $" (about {Math.Abs((worst.b.Median - worst.r.Median) / worst.r.Median):P0} {direction} the median)" : "";
-        return head + $" Your {y} reads {direction} the healthy range around {worst.b.X:0} {Unit(curve.X)}{pct}." +
-               (Math.Abs(offset) >= 5 ? $" Across the whole curve it's {Math.Abs(offset):0} % {(offset < 0 ? "low" : "high")} on average." : "");
+        var text = head + $" Your {y} reads {direction} the healthy range around {worst.b.X:0} {Unit(curve.X)}: {V(worst.b.Median)} where healthy engines read {V(worst.r.Median)}.";
+        // Mention the whole-curve shift too when it's large compared with the typical healthy spread.
+        var spread = matched.Average(t => (t.r.P90 - t.r.P10) / 2);
+        if (Math.Abs(offset) >= spread) text += $" Across the whole range it's {V(Math.Abs(offset))} {(offset < 0 ? "lower" : "higher")} on average.";
+        return text;
     }
 }
 
