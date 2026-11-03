@@ -70,20 +70,20 @@ public static partial class BaselineContribution
     {
         var cache = new Dictionary<string, LogChannel?>();
         var present = Columns.Where(c => BaselineSignals.Has(log, c)).ToList();
-        var sb = new StringBuilder();
-        sb.AppendLine(Marker);
-        sb.AppendLine($"# engine: {engine.ToUpperInvariant()}");
-        if (chassis is { Length: > 0 }) sb.AppendLine($"# chassis: {Clean(chassis)}");
-        if (model is { Length: > 0 }) sb.AppendLine($"# model: {Clean(model)}");
-        sb.AppendLine($"# klemme15: {Clean(version)}");
-        sb.AppendLine("time," + string.Join(",", present));
+        var sb = new StringBuilder();   // always \n line ends, so the file is the same on every system
+        sb.Append(Marker).Append('\n');
+        sb.Append($"# engine: {engine.ToUpperInvariant()}").Append('\n');
+        if (chassis is { Length: > 0 }) sb.Append($"# chassis: {Clean(chassis)}").Append('\n');
+        if (model is { Length: > 0 }) sb.Append($"# model: {Clean(model)}").Append('\n');
+        sb.Append($"# klemme15: {Clean(version)}").Append('\n');
+        sb.Append("time," + string.Join(",", present)).Append('\n');
         for (var i = 0; i < log.Count; i++)
         {
             var values = present.Select(c => BaselineSignals.At(log, c, i, cache)).ToList();
             if (values.All(v => v is null)) continue;
             sb.Append(log.Times[i].TotalSeconds.ToString("0.###", CultureInfo.InvariantCulture));
             foreach (var v in values) sb.Append(',').Append(v?.ToString("0.###", CultureInfo.InvariantCulture) ?? "");
-            sb.AppendLine();
+            sb.Append('\n');
         }
         return sb.ToString();
     }
