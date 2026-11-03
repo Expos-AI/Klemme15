@@ -76,7 +76,7 @@ public static class FaultTriage
         {
             case FaultState.Present when supply:
                 return new(FaultPriority.FixNow, "Fix now",
-                    "Active now and about the power supply: check the battery and charging first (Readings > battery voltage, or a meter), then the module's fuses and grounds.");
+                    "Active now and about the power supply: check the battery and charging first (battery voltage on the Live data page, or a meter), then the module's fuses and grounds.");
             case FaultState.Present:
                 return new(FaultPriority.FixNow, "Fix now",
                     lamp ? "Active now and it turned on a warning light. Start with the troubleshooting steps below."

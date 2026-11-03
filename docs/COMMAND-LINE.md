@@ -1,6 +1,6 @@
 # Command line
 
-The `klemme15` command-line tool ships in the `cli/` folder of every download. It does what the app does, for scripts, a Raspberry Pi or a quick look without the window. Run `klemme15 --help` for every option.
+The `klemme15` command-line tool ships in the `cli/` folder of every download. It covers what the app does, for scripts, a Raspberry Pi or a quick look without the window. Run `klemme15 --help` for every option.
 
 ```bash
 klemme15 ports                                   # find the cable
@@ -17,7 +17,14 @@ klemme15 scan --demo --vehicle E9x --model 335i # try it without a car
 klemme15 scan --port COM3 --forum                # summary for a forum post, VIN removed
 klemme15 test fuel-trims --port COM3             # guided test with a verdict (klemme15 test lists them all)
 klemme15 serve --port rfc2217://192.168.4.1:2217 --mqtt 192.168.1.10   # headless, over Wi-Fi
+klemme15 scan --port COM3 --snapshot car.k15 --note "Rough idle when warm"   # a snapshot others can open
+klemme15 open car.k15 --report car.html          # read a snapshot someone shared
+klemme15 coding --module FRM --port COM3 backup  # back up a module's coding (no BMW data needed)
+klemme15 discover --port COM3                    # look for modules the database doesn't list
+klemme15 scan --port COM3 --log traffic.txt      # save the raw cable traffic for a bug report
 ```
+
+`--vehicle` takes the car family: E46, E39, E53 and E38 (K-line), or E9x, E8x, E60, E70 and E89 (D-CAN). `klemme15 vehicles` lists each family's models and modules. Without `--vehicle`, Klemme15 assumes E9x.
 
 BMW's own fault texts (optional, see [FAULT-DATA.md](FAULT-DATA.md)):
 

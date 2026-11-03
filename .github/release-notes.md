@@ -1,6 +1,17 @@
-Beta candidate. Scan, faults, readings, live data, guided tests and experimental service functions.
+Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.0:**
+**New in 0.99.1:**
+- **Clearer everywhere.** Every page, message, report and guide was reviewed for plain, precise wording and checked against what the app really does. The website and README no longer claim more than has been confirmed on a real car.
+- **Steering lock counter reset removed.** It cleared counters inside the key module (CAS), which Klemme15 never writes. The no-start check now explains the steering lock problem and points to a workshop instead. 74 service functions.
+- **Cable check on Linux now identifies the cable** (it couldn't read the USB details before), and picks the K+DCAN cable's port by itself. On macOS an FTDI chip is now reported as "probably", since the port name alone can't prove it. The check no longer blocks the window, and it lets go of the port properly before connecting.
+- **Interrupted jobs are never forgotten.** Advice for a job that was cut off now survives starting another job and restarting Klemme15. A coding write or restore that fails partway is now treated as interrupted, so the advice to restore the backup always shows.
+- **One conversation on the cable at a time.** While a service function, test, coding write or live data runs, the quick test, clearing faults, live values on the car drawing and other jobs wait, so a background read can't disturb a 13-minute bleed.
+- Live data on K-line cars no longer loses values when one of the engine computer's "supported values" replies is dropped.
+- Cars without a full VIN that give part of it are now told apart even when two cars share the same modules.
+- The drain finder flags a low battery only when it's clearly low, since the quick test measures with the ignition on.
+- New guides: [the cable](https://github.com/Expos-AI/Klemme15/blob/main/docs/CABLE.md) and [the command line](https://github.com/Expos-AI/Klemme15/blob/main/docs/COMMAND-LINE.md). A bug report form and a pull request template on GitHub.
+
+**0.99.0:**
 - **Cable check before connecting.** Press **Check cable** in the Garage (it also runs by itself before every connection). Klemme15 looks at what your computer knows about the cable and tells you, in plain words: whether it's a genuine FTDI chip or shows the known signs of a clone, whether its latency timer is slowing things down ("Your cable latency is set to 16 ms: set it to 1 ms", with exactly where to change it), and whether INPA or another program still has the port. If no module answers, Klemme15 now explains the usual causes, including cheap cables with pins 7 and 8 bridged that can't work on D-CAN cars. Latency can be read on Windows and Linux; macOS doesn't allow it.
 - **Recovery when a job is cut off.** If the cable comes out, the laptop sleeps or Windows restarts in the middle of a service function, a test that switches a part on or a coding write, Klemme15 remembers it, even after a restart, and shows exactly what to do next. Parts Klemme15 switched on (the water pump) are switched off again as soon as you reconnect, and an interrupted coding write points you to the backup taken just before it. While a job runs, and while the Ghost Hunter watches a drive, Klemme15 keeps the computer from going to sleep.
 - **Share your engine's baseline in one click.** On the Analyse page, **Share as a healthy baseline** checks a log of a warm drive (idle and a range of engine speeds past 3,000 rpm), saves only the engine values (no VIN, no date, no location) and opens a form on GitHub. A check there builds your engine's community baseline with the same maths Klemme15 uses and prepares it for the next release. N54, M57, N47 and every other engine can now get one from their owners ([how](https://github.com/Expos-AI/Klemme15/blob/main/docs/BASELINES.md#share-yours)).

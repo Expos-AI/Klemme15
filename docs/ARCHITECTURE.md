@@ -26,14 +26,14 @@ Klemme15 is split so that each layer can be tested without the one below it, and
 
 - `BmwFastChannel`: KWP2000 over D-CAN at 115200 baud. The K+DCAN cable turns these serial frames into CAN. Handles "response pending" (7F xx 78) and echo.
 - `Ds2Channel`: BMW DS2 on the K-line, 9600 baud 8E1, with busy-retry and echo filtering.
-- `KLineObdChannel`: generic OBD-II at 10400 baud. ISO 14230 fast init first, then ISO 9141-2 5-baud init. Keeps the session alive and re-initializes after DS2 has used the line.
+- `KLineObdChannel`: generic OBD-II at 10400 baud. ISO 14230 fast init first, then ISO 9141-2 5-baud init. Keeps the session alive and re-initialises after DS2 has used the line.
 
-**Backends** (`IDiagnosticBackend`) turn "identify / read faults / clear / live data" into channel calls. Each backend serializes access with a semaphore because there is one physical bus.
+**Backends** (`IDiagnosticBackend`) turn "identify / read faults / clear / live data" into channel calls. Each backend serialises access with a semaphore because there is one physical bus.
 
 - `NativeBackend` picks a channel per module from its `BusProtocol` and the cable mode.
 - `EdiabasBackend` resolves an SGBD for the module (from `sgbd` in the database, or the `D_00xx` convention), then runs `IDENT`, `FS_LESEN`, `FS_LOESCHEN` or any job.
 
-**Scanner** (`VehicleScanner`): identify each module with a short timeout; only modules that answer get their fault memory read. That is what keeps a quick test fast. Cancellation is honored between and during requests.
+**Scanner** (`VehicleScanner`): identify each module with a short timeout; only modules that answer get their fault memory read. That is what keeps a quick test fast. Cancellation is honoured between and during requests.
 
 ## Adding a vehicle
 

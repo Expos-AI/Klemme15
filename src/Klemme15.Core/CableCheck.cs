@@ -28,6 +28,9 @@ public sealed record CableFacts
     /// <summary>The FTDI latency timer in milliseconds, when it can be read (Windows and Linux).</summary>
     public int? LatencyMs { get; init; }
 
+    /// <summary>The chip was guessed from the port's name (macOS), not reported by the system.</summary>
+    public bool VendorGuessed { get; init; }
+
     /// <summary>False when the port couldn't be opened (another program has it); null when not tried.</summary>
     public bool? PortFree { get; init; }
     public string? PortError { get; init; }
@@ -70,6 +73,9 @@ public static class CableCheck
         else if (f.VendorId is { } v && OtherChips.TryGetValue(v, out var chip))
             list.Add(new(CheckLevel.Ask, $"This adapter uses a {chip} chip, not FTDI",
                 "BMW K+DCAN cables are built around an FTDI chip, and that's what Klemme15 is tested with. Other chips can work on K-line cars but their timing is less dependable. If connections drop, an FTDI cable is the fix."));
+        else if (isFtdi && f.VendorGuessed)
+            list.Add(new(CheckLevel.Info, "Probably an FTDI chip",
+                "macOS only gives the port's name, which looks like an FTDI cable's. Apple's own driver names some other chips the same way, so this can't be confirmed here."));
         else if (isFtdi)
             list.Add(new(CheckLevel.Good, "FTDI chip", f.Serial is { Length: > 0 } s ? $"An FTDI USB serial chip (serial {s}), as K+DCAN cables use." : "An FTDI USB serial chip, as K+DCAN cables use."));
         else if (f.VendorId is null && f.Os != HostOs.MacOs)

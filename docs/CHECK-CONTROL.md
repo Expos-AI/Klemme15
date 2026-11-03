@@ -1,6 +1,6 @@
 # Dash messages (Check Control) and Shadow / Info memory
 
-The small warning triangle on the instrument cluster is often lit by a **Check Control message** (a CC-ID), not by a fault code. A weak key battery, a bulb out or low washer fluid can all show the triangle while every module's fault memory is empty. A scan that only reads fault codes says "no faults", but the car still shows a warning.
+The small warning triangle on the instrument cluster is often lit by a **Check Control message** (a dash message, identified by its CC-ID), not by a fault code. A weak key battery, a bulb out or low washer fluid can all show the triangle while every module's fault memory is empty. A scan that only reads fault codes says "no faults", but the car still shows a warning.
 
 Klemme15 reads both, and keeps them apart from real faults.
 
@@ -50,7 +50,7 @@ The explanations are deliberately "most likely". On a real E90, the cluster's hi
 
 BMW's own message texts are **never shipped**. If you point Klemme15 at your own ISTA, INPA or EDIABAS files, it reads the cluster's text table (`CCM_TEXT_TABELLE`, found in some cluster files) on your machine and shows BMW's wording next to Klemme15's.
 
-An ID that isn't in the list still shows up, as "Check Control message N", so nothing is hidden.
+An ID that isn't in the list still shows up, as "Dash message N (Check Control)", so nothing is hidden.
 
 ### A common mix-up
 
@@ -68,7 +68,7 @@ Drop a `check-control.json` into your override folder (`%APPDATA%/Klemme15/db` o
 ] }
 ```
 
-To share a message with everyone, open a pull request against `db/check-control.json`. Write it in your own words and include a source. Please don't paste BMW's text.
+To share a message with everyone, open a pull request against `src/Klemme15.Data/db/check-control.json`. Write it in your own words and include a source. Please don't paste BMW's text.
 
 ## Shadow / Info memory
 

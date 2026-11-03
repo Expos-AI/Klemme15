@@ -121,6 +121,7 @@ public sealed class ServiceViewModel : PageViewModel
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.Backend)) OnUi(Refresh);
+            if (e.PropertyName is nameof(SessionState.BusyWith) or nameof(SessionState.IsWatching)) OnUi(RunCommand.RaiseCanExecuteChanged);
         };
         _session.ScanUpdated += () => OnUi(Refresh);
         Select(_items.FirstOrDefault());
@@ -334,7 +335,7 @@ public sealed class ServiceViewModel : PageViewModel
     }
 
     private bool CanRun() =>
-        _selected is { IsAvailable: true } item && !_running && !_checking && _checked && !_session.IsWatching
+        _selected is { IsAvailable: true } item && !_running && !_checking && _checked && !_session.IsWatching && _session.BusyWith is null
         && ServiceRunner.Allowed(item.Function, Experimental)
         && Checks.All(c => c.Satisfied) && Confirms.All(c => c.Ticked) && !HasInputProblem;
 

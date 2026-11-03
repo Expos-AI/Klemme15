@@ -87,7 +87,7 @@ public sealed class LiveViewModel : PageViewModel
     {
         _session = session;
         _dialogs = dialogs;
-        StartCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsWatching && !_running && Parameters.Any(p => p.IsSelected), e => Error = e.Message);
+        StartCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsWatching && _session.BusyWith is null && !_running && Parameters.Any(p => p.IsSelected), e => Error = e.Message);
         StopCommand = new RelayCommand(Stop, () => _running);
         RecordCommand = new RelayCommand(() =>
         {
@@ -102,7 +102,7 @@ public sealed class LiveViewModel : PageViewModel
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(SessionState.Backend)) OnUi(LoadParameters);
-            if (e.PropertyName == nameof(SessionState.IsWatching)) OnUi(StartCommand.RaiseCanExecuteChanged);
+            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.BusyWith)) OnUi(StartCommand.RaiseCanExecuteChanged);
         };
     }
 
@@ -116,8 +116,8 @@ public sealed class LiveViewModel : PageViewModel
     public string Rate { get => _rate; private set => Set(ref _rate, value); }
     public bool HasParameters => Parameters.Count > 0;
     public string EmptyText => _session.IsConnected
-        ? "This backend offers no live values for the engine yet. In EDIABAS mode, add values from the Expert page."
-        : "Connect to the car first.";
+        ? "This connection offers no live engine values yet. In EDIABAS mode, add values from the Expert page."
+        : "Connect to your car (or open a demo car) in the Garage first.";
 
     public string? Error
     {

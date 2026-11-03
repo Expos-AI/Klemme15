@@ -194,12 +194,12 @@ public sealed class FaultsViewModel : PageViewModel
         if (_session.LastScan?.Health is { } h)
         {
             foreach (var t in h.Trends) Trends.Add(new TrendItem(t));
-            TrendsHeadline = $"Health over time · {h.Scans} scan{(h.Scans == 1 ? "" : "s")} since {h.Since.LocalDateTime:d MMM yyyy}";
+            TrendsHeadline = $"Health over time · {h.Scans} quick test{(h.Scans == 1 ? "" : "s")} since {h.Since.LocalDateTime:d MMM yyyy}";
             TrendsNote = Trends.Count > 0
                 ? (h.MadeUp ? "A made-up history for the demo car. " : "") + "Klemme15 compares every quick test of this car on this computer, so slow changes show up before they become faults."
                 : h.Scans < 3
                     ? "Nothing to compare yet. Each quick test is saved on this computer; after a few, slow changes (a battery resting lower, fuel trims creeping) show up here."
-                    : "Nothing is drifting. Battery, charging, fuel trims and faults look the same as in earlier scans.";
+                    : "Nothing is drifting. Battery, charging, fuel trims and faults look the same as in earlier quick tests.";
         }
         Raise(nameof(HasTrends));
         Raise(nameof(ShowTrendsCard));

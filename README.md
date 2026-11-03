@@ -15,7 +15,7 @@
 
 **Free, open-source, offline diagnostics for older BMWs.** Read every module's faults and dash warnings and find out what they mean, track your car's health, test a part before you buy it, run service functions, and back up or code comfort modules. You need a K+DCAN cable and a Windows, macOS or Linux computer. No account, no subscription, nothing sent anywhere.
 
-> **Status: beta.** Confirmed on a 2006 E90 325i over D-CAN: module identification, faults read and cleared, dash message history, live data, the fuel trim test and battery registration. The rest is built from BMW's data and tested against demo cars. Anything that drives a part or writes to a module stays behind an **experimental** switch until it's confirmed on real cars. [Testers wanted](docs/BETA.md).
+> **Status: beta.** Confirmed on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration. The rest is built from public research on each module and tested against demo cars. Anything that drives a part or writes to a module stays behind an **experimental** switch until it's confirmed on real cars. [Testers wanted](docs/BETA.md).
 
 | Faults, health and the car's story | Component tests with live graphs |
 |---|---|
@@ -29,7 +29,7 @@ The screenshots are rendered from the demo cars on every change. [See them all](
 
 | Family | Cable switch | Without BMW files | With your BMW files (EDIABAS mode, Windows) |
 |---|---|---|---|
-| E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Every module's faults and dash messages, engine readings, live data, tests, coding backups, battery registration | Every module's readings and service functions, BMW fault texts |
+| E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Every module's faults and dash messages, engine readings, live data, tests, coding backups, battery registration, Valvetronic learning | Every module's readings and service functions, BMW fault texts |
 | E81/E82/E87/E88 1 Series, E60/E61 5 Series, E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E89 Z4 | D-CAN | Like the E90 family | Like the E90 family |
 | E46 3 Series (1999-2006), E39 5 Series, E53 X5, E38 7 Series | K-line | Module identification, engine faults and live data (OBD-II), health history, the fuel trim test | Every module's faults, readings and service functions |
 
@@ -96,7 +96,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **74 functions**: service reminder reset, battery registration, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration and Valvetronic learning run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
 
 **Code comfort options**
-- **Back up, compare and restore** a comfort module's coding on D-CAN cars, without BMW files.
+- **Back up, compare and restore** a comfort module's coding on D-CAN cars, without BMW files. Restoring writes to the module, so it's experimental.
 - **Quick codes** (experimental): LED bulb warnings off, digital speed, mirror folding and more, only where Klemme15 knows exactly where the option lives on your module: checked against your NCS Expert reading, learned by watching another coding tool, or from a map another owner of the identical module shared. Every write is backed up, read back and undone if anything is off ([walkthrough](docs/QUICK-CODES.md)).
 - **Retrofit checker**: notices replaced or added modules and explains what the job needs.
 - **Footwell module (FRM3) protection**: the module that can corrupt itself on a voltage dip is only written to at 13.0 V or more.

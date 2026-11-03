@@ -84,14 +84,14 @@ public sealed class GarageViewModel : PageViewModel
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected);
         RefreshPortsCommand = new RelayCommand(RefreshPorts);
-        CheckCableCommand = new RelayCommand(() => CheckCable(tryOpen: true), () => _port is not null && !UsesNetwork && !_busy);
+        CheckCableCommand = new RelayCommand(() => _ = CheckCableAsync(tryOpen: !_session.IsConnected), () => _port is not null && !UsesNetwork && !_busy);
         BrowseEdiabasCommand = new AsyncCommand(BrowseEdiabasAsync);
-        DownloadFaultDataCommand = new AsyncCommand(DownloadFaultDataAsync, () => !_downloading, e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed: {e.Message}"; DownloadFaultDataCommand?.RaiseCanExecuteChanged(); });
+        DownloadFaultDataCommand = new AsyncCommand(DownloadFaultDataAsync, () => !_downloading, e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed ({e.Message}). Check your internet connection and try again."; DownloadFaultDataCommand?.RaiseCanExecuteChanged(); });
         OpenFaultDataPageCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.ProjectUrl));
         OpenFaultDataLicenseCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.LicenseUrl));
         ChooseEcuFolderCommand = new AsyncCommand(ChooseEcuFolderAsync);
         DownloadReadingsCommand = new AsyncCommand(DownloadReadingsAsync, () => !_downloading,
-            e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed: {e.Message}"; DownloadReadingsCommand?.RaiseCanExecuteChanged(); DownloadFaultDataCommand.RaiseCanExecuteChanged(); });
+            e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed ({e.Message}). Check your internet connection and try again."; DownloadReadingsCommand?.RaiseCanExecuteChanged(); DownloadFaultDataCommand.RaiseCanExecuteChanged(); });
 
         _session.PropertyChanged += (_, e) =>
         {
@@ -237,7 +237,7 @@ public sealed class GarageViewModel : PageViewModel
         var found = _startup is { EdiabasSearched: true } done ? done.Ediabas : await Task.Run(EdiabasLocator.Find);
         if (found is null)
         {
-            EdiabasStatus = "No EDIABAS files found. Klemme15 will use its own protocol stack; choose a folder if you have them elsewhere.";
+            EdiabasStatus = "No EDIABAS files found. Klemme15 will use its own built-in connection; choose a folder if you have them elsewhere.";
             return;
         }
         EdiabasPath = found.Path;
@@ -296,7 +296,7 @@ public sealed class GarageViewModel : PageViewModel
             if (!Set(ref _port, value)) return;
             ConnectCarCommand.RaiseCanExecuteChanged();
             CheckCableCommand?.RaiseCanExecuteChanged();
-            CheckCable(tryOpen: false);
+            _ = CheckCableAsync(tryOpen: false);
         }
     }
 
@@ -378,16 +378,21 @@ public sealed class GarageViewModel : PageViewModel
     /// Checks the cable behind the selected port: FTDI or not, known signs of a cloned chip, the latency timer, and
     /// (when tryOpen) whether another program has the port. Reads only what the computer knows; nothing goes to the car.
     /// </summary>
-    private IReadOnlyList<CableFinding> CheckCable(bool tryOpen)
+    private int _cableCheck;
+
+    private async Task<IReadOnlyList<CableFinding>> CheckCableAsync(bool tryOpen)
     {
-        CableFindings.Clear();
+        var mine = ++_cableCheck;
         IReadOnlyList<CableFinding> findings = [];
         if (_port is { } port && !UsesNetwork)
         {
-            try { findings = CableCheck.Assess(CableInspector.Read(port.Name, tryOpen)); }
+            // Off the UI thread: the registry walk, and opening a port (a Bluetooth COM port can hang for seconds).
+            try { findings = await Task.Run(() => CableCheck.Assess(CableInspector.Read(port.Name, tryOpen))); }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidOperationException) { }
-            foreach (var f in findings) CableFindings.Add(new CableFindingViewModel(f));
         }
+        if (mine != _cableCheck) return findings;   // a newer check (another port picked) replaced this one
+        CableFindings.Clear();
+        foreach (var f in findings) CableFindings.Add(new CableFindingViewModel(f));
         Raise(nameof(HasCableFindings));
         return findings;
     }
@@ -455,7 +460,7 @@ public sealed class GarageViewModel : PageViewModel
         }
         catch (Exception e)
         {
-            Error = $"Couldn't list serial ports: {e.Message}";
+            Error = $"Couldn't list serial ports ({e.Message}). Unplug the cable, plug it back in and press Refresh.";
         }
         if (Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(_settings.Port)) NetworkAddress = _settings.Port!;
         Port = Ports.FirstOrDefault(p => p.Name == _settings.Port) ?? Ports.FirstOrDefault(p => p.LikelyKDCan) ?? Ports.FirstOrDefault();
@@ -473,7 +478,9 @@ public sealed class GarageViewModel : PageViewModel
         if (_model is null) return;
         Error = null;
         // Pre-flight: a port another program holds can't work, so say so instead of timing out against the car.
-        if (!demo && !UsesNetwork && CheckCable(tryOpen: true).FirstOrDefault(f => f.Title.Contains("in use", StringComparison.Ordinal)) is { } busy)
+        // Klemme15's own connection holds the port: let go of it first, or the check would blame "another program".
+        if (!demo && !UsesNetwork) await _session.DisconnectAsync();
+        if (!demo && !UsesNetwork && (await CheckCableAsync(tryOpen: true)).FirstOrDefault(f => f.Title.Contains("in use", StringComparison.Ordinal)) is { } busy)
         {
             Error = $"{busy.Title}. {busy.Detail}";
             return;

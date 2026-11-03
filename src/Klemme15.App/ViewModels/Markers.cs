@@ -157,7 +157,7 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     /// <summary>Which module version the meaning belongs to, and how sure we are.</summary>
     public string? VariantLine => Fault.ModuleVariant is not { } v ? null
         : Fault.VariantConfirmed ? $"Module {v} (identified from the module)"
-        : $"Module {v} (most likely for your car; a scan with the cable confirms it)";
+        : $"Module {v} (most likely for your car; a quick test with the cable confirms it)";
     public bool HasVariantLine => VariantLine is not null;
 
     /// <summary>Same code, different meaning on other versions of this module.</summary>

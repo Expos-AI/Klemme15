@@ -77,7 +77,9 @@ public sealed record HealthSnapshot
             core = answered.Where(e => e.Identity!.PartNumber is { Length: > 0 })
                 .Select(e => $"{Short(e.Ecu.Id)}={e.Identity!.PartNumber}").Order(StringComparer.Ordinal).ToList();
         if (core.Count < 2) return null;
-        var text = $"{scan.Chassis}|{string.Join("|", core)}";
+        // A partial VIN (some engine computers give only the last digits) tells same-spec cars apart.
+        var partial = scan.Vin is { Length: >= 7 } p ? p.Trim().ToUpperInvariant() : "";
+        var text = $"{scan.Chassis}|{partial}|{string.Join("|", core)}";
         return "m" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)))[..11].ToLowerInvariant();
     }
 
@@ -165,7 +167,7 @@ public static class HealthTrends
         {
             if (rest < 12.2)
                 list.Add(new(TrendLevel.Act, "Battery low at rest",
-                    $"{rest:0.0} V with the engine off at the last scan. A charged battery rests around 12.6 V. Charge it and have it tested if it stays low."));
+                    $"{rest:0.0} V with the engine off at the last quick test. A charged battery rests around 12.6 V. Charge it and have it tested if it stays low."));
         }
         if (resting.Count >= 3)
         {
@@ -173,7 +175,7 @@ public static class HealthTrends
             var last = resting.TakeLast(2).Average(s => s.Voltage!.Value);
             if (first - last >= 0.2)
                 list.Add(new(TrendLevel.Watch, "Battery resting voltage is falling",
-                    $"From about {first:0.00} V to {last:0.00} V over {resting.Count} engine-off scans. A battery that rests lower each time is ageing or being drained while parked."));
+                    $"From about {first:0.00} V to {last:0.00} V over {resting.Count} engine-off quick tests. A battery that rests lower each time is ageing or being drained while parked."));
         }
 
         // Charging (engine running).
@@ -211,7 +213,7 @@ public static class HealthTrends
         {
             var days = snapshots.Take(snapshots.Count - 1).Where(s => s.Faults.Contains(f)).Select(s => s.Time.Date).Distinct().Count();
             if (days >= 2)
-                list.Add(new(TrendLevel.Watch, $"{Short(f)} keeps coming back", $"Present in this scan and on {days} earlier days. A fault that returns after clearing is real: fix the cause rather than clearing it again."));
+                list.Add(new(TrendLevel.Watch, $"{Short(f)} keeps coming back", $"Present in this quick test and on {days} earlier days. A fault that returns after clearing is real: fix the cause rather than clearing it again."));
         }
 
         // Dash messages that won't go away.
@@ -219,7 +221,7 @@ public static class HealthTrends
         {
             var times = snapshots.Count(s => s.DashMessages.Contains(id));
             if (times >= 3)
-                list.Add(new(TrendLevel.Info, $"{ccName?.Invoke(id) ?? $"CC {id}"} keeps showing", $"Seen on the dash in {times} of {snapshots.Count} scans."));
+                list.Add(new(TrendLevel.Info, $"{ccName?.Invoke(id) ?? $"CC {id}"} keeps showing", $"Seen on the dash in {times} of {snapshots.Count} quick tests."));
         }
 
         // New since the previous scan.
@@ -227,7 +229,7 @@ public static class HealthTrends
         {
             var fresh = latest.Faults.Except(snapshots[^2].Faults).ToList();
             if (fresh.Count > 0)
-                list.Add(new(TrendLevel.Info, fresh.Count == 1 ? "New since last scan" : $"{fresh.Count} new since last scan", string.Join(", ", fresh.Select(Short))));
+                list.Add(new(TrendLevel.Info, fresh.Count == 1 ? "New since the last quick test" : $"{fresh.Count} new since the last quick test", string.Join(", ", fresh.Select(Short))));
         }
 
         return list.OrderByDescending(t => t.Level).ToList();

@@ -5,7 +5,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 ## Done
 
 - **Foundation**: native DS2, KWP2000 on D-CAN and OBD-II stacks; optional EDIABAS mode with your own BMW files; desktop app for Windows, macOS and Linux; command line; demo cars.
-- **Diagnose**: one-broadcast quick test of every module; faults sorted by priority; researched meanings with sources; BMW's own texts from your files or bmw-unified-db; Shadow / Info memory read and cleared; Check Control messages and history; the car's story; readings for every module; live data, recording and analysis.
+- **Diagnose**: one-broadcast quick test of every module; faults sorted by priority; researched meanings with sources; BMW's own texts from your files or bmw-unified-db; Shadow / Info memory read and cleared; dash messages (Check Control) and their history; the car's story; readings for every module; live data, recording and analysis.
 - **Confirmed on a real E90 325i**: module identification, faults, clearing, dash messages, live data, fuel trim test, battery registration.
 - **Over time**: health history with drift trends, Your cars, test results as trends.
 - **Test and fix**: guided tests with live graphs (fuel trims, VANOS, roughness, no-start, cooling bleed, water pump), multimeter checks, troubleshooting and how-to guides, 74 service functions (experimental).

@@ -31,7 +31,7 @@ public sealed class SessionState : ViewModelBase
         Database = database;
         History = new HealthHistoryStore(historyFolder ?? DefaultHistoryFolder);
         Journal = new OperationJournal(Path.Combine(Path.GetDirectoryName(historyFolder ?? DefaultHistoryFolder)!, "running-job.json"));
-        _interrupted = Journal.Pending();
+        _interrupted = Journal.CutOff();   // a job still recorded as running at start-up was cut off
     }
 
     // ---------------------------------------------------------------- jobs that change the car
@@ -94,11 +94,11 @@ public sealed class SessionState : ViewModelBase
     public void EndOperation() => Journal.End();
 
     /// <summary>The job was cut off: the cable or the car stopped answering. Keeps the journal and shows what to do.</summary>
-    public void OperationCutOff() => Interrupted = Journal.Pending();
+    public void OperationCutOff() => Interrupted = Journal.CutOff();
 
     public void DismissInterrupted()
     {
-        Journal.End();
+        Journal.Dismiss();
         Interrupted = null;
     }
 

@@ -22,7 +22,7 @@ Only readings with a **warm engine** count (coolant above 70 °C, when the log h
   - **N52 physics model (not measured).** Worked out from the engine's size and how full its cylinders get (see [the model](#the-n52-physics-model)). Its bands are wide on purpose and it says so in the app. It catches big problems, like a car running far lean at idle; landing inside it doesn't prove an engine is healthy.
   - A clearly labelled **example** for the demo car, to show how overlays work.
 - **Made by you.** On the Analyse page, **Make a baseline from this log** builds one from the open log (engine speed against total trim per bank, air mass and load, whichever the log has). Do it when your car runs well, and compare later drives against it: your own car is the best baseline for your own car.
-- **Added from a file** someone shares with you (**Add a baseline file…**).
+- **Added from a file** someone shares with you (**Add a baseline file...**).
 
 Your own baselines are saved in `Klemme15/baselines` under your application data folder. They contain only the curves: no VIN.
 

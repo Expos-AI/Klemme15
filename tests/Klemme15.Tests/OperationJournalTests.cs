@@ -46,6 +46,24 @@ public class OperationJournalTests
     }
 
     [Fact]
+    public void A_new_job_never_overwrites_the_advice_for_one_that_was_cut_off()
+    {
+        var dir = Directory.CreateTempSubdirectory("k15-journal").FullName;
+        try
+        {
+            var journal = new OperationJournal(Path.Combine(dir, "running-job.json"));
+            journal.Begin(Op(OperationKind.CodingWrite));
+            Assert.Equal(OperationKind.CodingWrite, journal.CutOff()!.Kind);
+            journal.Begin(Op(OperationKind.ServiceFunction));     // the owner carries on with something else
+            journal.End();
+            Assert.Equal(OperationKind.CodingWrite, journal.Pending()!.Kind);   // still there after a restart
+            journal.Dismiss();
+            Assert.Null(journal.Pending());
+        }
+        finally { Directory.Delete(dir, true); }
+    }
+
+    [Fact]
     public void A_damaged_journal_is_ignored()
     {
         var dir = Directory.CreateTempSubdirectory("k15-journal").FullName;

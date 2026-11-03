@@ -42,6 +42,8 @@ public class CableCheckTests
 
         var mac = CableCheck.Assess(Ftdi(latency: null, os: HostOs.MacOs));
         Assert.Contains(mac, x => x.Title == "Latency can't be checked on macOS");
+        var guessed = CableCheck.Assess(Ftdi(latency: null, os: HostOs.MacOs) with { VendorGuessed = true });
+        Assert.Contains(guessed, x => x.Title == "Probably an FTDI chip" && x.Level == CheckLevel.Info);
     }
 
     [Fact]

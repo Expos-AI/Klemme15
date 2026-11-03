@@ -44,31 +44,59 @@ public sealed record RunningOperation
 public sealed class OperationJournal(string path)
 {
     private static readonly JsonSerializerOptions Json = new() { WriteIndented = true };
+
+    /// <summary>The job running now. If this file is still there when Klemme15 starts, the job was cut off.</summary>
     public string Path { get; } = path;
 
-    public void Begin(RunningOperation op)
+    /// <summary>A job that was cut off and not yet dismissed, kept apart so a new job can't overwrite its advice.</summary>
+    public string InterruptedPath => System.IO.Path.ChangeExtension(Path, ".interrupted.json");
+
+    public void Begin(RunningOperation op) => Write(Path, op);
+
+    /// <summary>The job ended normally: forget it.</summary>
+    public void End() => Delete(Path);
+
+    /// <summary>The job was cut off (or Klemme15 found it still recorded at start-up): keep it until dismissed.</summary>
+    public RunningOperation? CutOff()
+    {
+        if (Read(Path) is not { } op) return Pending();
+        Write(InterruptedPath, op);
+        Delete(Path);
+        return op;
+    }
+
+    /// <summary>The interrupted job waiting to be dismissed, or a job still recorded as running (from a crash), or null.</summary>
+    public RunningOperation? Pending() => Read(InterruptedPath) ?? Read(Path);
+
+    /// <summary>The user has dealt with it.</summary>
+    public void Dismiss()
+    {
+        Delete(InterruptedPath);
+        Delete(Path);
+    }
+
+    private static void Write(string path, RunningOperation op)
     {
         try
         {
-            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path)!);
-            File.WriteAllText(Path, JsonSerializer.Serialize(op, Json));
+            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(path)!);
+            File.WriteAllText(path, JsonSerializer.Serialize(op, Json));
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
     }
 
-    public void End()
+    private static void Delete(string path)
     {
-        try { if (File.Exists(Path)) File.Delete(Path); }
+        try { if (File.Exists(path)) File.Delete(path); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
     }
 
-    /// <summary>A job that didn't end normally, or null.</summary>
-    public RunningOperation? Pending()
+    private static RunningOperation? Read(string path)
     {
         try
         {
-            if (!File.Exists(Path) || new FileInfo(Path).Length > 64_000) return null;
-            return JsonSerializer.Deserialize<RunningOperation>(File.ReadAllText(Path), Json);
+            if (!File.Exists(path) || new FileInfo(path).Length > 64_000) return null;
+            return JsonSerializer.Deserialize<RunningOperation>(File.ReadAllText(path), Json);
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return null; }
     }
@@ -85,6 +113,6 @@ public sealed class OperationJournal(string path)
         OperationKind.CodingWrite =>
             $"The {op.ModuleName}'s coding may be only partly written. Reconnect, put the battery on a charger and restore the backup taken just before" +
             (op.BackupTaken is { } b ? $" ({b.ToLocalTime().ToString("HH:mm", CultureInfo.CurrentCulture)})" : "") + " on the Coding page.",
-        _ => $"Nothing is stuck: the {op.ModuleName} ends the session by itself, and an interrupted procedure simply doesn't complete. Reconnect, run a quick test, then start '{op.Title}' again. Done for now? Switch the ignition off so the battery doesn't drain.",
+        _ => $"Nothing is stuck: the {op.ModuleName} ends the session by itself, and an interrupted procedure just doesn't complete. Reconnect, run a quick test, then start '{op.Title}' again. Done for now? Switch the ignition off so the battery doesn't drain.",
     };
 }

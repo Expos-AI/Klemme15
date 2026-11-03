@@ -135,18 +135,11 @@ public static class PortDiscovery
     {
         try
         {
-            if (OperatingSystem.IsLinux())
+            if (OperatingSystem.IsLinux() && CableInspector.SysfsDirs(Path.GetFileName(name)).Usb is { } usb)
             {
-                var dev = Path.GetFileName(name);
-                var up = dev.StartsWith("ttyACM", StringComparison.Ordinal) ? ".." : "../..";
-                var vendorFile = $"/sys/class/tty/{dev}/device/{up}/idVendor";
-                if (File.Exists(vendorFile))
-                {
-                    var vendor = File.ReadAllText(vendorFile).Trim();
-                    var product = File.Exists($"/sys/class/tty/{dev}/device/{up}/product")
-                        ? File.ReadAllText($"/sys/class/tty/{dev}/device/{up}/product").Trim() : "USB serial";
-                    return (product, vendor == "0403");
-                }
+                var vendor = File.ReadAllText(Path.Combine(usb, "idVendor")).Trim();
+                var product = File.Exists(Path.Combine(usb, "product")) ? File.ReadAllText(Path.Combine(usb, "product")).Trim() : "USB serial";
+                return (product, vendor == "0403");
             }
             if (OperatingSystem.IsMacOS())
                 return ("USB serial", name.Contains("usbserial", StringComparison.OrdinalIgnoreCase) && !name.Contains("wchusbserial", StringComparison.OrdinalIgnoreCase));

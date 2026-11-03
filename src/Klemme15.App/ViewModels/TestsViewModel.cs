@@ -112,12 +112,12 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             vm.SelectCommand = new RelayCommand(() => Select(vm));
             Chains.Add(vm);
         }
-        StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && Engine is not null
+        StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && (_session.BusyWith is null || _running) && Engine is not null
             && !(_selected.NeedsEdiabas), e => Instruction = $"Couldn't finish: {e.Message}");
         StopCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.IsWatching)) OnUi(Changed);
+            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.BusyWith)) OnUi(Changed);
             if (e.PropertyName is nameof(SessionState.Backend)) OnUi(() => { Raise(nameof(NotConnected)); MarkAvailability(); Changed(); if (_selected is { } t) Select(t); });
         };
         Select(Tests[0]);

@@ -487,7 +487,8 @@ public sealed partial class CodingViewModel : PageViewModel
             }))
             {
                 try { written = await CodingProtocol.RestoreAsync(Raw, m.Ecu, item.Backup, m.Identity, new Progress<string>(s => Status = s)); }
-                catch (Exception ex) when (ex is DiagnosticException or TimeoutException && Klemme15.Data.ServiceOutcome.IsCutOff(ex)) { cutOff = true; throw; }
+                // Any failure mid-restore can leave the module partly written: keep the note so the advice survives a restart.
+                catch (Exception ex) when (ex is DiagnosticException or TimeoutException) { cutOff = true; throw; }
                 finally { if (cutOff) _session.OperationCutOff(); else _session.EndOperation(); }
             }
             _session.Log.Note($"Coding of {m.Name} restored from {item.Title}: {written} blocks written");
@@ -628,6 +629,9 @@ public sealed partial class CodingViewModel : PageViewModel
                 result = await VerifiedWriter.ApplyAsync(Raw, m.Ecu, m.Identity, shared!,
                     p.Item.Toggles.Select(t => t.Id).Where(shared!.Toggles.ContainsKey).ToList(), p.On, backup, new Progress<string>(s => Status = s));
             }
+            // The writers catch a lost connection themselves and try to put the original back. If something was written
+            // and the original couldn't be restored, the module may be half-coded: treat it as cut off.
+            if (!result.Success && result.Written.Count > 0 && !result.Restored) cutOff = true;
             }
             catch (Exception ex) when (ex is DiagnosticException or TimeoutException && Klemme15.Data.ServiceOutcome.IsCutOff(ex))
             {

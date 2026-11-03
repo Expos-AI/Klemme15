@@ -42,7 +42,7 @@ public static class ReportWriter
     public static string ToMarkdown(VehicleScanResult scan)
     {
         var sb = new StringBuilder();
-        sb.AppendLine($"# Klemme15 scan {scan.Started:yyyy-MM-dd HH:mm}");
+        sb.AppendLine($"# Klemme15 quick test {scan.Started:yyyy-MM-dd HH:mm}");
         sb.AppendLine();
         sb.AppendLine($"- Vehicle: {scan.Chassis ?? "unknown"}  VIN: {scan.Vin ?? "not read"}");
         sb.AppendLine($"- Backend: {scan.Backend}  Duration: {scan.Elapsed.TotalSeconds:0.0}s{(scan.Cancelled ? " (cancelled)" : "")}");
@@ -74,7 +74,7 @@ public static class ReportWriter
     }
 
     private static string HealthIntro(HealthSummary h) =>
-        $"Compared across {h.Scans} scan{(h.Scans == 1 ? "" : "s")} since {h.Since:yyyy-MM-dd}" + (h.MadeUp ? " (made-up demo history)" : "") + ".";
+        $"Compared across {h.Scans} quick test{(h.Scans == 1 ? "" : "s")} since {h.Since:yyyy-MM-dd}" + (h.MadeUp ? " (made-up demo history)" : "") + ".";
 
     private static string Level(TrendLevel l) => l switch { TrendLevel.Act => "act", TrendLevel.Watch => "watch", _ => "note" };
 
@@ -291,12 +291,12 @@ section{margin-top:24px}
 </style></head><body><main>
 """);
         sb.Append($"<div class=\"brand\">{Logo.Svg}<span>Klemme15</span></div>");
-        sb.Append($"<h1>Scan report: {H(scan.Chassis ?? "Vehicle")}</h1>");
+        sb.Append($"<h1>Quick test report: {H(scan.Chassis ?? "Vehicle")}</h1>");
         sb.Append($"<div class=\"muted\">{scan.Started:yyyy-MM-dd HH:mm} &middot; VIN {H(scan.Vin ?? "not read")} &middot; {H(scan.Backend)}</div>");
         sb.Append("<div class=\"stats\">");
         sb.Append($"<div class=\"stat\"><b>{scan.RespondingEcus}/{scan.Ecus.Count}</b>modules answering</div>");
         sb.Append($"<div class=\"stat\"><b>{scan.TotalFaults}</b>faults</div>");
-        sb.Append($"<div class=\"stat\"><b>{scan.Elapsed.TotalSeconds:0.0}s</b>scan time</div>");
+        sb.Append($"<div class=\"stat\"><b>{scan.Elapsed.TotalSeconds:0.0}s</b>duration</div>");
         if (scan.BatteryVoltage is { } v) sb.Append($"<div class=\"stat\"><b>{v:0.0} V</b>battery</div>");
         if (scan.ActiveCheckControl > 0) sb.Append($"<div class=\"stat\"><b>{scan.ActiveCheckControl}</b>dash messages</div>");
         sb.Append("</div>");

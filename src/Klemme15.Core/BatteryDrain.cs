@@ -87,9 +87,11 @@ public static class BatteryDrain
                 && !t.Title.Contains("key", StringComparison.OrdinalIgnoreCase))   // the key's battery isn't the car's
                 clues.Add(new(t.Level == TrendLevel.Act ? CheckLevel.Warn : t.Level == TrendLevel.Watch ? CheckLevel.Ask : CheckLevel.Info, t.Title, t.Detail));
 
-        if (scan.BatteryVoltage is { } v && v < 12.4 && !clues.Any(c => c.Title.Contains("resting", StringComparison.OrdinalIgnoreCase)))
-            clues.Add(new(v < 12.2 ? CheckLevel.Warn : CheckLevel.Ask, $"Battery at {v.ToString("0.0#", CultureInfo.InvariantCulture)} V",
-                "A healthy, charged battery rests at about 12.6 V or more with everything off. If the engine was off for a while before this reading, the battery is low."));
+        // Measured with the ignition on, so modules are drawing current and a healthy battery reads a little low:
+        // only flag clearly low readings.
+        if (scan.BatteryVoltage is { } v && v < 12.2 && !clues.Any(c => c.Title.Contains("resting", StringComparison.OrdinalIgnoreCase)))
+            clues.Add(new(v < 11.9 ? CheckLevel.Warn : CheckLevel.Ask, $"Battery at {v.ToString("0.0#", CultureInfo.InvariantCulture)} V with the ignition on",
+                "With the ignition on a charged battery still reads about 12.3 V or more. Lower than that, after the engine had been off for a while, means the battery is low: charge it and test it."));
         return clues.OrderByDescending(c => c.Level).ToList();
     }
 

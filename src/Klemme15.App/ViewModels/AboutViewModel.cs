@@ -38,11 +38,11 @@ public sealed class AboutViewModel : ViewModelBase
         "Read and clear every module's faults, watch and record live data, run guided tests and service functions, " +
         "and back up before you code. It works with a K+DCAN cable on Windows, macOS and Linux, without dealer software.";
     public string Confirmed =>
-        "Confirmed on a 2006 E90 325i over D-CAN. Other models, service functions and coding are built from BMW's data " +
+        "Confirmed on a 2006 E90 325i over D-CAN. Other models, service functions and coding are built from public research on each module " +
         "and tested against demo cars: please report how it works on yours.";
     public string Independent =>
         "Independent project, not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA, NCS Expert and EDIABAS are trademarks of BMW AG.";
-    public string Author => "Created and lead developed by Kindric Castro";
+    public string Author => "Created and maintained by Kindric Castro";
     public string Copyright => "Copyright (C) 2026 Kindric Castro";
     public string License => "Licensed under GPL-3.0-or-later. Your data stays on your computer: see the privacy policy.";
 

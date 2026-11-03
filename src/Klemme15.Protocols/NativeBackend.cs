@@ -71,6 +71,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
 
     /// <summary>The PIDs each engine computer says it supports (PIDs 00, 20, 40), or null when it didn't say.</summary>
     private readonly Dictionary<byte, HashSet<byte>?> _supportedPids = [];
+    private readonly Dictionary<byte, int> _bitmapTries = [];
 
     /// <summary>How long to wait for a module the broadcast says isn't there (one quick confirmation).</summary>
     private static readonly TimeSpan AbsentConfirmTimeout = TimeSpan.FromMilliseconds(100);
@@ -348,18 +349,23 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     {
         if (_supportedPids.TryGetValue(ecu.Address, out var known)) return known;
         var set = new HashSet<byte>();
-        var answered = false;
+        var complete = false;
         foreach (var basePid in new byte[] { 0x00, 0x20, 0x40 })
         {
             byte[]? reply;
             try { reply = ObdRequest(ecu, [0x01, basePid], ct).FirstOrDefault(r => r.Length >= 6 && r[0] == 0x41 && r[1] == basePid); }
             catch (TimeoutException) { reply = null; }
             if (reply is null) break;
-            answered = true;
             foreach (var id in Obd2.DecodeSupported(basePid, reply.AsSpan(2, 4))) set.Add(id);
-            if (!set.Contains((byte)(basePid + 0x20))) break;   // the last bit says whether the next bitmap exists
+            // The last bit says whether the next bitmap exists; when it doesn't, the list is complete.
+            if (!set.Contains((byte)(basePid + 0x20)) || basePid == 0x40) { complete = true; break; }
         }
-        return _supportedPids[ecu.Address] = answered && set.Count > 0 ? set : null;
+        if (complete && set.Count > 0) return _supportedPids[ecu.Address] = set;
+        // A bitmap went unanswered (a dropped reply on a busy line): don't trust a partial list. Ask everything this time,
+        // try the bitmaps again next time, and give up on them after a few tries.
+        var tries = _bitmapTries[ecu.Address] = _bitmapTries.GetValueOrDefault(ecu.Address) + 1;
+        if (tries >= 3) _supportedPids[ecu.Address] = null;
+        return null;
     }
 
     /// <summary>Asks each address for its identification with a short timeout; only modules that answer are returned.</summary>

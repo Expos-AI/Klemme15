@@ -36,6 +36,8 @@ public static partial class CableInspector
             using var sp = new SerialPort(port);
             sp.Open();
             sp.Close();
+            // Windows can take a moment to release a COM port after Close; give it that before the real connection opens it.
+            Thread.Sleep(250);
             return facts with { PortFree = true };
         }
         catch (UnauthorizedAccessException e) { return facts with { PortFree = false, PortError = e.Message }; }
@@ -114,18 +116,37 @@ public static partial class CableInspector
     private static CableFacts Linux(string port)
     {
         var dev = Path.GetFileName(port);
-        string? Read(string path) { try { return File.Exists(path) ? File.ReadAllText(path).Trim() : null; } catch (Exception) { return null; } }
-        // ttyUSB (FTDI and other USB serial chips): device is the port, two levels up is the USB device.
-        // ttyACM (USB modems): device is the interface, one level up.
-        var usb = dev.StartsWith("ttyACM", StringComparison.Ordinal) ? $"/sys/class/tty/{dev}/device/.." : $"/sys/class/tty/{dev}/device/../..";
+        string? Read(string? path) { try { return path is not null && File.Exists(path) ? File.ReadAllText(path).Trim() : null; } catch (Exception) { return null; } }
+        var (device, usb) = SysfsDirs(dev);
         return new CableFacts
         {
             Port = port, Os = HostOs.Linux,
-            VendorId = Read($"{usb}/idVendor")?.ToUpperInvariant(),
-            ProductId = Read($"{usb}/idProduct")?.ToUpperInvariant(),
-            Serial = Read($"{usb}/serial"),
-            LatencyMs = int.TryParse(Read($"/sys/class/tty/{dev}/device/latency_timer"), out var ms) ? ms : null,
+            VendorId = Read(usb is null ? null : Path.Combine(usb, "idVendor"))?.ToUpperInvariant(),
+            ProductId = Read(usb is null ? null : Path.Combine(usb, "idProduct"))?.ToUpperInvariant(),
+            Serial = Read(usb is null ? null : Path.Combine(usb, "serial")),
+            LatencyMs = int.TryParse(Read(device is null ? null : Path.Combine(device, "latency_timer")), out var ms) ? ms : null,
         };
+    }
+
+    /// <summary>
+    /// The real sysfs folders for a tty: its "device" (where ftdi_sio keeps latency_timer) and the USB device above it
+    /// (idVendor, idProduct, serial). Symlinks are resolved one at a time: .NET collapses ".." in a path before the
+    /// system follows links, so "/sys/class/tty/ttyUSB0/device/../.." would point at the wrong folder.
+    /// </summary>
+    internal static (string? Device, string? Usb) SysfsDirs(string dev, string root = "/sys/class/tty")
+    {
+        try
+        {
+            static string Real(string path) => new DirectoryInfo(path).ResolveLinkTarget(returnFinalTarget: true)?.FullName ?? path;
+            var tty = Real(Path.Combine(root, dev));
+            var device = Path.Combine(tty, "device");
+            if (!Directory.Exists(device)) return (null, null);
+            device = Real(device);
+            for (var d = new DirectoryInfo(device); d is not null && d.FullName.Length > 1; d = d.Parent)
+                if (File.Exists(Path.Combine(d.FullName, "idVendor"))) return (device, d.FullName);
+            return (device, null);
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return (null, null); }
     }
 
     // ---------------------------------------------------------------- macOS
@@ -138,6 +159,6 @@ public static partial class CableInspector
             return new CableFacts { Port = port, Os = HostOs.MacOs, VendorId = "1A86" };
         var i = name.IndexOf("usbserial-", StringComparison.OrdinalIgnoreCase);
         return i < 0 ? new CableFacts { Port = port, Os = HostOs.MacOs }
-            : new CableFacts { Port = port, Os = HostOs.MacOs, VendorId = CableCheck.Ftdi, Serial = name[(i + "usbserial-".Length)..] };
+            : new CableFacts { Port = port, Os = HostOs.MacOs, VendorId = CableCheck.Ftdi, VendorGuessed = true, Serial = name[(i + "usbserial-".Length)..] };
     }
 }

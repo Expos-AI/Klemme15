@@ -191,7 +191,7 @@ public static class CheckControlDescriber
         return new CheckControlMessage
         {
             Id = id,
-            Title = info?.Title ?? official?.Text ?? $"Check Control message {id}",
+            Title = info?.Title ?? official?.Text ?? $"Dash message {id} (Check Control)",
             Description = info?.Description ?? (official is null
                 ? "Not in Klemme15's list yet: check the text on the dash, and please tell us what it says."
                 : null),

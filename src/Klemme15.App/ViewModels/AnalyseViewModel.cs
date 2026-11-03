@@ -51,7 +51,7 @@ public sealed partial class AnalyseViewModel : PageViewModel
 {
     private readonly IDialogService _dialogs;
     private DataLog _log = new([], []);
-    private string _status = "Load a CSV you recorded on the Live data page, or any datalog with a time column first.";
+    private string _status = "Open a CSV recorded on the Live data page, or any datalog with a header row and time in the first column.";
     private string? _fileName;
     private DispatcherTimer? _timer;
     private int _position;
@@ -138,7 +138,7 @@ public sealed partial class AnalyseViewModel : PageViewModel
         var text = await _dialogs.OpenTextAsync("Open a datalog (CSV)", "CSV datalog", ["*.csv", "*.txt"]);
         if (text is null) return;
         var log = DataLog.Parse(text);
-        if (log.Count == 0) { Status = "That file has no rows Klemme15 could read. It needs a header and a time column first."; return; }
+        if (log.Count == 0) { Status = "That file has no rows Klemme15 could read. It needs a header row and time in the first column."; return; }
         Load(log, "datalog.csv");
     }
 

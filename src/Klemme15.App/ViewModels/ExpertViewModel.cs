@@ -139,6 +139,6 @@ public sealed class ExpertViewModel : PageViewModel
             _settings.Save();
         }
         row.Added = true;
-        Status = $"Pinned {row.Name}. Reconnect to see it on the Live data page.";
+        Status = $"Pinned {row.Name}. It appears on the Live data page after you reconnect.";
     }
 }

@@ -85,7 +85,7 @@ public sealed class TopologyOverlayViewModel : ViewModelBase
         ToggleCommand = new RelayCommand(Toggle, () => CanRun);
         session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.Backend) or nameof(SessionState.IsSnapshot))
+            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.Backend) or nameof(SessionState.IsSnapshot) or nameof(SessionState.BusyWith))
                 OnUi(() => { if (!CanRun) Stop(); ToggleCommand.RaiseCanExecuteChanged(); Raise(nameof(CanRun)); });
         };
     }
@@ -96,7 +96,7 @@ public sealed class TopologyOverlayViewModel : ViewModelBase
     /// <summary>Set by the page while it's busy with the cable (a scan, clearing faults).</summary>
     public Func<bool> PageBusy { get; set; } = () => false;
 
-    public bool CanRun => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && !PageBusy();
+    public bool CanRun => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && _session.BusyWith is null && !PageBusy();
     public bool IsOn { get => _isOn; private set { if (Set(ref _isOn, value)) Raise(nameof(ToggleLabel)); } }
     public string ToggleLabel => _isOn ? "Hide live values" : "Show live values";
     public string Status { get => _status; private set => Set(ref _status, value); }

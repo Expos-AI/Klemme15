@@ -233,11 +233,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          # vX.Y.Z or vX.Y.Z-label only. 0.x versions and any -beta / -rc label are published as pre-releases;
+          # from 1.0.0 on, a plain version becomes the "Latest" release.
+          if ! [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$ ]]; then echo "::error::Bad version: $RELEASE_TAG"; exit 1; fi
+          pre=()
+          if [[ "$RELEASE_TAG" == v0.* || "$RELEASE_TAG" == *-* ]]; then pre=(--prerelease); fi
           ls -la dist
           gh release create "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt --target "$GITHUB_SHA" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Klemme15 $RELEASE_TAG" \
-            --prerelease \
+            "${pre[@]}" \
             --notes-file .github/release-notes.md
 
   packaging:

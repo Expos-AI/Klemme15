@@ -43,12 +43,12 @@ public sealed class VehicleViewModel : PageViewModel
         _session = session;
         _dialogs = dialogs;
         Topology = new TopologyOverlayViewModel(session) { PageBusy = () => _isScanning || _isDiscovering };
-        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && !_isScanning && !_isDiscovering, e => Error = e.Message);
+        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && _session.BusyWith is null && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
         AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasAnythingToClear && !_session.IsSnapshot);
         CancelClearAllCommand = new RelayCommand(() => ConfirmClearAll = false);
-        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_session.IsSnapshot && !_isScanning, e => Error = e.Message);
+        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_session.IsSnapshot && _session.BusyWith is null && !_isScanning, e => Error = e.Message);
         DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
         ExportHtmlCommand = new AsyncCommand(() => ExportAsync("html"), () => _session.LastScan is not null);
         ExportMarkdownCommand = new AsyncCommand(() => ExportAsync("md"), () => _session.LastScan is not null);
@@ -57,7 +57,7 @@ public sealed class VehicleViewModel : PageViewModel
 
         _session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName == nameof(SessionState.IsWatching)) OnUi(RunCommand.RaiseCanExecuteChanged);
+            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.BusyWith)) OnUi(() => { RunCommand.RaiseCanExecuteChanged(); ClearAllCommand.RaiseCanExecuteChanged(); Topology.RaiseCanRun(); });
             if (e.PropertyName == nameof(SessionState.Backend))
             {
                 RunCommand.RaiseCanExecuteChanged();
@@ -314,7 +314,7 @@ public sealed class VehicleViewModel : PageViewModel
             _session.Voltage = v;
             Warning = v switch
             {
-                < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then scan again."
+                < 12.0 => $"Battery at {v:0.0} V. Low voltage makes modules log faults that aren't real. Charge the battery or connect a charger, then run the quick test again."
                           + (FrmGuard.FamiliesWithFrm.Contains(vehicle.Id)
                               ? " Don't clear faults, code or run service functions until it's charged: the footwell module (FRM) on these cars can corrupt itself if the voltage dips while it writes."
                               : ""),

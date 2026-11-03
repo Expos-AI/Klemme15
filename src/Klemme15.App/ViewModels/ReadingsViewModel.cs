@@ -389,7 +389,7 @@ public sealed class ReadingsViewModel : PageViewModel
                 var items = watched.Count > 0 ? watched : Groups.SelectMany(g => g.Items).Where(i => i.HasValues).ToList();
                 if (items.Count == 0) { Status = "Read something first, or tick Watch on the readings to refresh."; AutoRefresh = false; break; }
                 foreach (var item in items) await ReadOneAsync(module.Ecu, item, cts.Token);
-                Status = $"Refreshing {items.Count} reading(s), last at {DateTime.Now:HH:mm:ss}.";
+                Status = $"Refreshing {items.Count} reading{(items.Count == 1 ? "" : "s")}, last at {DateTime.Now:HH:mm:ss}.";
                 await Task.Delay(TimeSpan.FromSeconds(1), cts.Token);
             }
         }

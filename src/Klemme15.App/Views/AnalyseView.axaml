@@ -25,7 +25,7 @@
       </StackPanel>
       <StackPanel>
         <TextBlock Classes="title" Text="Analyse" />
-        <TextBlock Classes="muted small" Text="Scatter plots, a tuning-style map and synchronized playback of a recorded CSV. Nothing is sent to the car." />
+        <TextBlock Classes="muted small" Text="Scatter plots, a tuning-style map and synchronised playback of a recorded CSV. Nothing is sent to the car." />
       </StackPanel>
     </DockPanel>
 
@@ -100,12 +100,12 @@
               <WrapPanel Orientation="Horizontal">
                 <Button Content="Make a baseline from this log" Command="{Binding MakeBaselineCommand}" Margin="0,4,8,0"
                         ToolTip.Tip="For when you know the car runs well: save its curves to compare later drives against, or to share." />
-                <Button Content="Add a baseline file…" Command="{Binding ImportBaselineCommand}" Margin="0,4,8,0" />
+                <Button Content="Add a baseline file..." Command="{Binding ImportBaselineCommand}" Margin="0,4,8,0" />
               </WrapPanel>
               <WrapPanel Orientation="Horizontal">
                 <TextBox Text="{Binding ShareEngine}" Watermark="Engine, e.g. N52B30" Width="170" Margin="0,4,8,0"
                          ToolTip.Tip="The engine code with fuel and size: N52B30 is the 3.0 L N52, N52B25 the 2.5 L, M57D30 the 3.0 L diesel" />
-                <Button Content="Share as a healthy baseline…" Command="{Binding ShareBaselineCommand}" Margin="0,4,8,0"
+                <Button Content="Share as a healthy baseline..." Command="{Binding ShareBaselineCommand}" Margin="0,4,8,0"
                         ToolTip.Tip="Car running well? Share this log (engine values only: no VIN, no date, no location) so owners of the same engine get a known good baseline" />
               </WrapPanel>
               <TextBlock Classes="muted small" Text="{Binding BaselineStatus}" TextWrapping="Wrap" />

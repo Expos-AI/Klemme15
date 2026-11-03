@@ -73,7 +73,7 @@ and in the guide list on the Tests page. It has the same shape as a guide in `gu
 
 ## OBD-II codes (`obd-codes.json`)
 
-Generic codes are standardized; improve the wording or add a `hint` with practical E-series advice:
+Generic codes are standardised; improve the wording or add a `hint` with practical E-series advice:
 
 ```json
 "P0171": { "text": "System too lean, bank 1", "hint": "Common causes on M54/N52: ..." }

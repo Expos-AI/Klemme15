@@ -82,7 +82,7 @@ public class HealthHistoryTests
         var f = "E9x.FZD:A670";
         var t = HealthTrends.Analyze([S(0, faults: [f]), S(3, faults: []), S(6, faults: [f]), S(9, faults: [f, "E9x.JBE:A731"])]);
         Assert.Contains(t, x => x.Title == "FZD A670 keeps coming back");
-        Assert.Contains(t, x => x.Title == "New since last scan" && x.Detail == "JBE A731");
+        Assert.Contains(t, x => x.Title == "New since the last quick test" && x.Detail == "JBE A731");
         Assert.True(t[0].Level >= t[^1].Level);
     }
 
@@ -123,7 +123,7 @@ public class HealthReportTests
         Assert.Contains("Fuel trims creeping leaner", ReportWriter.ToHtml(scan));
         var post = ReportWriter.ToForumPost(scan);
         Assert.Contains("Changes over time", post);
-        Assert.Contains("5 scans", post);
+        Assert.Contains("5 quick tests", post);
         Assert.Contains("watch", post);
         var none = scan with { Health = new HealthSummary(1, DateTimeOffset.Now, []) };
         Assert.False(ReportWriter.ToMarkdown(none).Contains("Health over time"));
@@ -147,7 +147,10 @@ public class HealthReportTests
         var key = HealthSnapshot.CarKeyFor(Scan(null, dme, ike));
         Assert.NotNull(key);
         Assert.StartsWith("m", key);
-        Assert.Equal(key, HealthSnapshot.CarKeyFor(Scan("PT00000", ike, dme)));          // a partial VIN, modules in another order
+        Assert.Equal(key, HealthSnapshot.CarKeyFor(Scan(null, ike, dme)));               // modules in another order
+        // A partial VIN tells two cars of the same spec apart.
+        Assert.NotEqual(key, HealthSnapshot.CarKeyFor(Scan("PT00000", dme, ike)));
+        Assert.Equal(HealthSnapshot.CarKeyFor(Scan("PT00000", dme, ike)), HealthSnapshot.CarKeyFor(Scan("PT00000", ike, dme)));
         Assert.NotEqual(key, HealthSnapshot.CarKeyFor(Scan(null, dme, Ident("E46.IKE", "0B6919999", "6919999"))));
         Assert.Null(HealthSnapshot.CarKeyFor(Scan(null, dme)));                           // one module isn't enough
         Assert.False(key!.Contains("7519308"), "the key is a one-way hash");
