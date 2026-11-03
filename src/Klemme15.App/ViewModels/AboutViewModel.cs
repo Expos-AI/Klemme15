@@ -33,18 +33,18 @@ public sealed class AboutViewModel : ViewModelBase
     public string Version { get; }
     public Geometry Logo => Icons.Scan; // placeholder; the real logo mark is drawn by the control
 
-    public string Tagline => "Open-source BMW E-series diagnostics.";
+    public string Tagline => "Free, open-source diagnostics for older BMWs.";
     public string Blurb =>
-        "Scan every module, read and clear faults, watch and log live data, run guided tests and service functions, " +
-        "and back up before you code. It works with a cheap K+DCAN cable on Windows, macOS and Linux — no dealer software.";
+        "Read and clear every module's faults, watch and record live data, run guided tests and service functions, " +
+        "and back up before you code. It works with a K+DCAN cable on Windows, macOS and Linux, without dealer software.";
     public string Confirmed =>
-        "Confirmed on a real 2006 E90 325i over D-CAN. Other chassis and the service and coding functions are built from " +
-        "BMW's own data and tested against demo cars — please report results from your car.";
+        "Confirmed on a 2006 E90 325i over D-CAN. Other models, service functions and coding are built from BMW's data " +
+        "and tested against demo cars: please report how it works on yours.";
     public string Independent =>
-        "Independent project, not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG.";
+        "Independent project, not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA, NCS Expert and EDIABAS are trademarks of BMW AG.";
     public string Author => "Created and lead developed by Kindric Castro";
     public string Copyright => "Copyright (C) 2026 Kindric Castro";
-    public string License => "Licensed under GPLv3. Your data stays on your computer — see the privacy policy.";
+    public string License => "Licensed under GPL-3.0-or-later. Your data stays on your computer: see the privacy policy.";
 
     public bool HasCoffee => !string.IsNullOrWhiteSpace(Links.Coffee);
 

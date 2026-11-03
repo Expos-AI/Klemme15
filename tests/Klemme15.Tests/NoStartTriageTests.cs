@@ -56,7 +56,8 @@ public class NoStartTriageTests
     {
         var v = NoStartTriage.Assess(12.6, cranked: false, [new MF("CAS", F("A0C8", "Electric steering lock did not release"))]);
         var lock_ = v.First(f => f.Title.Contains("steering lock"));
-        Assert.Contains("clear the fault counters", lock_.Explanation);
+        Assert.Contains("Charge the battery first", lock_.Explanation);
+        Assert.Contains("never writes", lock_.Explanation);      // no steering lock counter reset: that would write the key module
     }
 
     [Fact]

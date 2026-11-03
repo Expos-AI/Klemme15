@@ -55,6 +55,11 @@ jobs:
           git config user.email "github-actions@users.noreply.github.com"
           git checkout -B "$branch"
           git add data/baselines/contrib src/Klemme15.Data/db/baselines.json
+          if git diff --cached --quiet; then
+            echo "" >> "$RUNNER_TEMP/report.md"
+            echo "This file is already part of the community baseline: nothing to change." >> "$RUNNER_TEMP/report.md"
+            exit 0
+          fi
           git commit -m "Baseline: $ENGINE from #$ISSUE" -m "Signed-off-by: github-actions <github-actions@users.noreply.github.com>"
           git push -f origin "$branch"
           if ! gh pr view "$branch" --json number > /dev/null 2>&1; then
@@ -67,4 +72,5 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           ISSUE: ${{ github.event.issue.number }}
-        run: gh issue comment "$ISSUE" --body-file "$RUNNER_TEMP/report.md"
+        run: |
+          if [ -f "$RUNNER_TEMP/report.md" ]; then gh issue comment "$ISSUE" --body-file "$RUNNER_TEMP/report.md"; fi

@@ -16,7 +16,7 @@ Command line: `klemme15 scan --port COM3 --snapshot mycar --note "Rough idle whe
 | Always | If you tick it | Never |
 |---|---|---|
 | Every module with its part number and versions | The last minute of live data | The VIN (removed everywhere, including inside coding bytes and logged messages) |
-| Every fault with its details | Test results and their graphs | Anything about you |
+| Every fault with its details | Test results and their graphs | Your name, account or location |
 | Dash messages, the car's story | Coding of modules you read this session (view only) | |
 | Health trends, battery voltage | The traffic log | |
 
@@ -29,5 +29,5 @@ In the **Garage**, press **Open a snapshot...** (or double-click a `.k15` file o
 ## Safety
 
 - Nothing can be written from a snapshot: clearing, coding, service functions and tests are all refused. A snapshot's coding can be looked at, never written to a car, so a snapshot can't be used to copy one car's coding onto another.
-- Opening a stranger's file is safe: Klemme15 checks every part against its checksum, refuses damaged or oversized files, ignores anything it doesn't expect and never runs anything from the file.
+- Klemme15 is built to open strangers' files safely: it checks every part against its checksum, refuses damaged or oversized files, ignores anything it doesn't expect and never runs anything from the file.
 - The VIN is scrubbed in every form Klemme15 knows (full, short, as bytes in coding and in the traffic log). A VIN split across two logged messages can slip through, so the traffic log is off by default.

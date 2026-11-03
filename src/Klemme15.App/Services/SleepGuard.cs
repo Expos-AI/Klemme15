@@ -77,7 +77,7 @@ public static class SleepGuard
         {
             if (OperatingSystem.IsWindows())
                 Avalonia.Threading.Dispatcher.UIThread.Post(() => SetThreadExecutionState(EsContinuous));
-            if (_helper is { HasExited: false } p) p.Kill();
+            if (_helper is { HasExited: false } p) p.Kill(entireProcessTree: true);
         }
         catch (Exception e) when (e is InvalidOperationException or System.ComponentModel.Win32Exception or DllNotFoundException or EntryPointNotFoundException) { }
         finally

@@ -73,6 +73,5 @@ uses. It never writes to, uploads or decrypts anything. `klemme15 sgbd <file.prg
 - **Real-car reports:** a scan report plus the traffic log (Log tab → Save) lets us confirm module versions and
   part numbers.
 - **Fixes that worked:** add the code, symptoms and what fixed it to `bmw-codes.json` in your own words with a source
-  (see [CONTRIBUTING-DATA.md](CONTRIBUTING-DATA.md)). Our tips show alongside BMW's text, and that is where
-  Klemme15 can beat the dealer tool.
+  (see [CONTRIBUTING-DATA.md](CONTRIBUTING-DATA.md)). Owners' tips show alongside BMW's text.
 - **Glossary:** if a translated text reads badly, add the German word or compound to `db/glossary-de-en.txt`.

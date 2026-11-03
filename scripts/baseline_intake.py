@@ -61,7 +61,7 @@ def parse(text):
         raise Problem("The file's columns aren't what Klemme15 writes.")
     cols = header[1:]
     if any(c not in COLUMNS for c in cols) or len(set(cols)) != len(cols):
-        raise Problem("The file has columns Klemme15 doesn't write: " + ", ".join(c for c in cols if c not in COLUMNS))
+        raise Problem("The file has columns Klemme15 doesn't write. Make it again with **Share as a healthy baseline**.")
     rows = []
     for n, cells in enumerate(reader):
         if n >= MAX_ROWS:
@@ -185,7 +185,8 @@ def build(contrib_dir, db_path):
         curves = [c for c in (build_curve(logs, *spec) for spec in CURVES) if c]
         if not curves:
             continue
-        cars = len(logs)
+        # One owner sharing three drives is still one car: count contributors, not files.
+        cars = len(contributors) if contributors else len(logs)
         profiles.append({
             "id": f"community-{engine.lower()}",
             "title": f"{engine} community baseline",
@@ -208,15 +209,19 @@ def build(contrib_dir, db_path):
 
 # ----------------------------------------------------------------------------------------------- intake from an issue
 
-class _OnlyHttps(urllib.request.HTTPRedirectHandler):
+GITHUB_HOSTS = re.compile(r"^https://([a-z0-9-]+\.)*(github\.com|githubusercontent\.com)(/|$)")
+
+
+class _OnlyGitHub(urllib.request.HTTPRedirectHandler):
+    """Attachments redirect to GitHub's file storage; anything else is refused."""
     def redirect_request(self, req, fp, code, msg, headers, newurl):
-        if not newurl.startswith("https://"):
+        if not GITHUB_HOSTS.match(newurl):
             raise Problem("The attachment link redirected somewhere unexpected.")
         return super().redirect_request(req, fp, code, msg, headers, newurl)
 
 
 def download(url):
-    opener = urllib.request.build_opener(_OnlyHttps)
+    opener = urllib.request.build_opener(_OnlyGitHub)
     req = urllib.request.Request(url, headers={"User-Agent": "klemme15-baseline-intake"})
     with opener.open(req, timeout=30) as resp:
         data = resp.read(MAX_BYTES + 1)
@@ -257,10 +262,14 @@ def intake(body, issue, login, out_dir, report_path):
     except Problem as p:
         lines += [f"❌ **Not accepted yet:** {p}", "",
                   "Fix it in Klemme15 (Analyse page → **Share as a healthy baseline**), then edit this issue and attach the new file: the check runs again."]
-    except (OSError, UnicodeDecodeError) as e:
-        lines += [f"❌ **Couldn't read the attachment** ({type(e).__name__}). Please attach the file again."]
-    with open(report_path, "w", encoding="utf-8") as fh:
-        fh.write("\n".join(lines) + "\n")
+    except (OSError, UnicodeDecodeError, csv.Error, ValueError) as e:
+        lines += [f"❌ **Couldn't read the attachment** ({type(e).__name__}). Please make the file again in Klemme15 and attach it."]
+    except Exception as e:  # never leave the contributor without an answer
+        lines += [f"❌ **The check itself failed** ({type(e).__name__}). The maintainer has been notified by the failed run."]
+        raise
+    finally:
+        with open(report_path, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(lines) + "\n")
     return ok
 
 

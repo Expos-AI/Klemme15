@@ -12,11 +12,11 @@ There are three ways to get a map.
 
 ## Route 1: someone already shared your module
 
-Open **Coding**, pick the module and press **Read coding**. If the panel says *"Quick codes are ready"*, a verified map for your exact module is built in. Switch on experimental functions on the Service page, then press **Apply all** on a preset. That's it.
+Open **Coding**, pick the module and press **Read coding**. If someone has shared a map for your exact module, the panel says *"Quick codes are ready"*. Switch on experimental functions on the Service page, then press **Apply all** on a preset. The library is new, so for most modules this route isn't available yet: routes 2 and 3 are, and sharing your result fills the library for everyone with the same module.
 
 ## Route 2: you have NCS Expert
 
-NCS Expert is part of BMW Standard Tools, which many E-series owners already have installed alongside INPA. Klemme15 doesn't include it and doesn't link to unofficial copies. Workshops can get BMW's software legally through [BMW's aftersales portal](https://aos.bmwgroup.com/) (in the US, [bmwtechinfo.com](https://www.bmwtechinfo.com/)).
+NCS Expert is part of BMW's Standard Tools. Klemme15 doesn't include it or link to copies of it; BMW licenses its software through its [aftersales portal](https://aos.bmwgroup.com/) (in the US, [bmwtechinfo.com](https://www.bmwtechinfo.com/)).
 
 1. **Klemme15 finds it by itself.** It looks in `C:\NCSEXPER` (and `C:\EC-APPS\NCSEXPER`). The checklist on the Coding page shows *"Find your NCS Expert data: Found"*. If it's somewhere else, press **Choose NCS data folder...** and pick the `DATEN` folder.
 2. **In Klemme15:** connect, run the quick test, open **Coding**, pick the module (e.g. Footwell module) and press **Read coding**.
@@ -40,7 +40,7 @@ Klemme15 can learn an option by watching what your tool changes.
 4. Press **2. Read after**. Klemme15 shows exactly which bytes changed. It refuses if nothing changed, if something outside the coding changed, or if more than 8 bytes changed (that means several options, or a full recode).
 5. Press **3. Save**. The option now works from Klemme15 on this module, with the same backup, read-back and auto-restore. Repeat for other options. Then **Share this map**.
 
-A learned map is exactly what your tool wrote for that option on your exact module (same part number and coding index). Klemme15 only ever replays it on a module with the same part number and coding index.
+A learned map is what your tool wrote for that option on your module, and Klemme15 only replays it on a module with the same part number and coding index.
 
 ## What's never coded
 

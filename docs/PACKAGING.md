@@ -6,8 +6,8 @@ Klemme15 is distributed three ways. The portable `.zip` per platform is the sour
 
 `scripts/update-packaging.sh <tag> <win-x64.zip>` regenerates, from the released zip:
 
-- `bucket/klemme15.json` — the Scoop manifest (this repo doubles as a Scoop bucket).
-- `packaging/winget/Expos-AI.Klemme15.*.yaml` — the winget manifests.
+- `bucket/klemme15.json`: the Scoop manifest (this repo doubles as a Scoop bucket).
+- `packaging/winget/Expos-AI.Klemme15.*.yaml`: the winget manifests.
 
 The release workflow runs it automatically after every release (the `packaging` job): it downloads the new `win-x64` zip, fills in the version and SHA-256, and commits the refreshed manifests to `main`. No manual editing.
 
@@ -37,4 +37,4 @@ After that, set a `WINGET_TOKEN` repository secret (a classic PAT with `public_r
 
 Direct `.zip` downloads are unsigned, so Windows SmartScreen warns on first run. **winget and Scoop avoid it entirely**, and they cost nothing. SmartScreen reputation for the direct download also builds on its own, for free, as more people run it.
 
-If you ever want the direct download signed too, the free route for open-source projects is **[SignPath Foundation](https://signpath.org/)**, which grants free code-signing certificates to OSS. (Paid options like Azure Trusted Signing exist but aren't necessary.) Add the signing step to the `publish` job only if you set one of these up — it's optional.
+If you ever want the direct download signed too, the free route for open-source projects is **[SignPath Foundation](https://signpath.org/)**, which grants free code-signing certificates to OSS. (Paid options like Azure Trusted Signing exist but aren't necessary.) Add the signing step to the `publish` job only if you set one of these up: it's optional.

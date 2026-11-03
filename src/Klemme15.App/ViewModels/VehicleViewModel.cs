@@ -46,9 +46,9 @@ public sealed class VehicleViewModel : PageViewModel
         RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && !_isScanning && !_isDiscovering, e => Error = e.Message);
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
-        AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasAnythingToClear);
+        AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasAnythingToClear && !_session.IsSnapshot);
         CancelClearAllCommand = new RelayCommand(() => ConfirmClearAll = false);
-        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_isScanning, e => Error = e.Message);
+        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_session.IsSnapshot && !_isScanning, e => Error = e.Message);
         DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
         ExportHtmlCommand = new AsyncCommand(() => ExportAsync("html"), () => _session.LastScan is not null);
         ExportMarkdownCommand = new AsyncCommand(() => ExportAsync("md"), () => _session.LastScan is not null);

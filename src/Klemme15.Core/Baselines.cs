@@ -84,9 +84,11 @@ public sealed record BaselineProfile
         try
         {
             var p = JsonSerializer.Deserialize<BaselineProfile>(json, Json);
-            return p is { Curves.Count: > 0 } && p.Curves.All(c => c.Points.Count >= 2 && c.Points.All(pt => pt.P10 <= pt.Median && pt.Median <= pt.P90)) ? p : null;
+            return p is { Curves.Count: > 0 } && p.Curves.All(c => c is { Points.Count: >= 2, BinWidth: > 0 } && !string.IsNullOrEmpty(c.X) && !string.IsNullOrEmpty(c.Y)
+                && c.Points.All(pt => pt is not null && pt.P10 <= pt.Median && pt.Median <= pt.P90)) ? p : null;
         }
-        catch (JsonException) { return null; }
+        // A hand-edited or damaged file (nulls where lists belong, wrong types) is refused, never thrown.
+        catch (Exception e) when (e is JsonException or NullReferenceException or InvalidOperationException or NotSupportedException) { return null; }
     }
 
     public string ToJson() => JsonSerializer.Serialize(this, Json);
@@ -308,8 +310,7 @@ public sealed class BaselineStore(string folder)
                 if (new FileInfo(file).Length > 2_000_000) continue;
                 if (BaselineProfile.Parse(File.ReadAllText(file)) is { } p) list.Add(p);
             }
-            catch (IOException) { }
-            catch (UnauthorizedAccessException) { }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or NotSupportedException) { }
         }
         return list;
     }

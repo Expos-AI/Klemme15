@@ -147,10 +147,11 @@ public sealed class TopologyOverlayViewModel : ViewModelBase
             try
             {
                 var values = await source.ReadAsync(wanted, ct);
-                foreach (var (k, v) in values) if (double.IsFinite(v)) _latest[k] = v;
-                // Stop asking for what this car never reports, after the first full read.
-                if (_lastRead == default && values.Count > 0) wanted = wanted.Where(values.ContainsKey).ToList();
-                _lastRead = DateTime.UtcNow;
+                if (values.Count > 0)
+                {
+                    foreach (var (k, v) in values) if (double.IsFinite(v)) _latest[k] = v;
+                    _lastRead = DateTime.UtcNow;
+                }
             }
             catch (OperationCanceledException) { break; }
             catch (Exception e) when (e is IOException or TimeoutException or InvalidOperationException)
@@ -167,7 +168,12 @@ public sealed class TopologyOverlayViewModel : ViewModelBase
     /// <summary>Copies the newest values to the tiles (UI thread, at most four times a second).</summary>
     private void Push()
     {
+        // Values older than a few seconds aren't live any more (a pulled cable reads as silence): blank them.
+        var stale = _lastRead != default && DateTime.UtcNow - _lastRead > TimeSpan.FromSeconds(5);
+        if (stale) _latest.Clear();
         foreach (var t in Tiles) t.Show(_latest.TryGetValue(t.Id, out var v) ? v : null);
-        Status = _lastRead == default ? "Reading..." : $"Live · updated {DateTime.UtcNow - _lastRead:s\\.f} s ago";
+        Status = _lastRead == default ? "Reading..."
+            : stale ? "The car isn't answering. Check the cable and the ignition."
+            : $"Live · updated {DateTime.UtcNow - _lastRead:s\\.f} s ago";
     }
 }

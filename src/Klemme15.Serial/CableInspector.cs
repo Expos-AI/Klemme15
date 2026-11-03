@@ -56,14 +56,16 @@ public static partial class CableInspector
         {
             // FTDI's own driver: Enum\FTDIBUS\VID_0403+PID_6001+A50285BIA\0000\Device Parameters (PortName, LatencyTimer).
             if (Find(@"SYSTEM\CurrentControlSet\Enum\FTDIBUS", port) is { } ftdi)
-                return facts with
-                {
-                    VendorId = ftdi.Vid, ProductId = ftdi.Pid, Serial = ftdi.Serial,
-                    LatencyMs = ftdi.Parameters.GetValue("LatencyTimer") is int ms ? ms : null,
-                };
+                using (ftdi.Parameters)
+                    return facts with
+                    {
+                        VendorId = ftdi.Vid, ProductId = ftdi.Pid, Serial = ftdi.Serial,
+                        LatencyMs = ftdi.Parameters.GetValue("LatencyTimer") is int ms ? ms : null,
+                    };
             // Other chips: Enum\USB\VID_1A86&PID_7523\<instance>\Device Parameters (PortName).
             if (Find(@"SYSTEM\CurrentControlSet\Enum\USB", port) is { } other)
-                return facts with { VendorId = other.Vid, ProductId = other.Pid };
+                using (other.Parameters)
+                    return facts with { VendorId = other.Vid, ProductId = other.Pid };
         }
         catch (Exception e) when (e is System.Security.SecurityException or UnauthorizedAccessException or IOException) { }
         return facts;
@@ -98,7 +100,12 @@ public static partial class CableInspector
     public static bool IsFtdiOnWindows(string port)
     {
         if (!OperatingSystem.IsWindows()) return false;
-        try { return Find(@"SYSTEM\CurrentControlSet\Enum\FTDIBUS", port) is not null; }
+        try
+        {
+            var found = Find(@"SYSTEM\CurrentControlSet\Enum\FTDIBUS", port);
+            found?.Parameters.Dispose();
+            return found is not null;
+        }
         catch (Exception) { return false; }
     }
 
@@ -108,7 +115,9 @@ public static partial class CableInspector
     {
         var dev = Path.GetFileName(port);
         string? Read(string path) { try { return File.Exists(path) ? File.ReadAllText(path).Trim() : null; } catch (Exception) { return null; } }
-        var usb = $"/sys/class/tty/{dev}/device/../..";
+        // ttyUSB (FTDI and other USB serial chips): device is the port, two levels up is the USB device.
+        // ttyACM (USB modems): device is the interface, one level up.
+        var usb = dev.StartsWith("ttyACM", StringComparison.Ordinal) ? $"/sys/class/tty/{dev}/device/.." : $"/sys/class/tty/{dev}/device/../..";
         return new CableFacts
         {
             Port = port, Os = HostOs.Linux,

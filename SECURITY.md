@@ -52,8 +52,8 @@ Every release is built by GitHub Actions from this repository, and comes with:
 - **`SHA256SUMS.txt`**: the SHA-256 checksum of every zip. After downloading, check yours matches:
   - Linux: `sha256sum -c SHA256SUMS.txt --ignore-missing`
   - macOS: `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`
-  - Windows (PowerShell): `Get-FileHash .\Klemme15-v0.22.0-win-x64.zip` and compare with the line in `SHA256SUMS.txt`
-- **A signed build provenance attestation**: proof, signed through Sigstore, that the zip was built by this repository's workflow from a specific commit. With the GitHub CLI: `gh attestation verify Klemme15-v0.22.0-win-x64.zip -R Expos-AI/Klemme15`. This is the stronger check, because it doesn't depend on a file stored next to the download.
+  - Windows (PowerShell): `Get-FileHash .\Klemme15-<version>-win-x64.zip` and compare with the line in `SHA256SUMS.txt`
+- **A signed build provenance attestation**: proof, signed through Sigstore, that the zip was built by this repository's workflow from a specific commit. With the GitHub CLI: `gh attestation verify Klemme15-<version>-win-x64.zip -R Expos-AI/Klemme15`. This is the stronger check, because it doesn't depend on a file stored next to the download.
 
 Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-AI/Klemme15/releases), winget (`Expos-AI.Klemme15`) or the project's Scoop bucket.
 

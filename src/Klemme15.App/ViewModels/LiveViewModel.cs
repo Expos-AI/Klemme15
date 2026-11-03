@@ -191,6 +191,7 @@ public sealed class LiveViewModel : PageViewModel
 
         _cts = new CancellationTokenSource();
         IsRunning = true;
+        using var bus = _session.ClaimBus("Live data");
         var frames = 0;
         var started = DateTime.UtcNow;
         try

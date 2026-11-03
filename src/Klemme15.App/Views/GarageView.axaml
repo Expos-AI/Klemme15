@@ -228,7 +228,8 @@
               <TextBlock Classes="muted small" Text="{Binding NetworkHint}" TextWrapping="Wrap" />
             </StackPanel>
             <CheckBox IsChecked="{Binding TrustDsr}" Content="My cable reports ignition (stop me if the key is off)" />
-            <CheckBox IsChecked="{Binding UseEdiabas}" IsEnabled="{Binding EdiabasAvailable}" Content="Use my own BMW files (EDIABAS / INPA / ISTA) for full coverage" />
+            <CheckBox IsChecked="{Binding UseEdiabas}" IsEnabled="{Binding EdiabasAvailable}" Content="Use my own BMW files (EDIABAS mode): every module's faults, readings and service functions"
+                      ToolTip.Tip="Runs the BMW files you already have from an ISTA, INPA or EDIABAS install on this computer. Windows only." />
             <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding UseEdiabas}">
               <TextBox Text="{Binding EdiabasPath}" Watermark="C:\EDIABAS\Ecu" MinWidth="320" />
               <Button Content="Browse" Command="{Binding BrowseEdiabasCommand}" />

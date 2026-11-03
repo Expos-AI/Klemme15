@@ -1,6 +1,6 @@
-name: Beta report
-description: You're testing the Klemme15 beta. Tell us what you tried, what worked and what broke.
-title: "Beta: "
+name: Test report
+description: You tried Klemme15 on your car. Tell us what you tried, what worked and what broke.
+title: "Test: "
 labels: ["beta"]
 body:
   - type: markdown

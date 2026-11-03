@@ -44,18 +44,50 @@ public sealed class SessionState : ViewModelBase
     public RunningOperation? Interrupted
     {
         get => _interrupted;
-        private set { if (Set(ref _interrupted, value)) { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); } }
+        private set { if (Set(ref _interrupted, value)) { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); Raise(nameof(InterruptedHeadline)); } }
     }
 
     public bool HasInterrupted => _interrupted is not null;
     public string InterruptedAdvice => _interrupted is { } op ? OperationJournal.Advice(op) : "";
+    public string InterruptedHeadline => _interrupted is { } op ? OperationJournal.Headline(op) : "";
 
     /// <summary>Starts a job that changes the car: written to disk, and the computer kept awake, until it's ended.</summary>
     public IDisposable BeginOperation(RunningOperation op)
     {
-        if (_isDemo) return Klemme15.App.Services.SleepGuard.Hold(op.Title);
-        Journal.Begin(op);
-        return Klemme15.App.Services.SleepGuard.Hold(op.Title);
+        if (!_isDemo) Journal.Begin(op);
+        return new Both(Klemme15.App.Services.SleepGuard.Hold(op.Title), ClaimBus(op.Title));
+    }
+
+    // ---------------------------------------------------------------- who is using the cable
+
+    private string? _busyWith;
+
+    /// <summary>
+    /// What is using the cable right now (a test, a service function, a coding write, live data), so the Ghost Hunter
+    /// doesn't start a second conversation with the car alongside it. Null when nothing is.
+    /// </summary>
+    public string? BusyWith { get => _busyWith; private set => Set(ref _busyWith, value); }
+
+    public IDisposable ClaimBus(string what)
+    {
+        OnUiThread(() => BusyWith = what);
+        return new Release(() => OnUiThread(() => { if (BusyWith == what) BusyWith = null; }));
+    }
+
+    private static void OnUiThread(Action a)
+    {
+        if (Avalonia.Threading.Dispatcher.UIThread.CheckAccess()) a(); else Avalonia.Threading.Dispatcher.UIThread.Post(a);
+    }
+
+    private sealed class Release(Action release) : IDisposable
+    {
+        private int _done;
+        public void Dispose() { if (Interlocked.Exchange(ref _done, 1) == 0) release(); }
+    }
+
+    private sealed class Both(IDisposable a, IDisposable b) : IDisposable
+    {
+        public void Dispose() { a.Dispose(); b.Dispose(); }
     }
 
     /// <summary>The job ended normally (finished, failed with an answer from the car, or stopped by the user).</summary>
@@ -332,18 +364,23 @@ public sealed class SessionState : ViewModelBase
             try { _engineIdentity = await backend.IdentifyAsync(engine, ct); }
             catch (Exception e) when (e is DiagnosticException or TimeoutException) { }
         }
-        if (!settings.Demo && _interrupted is { StopAction: "pump" } && vehicle.Modules.FirstOrDefault(m => m.IsEngine) is { } eng
-            && Klemme15.App.Services.JobPumpActuator.For(this, eng) is { } pump)
+        // A test that drove the water pump was cut off: send the switch-off again, once, and only to the same car model.
+        if (!settings.Demo && _interrupted is { StopAction: "pump" } cut && cut.Car == $"{vehicle.Id} {model?.Name}".Trim()
+            && vehicle.Modules.FirstOrDefault(m => m.IsEngine) is { } eng && Klemme15.App.Services.JobPumpActuator.For(this, eng) is { } pump)
         {
             try
             {
                 await pump.StopAsync(ct);
                 Log.Note("Recovery: sent the water pump switch-off again after an interrupted test");
+                var done = cut with { StopAction = null };
+                Journal.Begin(done);
+                Interrupted = done;
             }
-            catch (Exception e) when (e is DiagnosticException or TimeoutException or NotSupportedException) { }
+            catch (Exception e) when (e is DiagnosticException or TimeoutException or NotSupportedException or OperationCanceledException) { }
         }
         Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
-        Status = $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
+        Status = settings.Demo ? $"{vehicle.Id} {model?.Name} demo car: nothing is sent to a real car".Replace("  ", " ")
+            : $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
     }
 
     public async Task DisconnectAsync()

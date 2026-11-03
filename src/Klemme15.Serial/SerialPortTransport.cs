@@ -138,12 +138,13 @@ public static class PortDiscovery
             if (OperatingSystem.IsLinux())
             {
                 var dev = Path.GetFileName(name);
-                var vendorFile = $"/sys/class/tty/{dev}/device/../../idVendor";
+                var up = dev.StartsWith("ttyACM", StringComparison.Ordinal) ? ".." : "../..";
+                var vendorFile = $"/sys/class/tty/{dev}/device/{up}/idVendor";
                 if (File.Exists(vendorFile))
                 {
                     var vendor = File.ReadAllText(vendorFile).Trim();
-                    var product = File.Exists($"/sys/class/tty/{dev}/device/../../product")
-                        ? File.ReadAllText($"/sys/class/tty/{dev}/device/../../product").Trim() : "USB serial";
+                    var product = File.Exists($"/sys/class/tty/{dev}/device/{up}/product")
+                        ? File.ReadAllText($"/sys/class/tty/{dev}/device/{up}/product").Trim() : "USB serial";
                     return (product, vendor == "0403");
                 }
             }

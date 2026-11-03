@@ -1,6 +1,6 @@
 # Klemme15 beta: tester guide
 
-Thank you for testing Klemme15 before it goes public. The goal is simple: **try to break it**, on your car, with your cable, the way you actually use a diagnostic tool, and tell us exactly what happened.
+Thank you for testing Klemme15 before 1.0. The goal is simple: **try to break it**, on your car, with your cable, the way you actually use a diagnostic tool, and tell us what happened.
 
 Everything Klemme15 does by default is read-only. Anything that writes to the car (clearing faults, coding, service functions) asks first, and service functions stay behind the **Experimental** switch.
 
@@ -30,7 +30,7 @@ Please **don't** run experimental service functions or coding on a car you depen
 
 1. On the Faults page, press **Share snapshot**, tick **the traffic log**, and save the `.k15` file. It contains your car's modules, faults, live data and the traffic between Klemme15 and the car. The VIN is removed; in the traffic log, a VIN split across two messages can slip through, so skim it if that matters to you.
 2. For a Ghost Hunter drive, the captures are in the Ghost Hunter page's list: open one and share it the same way, or attach the `.k15` files from the captures folder.
-3. Put the `.k15` files in a `.zip` (GitHub only accepts certain file types), open a [Beta report](https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml), fill it in and attach the zip. One report per car and session is perfect.
+3. Put the `.k15` files in a `.zip` (GitHub only accepts certain file types), open a [test report](https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml), fill it in and attach the zip. One report per car and session is perfect.
 
 Something serious (Klemme15 wrote something it shouldn't have, or a car misbehaved after using it)? Report it privately instead: [security policy](../SECURITY.md).
 

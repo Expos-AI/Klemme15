@@ -7,7 +7,7 @@ body:
     attributes:
       value: |
         Thanks! Klemme15's **Share this map** button fills this in for you. A map holds only the module's part number,
-        coding index and which bits each option uses — no VIN, no personal data, and nothing copied from BMW's files.
+        coding index and which bits each option uses: no VIN, no personal data, and nothing copied from BMW's files.
   - type: textarea
     id: map
     attributes:

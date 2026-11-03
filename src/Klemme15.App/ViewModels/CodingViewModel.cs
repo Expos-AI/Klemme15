@@ -235,7 +235,7 @@ public sealed partial class CodingViewModel : PageViewModel
             ? "Viewing a snapshot: nothing can be read from or written to a car. " + (snap.Coding.Count == 0 ? "The owner didn't include any coding."
                 : "The owner included the coding of " + string.Join(", ", snap.Coding.Select(c => $"{c.Module} (part {c.PartNumber}, CI {c.CodingIndex}, {c.Blocks.Count} blocks)")) + ". It's there to look at: it can never be written to a car from a snapshot.")
             : _session.Backend is null ? "Connect to the car (or a demo car) in the Garage first."
-            : _session.Backend is not IRawRequests ? "Coding uses Klemme15's own connection: reconnect without \"Use my own BMW files\"."
+            : _session.Backend is not IRawRequests ? "Coding uses Klemme15's own connection: reconnect without \"Use my own BMW files (EDIABAS mode)\"."
             : scan is null ? "Run the quick test first: Klemme15 codes only modules that answered it." : "";
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ExportCommand);
         RebuildLibrary();
@@ -289,6 +289,8 @@ public sealed partial class CodingViewModel : PageViewModel
 
     private async Task<T> Busy<T>(Func<Task<T>> work)
     {
+        if (_session.IsWatching) { Status = "Stop the Ghost Hunter first: one cable can only carry one conversation with the car."; return default!; }
+        using var bus = _session.ClaimBus("coding");
         _busy = true;
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand, ExportCommand);
         try { return await work(); }
@@ -475,8 +477,19 @@ public sealed partial class CodingViewModel : PageViewModel
             if (CodingProtocol.Mismatch(item.Backup, m.Ecu, m.Identity) is { } why) { Status = why; return 0; }
             if (!await GuardAsync()) return 0;
             _blocks = null;
-            await TakeBackupAsync("before restoring"); // so a wrong restore can be undone too
-            var written = await CodingProtocol.RestoreAsync(Raw, m.Ecu, item.Backup, m.Identity, new Progress<string>(s => Status = s));
+            var before = await TakeBackupAsync("before restoring"); // so a wrong restore can be undone too
+            var cutOff = false;
+            int written;
+            using (_session.BeginOperation(new RunningOperation
+            {
+                Kind = OperationKind.CodingWrite, Title = $"Restore coding ({item.Title})", ModuleId = m.Ecu.Id, ModuleName = m.Name,
+                Car = $"{_session.Vehicle?.Id} {_session.Model?.Name}".Trim(), Started = DateTimeOffset.Now, BackupTaken = before.Taken,
+            }))
+            {
+                try { written = await CodingProtocol.RestoreAsync(Raw, m.Ecu, item.Backup, m.Identity, new Progress<string>(s => Status = s)); }
+                catch (Exception ex) when (ex is DiagnosticException or TimeoutException && Klemme15.Data.ServiceOutcome.IsCutOff(ex)) { cutOff = true; throw; }
+                finally { if (cutOff) _session.OperationCutOff(); else _session.EndOperation(); }
+            }
             _session.Log.Note($"Coding of {m.Name} restored from {item.Title}: {written} blocks written");
             _blocks = null;
             Status = written == 0 ? "The module already matches this backup: nothing to write."
@@ -569,7 +582,7 @@ public sealed partial class CodingViewModel : PageViewModel
             var evidence = new NcsEvidence(_module, trace, _blocks);
             _evidence = evidence.Layouts.Count > 0 ? evidence : null;
             Verification = _evidence is not null
-                ? $"Verified: {result.Summary} Klemme15 reads this module exactly like NCS Expert does, so the switches below can write to it."
+                ? $"Verified: {result.Summary} Klemme15 decodes this module the same way NCS Expert does. Writing is still experimental, and a backup is taken first."
                 : $"Not verified: {result.Summary} {string.Join("; ", result.Mismatches)}. Make sure the trace was read from this car's {_selected!.Name} just now. Writing stays locked.";
             _session.Log.Note($"Coding map check for {_selected!.Name} with {_module.FileName}: {result.Summary}");
             FillSettings();
@@ -595,6 +608,7 @@ public sealed partial class CodingViewModel : PageViewModel
             var backup = await TakeBackupAsync($"before: {p.Item.Title} {(p.On ? "on" : "off")}");
             CodingResult result;
             // Journaled while it writes: if the cable or computer stops mid-write, Klemme15 says to restore this backup.
+            var cutOff = false;
             using var job = _session.BeginOperation(new RunningOperation
             {
                 Kind = OperationKind.CodingWrite, Title = p.Item.Title, ModuleId = m.Ecu.Id, ModuleName = m.Name,
@@ -617,10 +631,14 @@ public sealed partial class CodingViewModel : PageViewModel
             }
             catch (Exception ex) when (ex is DiagnosticException or TimeoutException && Klemme15.Data.ServiceOutcome.IsCutOff(ex))
             {
-                _session.OperationCutOff();
+                cutOff = true;
                 throw;
             }
-            _session.EndOperation();
+            finally
+            {
+                // Cut off: keep the note and say what to do. Any other ending (done, refused, stopped): clear it.
+                if (cutOff) _session.OperationCutOff(); else _session.EndOperation();
+            }
             _session.Log.Note($"  -> {result.Message}");
             Status = result.Message;
             _blocks = await ReadBlocksAsync();

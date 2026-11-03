@@ -40,7 +40,7 @@
         <TextBlock TextWrapping="Wrap"
                    Text="Module readings are computed by BMW's own scripts inside each module's file, so they need your BMW files (from ISTA, INPA or EDIABAS)." />
         <TextBlock TextWrapping="Wrap" Classes="muted"
-                   Text="In the Garage, open the cable setup, tick 'Use my own EDIABAS files' (Klemme15 usually finds them by itself), and connect again. Engine values such as RPM, temperatures and fuel trims are also on the Live data page without BMW files." />
+                   Text="In the Garage, open the cable setup, tick 'Use my own BMW files (EDIABAS mode)' (Klemme15 usually finds them by itself), and connect again. Engine values such as RPM, temperatures and fuel trims are also on the Live data page without BMW files." />
       </StackPanel>
     </StackPanel>
 

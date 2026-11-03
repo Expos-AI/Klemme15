@@ -1,38 +1,56 @@
 # Privacy policy
 
-Klemme15 is a desktop application that runs on your own computer. It is not a web service, and it has no account, login or server of its own.
+Klemme15 runs on your computer. It has no account, no server and no analytics, and it never sends anything about your car anywhere on its own.
 
-## What Klemme15 does with your data
+## What stays on your computer
 
-- **Everything stays on your computer.** Scans, faults, readings, live-data recordings, coding backups and traffic logs are held in memory while the app runs and are only written to disk when **you** choose to save or export them, to a location you pick.
-- **Health history (the one thing saved automatically).** After each quick test of a real car (not the demo), Klemme15 saves a small summary so it can show how the car changes over time: date, model, approximate mileage, battery voltage, engine speed, coolant temperature, fuel trims, fault codes and dash message numbers. It is stored in your user folder (`Klemme15/history` under your application data folder), one file per car. **It does not contain your VIN**: cars are told apart by a one-way hash of it, or, for older cars that don't report their VIN, a one-way hash of their engine computer's and cluster's identification. It is never uploaded. Remove a car with **Forget** under *Your cars* on the Garage page, or delete the folder.
-- **Ghost Hunter captures and baselines stay on your computer.** While the Ghost Hunter watches, each capture is saved as a snapshot (VIN removed) in `Klemme15/captures` under your application data folder; the rules you make go in `Klemme15/ghost-hunter-rules.json`. Baselines you make or add go in `Klemme15/baselines`: they hold only curves of values across engine speed (no VIN, no date of the drive beyond the name you see). None of this is uploaded; delete any of it whenever you like.
-- **A note of a running job.** While a job that changes the car runs (a service function, a test that switches a part on, a coding write), Klemme15 keeps a small note of it in `Klemme15/running-job.json` (job, module, model and time; no VIN) so it can tell you what to do if the job is cut off. It's deleted when the job ends.
-- **The cable check reads only your computer.** It looks at what the operating system knows about the cable (chip maker, serial number, latency setting) and tries opening the port. Nothing is sent anywhere.
-- **Sharing a baseline is your choice.** **Share as a healthy baseline** saves a `.csv` with only engine values (engine speed, load, coolant, air mass, fuel trims, intake air, throttle), the engine code, the model and the Klemme15 version, and opens a GitHub form. Nothing is uploaded unless you attach the file there yourself; once you do, it's public, with your GitHub username as the contributor.
-- **Snapshots are files you make and share yourself.** A `.k15` snapshot holds your car's modules, faults, dash messages, health trends and, if you tick them, live data, test results, coding and the traffic log. The VIN is removed before the file is written. Klemme15 never uploads it: sharing it is your choice. See [docs/SNAPSHOTS.md](docs/SNAPSHOTS.md).
-- **Klemme15 does not send your vehicle data anywhere.** It does not phone home, and it has no analytics, telemetry or crash reporting that leaves your machine. (The optional `klemme15 serve` mode publishes live data on **your own** network to a dashboard or MQTT broker you choose — it is off unless you run it, and it only goes where you point it.)
-- **Your VIN is never transmitted.** It is shown to you locally, and the "Copy for a forum post" feature removes it before copying.
+Everything Klemme15 reads from your car stays on your computer. Reports, recordings, traffic logs and snapshots are only written when you save them, to a place you choose.
 
-## Network connections Klemme15 may make
+Klemme15 also keeps these files by itself, in a `Klemme15` folder in your user's application data (`%APPDATA%\Klemme15` on Windows, `~/.config/Klemme15` on macOS and Linux). None of them is ever uploaded, and you can delete any of them at any time.
 
-Klemme15 connects to the internet only when you ask it to, and only to these:
+| File or folder | What's in it | When |
+|---|---|---|
+| `settings.json` | Your last car and port, folder paths you chose, the experimental switch, your live data favourites | When you change a setting |
+| `history/` | A small summary of each quick test of a real car: date, model, approximate mileage, battery voltage, engine speed, coolant temperature, fuel trims, fault codes, dash message numbers, module part numbers, and your guided test results. **No VIN**: cars are told apart by a one-way hash of the VIN, or, for older cars that don't report it, of their engine module's and cluster's part numbers. **Forget** under *Your cars* removes a car | After each quick test and guided test |
+| `coding-backups/` | A copy of a module's coding, taken before every coding change and restore. Some modules keep the VIN in their coding, so a backup can contain it | Before every write |
+| `captures/` | Ghost Hunter captures, saved as snapshots with the VIN removed | While the Ghost Hunter watches |
+| `ghost-hunter-rules.json` | Rules you made on the Ghost Hunter page | When you save a rule |
+| `baselines/` | Baselines you made or added: curves of values across engine speed, no VIN | When you make or add one |
+| `running-job.json` | The job that's changing the car right now (job, module, model, time; no VIN), so Klemme15 can tell you what to do if it's cut off. Deleted when the job ends | While a job runs |
+| `db/` | Community coding maps you downloaded | When you press **Get the latest community maps** |
+| `bmw-unified-db/` | The optional BMW fault texts and engine readings you downloaded | When you download them |
 
-- **Downloading the optional fault database or engine-readings data**, if you choose to (from the public `bmw-unified-db` project and package hosts). This downloads data *to* you; it sends nothing about your car.
-- **Getting the latest community coding maps**, when you press that button on the Coding page (from the project's GitHub page). This downloads maps *to* you; it sends nothing about your car.
-- **Opening a link** (About, Support, Privacy, Buy me a coffee) in your browser, when you click it.
-- **A network cable** (`rfc2217://` or `tcp://`) or `klemme15 serve`, which talk only to the devices and brokers you configure on your own network.
+Versions from before the project was renamed used an `OpenHood` folder; Klemme15 copies its files across once.
 
-## Your BMW files and NCS Expert data
+## When Klemme15 goes online
 
-If you point Klemme15 at your own ISTA/INPA/EDIABAS files or your NCS Expert data folder, it reads them locally to name faults and coding settings. Nothing from those folders is copied into Klemme15 or uploaded anywhere.
+Only when you ask, and only to these:
 
-## Contributions you choose to make
+| What you do | Where it goes | What it sends |
+|---|---|---|
+| Download BMW fault texts or engine readings | github.com (the [bmw-unified-db](https://github.com/gediz/bmw-unified-db) project's release, found through api.github.com) | Nothing about your car |
+| **Get the latest community maps** (Coding page) | raw.githubusercontent.com (this project) | Nothing about your car |
+| **Translate** a BMW fault text | Google Translate, in your browser | That fault's German text |
+| Open a link (About, help, privacy, sponsor) | That page, in your browser | Nothing about your car |
+| Connect a Wi-Fi cable, or run `klemme15 serve` | Only the devices and the MQTT broker you set up, on your own network | Your car's live data, to them |
 
-If you export a verified coding map or a scan report to share, that file contains only what is shown in the app (and, for coding maps, no VIN). Sharing it — for example by opening a pull request — is your choice and your action, not something Klemme15 does automatically.
+## Things you choose to share
+
+- **Snapshots (`.k15`)** hold your car's modules, faults, dash messages, health trends, your note and, if you tick them, live data, test results, coding and the traffic log. The VIN is removed before the file is written; a VIN split across two messages in the traffic log can slip through, so skim it if that matters to you ([how snapshots work](docs/SNAPSHOTS.md)). Sharing the file is up to you.
+- **A forum post** (**Copy for a forum post**) leaves the VIN out.
+- **A healthy baseline** (**Share as a healthy baseline**) saves a `.csv` with only engine values (engine speed, load, coolant, air mass, fuel trims, intake air, throttle), the engine code, the model and the Klemme15 version, and opens a GitHub form. Nothing is uploaded unless you attach it there yourself; then it's public, with your GitHub username as the contributor.
+- **Coding maps** (**Share this map**) hold a module's part number, coding index and option positions, no VIN. They're shared through a GitHub issue you submit.
+
+## Your BMW files
+
+If you point Klemme15 at your own ISTA, INPA, EDIABAS or NCS Expert folders, it reads them on your computer to run BMW's jobs and name faults and coding settings. Nothing from those folders is copied into Klemme15 or uploaded.
+
+## The cable check
+
+**Check cable** reads what your operating system knows about the cable (chip maker, serial number, latency setting) and tries opening the port. Nothing is sent anywhere.
 
 ## Contact
 
-Questions about this policy: open an issue at the project page listed in the app's About dialog.
+Questions about this policy: [open an issue](https://github.com/Expos-AI/Klemme15/issues/new/choose).
 
-*Klemme15 is an independent, open-source project and is not affiliated with or endorsed by BMW AG.*
+*Klemme15 is an independent, open-source project, not affiliated with or endorsed by BMW AG.*

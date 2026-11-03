@@ -75,7 +75,7 @@ vm.Faults.Drain.IsOpen = false;
 // What a cut-off job looks like: the banner that says what happened and what to do.
 vm.Session.Journal.Begin(new Klemme15.Core.RunningOperation
 {
-    Kind = Klemme15.Core.OperationKind.ServiceFunction, Title = "Valvetronic end-stop learning", ModuleId = "E9x.DME",
+    Kind = Klemme15.Core.OperationKind.ServiceFunction, Title = "Learn the Valvetronic end stops", ModuleId = "E9x.DME",
     ModuleName = "engine computer (DME)", Started = DateTimeOffset.Now.AddMinutes(-3),
 });
 vm.Session.OperationCutOff();

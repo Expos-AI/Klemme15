@@ -8,7 +8,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Diagnose**: one-broadcast quick test of every module; faults sorted by priority; researched meanings with sources; BMW's own texts from your files or bmw-unified-db; Shadow / Info memory read and cleared; Check Control messages and history; the car's story; readings for every module; live data, recording and analysis.
 - **Confirmed on a real E90 325i**: module identification, faults, clearing, dash messages, live data, fuel trim test, battery registration.
 - **Over time**: health history with drift trends, Your cars, test results as trends.
-- **Test and fix**: guided tests with live graphs (fuel trims, VANOS, roughness, no-start, cooling bleed, water pump), multimeter checks, troubleshooting and how-to guides, 75 service functions (experimental).
+- **Test and fix**: guided tests with live graphs (fuel trims, VANOS, roughness, no-start, cooling bleed, water pump), multimeter checks, troubleshooting and how-to guides, 74 service functions (experimental).
 - **Coding**: backup, compare, restore; quick codes verified against NCS Expert, learned from another tool, or from shared coding maps; FRM3 protection.
 - **Share**: reports, forum posts without the VIN, snapshots (.k15) others open read-only, headless mode with a phone dashboard and MQTT, network cables.
 - **Reasoning**: community diagnostic chains (Vacuum leak hunter, Charging system check), retrofit checker, pre-purchase check.
@@ -19,7 +19,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 
 ## Next
 
-- **The closed beta**: testers with E46, E60 and E90-family cars and different cables, running the [tester guide](BETA.md), before 1.0.
+- **The beta**: testers with E46, E60 and E90-family cars and different cables, running the [tester guide](BETA.md), before 1.0.
 - Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
 - Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be confirmed on real cars. Health history and the OBD-based tests already work.
 - The first community coding maps, checks and chains in the library, and the first real baselines (three or more healthy cars per engine, starting with the N52).
@@ -36,7 +36,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 ## Not planned, on purpose
 
 - Immobiliser work of any kind (DME/CAS alignment, key programming, ISN): it is what makes a stolen car start.
-- Flashing module software, and coding the vehicle order or VIN (for example a battery type change): the riskiest writes there are. Comfort coding (since 0.11) stays limited to comfort modules, with automatic backup, verification against NCS Expert and read-back.
+- Flashing module software, and coding the vehicle order or VIN (for example a battery type change): the riskiest writes there are. Comfort coding stays limited to comfort modules, with an automatic backup, a map known for the exact module and read-back.
 - Coding the key module (CAS): comfort closing with the remote, auto-lock and key settings live there, next to the immobiliser data.
 - Bundling BMW's wiring diagrams (WDS): they are BMW's documents. Guides can name connectors and pins in our own words.
 - Closed wireless adapters (MHD, Thor): their protocols aren't public. Open bridges (RFC 2217/TCP) work today; BLE adapters are planned.

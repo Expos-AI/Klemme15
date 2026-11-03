@@ -63,12 +63,12 @@
   <DockPanel Margin="36,26,36,0">
     <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,18">
       <DockPanel>
-        <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="Read faults again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
         <Button DockPanel.Dock="Right" Content="{Binding Drain.ToggleText}" Command="{Binding Drain.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
                 ToolTip.Tip="Battery drain finder: what the car recorded about its battery running down, how long until it won't start, and a guided hunt for the circuit" />
         <Button DockPanel.Dock="Right" Content="{Binding Purchase.ToggleText}" Command="{Binding Purchase.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
                 ToolTip.Tip="A pre-purchase check for someone looking at a used car: mileage records, safety faults, signs of cleared codes" />
-        <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding Share.ToggleText}" Command="{Binding Share.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
+        <Button DockPanel.Dock="Right" Content="{Binding Share.ToggleText}" Command="{Binding Share.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
                 ToolTip.Tip="Save the whole car as a .k15 file someone else can open in Klemme15 and explore, read-only" />
         <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
@@ -147,7 +147,7 @@
           <TextBlock Classes="muted small" TextWrapping="Wrap"
                      Text="Looking at a used car? Type the odometer reading from the dash: Klemme15 compares it with the mileage the car's modules recorded, and looks for safety faults and signs of freshly cleared codes. Read-only." />
           <StackPanel Orientation="Horizontal" Spacing="10">
-            <TextBox Watermark="Odometer reading" Text="{Binding Odometer}" Width="180" />
+            <TextBox Watermark="Odometer reading (km, or tick Miles)" Text="{Binding Odometer}" Width="180" />
             <CheckBox Content="Miles" IsChecked="{Binding Miles}" VerticalAlignment="Center" />
             <Button Content="Save buyer's report..." Command="{Binding SaveCommand}" />
           </StackPanel>
@@ -209,60 +209,6 @@
 
     <ScrollViewer>
       <StackPanel MaxWidth="980" HorizontalAlignment="Left">
-      <!-- Health over time: what changed across every scan of this car on this computer -->
-      <Border Classes="panel" Padding="18,14" Margin="0,0,0,22" IsVisible="{Binding ShowTrendsCard}">
-        <StackPanel Spacing="10">
-          <TextBlock Classes="section" Text="{Binding TrendsHeadline}" TextWrapping="Wrap" />
-          <TextBlock Classes="muted small" Text="{Binding TrendsNote}" TextWrapping="Wrap" />
-          <ItemsControl ItemsSource="{Binding Trends}" IsVisible="{Binding HasTrends}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:TrendItem">
-                <Grid ColumnDefinitions="22,*" Margin="0,4">
-                  <Grid>
-                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsAct}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsWatch}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsInfo}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                  </Grid>
-                  <StackPanel Grid.Column="1" Spacing="2">
-                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                    <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
-                  </StackPanel>
-                </Grid>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </StackPanel>
-      </Border>
-      <!-- The car's story: the cluster's warning history, explained -->
-      <Border Classes="panel" Padding="18,14" Margin="0,0,0,22" IsVisible="{Binding HasStory}">
-        <StackPanel Spacing="10">
-          <DockPanel>
-            <Button DockPanel.Dock="Right" Classes="quiet" Content="{Binding StoryToggleText}" Command="{Binding ToggleStoryCommand}" VerticalAlignment="Center" />
-            <TextBlock Classes="section" Text="{Binding StoryHeadline}" TextWrapping="Wrap" VerticalAlignment="Center" />
-          </DockPanel>
-          <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding StoryOpen}"
-                     Text="Every dash message your cluster has shown and still remembers, with the mileage, grouped into what happened. Newest first." />
-          <ItemsControl ItemsSource="{Binding Story}" IsVisible="{Binding StoryOpen}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:StoryItem">
-                <Grid ColumnDefinitions="170,22,*" Margin="0,4">
-                  <TextBlock Classes="mono small" Text="{Binding When}" TextWrapping="Wrap" Margin="0,2,8,0" />
-                  <Grid Grid.Column="1">
-                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsRed}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsBattery}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsOther}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
-                  </Grid>
-                  <StackPanel Grid.Column="2" Spacing="2">
-                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
-                    <TextBlock Classes="muted small" Text="{Binding Explanation}" TextWrapping="Wrap" />
-                    <TextBlock Classes="mono muted small" Text="{Binding Codes}" TextWrapping="Wrap" />
-                  </StackPanel>
-                </Grid>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </StackPanel>
-      </Border>
       <ItemsControl ItemsSource="{Binding Groups}" Margin="0,0,0,32">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:FaultGroupViewModel">
@@ -358,6 +304,61 @@
           </DataTemplate>
         </ItemsControl.ItemTemplate>
       </ItemsControl>
+      <!-- Below the faults: history and trends (the faults come first) -->
+      <!-- Health over time: what changed across every scan of this car on this computer -->
+      <Border Classes="panel" Padding="18,14" Margin="0,0,0,22" IsVisible="{Binding ShowTrendsCard}">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="section" Text="{Binding TrendsHeadline}" TextWrapping="Wrap" />
+          <TextBlock Classes="muted small" Text="{Binding TrendsNote}" TextWrapping="Wrap" />
+          <ItemsControl ItemsSource="{Binding Trends}" IsVisible="{Binding HasTrends}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:TrendItem">
+                <Grid ColumnDefinitions="22,*" Margin="0,4">
+                  <Grid>
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsAct}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsWatch}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsInfo}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                  </Grid>
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+      <!-- The car's story: the cluster's warning history, explained -->
+      <Border Classes="panel" Padding="18,14" Margin="0,0,0,22" IsVisible="{Binding HasStory}">
+        <StackPanel Spacing="10">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="quiet" Content="{Binding StoryToggleText}" Command="{Binding ToggleStoryCommand}" VerticalAlignment="Center" />
+            <TextBlock Classes="section" Text="{Binding StoryHeadline}" TextWrapping="Wrap" VerticalAlignment="Center" />
+          </DockPanel>
+          <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding StoryOpen}"
+                     Text="Every dash message your cluster has shown and still remembers, with the mileage, grouped into what happened. Newest first." />
+          <ItemsControl ItemsSource="{Binding Story}" IsVisible="{Binding StoryOpen}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:StoryItem">
+                <Grid ColumnDefinitions="170,22,*" Margin="0,4">
+                  <TextBlock Classes="mono small" Text="{Binding When}" TextWrapping="Wrap" Margin="0,2,8,0" />
+                  <Grid Grid.Column="1">
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsRed}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsBattery}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsOther}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                  </Grid>
+                  <StackPanel Grid.Column="2" Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Explanation}" TextWrapping="Wrap" />
+                    <TextBlock Classes="mono muted small" Text="{Binding Codes}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
       </StackPanel>
     </ScrollViewer>
   </DockPanel>

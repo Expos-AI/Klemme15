@@ -57,8 +57,8 @@ public sealed class ConditionRow : ViewModelBase
     {
         problem = null;
         if (_signal is null) { problem = "Pick a value for every condition."; return null; }
-        if (!double.TryParse(_threshold.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var t)) { problem = $"{_signal.Label}: the threshold isn't a number."; return null; }
-        if (!double.TryParse(_hold.Replace(',', '.'), NumberStyles.Float, CultureInfo.InvariantCulture, out var h) || h < 0) { problem = $"{_signal.Label}: hold for how many seconds?"; return null; }
+        if (!TriggerViewModel.TryNumber(_threshold, out var t)) { problem = $"{_signal.Label}: the threshold isn't a number."; return null; }
+        if (!TriggerViewModel.TryNumber(_hold, out var h) || h < 0) { problem = $"{_signal.Label}: hold for how many seconds?"; return null; }
         return new TriggerCondition { Parameter = _signal.Id, Operator = _op.Value, Threshold = t, HoldDuration = TimeSpan.FromSeconds(h) };
     }
 }
@@ -201,8 +201,17 @@ public sealed class TriggerViewModel : PageViewModel
         LoadCaptures();
         _session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.LastScan))
-                OnUi(() => { if (e.PropertyName == nameof(SessionState.Backend)) { _available = null; Signals.Clear(); SignalsText = ""; } Changed(); });
+            if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.LastScan) or nameof(SessionState.BusyWith))
+                OnUi(() =>
+                {
+                    if (e.PropertyName == nameof(SessionState.Backend))
+                    {
+                        // A different connection (or none): watching the old one would read a closed cable forever.
+                        if (_watching) Stop();
+                        _available = null; Signals.Clear(); SignalsText = "";
+                    }
+                    Changed();
+                });
         };
         Status = "Pick the rules to watch, then start. Klemme15 reads the car in the background and saves a snapshot when one holds.";
     }
@@ -236,10 +245,11 @@ public sealed class TriggerViewModel : PageViewModel
     public bool HasBanner => _banner.Length > 0;
     public bool HasCaptures => Captures.Count > 0;
 
-    public bool CanStart => _session.IsConnected && !_session.IsSnapshot && !_watching && _session.LastScan is not null && Rules.Any(r => r.IsArmed);
+    public bool CanStart => _session.IsConnected && !_session.IsSnapshot && !_watching && _session.BusyWith is null && _session.LastScan is not null && Rules.Any(r => r.IsArmed);
 
     public string StartHint => !_session.IsConnected ? "Connect to the car (or a demo car) in the Garage first."
         : _session.IsSnapshot ? "Watching needs a car: this is a snapshot."
+        : _session.BusyWith is { } busy ? $"Wait for {busy} to finish (or stop it): one cable can only carry one conversation with the car."
         : _session.LastScan is null ? "Run a quick test first: every capture includes it, so whoever opens it sees the car's modules and faults too."
         : !Rules.Any(r => r.IsArmed) ? "Tick at least one rule."
         : "Nothing to tap while driving: captures are saved by themselves. Stop when you park.";
@@ -328,8 +338,7 @@ public sealed class TriggerViewModel : PageViewModel
             if (row.ToCondition(out var problem) is { } c) conditions.Add(c);
             else { BuilderError = problem ?? "Check the conditions."; return; }
         }
-        if (!double.TryParse(_before, NumberStyles.Float, CultureInfo.InvariantCulture, out var before) ||
-            !double.TryParse(_after, NumberStyles.Float, CultureInfo.InvariantCulture, out var after))
+        if (!TryNumber(_before, out var before) || !TryNumber(_after, out var after))
         { BuilderError = "Seconds before and after must be numbers."; return; }
         var rule = new TriggerRule
         {
@@ -366,8 +375,32 @@ public sealed class TriggerViewModel : PageViewModel
 
     private static IEnumerable<TriggerRule> LoadCustom()
     {
-        try { return File.Exists(RulesFile) ? JsonSerializer.Deserialize<List<TriggerRule>>(File.ReadAllText(RulesFile), Json) ?? [] : []; }
-        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException) { return []; }
+        List<TriggerRule> rules;
+        try { rules = File.Exists(RulesFile) ? JsonSerializer.Deserialize<List<TriggerRule>>(File.ReadAllText(RulesFile), Json) ?? [] : []; }
+        catch (Exception e) when (e is IOException or JsonException or UnauthorizedAccessException or NotSupportedException) { return []; }
+        // A hand-edited file mustn't clash with a ready-made rule or another rule, or put odd characters in file names.
+        var taken = TriggerPresets.All.Select(r => r.Id).ToHashSet();
+        var safe = new List<TriggerRule>();
+        foreach (var r in rules.Where(r => r is { Conditions.Count: > 0 }))
+        {
+            var id = r.Id is { } given && System.Text.RegularExpressions.Regex.IsMatch(given, "^custom-[a-z0-9]{1,16}$") && taken.Add(given)
+                ? given : "custom-" + Guid.NewGuid().ToString("N")[..8];
+            taken.Add(id);
+            safe.Add(r with { Id = id });
+        }
+        return safe;
+    }
+
+    /// <summary>
+    /// Reads a number as people type it: "1500", "1,500" (thousands), "11.5" or "11,5" (decimal comma). A comma
+    /// followed by exactly three digits is a thousands separator, so "1,500 rpm" never becomes 1.5.
+    /// </summary>
+    public static bool TryNumber(string? text, out double value)
+    {
+        var s = (text ?? "").Trim();
+        if (System.Text.RegularExpressions.Regex.IsMatch(s, @"^-?\d{1,3}(,\d{3})+(\.\d+)?$")) s = s.Replace(",", "");
+        else s = s.Replace(',', '.');
+        return double.TryParse(s, NumberStyles.Float, CultureInfo.InvariantCulture, out value) && double.IsFinite(value);
     }
 
     private void SaveCustom()
@@ -385,9 +418,10 @@ public sealed class TriggerViewModel : PageViewModel
     private async Task StartAsync()
     {
         if (Source() is not { } source || _session.LastScan is null) return;
-        var rules = Rules.Where(r => r.IsArmed).Select(r => r.Rule).ToList();
+        var rules = Rules.Where(r => r.IsArmed).Select(r => r.Rule).DistinctBy(r => r.Id).ToList();
         var baseSnapshot = _session.BuildSnapshot(null, includeLive: false, includeTests: false, includeCoding: false, includeLog: false, _version);
-        var ids = TriggerMonitor.SignalsFor(rules).Where(id => _available is null || _available.Contains(id)).ToList();
+        // Worked-out values (the roughest cylinder) come from others the car reports, so they're never filtered out.
+        var ids = TriggerMonitor.SignalsFor(rules).Where(id => _available is null || _available.Contains(id) || DerivedSignals.Ids.Contains(id)).ToList();
         var monitor = new TriggerMonitor(rules, (capture, ct) => SaveCaptureAsync(capture, baseSnapshot));
         monitor.Fired += ev => OnUi(() => Banner = $"Caught {ev.At.LocalDateTime:HH:mm:ss}: {ev.Title}. Recording {rules.First(r => r.Id == ev.RuleId).After.TotalSeconds:0} s more...");
         monitor.Captured += c => OnUi(() => { LoadCaptures(); Banner = $"Saved {c.Event.At.LocalDateTime:HH:mm:ss}: {c.Event.Title}. Open it below."; });
@@ -400,14 +434,26 @@ public sealed class TriggerViewModel : PageViewModel
         _session.IsWatching = true;
         Banner = "";
         _session.Log.Note($"Ghost Hunter started: {string.Join("; ", rules.Select(r => r.Title))}");
+        Task? poller = null;
         try
         {
-            var poller = TriggerPoller.RunAsync(source, ids, monitor.Input, _cts.Token, onError: e => _session.Log.Note($"Ghost Hunter read skipped: {e.Message}"));
+            poller = TriggerPoller.RunAsync(source, ids, monitor.Input, _cts.Token,
+                onError: e => _session.Log.Note($"Ghost Hunter read skipped: {e.Message}"),
+                onStall: stalled => OnUi(() =>
+                {
+                    Banner = stalled
+                        ? $"The car stopped answering at {DateTime.Now:HH:mm}. Check the cable is still plugged in and the ignition is on: watching carries on when it answers again."
+                        : "The car is answering again. Still watching.";
+                    _session.Log.Note(stalled ? "Ghost Hunter: no values from the car" : "Ghost Hunter: values again");
+                }));
             await Task.Run(() => monitor.RunAsync(_cts.Token));
             await poller;
         }
         finally
         {
+            // Never leave the poller reading the car after the monitor has stopped, however it stopped.
+            _cts.Cancel();
+            if (poller is not null) try { await poller; } catch (Exception) { }
             _cts.Dispose();
             _cts = null;
             IsWatching = false;
@@ -417,6 +463,9 @@ public sealed class TriggerViewModel : PageViewModel
     }
 
     private void Stop() => _cts?.Cancel();
+
+    /// <summary>Stops watching (when the app closes); a capture in progress is saved as it stands.</summary>
+    public void StopWatching() => Stop();
 
     private static async Task SaveCaptureAsync(TriggerCapture capture, CarSnapshot baseSnapshot)
     {

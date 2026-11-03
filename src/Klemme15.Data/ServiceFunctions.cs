@@ -189,7 +189,7 @@ public static class ServiceRunner
         if (canRunJobs && impl.Job is not null) return new(true, $"Runs BMW's own procedure for {variant.ToUpperInvariant()} from your BMW files.", impl, ServiceMode.Ediabas, v);
         if (canSendRaw && impl.NativeSequence.Count > 0) return new(true, "Runs without BMW files (Klemme15 sends the documented request itself).", impl, ServiceMode.Native, v);
         return new(false, impl.Job is not null
-            ? "Needs your BMW files: connect with \"Use my own BMW files\" ticked."
+            ? "Needs your BMW files: connect with \"Use my own BMW files (EDIABAS mode)\" ticked (Windows)."
             : "Not available with this connection.");
     }
 
@@ -342,7 +342,6 @@ public static class ServiceRunner
                     progress?.Report(step.Say ?? $"Running {step.Job}...");
                     await Task.Delay(TimeSpan.FromSeconds(Math.Clamp(step.Wait, 0.5, 2)), ct);
                 }
-                details.Add("Demo car: nothing was sent to a real car.");
             }
             else if (plan.Mode == ServiceMode.Ediabas)
             {
@@ -414,7 +413,7 @@ public static class ServiceRunner
                 }
             }
             log?.Note($"  -> done: {string.Join("; ", details)}");
-            return new(true, plan.Mode == ServiceMode.Demo ? "Done (demo car)." : "Done. The module confirmed every step.", details);
+            return new(true, plan.Mode == ServiceMode.Demo ? "Done." : "Done. The module confirmed every step.", details);
         }
         catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException)
         {

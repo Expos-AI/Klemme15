@@ -52,10 +52,10 @@ The file format knowledge comes from the open-source [BimmerDaten](https://githu
 
 ## 3. Comfort options, and why writing needs verification
 
-How NCS's addresses map onto a module's coding blocks has not been confirmed on real cars yet. So Klemme15 never guesses where a setting lives. It writes to a module only after proving its map against NCS Expert's own reading of that same module:
+How NCS's addresses map onto a module's coding blocks has not been confirmed on real cars yet. So Klemme15 never guesses where a setting lives. It writes to a module only when it knows the map for that exact module: proven against NCS Expert's own reading of the same module (below), learned by watching another coding tool change one option, or shared by an owner of the identical module ([quick codes](QUICK-CODES.md)). Proving it against NCS Expert works like this:
 
 1. Read the module once with NCS Expert. NCS Expert saves the result as `FSW_PSW.TRC` in its WORK folder.
-2. On the Coding page, press **Verify with NCS Expert's FSW_PSW.TRC** and pick that file. On the CLI, pass `--trc`.
+2. On the Coding page, press **Verify with NCS Expert's latest reading** (Klemme15 finds the file by itself), or **Verify with NCS Expert's trace file...** to pick it. On the CLI, pass `--trc`.
 3. Klemme15 reads the module itself and decodes it with each possible layout. Verification passes only if one layout reproduces **every** setting in the trace exactly. At least 20 settings must be compared, and at least 8 of them must have non-zero bits, because all-zero bytes can match "off" values by chance. If two layouts both match, Klemme15 writes only when they agree on every byte.
 
 The writer re-runs this check itself from the trace and the reading taken at verification time. It also refuses:
@@ -115,4 +115,4 @@ Every coding write needs at least **12.5 V**. A footwell module that is an **FRM
 
 ## Help verify more modules
 
-If verification passes on your car, please report the module file name, the coding index and the part number (no VIN) in an issue. A shared list of verified combinations is planned, so owners without NCS Expert can code those modules too.
+If verification passes on your car, press **Share this map** on the Coding page. It opens a pre-filled issue with the module's part number, coding index and option positions (no VIN), so owners of the identical module can code it without NCS Expert ([quick codes](QUICK-CODES.md)).

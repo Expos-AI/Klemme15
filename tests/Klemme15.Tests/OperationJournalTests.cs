@@ -60,14 +60,16 @@ public class OperationJournalTests
     {
         var service = OperationJournal.Advice(Op(OperationKind.ServiceFunction));
         Assert.Contains("run a quick test", service);
-        Assert.Contains("again from the start", service);
+        Assert.Contains("start 'Valvetronic learning' again", service);
         Assert.Contains("ignition off", service);
+        Assert.StartsWith("'Valvetronic learning' was interrupted", OperationJournal.Headline(Op(OperationKind.ServiceFunction)));
 
         Assert.Contains("switch-off for the part", OperationJournal.Advice(Op(OperationKind.PartTest, "pump")));
 
         var coding = OperationJournal.Advice(Op(OperationKind.CodingWrite));
         Assert.Contains("restore the backup", coding);
         Assert.Contains("partly written", coding);
+        Assert.All(new[] { service, coding }, a => Assert.True(a.Split(' ').Length < 45, "the banner stays short"));
     }
 
     [Fact]

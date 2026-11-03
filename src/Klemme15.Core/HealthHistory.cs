@@ -69,9 +69,10 @@ public sealed record HealthSnapshot
         static string Short(string id) => id.Contains('.') ? id[(id.LastIndexOf('.') + 1)..] : id;
         var answered = scan.Ecus.Where(e => e.Identity is not null).ToList();
         // The engine computer and the cluster first: the two modules least often swapped.
-        var core = answered.Where(e => e.Ecu.IsEngine || Short(e.Ecu.Id) is "IKE" or "KOMBI")
-            .Select(e => $"{Short(e.Ecu.Id)}={e.Identity!.Raw.GetValueOrDefault("hex") ?? e.Identity.PartNumber}")
-            .Where(s => !s.EndsWith('=')).Order(StringComparer.Ordinal).ToList();
+        // Part numbers, not the raw replies: they read the same with or without BMW files, so the key doesn't change
+        // when you switch connection mode.
+        var core = answered.Where(e => (e.Ecu.IsEngine || Short(e.Ecu.Id) is "IKE" or "KOMBI") && e.Identity!.PartNumber is { Length: > 0 })
+            .Select(e => $"{Short(e.Ecu.Id)}={e.Identity!.PartNumber}").Order(StringComparer.Ordinal).ToList();
         if (core.Count < 2)
             core = answered.Where(e => e.Identity!.PartNumber is { Length: > 0 })
                 .Select(e => $"{Short(e.Ecu.Id)}={e.Identity!.PartNumber}").Order(StringComparer.Ordinal).ToList();

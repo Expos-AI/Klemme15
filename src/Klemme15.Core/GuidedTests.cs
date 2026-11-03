@@ -207,7 +207,7 @@ public static partial class GuidedTests
             "Warm engine, idling, in P or neutral, all consumers (air conditioning, lights) off.",
             "20 seconds"),
         new("no-start", "Why won't it start? (read-only check)",
-            "For a car that cranks but won't fire, or won't crank. Klemme15 checks the things it can see over the cable — battery voltage, whether the engine is actually turning, and the faults the modules logged during the failed start — and tells you what to check next. It never touches the immobiliser or keys.",
+            "For a car that cranks but won't fire, or won't crank. Klemme15 checks what it can see over the cable (battery voltage, whether the engine is actually turning, and the faults the modules logged during the failed start) and tells you what to check next. It never touches the immobiliser or keys.",
             "Ignition on. To check cranking too, turn the key to start (or press start with the brake) while this runs.",
             "20 seconds"),
         new("cooling-bleed", "Cooling system bleed assistant (electric water pump)",
@@ -220,7 +220,7 @@ public static partial class GuidedTests
             "40 seconds"),
         new("water-pump-sweep", "Water pump sweep (drives the pump)",
             "Klemme15 asks the engine computer to run the electric water pump at 30, 60 and 90 % and graphs what the pump actually does at each step. A healthy pump speeds up step by step. Experimental: drives the pump through BMW's own test job and needs your BMW files.",
-            "Engine OFF, ignition ON, cooling system FULL (never run the pump dry), battery charger connected if you can.",
+            "Engine off, ignition on, cooling system full (never run the pump dry), battery charger connected if you can.",
             "30 seconds", DrivesParts: true),
     ];
 

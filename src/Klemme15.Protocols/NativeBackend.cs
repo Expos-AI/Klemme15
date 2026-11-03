@@ -55,7 +55,19 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
 
     /// <summary>OBD values a module didn't answer, counted; after <see cref="SilentLimit"/> misses they aren't asked again.</summary>
     private readonly Dictionary<(byte Address, byte Pid), int> _silentPids = [];
+    private readonly Dictionary<(byte Address, byte Pid), DateTime> _silentSince = [];
     private const int SilentLimit = 2;
+
+    /// <summary>A silenced value is tried again after this long, so a glitch on a long drive doesn't drop it for good.</summary>
+    private static readonly TimeSpan SilentRetry = TimeSpan.FromSeconds(30);
+
+    private bool Silenced((byte Address, byte Pid) key)
+    {
+        if (_silentPids.GetValueOrDefault(key) < SilentLimit) return false;
+        if (DateTime.UtcNow - _silentSince.GetValueOrDefault(key) < SilentRetry) return true;
+        _silentPids[key] = SilentLimit - 1;   // one more try; a miss silences it again for another 30 s
+        return false;
+    }
 
     /// <summary>The PIDs each engine computer says it supports (PIDs 00, 20, 40), or null when it didn't say.</summary>
     private readonly Dictionary<byte, HashSet<byte>?> _supportedPids = [];
@@ -302,12 +314,13 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
                 if (!Obd2.TryGetPid(p, out var pid)) { }
                 else if (supported is not null && !supported.Contains(pid.Id))
                     note = "not reported by this engine computer";
-                else if (_silentPids.GetValueOrDefault((ecu.Address, pid.Id)) < SilentLimit)
+                else if (!Silenced((ecu.Address, pid.Id)))
                 {
                     value = ObdRequest(ecu, [0x01, pid.Id], ct).Select(r => Obd2.DecodeResponse(r, pid)).FirstOrDefault(v => v is not null);
                     // A value the engine computer never answers (PID 0x42 on an MSV70) would cost a timeout on every update.
                     var key = (ecu.Address, pid.Id);
                     _silentPids[key] = value is null ? _silentPids.GetValueOrDefault(key) + 1 : 0;
+                    if (_silentPids[key] == SilentLimit) _silentSince[key] = DateTime.UtcNow;
                 }
                 values.Add(new LiveValue(p, value, value is null ? note ?? "no data" : null, DateTimeOffset.Now));
             }

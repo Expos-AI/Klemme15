@@ -59,7 +59,7 @@ public static class PurchaseCheck
             var highest = records.MaxBy(r => r.Km);
             if (odometerKm is { } odo && highest.Km > odo + MileageTolerance)
                 items.Add(new(CheckLevel.Warn, "Mileage doesn't add up",
-                    $"{highest.Where} was recorded at {highest.Km:N0} km, but the odometer shows {odo:N0} km. A record can't come from the future: the odometer has very likely been wound back, or the cluster replaced. Ask for the service history and walk away if it doesn't explain this."));
+                    $"{highest.Where} was recorded at {highest.Km:N0} km, but the odometer shows {odo:N0} km. Either the odometer was wound back, or a module (often the cluster or the engine computer) came from a higher-mileage car. Ask for the service history and for any module replacements; if neither explains it, walk away."));
             else
                 items.Add(new(CheckLevel.Good, "Mileage records are consistent",
                     $"The highest mileage the car remembers is {highest.Km:N0} km ({highest.Where})." +

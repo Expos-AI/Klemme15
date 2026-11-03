@@ -98,7 +98,7 @@ public static partial class GuidedTests
     {
         if (actuator is null)
             return TestReport.Stop("This test needs your BMW files",
-                "It drives the pump through the engine computer's own test job, which Klemme15 runs only from your BMW files: connect with \"Use my own BMW files\" ticked. The read-only water pump health test works with any connection.");
+                "It drives the pump through the engine computer's own test job, which Klemme15 runs only from your BMW files: connect with \"Use my own BMW files (EDIABAS mode)\" ticked (Windows). The read-only water pump health test works with any connection.");
         string[] wanted = ["rpm", "pump_speed", "coolant", "voltage"];
         progress?.Report(new("Checking the car...", "", 0));
         var first = await signals.ReadAsync(wanted, ct);

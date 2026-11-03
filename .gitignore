@@ -8,3 +8,7 @@ TestResults/
 publish/
 *.DotSettings.user
 external/
+
+# Editors and systems
+.DS_Store
+node_modules/

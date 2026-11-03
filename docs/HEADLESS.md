@@ -6,19 +6,26 @@
 klemme15 serve --port /dev/ttyUSB0 --vehicle E9x --model 335i
 ```
 
+## Before you leave it plugged in
+
+- **The dashboard has no password.** Anyone on the same network can open it: use it only on a network you trust.
+- **Reading keeps the car awake.** While `serve` polls, the car's modules stay awake and draw current. Stop it (or unplug) when the car is parked, or the battery will run flat.
+- **MQTT passwords**: put them in an environment file for the service, not on its command line, where other users of the computer can see them.
+- The phone dashboard needs iOS 14.5 or newer, or any current Android browser.
+
 ## HTTP
 
 A small web server runs on port 8080 (change it with `--http`):
 
-- `http://<pi>:8080/` — the **phone dashboard**: big gauges (engine speed, coolant, speed, battery), a tile with a sparkline for every value, warnings when the engine runs hot, the alternator isn't charging or the fuel trims drift, and a Faults tab that reads the engine's fault memory sorted by priority. It has °C/°F and km/h/mph settings and a dark or light theme, and "Add to Home Screen" makes it a full-screen app. It only reads.
-- `http://<pi>:8080/classic` — the original one-table page, for very old browsers.
-- `http://<pi>:8080/info` — the car name, poll interval and the list of values being published.
-- `http://<pi>:8080/live.json` — the latest values as JSON (CORS open, so a web app can fetch it):
+- `http://<pi>:8080/`: the **phone dashboard**: big gauges (engine speed, coolant, speed, battery), a tile with a sparkline for every value, warnings when the engine runs hot, the alternator isn't charging or the fuel trims drift, and a Faults tab that reads the engine's fault memory sorted by priority. It has °C/°F and km/h/mph settings and a dark or light theme, and "Add to Home Screen" makes it a full-screen app. It only reads.
+- `http://<pi>:8080/classic`: the original one-table page, for very old browsers.
+- `http://<pi>:8080/info`: the car name, poll interval and the list of values being published.
+- `http://<pi>:8080/live.json`: the latest values as JSON (CORS open, so a web app can fetch it):
   ```json
   { "time": "...", "values": { "rpm": { "value": 820, "unit": "rpm", "name": "Engine speed" }, ... } }
   ```
-- `http://<pi>:8080/faults` — the current faults with their triage priority.
-- `http://<pi>:8080/health` — read count, error count and the last error, for monitoring.
+- `http://<pi>:8080/faults`: the current faults with their triage priority.
+- `http://<pi>:8080/health`: read count, error count and the last error, for monitoring.
 
 Choose the values with `--pids` (default: rpm, speed, coolant, iat, load, throttle, fuel trims, MAF, voltage) and the poll rate with `--interval` (seconds).
 

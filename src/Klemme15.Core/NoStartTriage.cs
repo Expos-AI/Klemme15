@@ -75,7 +75,7 @@ public static class NoStartTriage
         {
             if (crankBlock is not null) findings.Add(crankBlock);
             else findings.Add(new(TestSeverity.Watch, "No cranking was seen, and no module blamed it",
-                "Either you didn't crank during the test, or the engine isn't turning and no module logged why. Check the battery (above), the starter and its wiring, and — on automatics — that it's in P or N. If it cranks elsewhere, run this again while cranking."));
+                "Either you didn't crank during the test, or the engine isn't turning and no module logged why. Check the battery (above), the starter and its wiring, and on automatics that it's in P or N. If it cranks elsewhere, run this again while cranking."));
         }
         else if (cranked == true)
         {
@@ -124,9 +124,9 @@ public static class NoStartTriage
     private static string Detail(NoStartCause c) => c switch
     {
         NoStartCause.ElectricSteeringLock =>
-            "On early cars with a key slot the steering lock can fail to release and block starting. Charge the battery first (a weak battery is the usual trigger), then Service > Steering lock: clear the fault counters. If it keeps coming back the lock itself is failing and needs replacing — a job for a workshop.",
+            "On early cars with a key slot the steering lock can fail to release and block starting. Charge the battery first: a weak battery is the usual trigger. If it keeps happening, the lock itself is wearing out and needs replacing by a workshop (its counters live in the key module, which Klemme15 never writes).",
         NoStartCause.Immobiliser =>
-            "The key module isn't releasing the engine to start. Klemme15 does not touch keys or the immobiliser. Rule out the simple causes first — a flat or failing battery, and whether the key is detected at all — then take it to a dealer or an auto locksmith: re-syncing or key work there is deliberately outside this tool.",
+            "The key module isn't releasing the engine to start. Klemme15 does not touch keys or the immobiliser. Rule out the simple causes first (a flat or failing battery, and whether the key is detected at all), then take it to a dealer or an auto locksmith: key and immobiliser work is outside this tool on purpose.",
         NoStartCause.Starter =>
             "The starter circuit is implicated. Check the battery and its grounds, the starter and its wiring, and the start relay. On automatics, confirm it's in P or N and the selector is seen.",
         NoStartCause.Sensor =>

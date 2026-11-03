@@ -5,8 +5,8 @@ The database lives in `src/Klemme15.Data/db/` as plain JSON. You can also drop f
 ## Ground rules
 
 1. **Write everything in your own words.** Never copy text from BMW software, SGBD files, ISTA, TIS/WDS or repair manuals.
-2. **Confirm on a real car.** Mention the car (chassis, engine, year) in your pull request.
-3. **Include evidence.** Attach the saved traffic log or report from the session where you confirmed it.
+2. **Confirm on a real car where you can**, and say which car (chassis, engine, year). Researched meanings need sources instead (below).
+3. **Include evidence.** A snapshot with the traffic log from the session where you confirmed it, or the sources you used.
 
 ## Verifying a module (`modules.json`)
 

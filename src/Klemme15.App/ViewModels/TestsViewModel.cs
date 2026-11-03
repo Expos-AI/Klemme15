@@ -53,6 +53,11 @@ public sealed class GuidedTestViewModel(GuidedTestInfo info, DiagnosticChain? ch
     public RelayCommand? SelectCommand { get; set; }
 }
 
+internal sealed class CompositeHold(IDisposable a, IDisposable b) : IDisposable
+{
+    public void Dispose() { a.Dispose(); b.Dispose(); }
+}
+
 /// <summary>One answer button while a chain asks a question.</summary>
 public sealed class ChainChoiceViewModel(ChainChoice choice, Action<string> pick)
 {
@@ -107,7 +112,8 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             vm.SelectCommand = new RelayCommand(() => Select(vm));
             Chains.Add(vm);
         }
-        StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && Engine is not null);
+        StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && Engine is not null
+            && !(_selected.NeedsEdiabas), e => Instruction = $"Couldn't finish: {e.Message}");
         StopCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
         {
@@ -287,9 +293,18 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         Raise(nameof(HasValues));
     }
 
+    /// <summary>Whether experimental functions are switched on (the switch on the Service page; set by the main window).</summary>
+    public Func<bool> ExperimentalOn { get; set; } = () => false;
+
     private async Task RunAsync()
     {
         if (_selected is not { } test || _session.Backend is not { } backend || Engine is not { } engine) return;
+        // Driving a part follows the same rule as service functions: experimental until confirmed on a real car.
+        if (test.Info.DrivesParts && !_session.IsDemo && !ExperimentalOn())
+        {
+            Instruction = "This test switches a part on, which is still experimental. Turn on experimental functions on the Service page first.";
+            return;
+        }
         var demoSignals = _session.IsDemo && _session.Measurements is { } demo ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine) : null;
         ISignalSource signals = demoSignals is not null ? demoSignals : new EngineSignals(backend, engine, _session.Measurements);
         IActuator? actuator = !test.Info.DrivesParts ? null
@@ -314,7 +329,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
                 Kind = OperationKind.PartTest, Title = test.Title, ModuleId = engine.Id, ModuleName = engine.Name,
                 Car = $"{_session.Vehicle?.Id} {_session.Model?.Name}".Trim(), Started = DateTimeOffset.Now, StopAction = "pump",
             })
-            : Klemme15.App.Services.SleepGuard.Hold(test.Title);
+            : new CompositeHold(Klemme15.App.Services.SleepGuard.Hold(test.Title), _session.ClaimBus(test.Title));
         try
         {
             var progress = new Progress<TestProgress>(p => { Instruction = p.Instruction; Status = p.Status; Fraction = p.Fraction * 100; ShowTraces(p.Traces); });

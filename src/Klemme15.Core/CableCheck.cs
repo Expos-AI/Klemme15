@@ -62,7 +62,7 @@ public static class CableCheck
         var isFtdi = string.Equals(f.VendorId, Ftdi, StringComparison.OrdinalIgnoreCase);
         if (isFtdi && f.ProductId == "0000")
             list.Add(new(CheckLevel.Warn, "This chip looks like a counterfeit FTDI that FTDI's driver disabled",
-                "Its USB product ID reads 0000: an FTDI driver released in 2014 reprogrammed counterfeit chips this way. It's a cloned chip and won't connect reliably. A cable with a genuine FTDI chip is the fix."));
+                "Its USB product ID reads 0000, which is what an FTDI driver released in 2014 did to counterfeit chips. This cable will very likely not connect reliably: a cable with a genuine FTDI chip is the fix."));
         // Windows adds the interface letter to the serial ("A50285BIA"), hence StartsWith.
         else if (isFtdi && f.Serial?.StartsWith(ClonedSerial, StringComparison.OrdinalIgnoreCase) == true)
             list.Add(new(CheckLevel.Ask, "This is probably a cloned FTDI chip",

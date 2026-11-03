@@ -20,5 +20,5 @@ Third-party components keep their own copyright and licenses, listed in the READ
 - EdiabasLib, Copyright (C) Ulrich Holeschak, GPL-3.0 (fetched at build time for EDIABAS mode; not stored here).
 - Standard OBD-II code titles from python-OBD, GPL-2.0-or-later.
 
-BMW, ISTA, INPA and EDIABAS are trademarks of BMW AG. Klemme15 is an independent project, not affiliated with or
+BMW, ISTA, INPA, NCS Expert, EDIABAS, TIS and WDS are trademarks of BMW AG. Other product names belong to their owners. Klemme15 is an independent project, not affiliated with or
 endorsed by BMW AG.

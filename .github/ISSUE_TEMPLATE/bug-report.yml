@@ -1,0 +1,33 @@
+name: Bug report
+description: Something in Klemme15 doesn't work as it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting it. A snapshot of your car (Faults page → **Share snapshot**, with the traffic log ticked, put in a `.zip`) usually shows exactly what happened. The VIN is removed.
+        Connection problems? Check the [cable guide](https://github.com/Expos-AI/Klemme15/blob/main/docs/CABLE.md) first.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead. Screenshots welcome.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Klemme15 version and computer
+      description: The version is at the bottom of the left rail. For example "0.99.0, Windows 11".
+    validations:
+      required: true
+  - type: input
+    id: car
+    attributes:
+      label: Car and cable
+      description: For example "E90 325i 2006, AntiBreak K+DCAN", or "demo car".
+  - type: textarea
+    id: files
+    attributes:
+      label: Snapshot or traffic log
+      description: Drag a .zip with the .k15 snapshot or the traffic log here.

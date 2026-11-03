@@ -46,6 +46,10 @@ public sealed class MainViewModel : ViewModelBase
         Faults.Purchase = new PurchaseCheckViewModel(Session, dialogs);
         Faults.Drain = new DrainFinderViewModel(Session);
         Faults.Share = new SnapshotShareViewModel(Session, dialogs, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "");
+        // One panel open at a time above the faults list.
+        Faults.Share.PropertyChanged += (_, e) => { if (e.PropertyName == "IsOpen" && Faults.Share.IsOpen) { Faults.Purchase!.IsOpen = false; Faults.Drain!.IsOpen = false; } };
+        Faults.Purchase!.PropertyChanged += (_, e) => { if (e.PropertyName == "IsOpen" && Faults.Purchase.IsOpen) { Faults.Share.IsOpen = false; Faults.Drain!.IsOpen = false; } };
+        Faults.Drain!.PropertyChanged += (_, e) => { if (e.PropertyName == "IsOpen" && Faults.Drain.IsOpen) { Faults.Share.IsOpen = false; Faults.Purchase.IsOpen = false; } };
         Faults.GuideActions = new GuideActions(
             (ecuId, filter) => { CurrentPage = Readings; Readings.ShowModule(ecuId, filter); },
             () => CurrentPage = Live!,
@@ -67,7 +71,7 @@ public sealed class MainViewModel : ViewModelBase
             Analyse.Load(Klemme15.Core.DataLog.Parse(csv), "this recording");
             CurrentPage = Analyse;
         };
-        Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url));
+        Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url)) { ExperimentalOn = () => settings.ExperimentalService };
         Expert = new ExpertViewModel(Session, settings);
         Ghost = new TriggerViewModel(Session, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "")
         {
@@ -92,7 +96,7 @@ public sealed class MainViewModel : ViewModelBase
         Session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.Interrupted))
-                OnUi(() => { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); });
+                OnUi(() => { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); Raise(nameof(InterruptedHeadline)); });
             if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection) or nameof(SessionState.Voltage) or nameof(SessionState.Snapshot))
                 foreach (var p in new[] { nameof(CarTitle), nameof(CarSubtitle), nameof(Connection), nameof(IsConnected), nameof(HasCar), nameof(IsSnapshot), nameof(SnapshotBanner), nameof(SnapshotNote), nameof(HasSnapshotNote) })
                     Raise(p);
@@ -137,6 +141,7 @@ public sealed class MainViewModel : ViewModelBase
     public bool IsSnapshot => Session.IsSnapshot;
     public bool HasInterrupted => Session.HasInterrupted;
     public string InterruptedAdvice => Session.InterruptedAdvice;
+    public string InterruptedHeadline => Session.InterruptedHeadline;
     public RelayCommand DismissInterruptedCommand { get; }
     public string SnapshotBanner => Session.SnapshotBanner;
     public string SnapshotNote => Session.Snapshot?.Manifest.Note is { Length: > 0 } n ? $"The owner says: \u201c{n}\u201d" : "";
@@ -171,6 +176,7 @@ public sealed class MainViewModel : ViewModelBase
 
     public void Shutdown()
     {
+        Ghost.StopWatching();
         Live.Stop();
         Readings.OnHidden();
         Tests.OnHidden();

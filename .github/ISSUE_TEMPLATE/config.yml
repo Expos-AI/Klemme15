@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a security problem privately
+    url: https://github.com/Expos-AI/Klemme15/security/advisories/new
+    about: Please don't open a public issue for a security problem.
+  - name: Cable and connection help
+    url: https://github.com/Expos-AI/Klemme15/blob/main/docs/CABLE.md
+    about: Most connection problems are the cable or its settings. Start here.

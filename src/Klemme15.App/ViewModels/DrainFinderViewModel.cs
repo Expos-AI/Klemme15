@@ -52,7 +52,7 @@ public sealed class DrainFinderViewModel : ViewModelBase
     }
 
     public bool IsOpen { get => _open; set { if (Set(ref _open, value)) { Raise(nameof(ToggleText)); if (value) Refresh(); } } }
-    public string ToggleText => _open ? "Close drain finder" : "Battery going flat?";
+    public string ToggleText => _open ? "Close" : "Battery going flat?";
     public RelayCommand ToggleCommand { get; }
 
     public ObservableCollection<DrainClueViewModel> Clues { get; } = [];

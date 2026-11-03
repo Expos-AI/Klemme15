@@ -56,7 +56,7 @@ public static class BackendFactory
         if (!string.IsNullOrWhiteSpace(settings.EdiabasPath) && !settings.Demo)
         {
             if (NetworkTransport.IsNetworkAddress(settings.Port))
-                throw new DiagnosticException("EDIABAS mode needs a USB cable for now. Untick 'Use my own BMW files' to use a Wi-Fi adapter.");
+                throw new DiagnosticException("EDIABAS mode needs a USB cable for now. Untick 'Use my own BMW files (EDIABAS mode)' to use a Wi-Fi cable.");
 #if EDIABAS
             var engine = vehicle.Modules.FirstOrDefault(m => m.IsEngine);
             return new EdiabasBackend(new EdiabasOptions

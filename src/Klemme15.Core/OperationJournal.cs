@@ -73,19 +73,18 @@ public sealed class OperationJournal(string path)
         catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException) { return null; }
     }
 
-    /// <summary>What happened and what to do now, in plain words.</summary>
-    public static string Advice(RunningOperation op)
+    /// <summary>The banner's title: what was interrupted.</summary>
+    public static string Headline(RunningOperation op) =>
+        $"'{op.Title}' was interrupted ({op.Started.ToLocalTime().ToString("d MMM HH:mm", CultureInfo.CurrentCulture)})";
+
+    /// <summary>What it means and what to do next, in two or three short sentences.</summary>
+    public static string Advice(RunningOperation op) => op.Kind switch
     {
-        var when = op.Started.ToLocalTime().ToString("d MMM HH:mm", CultureInfo.CurrentCulture);
-        var head = $"'{op.Title}' on the {op.ModuleName} was cut off ({when}): the cable, the computer or Klemme15 stopped before it finished.";
-        var sleep = "Modules drop the diagnostic session by themselves within seconds once the tool goes quiet, so nothing stays stuck in it.";
-        var off = "If you're done for now, switch the ignition off so the car can go to sleep and doesn't drain the battery.";
-        return op.Kind switch
-        {
-            OperationKind.PartTest => $"{head} {sleep} When you reconnect, Klemme15 sends the switch-off for the part again to be sure. Then run the test again from the start if you need its result. {off}",
-            OperationKind.CodingWrite => $"{head} The module's coding may be only partly written. Reconnect, open the Coding page and restore the backup Klemme15 took just before the write" +
-                (op.BackupTaken is { } b ? $" ({b.ToLocalTime().ToString("d MMM HH:mm", CultureInfo.CurrentCulture)})" : "") + $", then check the module with a quick test. Keep the battery on a charger while you do. {off}",
-            _ => $"{head} {sleep} Most routines either finish on their own (a cooling bleed keeps running its cycle) or stop with the session; an interrupted adaptation or learning run simply doesn't complete. Reconnect, run a quick test to check the {op.ModuleName} for new faults, then run '{op.Title}' again from the start. {off}",
-        };
-    }
+        OperationKind.PartTest =>
+            $"Nothing is stuck: the {op.ModuleName} ends the session by itself. When you reconnect, Klemme15 sends the switch-off for the part again. Then run the test again if you need its result.",
+        OperationKind.CodingWrite =>
+            $"The {op.ModuleName}'s coding may be only partly written. Reconnect, put the battery on a charger and restore the backup taken just before" +
+            (op.BackupTaken is { } b ? $" ({b.ToLocalTime().ToString("HH:mm", CultureInfo.CurrentCulture)})" : "") + " on the Coding page.",
+        _ => $"Nothing is stuck: the {op.ModuleName} ends the session by itself, and an interrupted procedure simply doesn't complete. Reconnect, run a quick test, then start '{op.Title}' again. Done for now? Switch the ignition off so the battery doesn't drain.",
+    };
 }

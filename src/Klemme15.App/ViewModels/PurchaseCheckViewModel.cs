@@ -45,7 +45,7 @@ public sealed class PurchaseCheckViewModel : ViewModelBase
     }
 
     public bool IsOpen { get => _open; set { if (Set(ref _open, value)) { Raise(nameof(ToggleText)); if (value) Refresh(); } } }
-    public string ToggleText => _open ? "Close check" : "Buying this car?";
+    public string ToggleText => _open ? "Close" : "Buying this car?";
     public string Odometer { get => _odometer; set { if (Set(ref _odometer, value)) Refresh(); } }
     public bool Miles { get => _miles; set { if (Set(ref _miles, value)) Refresh(); } }
     public string Headline { get => _headline; private set => Set(ref _headline, value); }

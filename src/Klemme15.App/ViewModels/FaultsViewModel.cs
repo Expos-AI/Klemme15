@@ -41,7 +41,8 @@ public sealed class FaultGroupViewModel : ViewModelBase
         _openUrl = openUrl;
         Ecu = ecu;
         Fill(faults);
-        AskClearCommand = new RelayCommand(() => Confirming = true);
+        // A snapshot is read-only: nothing can be cleared on someone else's car.
+        AskClearCommand = new RelayCommand(() => Confirming = true, () => !_session.IsSnapshot);
         CancelClearCommand = new RelayCommand(() => Confirming = false);
         ClearCommand = new AsyncCommand(ClearAsync, null, e => Message = e.Message);
     }
@@ -154,7 +155,7 @@ public sealed class FaultsViewModel : PageViewModel
         _session = session;
         _showOnCar = showOnCar;
         _openUrl = openUrl;
-        RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && _session.LastScan is not null, e => Error = e.Message);
+        RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && !_session.IsSnapshot && _session.LastScan is not null, e => Error = e.Message);
         _session.ScanUpdated += () => OnUi(Rebuild);
         _session.PropertyChanged += (_, e) =>
         {
@@ -238,6 +239,7 @@ public sealed class FaultsViewModel : PageViewModel
     public string Headline => !AllFaults.Any() ? "No faults"
         : $"{FixNowCount} to fix now · {CheckCount} worth checking · {BackgroundCount} background";
     public string Verdict => !AllFaults.Any() ? ""
+        : _session.IsSnapshot ? (FixNowCount > 0 ? "Start with the red ones: they were active when this snapshot was taken." : "Nothing was active when this snapshot was taken.")
         : FixNowCount > 0 ? "Start with the red ones: they are active right now."
         : CheckCount > 0 ? "Nothing is active right now. Clear the stored faults, drive a few days and read again: only what comes back needs fixing."
         : "Nothing needs fixing: only background entries (info memory and leftovers of battery work).";

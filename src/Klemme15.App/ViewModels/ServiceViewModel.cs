@@ -116,7 +116,7 @@ public sealed class ServiceViewModel : PageViewModel
         RebuildGroups();
 
         CheckCommand = new AsyncCommand(CheckAsync, () => _selected is { IsAvailable: true } && !_checking && !_running);
-        RunCommand = new AsyncCommand(RunAsync, CanRun);
+        RunCommand = new AsyncCommand(RunAsync, CanRun, e => { Result = $"Didn't work: {e.Message}"; ResultOk = false; });
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
         {
@@ -216,6 +216,14 @@ public sealed class ServiceViewModel : PageViewModel
     };
     public bool IsHighRisk => _selected?.Function.Risk == ServiceRisk.High;
     public bool Unverified => _selected is { Function.Verified: false };
+
+    /// <summary>What "experimental" means for the selected function on this connection.</summary>
+    public string UnverifiedText => _selected?.Availability.Mode switch
+    {
+        ServiceMode.Native => "Experimental: not yet confirmed on a real car with Klemme15. Klemme15 sends the documented request for your module version itself.",
+        ServiceMode.Ediabas => "Experimental: not yet confirmed on a real car with Klemme15. It runs BMW's own job from your BMW files.",
+        _ => "Experimental: not yet confirmed on a real car with Klemme15.",
+    };
     public string ConfirmedText => _selected?.Function.Confirmations is { Count: > 0 } c ? "Confirmed on a real car: " + string.Join("; ", c) : "";
     public bool HasConfirmed => ConfirmedText.Length > 0;
     public string Caution => string.Join("\n\n", new[] { _selected?.Function.Caution, FrmCaution }.Where(x => x is not null));
@@ -310,7 +318,7 @@ public sealed class ServiceViewModel : PageViewModel
     private void RaiseSelection()
     {
         foreach (var p in new[] { nameof(Selected), nameof(HasSelection), nameof(FunctionTitle), nameof(Summary), nameof(When), nameof(ModuleText),
-                     nameof(RiskText), nameof(IsHighRisk), nameof(Unverified), nameof(ConfirmedText), nameof(HasConfirmed), nameof(Caution), nameof(HasCaution), nameof(Before), nameof(After), nameof(HasBefore), nameof(HasAfter),
+                     nameof(RiskText), nameof(IsHighRisk), nameof(Unverified), nameof(UnverifiedText), nameof(ConfirmedText), nameof(HasConfirmed), nameof(Caution), nameof(HasCaution), nameof(Before), nameof(After), nameof(HasBefore), nameof(HasAfter),
                      nameof(AvailabilityText), nameof(IsAvailable), nameof(Blocked), nameof(HasChecks), nameof(Duration), nameof(HasDuration) })
             Raise(p);
         Changed();
@@ -326,7 +334,7 @@ public sealed class ServiceViewModel : PageViewModel
     }
 
     private bool CanRun() =>
-        _selected is { IsAvailable: true } item && !_running && !_checking && _checked
+        _selected is { IsAvailable: true } item && !_running && !_checking && _checked && !_session.IsWatching
         && ServiceRunner.Allowed(item.Function, Experimental)
         && Checks.All(c => c.Satisfied) && Confirms.All(c => c.Ticked) && !HasInputProblem;
 

@@ -26,7 +26,7 @@ Only readings with a **warm engine** count (coolant above 70 °C, when the log h
 
 Your own baselines are saved in `Klemme15/baselines` under your application data folder. They contain only the curves: no VIN.
 
-## Honest baselines
+## Limits
 
 - **One car is a hint, not an answer key.** Every baseline says how many cars it's built from, and one built from fewer than three says "treat it as a hint".
 - Baselines are per engine (N52, N54...). One for another engine isn't offered.

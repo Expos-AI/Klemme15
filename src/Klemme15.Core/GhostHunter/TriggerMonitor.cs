@@ -237,10 +237,17 @@ public sealed class TriggerMonitor
 /// </summary>
 public static class TriggerPoller
 {
+    /// <summary>How long the car may stay silent before the poller says so (a pulled cable reads as silence).</summary>
+    public static readonly TimeSpan StallAfter = TimeSpan.FromSeconds(5);
+
+    /// <param name="onStall">Called with true when the car has given no values for <see cref="StallAfter"/>, and with
+    /// false when values come back.</param>
     public static Task RunAsync(ISignalSource signals, IReadOnlyCollection<string> ids, ChannelWriter<DatalogFrame> output,
-        CancellationToken ct, TimeSpan? minInterval = null, Action<Exception>? onError = null) => Task.Run(async () =>
+        CancellationToken ct, TimeSpan? minInterval = null, Action<Exception>? onError = null, Action<bool>? onStall = null) => Task.Run(async () =>
     {
         var floor = minInterval ?? TimeSpan.FromMilliseconds(200);
+        var lastValues = DateTimeOffset.Now;
+        var stalled = false;
         try
         {
             while (!ct.IsCancellationRequested)
@@ -249,9 +256,19 @@ public static class TriggerPoller
                 try
                 {
                     var values = await signals.ReadAsync(ids, ct);
-                    if (values.Count > 0) output.TryWrite(new DatalogFrame(DateTimeOffset.Now, values));
+                    if (values.Count > 0)
+                    {
+                        output.TryWrite(new DatalogFrame(DateTimeOffset.Now, values));
+                        lastValues = DateTimeOffset.Now;
+                    }
                 }
                 catch (Exception e) when (e is DiagnosticException or TimeoutException or IOException) { onError?.Invoke(e); }
+                var silent = DateTimeOffset.Now - lastValues >= StallAfter;
+                if (silent != stalled)
+                {
+                    stalled = silent;
+                    onStall?.Invoke(stalled);
+                }
                 var wait = floor - (DateTimeOffset.Now - started);
                 if (wait > TimeSpan.Zero) await Task.Delay(wait, ct);
             }
