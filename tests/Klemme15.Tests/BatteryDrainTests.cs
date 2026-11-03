@@ -62,6 +62,8 @@ public class BatteryDrainTests
         var scan = new VehicleScanResult
         {
             Started = DateTimeOffset.Now, Backend = "t", BatteryVoltage = 12.1,
+            Health = new HealthSummary(5, DateTimeOffset.Now.AddDays(-30),
+                [new HealthTrend(TrendLevel.Watch, "Battery resting voltage is falling", "12.60 V to 12.39 V"), new HealthTrend(TrendLevel.Info, "Key battery low keeps showing", "7 of 7 scans")]),
             Ecus = [new EcuScanResult { Ecu = dme, Status = EcuScanStatus.Faults, Faults = [new Fault { EcuId = dme.Id, Code = "2DED", Source = FaultSource.Bmw }] }],
             CheckControl =
             [
@@ -74,7 +76,8 @@ public class BatteryDrainTests
         Assert.Contains(clues, c => c.Title.EndsWith("2DED") && c.Level == CheckLevel.Warn && c.Detail.Contains("parked"));
         Assert.Contains(clues, c => c.Title == "Dash warning: Charge the battery" && c.Detail.Contains("2 times") && c.Detail.Contains("98,112"));
         Assert.DoesNotContain(clues, c => c.Title.Contains("Key battery"));     // the key's battery isn't the car's
-        Assert.Contains(clues, c => c.Title.StartsWith("Battery at 12.1"));
+        Assert.Contains(clues, c => c.Title == "Battery resting voltage is falling");
+        Assert.DoesNotContain(clues, c => c.Title.StartsWith("Key battery"));
         Assert.Equal(CheckLevel.Warn, clues[0].Level);
     }
 

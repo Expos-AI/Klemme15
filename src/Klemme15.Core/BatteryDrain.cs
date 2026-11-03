@@ -83,7 +83,8 @@ public static class BatteryDrain
         }
 
         foreach (var t in scan.Health?.Trends ?? [])
-            if (t.Title.Contains("battery", StringComparison.OrdinalIgnoreCase) || t.Title.Contains("charging", StringComparison.OrdinalIgnoreCase))
+            if ((t.Title.Contains("battery", StringComparison.OrdinalIgnoreCase) || t.Title.Contains("charging", StringComparison.OrdinalIgnoreCase))
+                && !t.Title.Contains("key", StringComparison.OrdinalIgnoreCase))   // the key's battery isn't the car's
                 clues.Add(new(t.Level == TrendLevel.Act ? CheckLevel.Warn : t.Level == TrendLevel.Watch ? CheckLevel.Ask : CheckLevel.Info, t.Title, t.Detail));
 
         if (scan.BatteryVoltage is { } v && v < 12.4 && !clues.Any(c => c.Title.Contains("resting", StringComparison.OrdinalIgnoreCase)))
