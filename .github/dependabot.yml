@@ -9,6 +9,13 @@ updates:
       day: monday
     open-pull-requests-limit: 5
     labels: ["dependencies"]
+    ignore:
+      # Avalonia 12 changes APIs the app uses: it's a planned migration, not a routine bump.
+      - dependency-name: "Avalonia*"
+        update-types: ["version-update:semver-major"]
+      # Microsoft.Data.Sqlite is built against SQLitePCLRaw 2.x; move to 3.x when it does. 2.1.12+ has the patched SQLite.
+      - dependency-name: "SQLitePCLRaw*"
+        update-types: ["version-update:semver-major"]
     groups:
       # Minor and patch bumps arrive together; major versions get their own pull request to review.
       nuget-minor-and-patch:
