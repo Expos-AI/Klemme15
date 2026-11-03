@@ -2,7 +2,7 @@
 
 Klemme15's Coding page (and `klemme15 coding` on the command line) does three things, in increasing order of risk:
 
-1. **Back up, compare and restore** a module's coding. This works on any car, with no BMW data.
+1. **Back up, compare and restore** a module's coding. This works on D-CAN cars (the E90 family and newer) over Klemme15's own connection, with no BMW data. E46-era cars use the older DS2 protocol, which coding doesn't support yet.
 2. **Show every setting by name**, using the NCS Expert data you already have. This only reads.
 3. **Switch a short list of comfort options**. This is experimental, and writing unlocks only after the checks below pass.
 
