@@ -12,6 +12,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Coding**: backup, compare, restore; quick codes verified against NCS Expert, learned from another tool, or from shared coding maps; FRM3 protection.
 - **Share**: reports, forum posts without the VIN, snapshots (.k15) others open read-only, headless mode with a phone dashboard and MQTT, network cables.
 - **Reasoning**: community diagnostic chains (Vacuum leak hunter, Charging system check), retrofit checker, pre-purchase check.
+- **Trust**: CodeQL on every change, Dependabot, release checksums and signed build provenance, a protected main branch, DCO sign-off for contributions.
 - **Catch and compare**: the Ghost Hunter (trigger-based captures with a minute before and after), known good baselines on the Analyse page, live values on the car drawing.
 
 ## Next
@@ -28,6 +29,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - Code-signed Windows builds, so a direct download shows no SmartScreen prompt (free for open source via SignPath Foundation).
 - F- and G-series over Ethernet (ENET), once someone can test on a car.
 - BLE adapters; an Android build.
+- Avalonia 12 (the UI framework's next major version), as a planned upgrade.
 
 ## Not planned, on purpose
 

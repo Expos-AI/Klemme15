@@ -179,11 +179,15 @@ Diagnostics are read-only by default. Clearing faults asks first. Service functi
 
 ## Privacy
 
-Everything Klemme15 reads from your car stays on your computer. There's no account, no telemetry and no server. The only thing saved automatically is the small health history (no VIN, never uploaded, one click to forget a car). It goes online only when you ask: downloading the optional fault database or community coding maps, opening a link, or a network cable you set up. See [PRIVACY.md](PRIVACY.md).
+Everything Klemme15 reads from your car stays on your computer. There's no account, no telemetry and no server. Saved automatically: the small health history (no VIN, never uploaded, one click to forget a car), and, only while the Ghost Hunter watches, its captures (VIN removed). Baselines you make stay on your computer too. It goes online only when you ask: downloading the optional fault database or community coding maps, opening a link, or a network cable you set up. See [PRIVACY.md](PRIVACY.md).
+
+## Security
+
+Found a security problem? Please report it privately, not in a public issue: see [SECURITY.md](SECURITY.md). Every release is built by GitHub Actions from this repository and comes with `SHA256SUMS.txt` and a signed build provenance, so you can check your download wasn't tampered with ([how](SECURITY.md#verifying-your-download)).
 
 ## Contributing
 
-The most useful help is **testing on your car**: run a quick test and send the report and traffic log ([how](CONTRIBUTING.md#report-a-test-drive)). You can also share a **coding map** with one click from the Coding page, a **check or pin note** for a part you've tested, or a fault meaning in your own words ([data guide](docs/CONTRIBUTING-DATA.md)).
+The most useful help is **testing on your car**: run a quick test and send the report and traffic log ([how](CONTRIBUTING.md#report-a-test-drive)). You can also share a **coding map** with one click from the Coding page, a **check or pin note** for a part you've tested, a **healthy baseline** from your car's log ([how](docs/BASELINES.md#share-yours)), or a fault meaning in your own words ([data guide](docs/CONTRIBUTING-DATA.md)). Code contributions need a [DCO sign-off](CONTRIBUTING.md#sign-off-your-commits-dco).
 
 ## Credits
 

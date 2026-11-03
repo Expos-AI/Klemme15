@@ -16,7 +16,7 @@ Release from Actions: run the **build** workflow with the version (e.g. `v0.19.0
 
 Description:
 
-> Free, open-source, offline BMW diagnostics for E-series owners (E46, E90 and more): scan every module, decode faults and dash warnings, track your car's health over time, run graphed component tests and service functions, back up and code comfort modules. Windows, macOS, Linux.
+> Free, open-source, offline BMW diagnostics for E-series owners (E46, E90 and more): scan every module, decode faults and dash warnings, catch intermittent faults, track your car's health over time, run graphed component tests and service functions, back up and code comfort modules. Windows, macOS, Linux.
 
 Website: `https://github.com/Expos-AI/Klemme15/releases/latest`
 
