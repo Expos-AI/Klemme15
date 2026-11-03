@@ -22,5 +22,6 @@ Update everything a visitor or user reads, in the same push, so the project alwa
 ## How changes land
 
 - `main` takes direct pushes (no force pushes, no deletion). Run the tests before pushing and watch CI afterwards.
+- Commits are authored as Kindric Castro <175667204+Expos-AI@users.noreply.github.com> (set with `git config user.name` / `user.email` in the clone). No co-author trailers, session links, AI or bot attribution of any kind in commit messages, pull requests, release notes or files.
 - New `.cs` and `.axaml` files need the license header: `python3 scripts/license-headers.py`.
 - Releases: bump `<Version>` and the release notes, push, wait for green CI on main, then run the build workflow with the version. The maintainer has approved releasing every finished change.
