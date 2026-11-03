@@ -1,6 +1,12 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.22.1:**
+**New in 0.23.0:**
+- **Battery drain finder.** Battery flat after the car sits? Open **Battery going flat?** on the Faults page. Klemme15 lists what the car itself recorded: the engine computer's record of too much current while parked, battery sensor faults, the footwell module switching lights off to save the battery, "Charge the battery" warnings from the dash history, a resting voltage that keeps falling. Type in the parked current your meter shows and it tells you whether that's normal (up to about 50 mA once asleep) and how many days until the car won't start. Then it walks you through the hunt: make the car think it's closed, put the meter in without waking it, wait for it to sleep, and pull fuses one at a time until the current drops. Read-only.
+- **E46, E39, E53 and E38: health history and saved test results.** Many of these engine computers don't report the VIN, so the health history never started. Cars without a full VIN are now told apart by a one-way hash of their engine computer's and cluster's identification, so trends, *Your cars* and test results work on them too.
+- **Faster live data on K-line cars.** Klemme15 now asks the engine computer which values it supports and only reads those, instead of waiting out a timeout for each one it doesn't have.
+- On K-line cars connected without BMW files, tests that need BMW's own engine values (VANOS, cylinder roughness, the water pump) now say so up front.
+
+**0.22.1:**
 - **Up-to-date foundations.** The app's UI framework moves to Avalonia 11.3 (bug fixes and smoother rendering on all three systems), the optional full-database import uses the latest patched SQLite library, and the serial-port and build tools are updated. No changes to what Klemme15 does.
 - Every download again comes with `SHA256SUMS.txt` and a signed build provenance ([how to verify](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download)).
 

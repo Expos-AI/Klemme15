@@ -209,6 +209,9 @@ public sealed class FaultsViewModel : PageViewModel
     /// <summary>"Buying this car?" (set by the main window, which owns the dialogs).</summary>
     public PurchaseCheckViewModel? Purchase { get; set; }
 
+    /// <summary>"Battery going flat?": the battery drain finder.</summary>
+    public DrainFinderViewModel? Drain { get; set; }
+
     /// <summary>"Share snapshot" (set by the main window, which owns the dialogs).</summary>
     public SnapshotShareViewModel? Share { get; set; }
 

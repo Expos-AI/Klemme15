@@ -97,7 +97,7 @@ public sealed partial class CodingViewModel
         if (_session.LastScan is { } scan && !_session.IsSnapshot)
         {
             IReadOnlyList<HealthSnapshot> history = [];
-            try { if (scan.Vin is { Length: 17 } vin) history = _session.History.Load(HealthSnapshot.KeyFor(vin)); }
+            try { if (HealthSnapshot.CarKeyFor(scan) is { } key) history = _session.History.Load(key); }
             catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
             foreach (var f in RetrofitAdvisor.Detect(scan, _session.Model, history, _session.Database.Retrofits))
             {

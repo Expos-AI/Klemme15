@@ -13,13 +13,13 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Share**: reports, forum posts without the VIN, snapshots (.k15) others open read-only, headless mode with a phone dashboard and MQTT, network cables.
 - **Reasoning**: community diagnostic chains (Vacuum leak hunter, Charging system check), retrofit checker, pre-purchase check.
 - **Trust**: CodeQL on every change, Dependabot, release checksums and signed build provenance, a protected main branch, DCO sign-off for contributions.
+- **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
 - **Catch and compare**: the Ghost Hunter (trigger-based captures with a minute before and after), known good baselines on the Analyse page, live values on the car drawing.
 
 ## Next
 
 - Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
-- **Battery drain finder**: read the engine computer's own record of sleep-current problems, then a guided fuse-pull hunt with a "how many days until flat" calculator.
-- The same depth (dash history, health trends, graphed tests) for the E46, E39 and E53.
+- Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be confirmed on real cars. Health history and the OBD-based tests already work.
 - The first community coding maps, checks and chains in the library, and the first real baselines (three or more healthy cars per engine, starting with the N52).
 - Wheel speeds on the car drawing, from the stability control module, once the value names are confirmed on real cars.
 - More chains: thermostat, misfire triage, boost leaks on the N54/N55.

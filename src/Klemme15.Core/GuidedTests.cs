@@ -166,7 +166,14 @@ public sealed record TestReport(IReadOnlyList<TestFinding> Findings, IReadOnlyLi
 }
 
 /// <param name="DrivesParts">The test switches a part on through the engine computer (not read-only).</param>
-public sealed record GuidedTestInfo(string Id, string Title, string Summary, string Requirements, string Duration, bool DrivesParts = false);
+public sealed record GuidedTestInfo(string Id, string Title, string Summary, string Requirements, string Duration, bool DrivesParts = false)
+{
+    /// <summary>
+    /// The test reads BMW's own engine values (VANOS positions, per-cylinder roughness, the electric water pump), not
+    /// the standard OBD-II ones. On K-line cars (E46, E39, E53, E38) those need EDIABAS mode with your BMW files.
+    /// </summary>
+    public bool NeedsBmwValues => Id is "vanos" or "roughness" or "water-pump" or "water-pump-sweep" or "cooling-bleed";
+}
 
 /// <summary>
 /// Switches a part on through the engine computer's own test job, for the tests that drive a part. Supplied by the app

@@ -64,12 +64,82 @@
     <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="0,0,0,18">
       <DockPanel>
         <Button DockPanel.Dock="Right" Content="Read again" Command="{Binding RefreshCommand}" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="{Binding Drain.ToggleText}" Command="{Binding Drain.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
+                ToolTip.Tip="Battery drain finder: what the car recorded about its battery running down, how long until it won't start, and a guided hunt for the circuit" />
         <Button DockPanel.Dock="Right" Content="{Binding Purchase.ToggleText}" Command="{Binding Purchase.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
                 ToolTip.Tip="A pre-purchase check for someone looking at a used car: mileage records, safety faults, signs of cleared codes" />
         <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding Share.ToggleText}" Command="{Binding Share.ToggleCommand}" VerticalAlignment="Center" Margin="0,0,8,0"
                 ToolTip.Tip="Save the whole car as a .k15 file someone else can open in Klemme15 and explore, read-only" />
         <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
+      <!-- Battery going flat? -->
+      <Border Classes="panel" Padding="18,14" IsVisible="{Binding Drain.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
+        <StackPanel Spacing="10" DataContext="{Binding Drain}" x:DataType="vm:DrainFinderViewModel">
+          <TextBlock Classes="section" FontSize="16" Text="Battery drain finder" />
+          <TextBlock Classes="muted small" TextWrapping="Wrap"
+                     Text="For a battery that goes flat when the car sits. First what the car itself recorded, then what your parked current means, then a step-by-step hunt for the circuit with a multimeter. Read-only." />
+          <TextBlock Classes="small" FontWeight="SemiBold" Text="{Binding CluesHeadline}" TextWrapping="Wrap" />
+          <ItemsControl ItemsSource="{Binding Clues}" IsVisible="{Binding HasClues}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:DrainClueViewModel">
+                <Grid ColumnDefinitions="22,*" Margin="0,4">
+                  <Grid>
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsWarn}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsAsk}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsGood}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    <Ellipse Width="11" Height="11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5" IsVisible="{Binding IsInfo}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                  </Grid>
+                  <StackPanel Grid.Column="1" Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </Grid>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="small" FontWeight="SemiBold" Text="How long until it won't start?" Margin="0,6,0,0" />
+          <WrapPanel Orientation="Horizontal">
+            <StackPanel Margin="0,0,12,6">
+              <TextBlock Classes="muted small" Text="Parked current, once asleep (mA)" />
+              <TextBox Text="{Binding Milliamps}" Watermark="e.g. 85" Width="200" HorizontalAlignment="Left" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,6">
+              <TextBlock Classes="muted small" Text="Battery size (Ah, on its label)" />
+              <TextBox Text="{Binding BatteryAh}" Width="160" HorizontalAlignment="Left" />
+            </StackPanel>
+            <StackPanel Margin="0,0,12,6">
+              <TextBlock Classes="muted small" Text="Resting voltage (optional)" />
+              <TextBox Text="{Binding RestingVolts}" Watermark="e.g. 12.5" Width="160" HorizontalAlignment="Left" />
+            </StackPanel>
+          </WrapPanel>
+          <Border CornerRadius="6" Padding="10,8" Background="{DynamicResource RaisedBrush}">
+            <StackPanel Spacing="2">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding EstimateWarn}" VerticalAlignment="Center" />
+                <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding EstimateAsk}" VerticalAlignment="Center" />
+                <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding EstimateGood}" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding EstimateHeadline}" FontWeight="SemiBold" TextWrapping="Wrap" />
+              </StackPanel>
+              <TextBlock Classes="muted small" Text="{Binding EstimateDetail}" TextWrapping="Wrap" />
+            </StackPanel>
+          </Border>
+          <TextBlock Classes="small" FontWeight="SemiBold" Text="Find the circuit" Margin="0,6,0,0" />
+          <ItemsControl ItemsSource="{Binding Steps}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:DrainStepViewModel">
+                <CheckBox IsChecked="{Binding Done}" Margin="0,3">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </CheckBox>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Classes="muted small" TextWrapping="Wrap"
+                     Text="Rules of thumb, not BMW specifications: up to about 50 mA is normal once the car is asleep. Work safely around the battery: no rings or watches, and keep tools off the positive post." />
+        </StackPanel>
+      </Border>
       <!-- Buying this car? -->
       <Border Classes="panel" Padding="18,14" IsVisible="{Binding Purchase.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
         <StackPanel Spacing="8" DataContext="{Binding Purchase}" x:DataType="vm:PurchaseCheckViewModel">

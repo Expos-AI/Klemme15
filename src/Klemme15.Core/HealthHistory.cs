@@ -58,15 +58,37 @@ public sealed record HealthSnapshot
     public static string KeyFor(string vin) =>
         Convert.ToHexString(SHA256.HashData(Encoding.ASCII.GetBytes(vin.Trim().ToUpperInvariant())))[..12].ToLowerInvariant();
 
+    /// <summary>
+    /// The car's history key. From the VIN when the car reports a full one; otherwise (many E46-era engine computers
+    /// don't give the VIN over OBD) from the identification of its engine computer and cluster, which is fixed for a
+    /// car until one of them is replaced. Null when neither is available. Never stores the VIN or identification.
+    /// </summary>
+    public static string? CarKeyFor(VehicleScanResult scan)
+    {
+        if (scan.Vin is { Length: 17 } vin) return KeyFor(vin);
+        static string Short(string id) => id.Contains('.') ? id[(id.LastIndexOf('.') + 1)..] : id;
+        var answered = scan.Ecus.Where(e => e.Identity is not null).ToList();
+        // The engine computer and the cluster first: the two modules least often swapped.
+        var core = answered.Where(e => e.Ecu.IsEngine || Short(e.Ecu.Id) is "IKE" or "KOMBI")
+            .Select(e => $"{Short(e.Ecu.Id)}={e.Identity!.Raw.GetValueOrDefault("hex") ?? e.Identity.PartNumber}")
+            .Where(s => !s.EndsWith('=')).Order(StringComparer.Ordinal).ToList();
+        if (core.Count < 2)
+            core = answered.Where(e => e.Identity!.PartNumber is { Length: > 0 })
+                .Select(e => $"{Short(e.Ecu.Id)}={e.Identity!.PartNumber}").Order(StringComparer.Ordinal).ToList();
+        if (core.Count < 2) return null;
+        var text = $"{scan.Chassis}|{string.Join("|", core)}";
+        return "m" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(text)))[..11].ToLowerInvariant();
+    }
+
     public static HealthSnapshot? From(VehicleScanResult scan, string? modelId, string? modelName, IReadOnlyDictionary<string, double> engine)
     {
-        if (scan.Vin is not { Length: 17 } vin || scan.Cancelled) return null;
+        if (scan.Cancelled || CarKeyFor(scan) is not { } key) return null;
         double? Get(string k) => engine.TryGetValue(k, out var v) ? Math.Round(v, 2) : null;
         var all = scan.Ecus.SelectMany(e => e.Faults.Select(f => (e.Ecu, Fault: f, Verdict: FaultTriage.Assess(f)))).ToList();
         return new HealthSnapshot
         {
             Time = scan.Started,
-            CarKey = KeyFor(vin),
+            CarKey = key,
             ModelId = modelId,
             ModelName = modelName,
             Chassis = scan.Chassis,

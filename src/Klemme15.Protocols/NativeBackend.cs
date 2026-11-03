@@ -57,6 +57,9 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     private readonly Dictionary<(byte Address, byte Pid), int> _silentPids = [];
     private const int SilentLimit = 2;
 
+    /// <summary>The PIDs each engine computer says it supports (PIDs 00, 20, 40), or null when it didn't say.</summary>
+    private readonly Dictionary<byte, HashSet<byte>?> _supportedPids = [];
+
     /// <summary>How long to wait for a module the broadcast says isn't there (one quick confirmation).</summary>
     private static readonly TimeSpan AbsentConfirmTimeout = TimeSpan.FromMilliseconds(100);
 
@@ -290,33 +293,61 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         OnBus<IReadOnlyList<LiveValue>>(() =>
         {
             var values = new List<LiveValue>(parameters.Count);
+            var supported = SupportedPids(ecu, ct);
             foreach (var p in parameters)
             {
                 ct.ThrowIfCancellationRequested();
                 double? value = null;
-                if (Obd2.TryGetPid(p, out var pid) && _silentPids.GetValueOrDefault((ecu.Address, pid.Id)) < SilentLimit)
+                string? note = null;
+                if (!Obd2.TryGetPid(p, out var pid)) { }
+                else if (supported is not null && !supported.Contains(pid.Id))
+                    note = "not reported by this engine computer";
+                else if (_silentPids.GetValueOrDefault((ecu.Address, pid.Id)) < SilentLimit)
                 {
-                    IEnumerable<byte[]> responses;
-                    if (_options.Mode == CableMode.DCan)
-                    {
-                        UseFast();
-                        var r = _fast.Request(ecu.Address, [0x01, pid.Id], TimeSpan.FromMilliseconds(300), ct);
-                        responses = r is null ? [] : [r];
-                    }
-                    else
-                    {
-                        UseObd();
-                        responses = _obd.Request([0x01, pid.Id], ct);
-                    }
-                    value = responses.Select(r => Obd2.DecodeResponse(r, pid)).FirstOrDefault(v => v is not null);
+                    value = ObdRequest(ecu, [0x01, pid.Id], ct).Select(r => Obd2.DecodeResponse(r, pid)).FirstOrDefault(v => v is not null);
                     // A value the engine computer never answers (PID 0x42 on an MSV70) would cost a timeout on every update.
                     var key = (ecu.Address, pid.Id);
                     _silentPids[key] = value is null ? _silentPids.GetValueOrDefault(key) + 1 : 0;
                 }
-                values.Add(new LiveValue(p, value, value is null ? "no data" : null, DateTimeOffset.Now));
+                values.Add(new LiveValue(p, value, value is null ? note ?? "no data" : null, DateTimeOffset.Now));
             }
             return values;
         }, ct);
+
+    private IEnumerable<byte[]> ObdRequest(EcuDefinition ecu, byte[] request, CancellationToken ct)
+    {
+        if (_options.Mode == CableMode.DCan)
+        {
+            UseFast();
+            var r = _fast.Request(ecu.Address, request, TimeSpan.FromMilliseconds(300), ct);
+            return r is null ? [] : [r];
+        }
+        UseObd();
+        return _obd.Request(request, ct);
+    }
+
+    /// <summary>
+    /// Asks once which PIDs the engine computer supports (the standard bitmaps at PIDs 00, 20 and 40), so values it
+    /// doesn't have are never asked for. On a K-line car each unanswered value costs a timeout of a second or more,
+    /// which made the first live readings slow. Null when it doesn't answer the bitmaps: then every value is tried.
+    /// </summary>
+    private HashSet<byte>? SupportedPids(EcuDefinition ecu, CancellationToken ct)
+    {
+        if (_supportedPids.TryGetValue(ecu.Address, out var known)) return known;
+        var set = new HashSet<byte>();
+        var answered = false;
+        foreach (var basePid in new byte[] { 0x00, 0x20, 0x40 })
+        {
+            byte[]? reply;
+            try { reply = ObdRequest(ecu, [0x01, basePid], ct).FirstOrDefault(r => r.Length >= 6 && r[0] == 0x41 && r[1] == basePid); }
+            catch (TimeoutException) { reply = null; }
+            if (reply is null) break;
+            answered = true;
+            foreach (var id in Obd2.DecodeSupported(basePid, reply.AsSpan(2, 4))) set.Add(id);
+            if (!set.Contains((byte)(basePid + 0x20))) break;   // the last bit says whether the next bitmap exists
+        }
+        return _supportedPids[ecu.Address] = answered && set.Count > 0 ? set : null;
+    }
 
     /// <summary>Asks each address for its identification with a short timeout; only modules that answer are returned.</summary>
     public async Task<IReadOnlyList<DiscoveredModule>> DiscoverAsync(IReadOnlyList<byte> addresses, IProgress<int>? progress = null, CancellationToken ct = default)

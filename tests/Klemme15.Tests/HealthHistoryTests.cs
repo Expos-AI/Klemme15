@@ -128,4 +128,31 @@ public class HealthReportTests
         var none = scan with { Health = new HealthSummary(1, DateTimeOffset.Now, []) };
         Assert.False(ReportWriter.ToMarkdown(none).Contains("Health over time"));
     }
+
+    private static EcuScanResult Ident(string id, string hex, string part, bool engine = false) => new()
+    {
+        Ecu = new EcuDefinition { Id = id, Name = id, Address = 0x12, Protocol = BusProtocol.Ds2, IsEngine = engine },
+        Status = EcuScanStatus.Ok,
+        Identity = new EcuIdentity { PartNumber = part, Raw = new Dictionary<string, string> { ["hex"] = hex } },
+    };
+
+    [Fact]
+    public void Cars_without_a_full_VIN_are_told_apart_by_their_modules()
+    {
+        VehicleScanResult Scan(string? vin, params EcuScanResult[] ecus) => new() { Started = DateTimeOffset.Now, Backend = "t", Vin = vin, Chassis = "E46", Ecus = ecus };
+        var dme = Ident("E46.DME", "0A7519308", "7519308", engine: true);
+        var ike = Ident("E46.IKE", "0B6911234", "6911234");
+
+        Assert.Equal(HealthSnapshot.KeyFor("WBAVB13586PT00000"), HealthSnapshot.CarKeyFor(Scan("WBAVB13586PT00000", dme, ike)));
+        var key = HealthSnapshot.CarKeyFor(Scan(null, dme, ike));
+        Assert.NotNull(key);
+        Assert.StartsWith("m", key);
+        Assert.Equal(key, HealthSnapshot.CarKeyFor(Scan("PT00000", ike, dme)));          // a partial VIN, modules in another order
+        Assert.NotEqual(key, HealthSnapshot.CarKeyFor(Scan(null, dme, Ident("E46.IKE", "0B6919999", "6919999"))));
+        Assert.Null(HealthSnapshot.CarKeyFor(Scan(null, dme)));                           // one module isn't enough
+        Assert.False(key!.Contains("7519308"), "the key is a one-way hash");
+
+        var snapshot = HealthSnapshot.From(Scan(null, dme, ike), "E46-325i", "325i", new Dictionary<string, double> { ["rpm"] = 720 });
+        Assert.Equal(key, snapshot!.CarKey);
+    }
 }

@@ -60,11 +60,11 @@ public sealed class SessionState : ViewModelBase
         try
         {
             history = _isDemo ? Klemme15.App.Services.DemoHistory.For(scan)
-                : scan.Vin is { Length: 17 } vin ? History.Load(HealthSnapshot.KeyFor(vin)) : [];
+                : HealthSnapshot.CarKeyFor(scan) is { } key ? History.Load(key) : [];
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { history = []; }
         IReadOnlyList<TestRecord> tests = [];
-        try { if (!_isDemo && scan.Vin is { Length: 17 } v) tests = History.LoadTests(HealthSnapshot.KeyFor(v)); }
+        try { if (!_isDemo && HealthSnapshot.CarKeyFor(scan) is { } k) tests = History.LoadTests(k); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
         var catalog = Database.CheckControl;
         return scan with { Health = HealthSummary.From(history, id => CheckControlDescriber.Describe(id, catalog, active: true).Title, madeUp: _isDemo, tests: tests) };
@@ -78,8 +78,8 @@ public sealed class SessionState : ViewModelBase
             TestResults.Add(new SnapshotTest(test.Id, test.Title, DateTimeOffset.Now, report));
             if (TestResults.Count > 40) TestResults.RemoveAt(0);
         }
-        if (_isDemo || _lastScan?.Vin is not { Length: 17 } vin) return false;
-        try { History.AddTest(HealthSnapshot.KeyFor(vin), TestRecord.From(test, report, DateTimeOffset.Now)); }
+        if (_isDemo || _lastScan is null || HealthSnapshot.CarKeyFor(_lastScan) is not { } key) return false;
+        try { History.AddTest(key, TestRecord.From(test, report, DateTimeOffset.Now)); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
         PublishScan(WithHealth(_lastScan));
         HistoryChanged?.Invoke();
@@ -195,6 +195,12 @@ public sealed class SessionState : ViewModelBase
     private EcuIdentity? _engineIdentity;
 
     /// <summary>BMW measurement values by name (for guided tests): from the user's files, the demo, or the downloaded tables.</summary>
+    /// <summary>
+    /// A K-line car (E46, E39, E53, E38) on the native connection: the engine computer gives the standard OBD-II values
+    /// only. BMW's own values (VANOS, per-cylinder roughness, module readings) need EDIABAS mode with your BMW files.
+    /// </summary>
+    public bool ObdValuesOnly => !IsDemo && Vehicle?.Cable == "KLine" && Backend is not IMeasurementReader;
+
     public IMeasurementReader? Measurements => _backend as IMeasurementReader ?? Readings as IMeasurementReader;
 
     /// <summary>Engine values (rpm, coolant, voltage...) from the connected car, or null when there's no engine computer.</summary>

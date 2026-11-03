@@ -38,7 +38,7 @@ public sealed class TestValueViewModel(string label, double value, string unit, 
 
 public sealed class GuidedTestViewModel(GuidedTestInfo info, DiagnosticChain? chain = null) : ViewModelBase
 {
-    private bool _isSelected;
+    private bool _isSelected, _needsEdiabas;
     public GuidedTestInfo Info { get; } = info;
 
     /// <summary>A community diagnostic chain, rather than one of Klemme15's built-in tests.</summary>
@@ -46,6 +46,9 @@ public sealed class GuidedTestViewModel(GuidedTestInfo info, DiagnosticChain? ch
     public bool IsChain => Chain is not null;
     public string Title => Info.Title;
     public bool DrivesParts => Info.DrivesParts;
+
+    /// <summary>On this car's connection the test can't get its values (a K-line car without EDIABAS mode).</summary>
+    public bool NeedsEdiabas { get => _needsEdiabas; set => Set(ref _needsEdiabas, value); }
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
 }
@@ -109,9 +112,16 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.IsWatching)) OnUi(Changed);
-            if (e.PropertyName is nameof(SessionState.Backend)) OnUi(() => { Raise(nameof(NotConnected)); Changed(); if (_selected is { } t) Select(t); });
+            if (e.PropertyName is nameof(SessionState.Backend)) OnUi(() => { Raise(nameof(NotConnected)); MarkAvailability(); Changed(); if (_selected is { } t) Select(t); });
         };
         Select(Tests[0]);
+    }
+
+    /// <summary>Marks the tests this car's connection can't run (BMW values on a K-line car without EDIABAS mode).</summary>
+    private void MarkAvailability()
+    {
+        var obdOnly = _session.ObdValuesOnly;
+        foreach (var t in Tests) t.NeedsEdiabas = obdOnly && t.Info.NeedsBmwValues;
     }
 
     public override string Title => "Tests";

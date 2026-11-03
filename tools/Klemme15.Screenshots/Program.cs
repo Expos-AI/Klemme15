@@ -65,6 +65,13 @@ var stopping = vm.Vehicle.Topology.StopAndWaitAsync();
 WaitUntil(() => stopping.IsCompleted);
 vm.CurrentPage = vm.Faults;
 Shot("07-faults");
+// The battery drain finder on the demo car: its clues, a parked current and the hunt.
+vm.Faults.Drain!.IsOpen = true;
+vm.Faults.Drain.Milliamps = "85";
+Pump(200);
+Shot("33-drain-finder");
+if (!vm.Faults.Drain.HasClues) problems.Add("33-drain-finder: no clues on the demo car");
+vm.Faults.Drain.IsOpen = false;
 if (vm.Faults.Groups.SelectMany(g => g.Faults).FirstOrDefault(f => f.HasGuide) is { } guided)
 {
     guided.GuideOpen = true;

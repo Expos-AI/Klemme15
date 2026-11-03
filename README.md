@@ -56,6 +56,7 @@ scoop install klemme15
 
 ### Keep an eye on it over time
 - **Ghost Hunter**: for the fault that only happens sometimes. Pick what you're chasing in plain words (an intermittent misfire, a voltage dip, a lean idle or lean spike, running rich, overheating, a charging dropout, a stall) or start from one of those and adjust the numbers, drive, and Klemme15 saves a snapshot with the minute before and the minute after each time it happens.
+- **Battery drain finder**: for a battery that goes flat when the car sits. Lists what the car itself recorded (power-management and battery-sensor faults, "Charge the battery" warnings, a resting voltage that keeps falling), turns your meter's parked current into days until it won't start, and walks you through finding the circuit by pulling fuses one at a time, without waking the car.
 - **Health over time**: each quick test of a real car saves a small snapshot on your computer (no VIN, never uploaded). Klemme15 flags what's drifting before it becomes a fault: a battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back, parts that test worse than last time.
 - **Your cars**: the Garage lists every car you've scanned, with its latest state and most important trend. A fleet view for a household or a small shop.
 
@@ -87,7 +88,7 @@ scoop install klemme15
 
 | Family | Cable switch | Native mode | EDIABAS mode |
 |---|---|---|---|
-| E46 3 Series (1999-2006) | K-line | Module ident (DS2), engine OBD-II faults and live data | Full fault memory of every module |
+| E46 3 Series (1999-2006) | K-line | Module ident (DS2), engine OBD-II faults and live data, health history, the fuel trim test and the OBD-based chains | Full fault memory of every module |
 | E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Ident and fault memory of every module (KWP2000), engine readings, OBD-II live data | Full, with BMW fault texts |
 | E81/E82/E87/E88 1 Series (2007 on), E60/E61 5 Series and E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E89 Z4 | D-CAN | Like the E90 family | Full |
 | E39 5 Series, E53 X5, E38 7 Series | K-line | Like the E46 | Full |

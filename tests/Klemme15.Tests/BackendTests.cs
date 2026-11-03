@@ -132,6 +132,22 @@ public class NativeBackendTests
     }
 
     [Fact]
+    public async Task OnlyValuesTheEngineComputerSupportsAreAskedFor()
+    {
+        await using var backend = new NativeBackend(VirtualCar.E46_325i(), new NativeBackendOptions { Mode = CableMode.KLine, ProbeTimeout = TimeSpan.FromMilliseconds(80) });
+        await backend.ConnectAsync();
+        var dme = Module("E46.DME");
+        var wanted = Obd2.AllParameters.Where(p => p.Id is "rpm" or "voltage" or "oiltemp").ToList();
+        var values = await backend.ReadLiveAsync(dme, wanted);
+        Assert.NotNull(values.Single(v => v.Parameter.Id == "rpm").Value);
+        Assert.Equal(14.1, values.Single(v => v.Parameter.Id == "voltage").Value);
+        // Oil temperature (PID 5C) isn't in this engine computer's "supported PIDs" list: not asked, and said so.
+        var oil = values.Single(v => v.Parameter.Id == "oiltemp");
+        Assert.Null(oil.Value);
+        Assert.Equal("not reported by this engine computer", oil.Text);
+    }
+
+    [Fact]
     public async Task E46ScanReportsDs2FaultLimitationAsNote()
     {
         await using var backend = new NativeBackend(VirtualCar.E46_325i(), new NativeBackendOptions { Mode = CableMode.KLine, ProbeTimeout = TimeSpan.FromMilliseconds(80) });

@@ -268,9 +268,7 @@ public sealed class VirtualCar : ITransport
         var coolant = Math.Min(92, 25 + t * 1.5);
         byte[]? data = pid switch
         {
-            0x00 => [0xBE, 0x3E, 0xB8, 0x11],
-            0x20 => [0x80, 0x00, 0x20, 0x01],
-            0x40 => [0x44, 0x00, 0x00, 0x00],
+            0x00 or 0x20 or 0x40 => SupportedBitmap(pid),
             0x04 => [(byte)(load * 255 / 100)],
             0x05 => [(byte)(coolant + 40)],
             0x06 or 0x08 => [(byte)(128 + 4 * Math.Sin(t))],
@@ -291,6 +289,21 @@ public sealed class VirtualCar : ITransport
             _ => null,
         };
         return data is null ? null : [0x41, pid, .. data];
+    }
+
+    /// <summary>The PIDs this model answers, so the "supported PIDs" bitmaps tell the truth.</summary>
+    private static readonly byte[] AnsweredPids =
+        [0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10, 0x11, 0x14, 0x15, 0x1F, 0x20, 0x2F, 0x33, 0x40, 0x42, 0x46];
+
+    private static byte[] SupportedBitmap(byte basePid)
+    {
+        var mask = new byte[4];
+        foreach (var id in AnsweredPids.Where(p => p > basePid && p <= basePid + 0x20))
+        {
+            var bit = id - basePid - 1;
+            mask[bit / 8] |= (byte)(0x80 >> (bit % 8));
+        }
+        return mask;
     }
 
     // ----------------------------------------------------------- K-line DS2
