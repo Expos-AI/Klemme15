@@ -200,7 +200,27 @@
                 </ComboBox.ItemTemplate>
               </ComboBox>
               <Button Content="Refresh" Command="{Binding RefreshPortsCommand}" />
+              <Button Content="Check cable" Command="{Binding CheckCableCommand}"
+                      ToolTip.Tip="Checks the cable before talking to the car: genuine FTDI chip or a likely clone, the latency setting, and whether another program has the port" />
             </StackPanel>
+            <ItemsControl ItemsSource="{Binding CableFindings}" IsVisible="{Binding HasCableFindings}" MaxWidth="760" HorizontalAlignment="Left">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:CableFindingViewModel">
+                  <Grid ColumnDefinitions="22,*" Margin="0,3">
+                    <Grid>
+                      <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding IsWarn}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                      <Ellipse Width="11" Height="11" Fill="{DynamicResource AmberBrush}" IsVisible="{Binding IsAsk}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                      <Ellipse Width="11" Height="11" Fill="{DynamicResource LitBrush}" IsVisible="{Binding IsGood}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                      <Ellipse Width="11" Height="11" Stroke="{DynamicResource MutedBrush}" StrokeThickness="1.5" IsVisible="{Binding IsInfo}" VerticalAlignment="Top" Margin="0,4,0,0" HorizontalAlignment="Left" />
+                    </Grid>
+                    <StackPanel Grid.Column="1" Spacing="1">
+                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <TextBlock Classes="muted small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
             <TextBlock Classes="muted small" IsVisible="{Binding NoPorts}" TextWrapping="Wrap"
                        Text="Plug the cable in, wait for its driver to load, then press Refresh." />
             <StackPanel Spacing="4">

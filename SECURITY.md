@@ -43,7 +43,7 @@ We won't pursue or support legal action against anyone who researches and report
 
 ## Supported versions
 
-Only the **latest release** gets security fixes. Klemme15 is early alpha and updates often; winget and Scoop keep you current.
+Only the **latest release** gets security fixes. Klemme15 is in beta and updates often; winget and Scoop keep you current.
 
 ## Verifying your download
 
@@ -64,4 +64,5 @@ Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-
 - Files from other people (snapshots, maps, baselines, chains) are size-limited, checked and validated before anything is shown or used.
 - CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; third-party workflow actions are pinned to exact commits.
 - Workflows run with read-only permissions unless a job needs more.
+- Shared baselines are untrusted input: the intake workflow only follows GitHub attachment links, caps the download size, accepts plain numbers in known columns and never runs anything from the file.
 - Contributions require a [Developer Certificate of Origin](CONTRIBUTING.md#sign-off-your-commits-dco) sign-off.

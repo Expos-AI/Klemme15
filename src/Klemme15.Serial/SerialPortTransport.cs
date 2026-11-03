@@ -148,7 +148,9 @@ public static class PortDiscovery
                 }
             }
             if (OperatingSystem.IsMacOS())
-                return ("USB serial", name.Contains("usbserial", StringComparison.OrdinalIgnoreCase));
+                return ("USB serial", name.Contains("usbserial", StringComparison.OrdinalIgnoreCase) && !name.Contains("wchusbserial", StringComparison.OrdinalIgnoreCase));
+            if (OperatingSystem.IsWindows() && CableInspector.IsFtdiOnWindows(name))
+                return ("USB Serial Port (FTDI)", true);
         }
         catch (Exception) { /* description is cosmetic */ }
         return ("Serial port", false);

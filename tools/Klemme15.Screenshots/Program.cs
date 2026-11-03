@@ -72,6 +72,17 @@ Pump(200);
 Shot("33-drain-finder");
 if (!vm.Faults.Drain.HasClues) problems.Add("33-drain-finder: no clues on the demo car");
 vm.Faults.Drain.IsOpen = false;
+// What a cut-off job looks like: the banner that says what happened and what to do.
+vm.Session.Journal.Begin(new Klemme15.Core.RunningOperation
+{
+    Kind = Klemme15.Core.OperationKind.ServiceFunction, Title = "Valvetronic end-stop learning", ModuleId = "E9x.DME",
+    ModuleName = "engine computer (DME)", Started = DateTimeOffset.Now.AddMinutes(-3),
+});
+vm.Session.OperationCutOff();
+Pump(200);
+Shot("34-job-cut-off");
+if (!vm.HasInterrupted) problems.Add("34-job-cut-off: no banner");
+vm.Session.DismissInterrupted();
 if (vm.Faults.Groups.SelectMany(g => g.Faults).FirstOrDefault(f => f.HasGuide) is { } guided)
 {
     guided.GuideOpen = true;

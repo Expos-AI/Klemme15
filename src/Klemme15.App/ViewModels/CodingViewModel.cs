@@ -594,6 +594,14 @@ public sealed partial class CodingViewModel : PageViewModel
             _blocks = null; // the safety backup is always a fresh read
             var backup = await TakeBackupAsync($"before: {p.Item.Title} {(p.On ? "on" : "off")}");
             CodingResult result;
+            // Journaled while it writes: if the cable or computer stops mid-write, Klemme15 says to restore this backup.
+            using var job = _session.BeginOperation(new RunningOperation
+            {
+                Kind = OperationKind.CodingWrite, Title = p.Item.Title, ModuleId = m.Ecu.Id, ModuleName = m.Name,
+                Car = $"{_session.Vehicle?.Id} {_session.Model?.Name}".Trim(), Started = DateTimeOffset.Now, BackupTaken = backup.Taken,
+            });
+            try
+            {
             if (evidence is not null)
             {
                 var changes = p.Item.Toggles.SelectMany(t => CodingToggles.ChangesFor(t, evidence.Module, p.On)).DistinctBy(c => c.Setting.Key).ToList();
@@ -606,6 +614,13 @@ public sealed partial class CodingViewModel : PageViewModel
                 result = await VerifiedWriter.ApplyAsync(Raw, m.Ecu, m.Identity, shared!,
                     p.Item.Toggles.Select(t => t.Id).Where(shared!.Toggles.ContainsKey).ToList(), p.On, backup, new Progress<string>(s => Status = s));
             }
+            }
+            catch (Exception ex) when (ex is DiagnosticException or TimeoutException && Klemme15.Data.ServiceOutcome.IsCutOff(ex))
+            {
+                _session.OperationCutOff();
+                throw;
+            }
+            _session.EndOperation();
             _session.Log.Note($"  -> {result.Message}");
             Status = result.Message;
             _blocks = await ReadBlocksAsync();

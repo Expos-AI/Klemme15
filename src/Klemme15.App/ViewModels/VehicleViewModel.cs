@@ -411,6 +411,8 @@ public sealed class VehicleViewModel : PageViewModel
             Progress = 100;
             ProgressText = scan.Cancelled ? "Quick test stopped." : "";
             var final = scan with { BatteryVoltage = battery };
+            if (!scan.Cancelled && !_session.IsDemo && scan.RespondingEcus == 0)
+                Warning = CableCheck.NoAnswerHelp(dcan: vehicle.Cable != "KLine");
             _session.RecordHealth(final, _engineReadings);
             _session.PublishScan(_session.WithHealth(final));
             UpdateFrmNotice(scan);

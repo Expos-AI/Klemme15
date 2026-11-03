@@ -297,6 +297,22 @@ public sealed record VehicleModel
     public string? EngineCode =>
         System.Text.RegularExpressions.Regex.Match(Engine, @"^[NMS]\d{2}[A-Z]{0,2}") is { Success: true } m ? m.Value : null;
 
+    /// <summary>
+    /// BMW-style engine code with fuel and size, e.g. "N52B30" (petrol, 3.0 L) or "M57D30" (diesel), so baselines for
+    /// a 2.5 L and a 3.0 L N52 are kept apart. Null when the engine text doesn't say.
+    /// </summary>
+    public string? FullEngineCode
+    {
+        get
+        {
+            if (EngineCode is not { } code) return null;
+            var size = System.Text.RegularExpressions.Regex.Match(Engine, @"(\d)\.(\d)\s*L");
+            if (!size.Success) return code;
+            var diesel = code is "M47" or "M57" or "M67" or "N47" or "N57" || Engine.Contains("diesel", StringComparison.OrdinalIgnoreCase);
+            return $"{code}{(diesel ? 'D' : 'B')}{size.Groups[1].Value}{size.Groups[2].Value}";
+        }
+    }
+
     public int IdleRpm { get; init; } = 700;
     public bool Turbo { get; init; }
 }

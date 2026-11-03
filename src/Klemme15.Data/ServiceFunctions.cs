@@ -85,7 +85,13 @@ public sealed record CheckResult(string Text, CheckState State, string? Detail =
 /// <summary>What Klemme15 could measure about the car just before running a function.</summary>
 public sealed record VehicleState(double? Voltage, double? Rpm, double? Speed, bool? Ignition);
 
-public sealed record ServiceOutcome(bool Success, string Message, IReadOnlyList<string> Details);
+/// <param name="CutOff">The cable or the computer stopped mid-job (as opposed to the module answering "no").</param>
+public sealed record ServiceOutcome(bool Success, string Message, IReadOnlyList<string> Details, bool CutOff = false)
+{
+    /// <summary>Whether an exception means the connection itself went away: the cable, the port, or no answer at all.</summary>
+    public static bool IsCutOff(Exception e) => e is TimeoutException
+        || e.InnerException is IOException or TimeoutException or UnauthorizedAccessException or InvalidOperationException;
+}
 
 /// <summary>Klemme15's catalog of service functions (db/service.json).</summary>
 public sealed class ServiceLibrary
@@ -413,7 +419,7 @@ public static class ServiceRunner
         catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException)
         {
             log?.Note($"  -> failed: {e.Message}");
-            return new(false, e.Message, details);
+            return new(false, e.Message, details, ServiceOutcome.IsCutOff(e));
         }
         finally
         {

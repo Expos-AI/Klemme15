@@ -67,6 +67,7 @@ public sealed partial class AnalyseViewModel : PageViewModel
         CycleSpeedCommand = new RelayCommand(() => { Speed = speeds[(Array.IndexOf(speeds, _speed) + 1) % speeds.Length]; });
         ImportBaselineCommand = new AsyncCommand(ImportBaselineAsync, null, e => BaselineStatus = e.Message);
         MakeBaselineCommand = new AsyncCommand(MakeBaselineAsync, () => HasData, e => BaselineStatus = e.Message);
+        ShareBaselineCommand = new AsyncCommand(ShareBaselineAsync, () => HasData, e => BaselineStatus = e.Message);
     }
 
     public override string Title => "Analyse";
@@ -169,6 +170,8 @@ public sealed partial class AnalyseViewModel : PageViewModel
         RaiseScatter(); RaiseMap();
         PlayCommand.RaiseCanExecuteChanged();
         MakeBaselineCommand.RaiseCanExecuteChanged();
+        ShareBaselineCommand.RaiseCanExecuteChanged();
+        Raise(nameof(ShareEngine));
         RefreshBaselines();
     }
 

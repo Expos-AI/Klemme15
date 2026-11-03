@@ -30,10 +30,12 @@ public class GhostHunterTests
         Before = TimeSpan.FromSeconds(before), After = TimeSpan.FromSeconds(after), MaxCaptures = max, Cooldown = TimeSpan.FromSeconds(cooldown),
     };
 
-    private static async Task<List<TriggerCapture>> Run(TriggerRule rule, IEnumerable<DatalogFrame> frames)
+    private static async Task<List<TriggerCapture>> Run(TriggerRule rule, IEnumerable<DatalogFrame> frames, int queue = 2048)
     {
         var captures = new List<TriggerCapture>();
-        var monitor = new TriggerMonitor([rule], (c, _) => { captures.Add(c); return Task.CompletedTask; });
+        // In a car readings arrive a few per second; here they arrive all at once, so a long drive needs a deep enough
+        // queue not to drop any (the real queue drops the oldest if the computer ever falls behind).
+        var monitor = new TriggerMonitor([rule], (c, _) => { captures.Add(c); return Task.CompletedTask; }, capacity: queue);
         var run = monitor.RunAsync(CancellationToken.None);
         foreach (var f in frames) await monitor.Input.WriteAsync(f);
         monitor.Input.Complete();
@@ -199,5 +201,40 @@ public class GhostHunterTests
             Assert.All(t.Rule.Parameters, p => Assert.NotEqual(p, SignalLabels.Name(p)));
         });
         Assert.Equal(TriggerPresets.Templates.Count, TriggerPresets.All.Select(r => r.Id).Distinct().Count());
+    }
+
+    [Fact]
+    public async Task A_45_minute_drive_stays_bounded()
+    {
+        // 45 minutes at 5 readings a second, the battery dipping once every 10 minutes: five captures at most, each
+        // with its minute before and after, and memory that never grows with the length of the drive.
+        var rule = DipRule(hold: 0.5, before: 60, after: 60, max: 5, cooldown: 120);
+        var frames = Enumerable.Range(0, 45 * 60 * 5).Select(i =>
+        {
+            var t = i * 0.2;
+            var dip = t % 600 is > 300 and < 302;
+            return F(t, 2000 + 500 * Math.Sin(t / 30), dip ? 11.0 : 14.1);
+        });
+        var before = GC.GetTotalMemory(forceFullCollection: true);
+        var captures = await Run(rule, frames, queue: 16384);
+        var after = GC.GetTotalMemory(forceFullCollection: true);
+
+        Assert.Equal(4, captures.Count);                       // dips at 5, 15, 25 and 35 minutes; the one at 45 is past the end
+        Assert.All(captures, c =>
+        {
+            Assert.False(c.Event.Partial);
+            Assert.InRange(c.Frames.Count, 590, 610);          // 60 s + 60 s at 5 per second
+        });
+        Assert.True(after - before < 50_000_000, $"memory grew by {(after - before) / 1_000_000} MB");
+    }
+
+    [Fact]
+    public void The_ring_buffer_never_holds_more_than_its_window()
+    {
+        var buffer = new LiveRingBuffer<DatalogFrame>(TimeSpan.FromSeconds(60), 2048, f => f.Time);
+        for (var i = 0; i < 45 * 60 * 5; i++) buffer.Add(F(i * 0.2, 800));
+        Assert.InRange(buffer.Count, 299, 301);                // one minute at 5 per second
+        var snap = buffer.Snapshot();
+        Assert.True(snap[^1].Time - snap[0].Time <= TimeSpan.FromSeconds(60));
     }
 }

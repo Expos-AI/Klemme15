@@ -46,6 +46,35 @@ public sealed partial class AnalyseViewModel
 
     public AsyncCommand ImportBaselineCommand { get; }
     public AsyncCommand MakeBaselineCommand { get; }
+    public AsyncCommand ShareBaselineCommand { get; private set; } = null!;
+
+    private string? _shareEngine;
+
+    /// <summary>The engine code for a shared baseline (from the connected car; editable, e.g. N52B25 outside the US).</summary>
+    public string ShareEngine { get => _shareEngine ?? EngineCode() ?? ""; set => Set(ref _shareEngine, value?.Trim().ToUpperInvariant()); }
+
+    /// <summary>
+    /// Shares this log so owners of the same engine get a community baseline: checks it's warm and covers idle and a
+    /// range of engine speeds, saves a contribution file with only the engine values (no VIN, no date, no location),
+    /// and opens the form on GitHub to attach it. A pipeline there checks it again and prepares the baseline.
+    /// </summary>
+    private async Task ShareBaselineAsync()
+    {
+        var engine = ShareEngine;
+        var problems = BaselineContribution.Check(_log, engine);
+        if (problems.Count > 0) { BaselineStatus = "Not ready to share yet: " + string.Join(" ", problems); return; }
+        var version = typeof(AnalyseViewModel).Assembly.GetName().Version?.ToString(3) ?? "";
+        var csv = BaselineContribution.ToCsv(_log, engine, ChassisName(), ModelName(), version);
+        var saved = await _dialogs.SaveTextAsync("Save your baseline to share", $"baseline-{engine.ToLowerInvariant()}", "csv", csv);
+        if (!saved) return;
+        await _dialogs.OpenUrlAsync(BaselineContribution.IssueUrl(engine));
+        BaselineStatus = "Saved. On the GitHub page that just opened, attach the file and send it: a check runs on it straight away and prepares " +
+                         $"the {engine} baseline for the next release. Thank you!";
+    }
+
+    /// <summary>The connected car's chassis and model, for the contribution's comment lines (set by the main window).</summary>
+    public Func<string?> ChassisName { get; set; } = () => null;
+    public Func<string?> ModelName { get; set; } = () => null;
 
     public ObservableCollection<BaselineChoice> Baselines { get; } = [];
     public bool HasBaselines => Baselines.Count > 1;

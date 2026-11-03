@@ -44,7 +44,13 @@ Your own baselines are saved in `Klemme15/baselines` under your application data
 
 ## Share yours
 
-If your car is healthy, make a baseline and share it with the [Share a healthy baseline](https://github.com/Expos-AI/Klemme15/issues/new?template=healthy-baseline.yml) form. Baselines from several cars of the same engine are combined (the percentiles are taken over all of their readings) and shipped with the next release, with the number of cars shown.
+If your car is healthy, share a log of a warm drive:
+
+1. Open the log on the **Analyse** page (record one on the Live data page first: idle for half a minute, then drive through a range of engine speeds past 3,000 rpm).
+2. Check the engine code next to **Share as a healthy baseline** (Klemme15 fills it in from your car, for example `N52B30`; a 2.5 L N52 is `N52B25`) and press the button.
+3. Klemme15 checks the log is warm and covers idle and a range of engine speeds, saves a small `.csv` with only the engine values (no VIN, no date, no location) and opens the [Share a healthy baseline](https://github.com/Expos-AI/Klemme15/issues/new?template=healthy-baseline.yml) form. Attach the file and submit.
+
+A workflow on GitHub (**Baseline intake**) then checks the file again with `scripts/baseline_intake.py`, stores it in [`data/baselines/contrib`](../data/baselines/README.md), rebuilds that engine's community baseline with the same maths Klemme15 uses, comments the result on your issue and opens a pull request. Once it's merged, the next release offers the baseline to every owner of that engine, with the number of cars shown. Logs from several cars of the same engine are pooled: the percentiles are taken over all of their readings.
 
 ## The file
 

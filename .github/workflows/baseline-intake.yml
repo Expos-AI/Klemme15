@@ -1,0 +1,70 @@
+name: Baseline intake
+
+# When someone shares a healthy baseline (the "Share a healthy baseline" issue form, labelled "baseline"), this checks
+# the attached file with scripts/baseline_intake.py, stores it, rebuilds that engine's community baseline, opens a pull
+# request for the maintainer to merge, and comments the result on the issue. Editing the issue re-runs the check.
+#
+# Everything in the issue is untrusted: it reaches the script only as a file (never through the shell), the script
+# follows only github.com attachment links, size-caps the download and accepts plain numbers in known columns.
+on:
+  issues:
+    types: [opened, edited, labeled]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: baseline-intake-${{ github.event.issue.number }}
+  cancel-in-progress: true
+
+jobs:
+  intake:
+    if: contains(github.event.issue.labels.*.name, 'baseline')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write        # push the branch with the contribution
+      pull-requests: write   # open the pull request
+      issues: write          # comment the result on the issue
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+      - name: Check and store the contribution
+        id: intake
+        env:
+          BODY: ${{ github.event.issue.body }}
+          ISSUE: ${{ github.event.issue.number }}
+          LOGIN: ${{ github.event.issue.user.login }}
+        run: |
+          printf '%s' "$BODY" > "$RUNNER_TEMP/body.md"
+          python3 -I scripts/baseline_intake.py intake --body-file "$RUNNER_TEMP/body.md" --issue "$ISSUE" --login "$LOGIN" --report "$RUNNER_TEMP/report.md" \
+            && echo "accepted=true" >> "$GITHUB_OUTPUT" || echo "accepted=false" >> "$GITHUB_OUTPUT"
+      - name: Rebuild the community baselines
+        if: steps.intake.outputs.accepted == 'true'
+        run: python3 -I scripts/baseline_intake.py build
+      - name: Open or update the pull request
+        if: steps.intake.outputs.accepted == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+          ENGINE: ${{ steps.intake.outputs.engine }}
+        run: |
+          set -euo pipefail
+          branch="baseline/issue-$ISSUE"
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git checkout -B "$branch"
+          git add data/baselines/contrib src/Klemme15.Data/db/baselines.json
+          git commit -m "Baseline: $ENGINE from #$ISSUE" -m "Signed-off-by: github-actions <github-actions@users.noreply.github.com>"
+          git push -f origin "$branch"
+          if ! gh pr view "$branch" --json number > /dev/null 2>&1; then
+            gh pr create --base main --head "$branch" --title "Baseline: $ENGINE from #$ISSUE" --body-file "$RUNNER_TEMP/report.md"
+          fi
+          echo "" >> "$RUNNER_TEMP/report.md"
+          echo "Pull request: $(gh pr view "$branch" --json url --jq .url)" >> "$RUNNER_TEMP/report.md"
+      - name: Comment the result on the issue
+        if: always() && steps.intake.outcome != 'skipped'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISSUE: ${{ github.event.issue.number }}
+        run: gh issue comment "$ISSUE" --body-file "$RUNNER_TEMP/report.md"

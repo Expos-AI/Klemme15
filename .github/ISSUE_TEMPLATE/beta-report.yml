@@ -1,0 +1,64 @@
+name: Beta report
+description: You're testing the Klemme15 beta. Tell us what you tried, what worked and what broke.
+title: "Beta: "
+labels: ["beta"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing! The [tester guide](https://github.com/Expos-AI/Klemme15/blob/main/docs/BETA.md) lists what to try.
+        Attach the `.k15` snapshot (with the traffic log ticked) at the bottom: it shows us exactly what happened. The VIN is removed (skim the traffic log if that matters to you).
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Chassis, model, engine and year, e.g. "E46 330i M54 2003" or "E60 535d M57 2008".
+    validations:
+      required: true
+  - type: input
+    id: cable
+    attributes:
+      label: Cable and computer
+      description: Cable brand, what the Garage's "Check cable" said (FTDI or not, latency), operating system, and whether you used EDIABAS mode.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Klemme15 version
+      description: Shown at the bottom of the left rail.
+    validations:
+      required: true
+  - type: checkboxes
+    id: tried
+    attributes:
+      label: What you tried
+      options:
+        - label: Quick test
+        - label: Faults and their meanings
+        - label: Ghost Hunter on a drive
+        - label: Live data and Analyse
+        - label: Guided tests
+        - label: Battery drain finder
+        - label: Pulling the cable mid-test on purpose
+  - type: textarea
+    id: worked
+    attributes:
+      label: What worked well
+  - type: textarea
+    id: broke
+    attributes:
+      label: What broke or confused you
+      description: What you did, what you expected, what happened. Screenshots welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: drive
+    attributes:
+      label: Long drive (if you ran the Ghost Hunter)
+      description: How long, did the app stay responsive, did the laptop stay awake, how many captures.
+  - type: textarea
+    id: files
+    attributes:
+      label: Snapshot and traffic log
+      description: Put the .k15 file(s) in a .zip (GitHub only accepts certain file types) and drag the zip here.

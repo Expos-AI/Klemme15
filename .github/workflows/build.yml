@@ -113,6 +113,21 @@ jobs:
             exit 1
           }
 
+  baseline-pipeline:
+    # The community baseline pipeline must build exactly what Klemme15 itself would (the C# tests check the other side).
+    name: Baseline pipeline
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Check the sample contribution and rebuild it
+        run: |
+          set -euo pipefail
+          python3 -I scripts/baseline_intake.py check tests/Klemme15.Tests/Fixtures/contrib/N52B30/issue-1.csv
+          echo "[]" > "$RUNNER_TEMP/db.json"
+          python3 -I scripts/baseline_intake.py build --contrib tests/Klemme15.Tests/Fixtures/contrib --db "$RUNNER_TEMP/db.json"
+          diff <(python3 -c "import json,sys; print(json.dumps(json.load(open(sys.argv[1])), sort_keys=True, indent=1))" "$RUNNER_TEMP/db.json") \
+               <(python3 -c "import json,sys; print(json.dumps(json.load(open(sys.argv[1])), sort_keys=True, indent=1))" tests/Klemme15.Tests/Fixtures/contrib-expected.json)
+
   windows-ediabas:
     # EdiabasLib is built for every OS now; Linux is the cheapest place to prove it compiles in.
     name: Build with EDIABAS mode

@@ -9,7 +9,7 @@
 
 **Free, open-source, offline diagnostics for older BMWs.** Scan every module, find out what each fault and dash warning really means, watch your car's health over time, test parts before you buy them, run workshop service functions and back up or code comfort modules. One cheap K+DCAN cable, on Windows, macOS or Linux. No account, no subscription, no cloud.
 
-> **Status: early alpha, tested on a real car.** Confirmed on a 2006 E90 325i over D-CAN: every module identified with part numbers, faults and Shadow / Info memory read and cleared, dash message history decoded, live data recorded, fuel trim test run, and battery registration done on the engine computer. Everything else is built from BMW's data and tested against demo cars; features that change something on the car are marked experimental until someone confirms them. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
+> **Status: beta candidate, tested on a real car. [Testers wanted](docs/BETA.md).** Confirmed on a 2006 E90 325i over D-CAN: every module identified with part numbers, faults and Shadow / Info memory read and cleared, dash message history decoded, live data recorded, fuel trim test run, and battery registration done on the engine computer. Everything else is built from BMW's data and tested against demo cars; features that change something on the car are marked experimental until someone confirms them. Please test on your car and [report what you see](CONTRIBUTING.md#report-a-test-drive).
 
 Klemme15 is an independent project. It is not affiliated with or endorsed by BMW AG. BMW, ISTA, INPA, NCS Expert and EDIABAS are trademarks of BMW AG.
 
@@ -43,6 +43,7 @@ scoop install klemme15
 ## What it does
 
 ### Find out what's wrong
+- **Cable check before connecting**: Klemme15 looks at your cable before it talks to the car. It tells you if it's a genuine FTDI chip or shows the signs of a clone, if its latency timer is slowing things down (and exactly where to set it to 1 ms), and if another program such as INPA still has the port. If no module answers, it says why that usually happens, including cheap cables with pins 7 and 8 bridged.
 - **Quick test**: checks the battery, finds every fitted module with one broadcast, identifies each one (part number, coding index) and reads its fault memory. Knows 45 E90-family modules and 23 E46 modules, options included.
 - **Faults sorted by what matters**: fix now, worth checking, and background (Shadow / Info memory, leftovers of battery work), so ten codes don't turn into ten parts. Clear one module or all of them, Shadow / Info memory included, as ISTA does.
 - **Every code explained**: 203 BMW codes researched in our own words with sources and confidence, all 2,066 standard OBD-II codes, and a meaning from its number range and module for any code no source describes. Optionally, BMW's own meaning for your exact module version, from the free [bmw-unified-db](https://github.com/gediz/bmw-unified-db) download or your own ISTA/INPA files ([how](docs/FAULT-DATA.md)).
@@ -100,7 +101,7 @@ The E90 family is confirmed on a real car (a 2006 325i); the others are built fr
 1. Get a K+DCAN USB cable with a K-line / D-CAN switch and an FTDI chip. Confirmed on a real car: the [AntiBreak K+DCAN cable with switch](https://www.amazon.com/dp/B079KC43WG). Install its FTDI driver if Windows doesn't do it automatically.
 2. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for E46 and older, **D-CAN** for E90 and newer.
 3. Ignition on (key position 2, engine off) for scans; engine running for live data.
-4. Start Klemme15, choose your car and port, press **Connect**, then **Run quick test**.
+4. Start Klemme15, choose your car and port, press **Check cable** (fix anything it flags), then **Connect** and **Run quick test**.
 
 No car nearby? Pick any model in the garage and press **Open demo car**.
 
@@ -178,9 +179,11 @@ Details in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). Maintainers: [how a rel
 
 Diagnostics are read-only by default. Clearing faults asks first. Service functions and tests that switch a part on check the car, ask you to confirm each requirement, always switch the part off again, and stay behind the experimental switch until confirmed on a real car. Coding is limited to comfort modules, needs a solid battery voltage, is always backed up first and only uses settings Klemme15 knows exactly for your module (see [docs/CODING.md](docs/CODING.md)). Flashing, keys, the key module (CAS) and anything touching the immobiliser are **not** included, on purpose ([why](docs/ROADMAP.md#not-planned-on-purpose)). Never use Klemme15 while driving: have a passenger watch, or record to CSV.
 
+If a job that changes the car is cut off (the cable comes out, the laptop sleeps, Windows restarts), Klemme15 remembers it, even after a restart, and says exactly what to do: modules drop the diagnostic session by themselves within seconds, a part Klemme15 switched on is switched off again when you reconnect, and an interrupted coding write points you to the backup taken just before it. While a job runs, Klemme15 keeps the computer from going to sleep.
+
 ## Privacy
 
-Everything Klemme15 reads from your car stays on your computer. There's no account, no telemetry and no server. Saved automatically: the small health history (no VIN, never uploaded, one click to forget a car), and, only while the Ghost Hunter watches, its captures (VIN removed). Baselines you make stay on your computer too. It goes online only when you ask: downloading the optional fault database or community coding maps, opening a link, or a network cable you set up. See [PRIVACY.md](PRIVACY.md).
+Everything Klemme15 reads from your car stays on your computer. There's no account, no telemetry and no server. Saved automatically: the small health history (no VIN, never uploaded, one click to forget a car), and, only while the Ghost Hunter watches, its captures (VIN removed). Baselines you make stay on your computer too, unless you choose to share one. It goes online only when you ask: downloading the optional fault database or community coding maps, opening a link, or a network cable you set up. See [PRIVACY.md](PRIVACY.md).
 
 ## Security
 
@@ -188,7 +191,7 @@ Found a security problem? Please report it privately, not in a public issue: see
 
 ## Contributing
 
-The most useful help is **testing on your car**: run a quick test and send the report and traffic log ([how](CONTRIBUTING.md#report-a-test-drive)). You can also share a **coding map** with one click from the Coding page, a **check or pin note** for a part you've tested, a **healthy baseline** from your car's log ([how](docs/BASELINES.md#share-yours)), or a fault meaning in your own words ([data guide](docs/CONTRIBUTING-DATA.md)). Code contributions need a [DCO sign-off](CONTRIBUTING.md#sign-off-your-commits-dco).
+The most useful help is **testing on your car**: run a quick test and send the report and traffic log ([how](CONTRIBUTING.md#report-a-test-drive)), or join the beta and try to break it ([tester guide](docs/BETA.md)). You can also share a **coding map** with one click from the Coding page, a **check or pin note** for a part you've tested, a **healthy baseline** from your car's log (one button on the Analyse page; a check on GitHub prepares your engine's baseline automatically, [how](docs/BASELINES.md#share-yours)), or a fault meaning in your own words ([data guide](docs/CONTRIBUTING-DATA.md)). Code contributions need a [DCO sign-off](CONTRIBUTING.md#sign-off-your-commits-dco).
 
 ## Credits
 

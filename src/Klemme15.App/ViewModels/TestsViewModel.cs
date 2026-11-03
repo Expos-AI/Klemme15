@@ -305,6 +305,16 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         _cts = new CancellationTokenSource();
         IsRunning = true;
         _session.Log.Note($"Guided test '{test.Title}' started");
+        // Keep the computer awake (the bleed assistant runs 13 minutes); a test that drives a part is also journaled,
+        // so a cut-off is noticed and the part is switched off again on reconnect.
+        var cutOff = false;
+        using var job = actuator is not null
+            ? _session.BeginOperation(new RunningOperation
+            {
+                Kind = OperationKind.PartTest, Title = test.Title, ModuleId = engine.Id, ModuleName = engine.Name,
+                Car = $"{_session.Vehicle?.Id} {_session.Model?.Name}".Trim(), Started = DateTimeOffset.Now, StopAction = "pump",
+            })
+            : Klemme15.App.Services.SleepGuard.Hold(test.Title);
         try
         {
             var progress = new Progress<TestProgress>(p => { Instruction = p.Instruction; Status = p.Status; Fraction = p.Fraction * 100; ShowTraces(p.Traces); });
@@ -325,9 +335,14 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             _session.Log.Note($"Guided test '{test.Title}': {string.Join("; ", report.Findings.Select(f => f.Title))}");
         }
         catch (OperationCanceledException) { Instruction = "Stopped."; Status = ""; }
-        catch (Exception e) when (e is DiagnosticException or TimeoutException) { Instruction = $"Couldn't finish: {e.Message}"; }
+        catch (Exception e) when (e is DiagnosticException or TimeoutException)
+        {
+            Instruction = $"Couldn't finish: {e.Message}";
+            cutOff = actuator is not null && Klemme15.Data.ServiceOutcome.IsCutOff(e);
+        }
         finally
         {
+            if (actuator is not null) { if (cutOff) _session.OperationCutOff(); else _session.EndOperation(); }
             _cts.Dispose();
             _cts = null;
             IsRunning = false;

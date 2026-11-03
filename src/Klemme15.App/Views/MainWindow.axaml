@@ -81,7 +81,7 @@
       </DockPanel>
     </Border>
 
-    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*">
+    <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto,*">
       <!-- Header: which car, how it's connected -->
       <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,0,0,1" Padding="28,14">
         <DockPanel>
@@ -110,7 +110,19 @@
         </StackPanel>
       </Border>
 
-      <ContentControl Grid.Row="2" Content="{Binding CurrentPage}" />
+      <!-- A job that changes the car was cut off: what happened and what to do -->
+      <Border Grid.Row="2" IsVisible="{Binding HasInterrupted}" Background="{DynamicResource RedSoftBrush}" BorderBrush="{DynamicResource RedBrush}" BorderThickness="0,0,0,1" Padding="28,10">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="Done" Command="{Binding DismissInterruptedCommand}" VerticalAlignment="Top" Margin="12,0,0,0"
+                  ToolTip.Tip="Hide this once you've followed the steps" />
+          <StackPanel Spacing="2">
+            <TextBlock Text="A job was cut off" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding InterruptedAdvice}" TextWrapping="Wrap" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <ContentControl Grid.Row="3" Content="{Binding CurrentPage}" />
     </Grid>
   </Grid>
 </Window>

@@ -375,6 +375,12 @@ public sealed class ServiceViewModel : PageViewModel
         Result = null;
         ResultDetails.Clear();
         Status = $"Running '{item.Title}'. Don't switch off the ignition or unplug the cable.";
+        var cutOff = false;
+        using var job = _session.BeginOperation(new RunningOperation
+        {
+            Kind = OperationKind.ServiceFunction, Title = item.Title, ModuleId = ecu.Id, ModuleName = ecu.Name,
+            Car = $"{_session.Vehicle?.Id} {_session.Model?.Name}".Trim(), Started = DateTimeOffset.Now,
+        });
         try
         {
             if (!_session.IsDemo && FrmGuard.IsFootwellModule(ecu))
@@ -392,6 +398,7 @@ public sealed class ServiceViewModel : PageViewModel
             var progress = new Progress<string>(text => Status = text);
             var outcome = await ServiceRunner.RunAsync(item.Function, item.Availability, backend, ecu, InputValues(), progress, _session.Log, _cts.Token);
             ResultOk = outcome.Success;
+            cutOff = outcome.CutOff;
             foreach (var d in outcome.Details) ResultDetails.Add(d);
             Result = outcome.Success ? outcome.Message : $"Didn't work: {outcome.Message}";
             Status = outcome.Success ? "Finished. Follow the steps under 'Afterwards'." : "Stopped. The part was handed back to the module; the traffic log has the details.";
@@ -402,8 +409,20 @@ public sealed class ServiceViewModel : PageViewModel
             Result = "Stopped. The part was handed back to the module.";
             Status = "";
         }
+        catch (Exception e) when (e is DiagnosticException or TimeoutException && ServiceOutcome.IsCutOff(e))
+        {
+            cutOff = true;
+            ResultOk = false;
+            Result = $"Cut off: {e.Message}";
+        }
         finally
         {
+            if (cutOff)
+            {
+                _session.OperationCutOff();
+                Status = "The connection was lost mid-job. The message at the top says what to do now.";
+            }
+            else _session.EndOperation();
             _running = false;
             _cts.Dispose();
             _cts = null;

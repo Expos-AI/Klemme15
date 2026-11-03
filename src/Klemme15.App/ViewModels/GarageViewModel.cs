@@ -29,6 +29,16 @@ public sealed class FamilyOption(VehicleFamily family) : ViewModelBase
     public RelayCommand? SelectCommand { get; set; }
 }
 
+public sealed class CableFindingViewModel(CableFinding finding)
+{
+    public string Title => finding.Title;
+    public string Detail => finding.Detail;
+    public bool IsWarn => finding.Level == CheckLevel.Warn;
+    public bool IsAsk => finding.Level == CheckLevel.Ask;
+    public bool IsGood => finding.Level == CheckLevel.Good;
+    public bool IsInfo => finding.Level == CheckLevel.Info;
+}
+
 /// <summary>Start page: choose the car, then open its demo or connect the cable.</summary>
 public sealed class GarageViewModel : PageViewModel
 {
@@ -74,6 +84,7 @@ public sealed class GarageViewModel : PageViewModel
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected);
         RefreshPortsCommand = new RelayCommand(RefreshPorts);
+        CheckCableCommand = new RelayCommand(() => CheckCable(tryOpen: true), () => _port is not null && !UsesNetwork && !_busy);
         BrowseEdiabasCommand = new AsyncCommand(BrowseEdiabasAsync);
         DownloadFaultDataCommand = new AsyncCommand(DownloadFaultDataAsync, () => !_downloading, e => { _downloading = false; DownloadText = null; FaultDataStatus = $"Download failed: {e.Message}"; DownloadFaultDataCommand?.RaiseCanExecuteChanged(); });
         OpenFaultDataPageCommand = new AsyncCommand(() => _dialogs.OpenUrlAsync(FaultDataDownload.ProjectUrl));
@@ -280,7 +291,13 @@ public sealed class GarageViewModel : PageViewModel
     public PortInfo? Port
     {
         get => _port;
-        set { if (Set(ref _port, value)) ConnectCarCommand.RaiseCanExecuteChanged(); }
+        set
+        {
+            if (!Set(ref _port, value)) return;
+            ConnectCarCommand.RaiseCanExecuteChanged();
+            CheckCableCommand?.RaiseCanExecuteChanged();
+            CheckCable(tryOpen: false);
+        }
     }
 
     public bool NoPorts => Ports.Count == 0 && !UsesNetwork;
@@ -350,6 +367,30 @@ public sealed class GarageViewModel : PageViewModel
     public RelayCommand ShowCableCommand { get; }
     public AsyncCommand DisconnectCommand { get; }
     public RelayCommand RefreshPortsCommand { get; }
+
+    // ---------------------------------------------------------------- cable check
+
+    public RelayCommand CheckCableCommand { get; }
+    public ObservableCollection<CableFindingViewModel> CableFindings { get; } = [];
+    public bool HasCableFindings => CableFindings.Count > 0;
+
+    /// <summary>
+    /// Checks the cable behind the selected port: FTDI or not, known signs of a cloned chip, the latency timer, and
+    /// (when tryOpen) whether another program has the port. Reads only what the computer knows; nothing goes to the car.
+    /// </summary>
+    private IReadOnlyList<CableFinding> CheckCable(bool tryOpen)
+    {
+        CableFindings.Clear();
+        IReadOnlyList<CableFinding> findings = [];
+        if (_port is { } port && !UsesNetwork)
+        {
+            try { findings = CableCheck.Assess(CableInspector.Read(port.Name, tryOpen)); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException or InvalidOperationException) { }
+            foreach (var f in findings) CableFindings.Add(new CableFindingViewModel(f));
+        }
+        Raise(nameof(HasCableFindings));
+        return findings;
+    }
     public AsyncCommand BrowseEdiabasCommand { get; }
 
     public void SelectFamily(FamilyOption option)
@@ -431,6 +472,12 @@ public sealed class GarageViewModel : PageViewModel
     {
         if (_model is null) return;
         Error = null;
+        // Pre-flight: a port another program holds can't work, so say so instead of timing out against the car.
+        if (!demo && !UsesNetwork && CheckCable(tryOpen: true).FirstOrDefault(f => f.Title.Contains("in use", StringComparison.Ordinal)) is { } busy)
+        {
+            Error = $"{busy.Title}. {busy.Detail}";
+            return;
+        }
         _busy = true;
         OpenDemoCommand.RaiseCanExecuteChanged();
         ConnectCarCommand.RaiseCanExecuteChanged();

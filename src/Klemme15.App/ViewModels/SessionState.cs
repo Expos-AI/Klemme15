@@ -30,6 +30,44 @@ public sealed class SessionState : ViewModelBase
     {
         Database = database;
         History = new HealthHistoryStore(historyFolder ?? DefaultHistoryFolder);
+        Journal = new OperationJournal(Path.Combine(Path.GetDirectoryName(historyFolder ?? DefaultHistoryFolder)!, "running-job.json"));
+        _interrupted = Journal.Pending();
+    }
+
+    // ---------------------------------------------------------------- jobs that change the car
+
+    /// <summary>Remembers a job that changes the car while it runs, so a cut-off is noticed even after a reboot.</summary>
+    public OperationJournal Journal { get; }
+    private RunningOperation? _interrupted;
+
+    /// <summary>A job that was cut off (now, or the last time Klemme15 ran), until the user dismisses it.</summary>
+    public RunningOperation? Interrupted
+    {
+        get => _interrupted;
+        private set { if (Set(ref _interrupted, value)) { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); } }
+    }
+
+    public bool HasInterrupted => _interrupted is not null;
+    public string InterruptedAdvice => _interrupted is { } op ? OperationJournal.Advice(op) : "";
+
+    /// <summary>Starts a job that changes the car: written to disk, and the computer kept awake, until it's ended.</summary>
+    public IDisposable BeginOperation(RunningOperation op)
+    {
+        if (_isDemo) return Klemme15.App.Services.SleepGuard.Hold(op.Title);
+        Journal.Begin(op);
+        return Klemme15.App.Services.SleepGuard.Hold(op.Title);
+    }
+
+    /// <summary>The job ended normally (finished, failed with an answer from the car, or stopped by the user).</summary>
+    public void EndOperation() => Journal.End();
+
+    /// <summary>The job was cut off: the cable or the car stopped answering. Keeps the journal and shows what to do.</summary>
+    public void OperationCutOff() => Interrupted = Journal.Pending();
+
+    public void DismissInterrupted()
+    {
+        Journal.End();
+        Interrupted = null;
     }
 
     public static string DefaultHistoryFolder =>
@@ -293,6 +331,16 @@ public sealed class SessionState : ViewModelBase
         {
             try { _engineIdentity = await backend.IdentifyAsync(engine, ct); }
             catch (Exception e) when (e is DiagnosticException or TimeoutException) { }
+        }
+        if (!settings.Demo && _interrupted is { StopAction: "pump" } && vehicle.Modules.FirstOrDefault(m => m.IsEngine) is { } eng
+            && Klemme15.App.Services.JobPumpActuator.For(this, eng) is { } pump)
+        {
+            try
+            {
+                await pump.StopAsync(ct);
+                Log.Note("Recovery: sent the water pump switch-off again after an interrupted test");
+            }
+            catch (Exception e) when (e is DiagnosticException or TimeoutException or NotSupportedException) { }
         }
         Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
         Status = $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");

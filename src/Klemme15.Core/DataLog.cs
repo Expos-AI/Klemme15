@@ -110,7 +110,8 @@ public sealed class DataLog
     /// </summary>
     public static DataLog Parse(string csv)
     {
-        var lines = csv.Replace("\r\n", "\n").Split('\n').Where(l => l.Length > 0).ToList();
+        // Lines starting with # are comments (a baseline contribution carries its engine and version that way).
+        var lines = csv.Replace("\r\n", "\n").Split('\n').Where(l => l.Length > 0 && !l.StartsWith('#')).ToList();
         if (lines.Count < 2) return new DataLog([], []);
         var header = SplitCsv(lines[0]);
         var channelCount = header.Count - 1;

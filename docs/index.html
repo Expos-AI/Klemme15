@@ -440,7 +440,7 @@
           <p class="section-lede">The warning that comes and goes is the hardest one to fix. Set a trap, drive, and let Klemme15 catch it.</p>
           <ul class="ticks">
               <li><b>Ghost Hunter.</b> Say what you're chasing in plain words (an intermittent misfire, a voltage dip, a lean idle, running rich, overheating, a charging dropout, a stall) and drive. When it happens, Klemme15 saves a snapshot with the minute before and the minute after, and for a misfire it names the rough cylinder. Nothing to tap while driving.</li>
-              <li><b>Known good baselines.</b> The healthy range drawn behind your log, lined up by engine speed, with a line saying where your engine leaves it. Make one from your own car when it runs well; an N52 physics model ships, clearly labelled as not measured.</li>
+              <li><b>Known good baselines.</b> The healthy range drawn behind your log, lined up by engine speed, with a line saying where your engine leaves it. Make one from your own car when it runs well, or share it with one button: a check on GitHub builds your engine's community baseline. An N52 physics model ships, clearly labelled as not measured.</li>
               <li><b>Live values on the car.</b> Coolant, battery voltage, oil and intake temperature on the top view of the car, where each one happens, amber or red when out of range.</li>
           </ul>
         </div>
@@ -489,6 +489,21 @@
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg></div>
             <h3>Plain English fault translations</h3>
             <p>Every fault gets a meaning, sorted into fix now, worth checking and background. Hundreds of BMW codes and dash messages researched in our own words with sources, all standard OBD-II codes, and BMW's own text from your files when you have them.</p>
+          </article>
+          <article class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7V3M15 7V3M7 7h10v5a5 5 0 0 1-10 0z"/><path d="M12 17v4"/></svg></div>
+            <h3>Checks your cable first</h3>
+            <p>Most "the software doesn't work" moments are the cable. Klemme15 spots a cloned chip, a slow latency setting or a port another program holds, and tells you exactly what to change, before it talks to the car.</p>
+          </article>
+          <article class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
+            <h3>Survives a pulled cable</h3>
+            <p>If a job is cut off by a loose cable, a sleeping laptop or a forced restart, Klemme15 remembers it and says exactly what to do next. Parts it switched on are switched off again when you reconnect, and the laptop stays awake while jobs run.</p>
+          </article>
+          <article class="card">
+            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+            <h3>Downloads you can verify</h3>
+            <p>Every release is built in the open by GitHub from this repository, with checksums and a signed record of exactly which code it was built from. Open source, no account, nothing sent home.</p>
           </article>
         </div>
       </div>
@@ -592,6 +607,7 @@
               <li><b>An FTDI chip.</b> Klemme15 recognises FTDI cables by itself and picks the right port; on Windows the driver usually installs automatically.</li>
               <li><b>Confirmed with Klemme15 on a real car:</b> the inexpensive <a href="https://www.amazon.com/dp/B079KC43WG">AntiBreak K+DCAN cable with switch</a> (FTDI), used on a 2006 E90 325i for every real-car test so far: quick test, faults, dash messages, live data, fuel trim test and battery registration.</li>
               <li><b>Also popular:</b> the <a href="https://www.bimmergeeks.net/store">BimmerGeeks</a> K+DCAN cables, and plenty of plain FTDI cables with a switch. Klemme15 isn't affiliated with any seller.</li>
+              <li><b>Klemme15 checks it for you.</b> Press <b>Check cable</b> in the Garage: it tells you whether the chip is a genuine FTDI or shows the signs of a clone, whether the latency timer is slowing things down (and exactly where to set it to 1 ms), and whether another program still has the port.</li>
               <li><b>No laptop in the car?</b> A cable behind a Wi-Fi bridge (ser2net or an ESP32) works too, best on D-CAN cars.</li>
             </ul>
           </div>
@@ -628,6 +644,7 @@
           </div>
         </div>
         <p class="meta"><span>Windows, macOS, Linux</span><span>No installer, no account</span><span>Not affiliated with BMW AG</span></p>
+        <p class="note">Got an E46, E60 or E90-family car and a cable? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/BETA.md">Join the beta</a> and help us try to break it before 1.0.</p>
       </div>
     </section>
   </main>

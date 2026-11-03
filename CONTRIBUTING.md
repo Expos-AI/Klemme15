@@ -18,6 +18,14 @@ Traffic logs contain your VIN. Remove it if you prefer.
 - **Checks and pin notes**: how you tested a part or found a connector, in your own words: [share a check](https://github.com/Expos-AI/Klemme15/issues/new?template=pin-note.yml).
 - **Dash messages**: if Klemme15 shows a Check Control message as unknown, tell us the text your dash showed.
 
+## Test the beta
+
+Testers with different cars and cables help most right now: see the [tester guide](docs/BETA.md) and send a [Beta report](https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml).
+
+## Share a healthy baseline
+
+Car running well? On the Analyse page, **Share as a healthy baseline** prepares a log of a warm drive and opens the form; a workflow checks it and builds your engine's baseline. [How it works](docs/BASELINES.md#share-yours).
+
 ## Code
 
 - .NET 10, C# latest, nullable enabled. Run `dotnet test tests/Klemme15.Tests` before opening a PR.

@@ -395,6 +395,7 @@ public sealed class TriggerViewModel : PageViewModel
             : $"Watching {st.ArmedRules} rule{(st.ArmedRules == 1 ? "" : "s")} · {st.FramesPerSecond:0.0} readings/s · {st.Captures} caught");
 
         _cts = new CancellationTokenSource();
+        using var awake = Klemme15.App.Services.SleepGuard.Hold("Ghost Hunter watching");
         IsWatching = true;
         _session.IsWatching = true;
         Banner = "";

@@ -56,7 +56,9 @@ public sealed class MainViewModel : ViewModelBase
         Analyse = new AnalyseViewModel(dialogs)
         {
             ShippedBaselines = () => Session.Database.Baselines,
-            EngineCode = () => Session.Model?.EngineCode,
+            EngineCode = () => Session.Model?.FullEngineCode,
+            ChassisName = () => Session.Vehicle?.Id,
+            ModelName = () => Session.Model?.Name,
             Store = new BaselineStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData,
                 Environment.SpecialFolderOption.Create), "Klemme15", "baselines")),
         };
@@ -86,8 +88,11 @@ public sealed class MainViewModel : ViewModelBase
         PrivacyCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Privacy));
         CoffeeCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Coffee));
 
+        DismissInterruptedCommand = new RelayCommand(Session.DismissInterrupted);
         Session.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName is nameof(SessionState.Interrupted))
+                OnUi(() => { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); });
             if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection) or nameof(SessionState.Voltage) or nameof(SessionState.Snapshot))
                 foreach (var p in new[] { nameof(CarTitle), nameof(CarSubtitle), nameof(Connection), nameof(IsConnected), nameof(HasCar), nameof(IsSnapshot), nameof(SnapshotBanner), nameof(SnapshotNote), nameof(HasSnapshotNote) })
                     Raise(p);
@@ -130,6 +135,9 @@ public sealed class MainViewModel : ViewModelBase
     public string Connection => Session.VoltageText.Length > 0 ? $"{Session.Connection} · {Session.VoltageText}" : Session.Connection;
     public bool IsConnected => Session.IsConnected;
     public bool IsSnapshot => Session.IsSnapshot;
+    public bool HasInterrupted => Session.HasInterrupted;
+    public string InterruptedAdvice => Session.InterruptedAdvice;
+    public RelayCommand DismissInterruptedCommand { get; }
     public string SnapshotBanner => Session.SnapshotBanner;
     public string SnapshotNote => Session.Snapshot?.Manifest.Note is { Length: > 0 } n ? $"The owner says: \u201c{n}\u201d" : "";
     public bool HasSnapshotNote => SnapshotNote.Length > 0;

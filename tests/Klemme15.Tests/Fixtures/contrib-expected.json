@@ -1,0 +1,66 @@
+[
+ {
+  "id": "community-n52b30",
+  "title": "N52B30 community baseline",
+  "engines": [
+   "N52B30"
+  ],
+  "conditions": "Built from 1 owner' logs of healthy cars, warm engine only. Shared through Klemme15 and checked by the intake pipeline.",
+  "cars": 1,
+  "contributors": [
+   "test-fixture"
+  ],
+  "sources": [
+   "data/baselines/contrib/N52B30"
+  ],
+  "curves": [
+   {
+    "name": "Total trim bank 1 across engine speed",
+    "y": "stft1+ltft1",
+    "x": "rpm",
+    "filter": "coolant > 70",
+    "binWidth": 250.0,
+    "points": [
+     {
+      "x": 750.0,
+      "p10": -1.43,
+      "median": 0.0,
+      "p90": 1.43,
+      "samples": 200
+     },
+     {
+      "x": 2500.0,
+      "p10": -1.43,
+      "median": 0.0,
+      "p90": 1.43,
+      "samples": 211
+     }
+    ]
+   },
+   {
+    "name": "Air mass at idle and no load",
+    "y": "maf",
+    "x": "rpm",
+    "filter": "coolant > 70 and load < 40",
+    "binWidth": 250.0,
+    "points": [
+     {
+      "x": 750.0,
+      "p10": 4.31,
+      "median": 4.31,
+      "p90": 4.31,
+      "samples": 200
+     },
+     {
+      "x": 2500.0,
+      "p10": 14.78,
+      "median": 14.78,
+      "p90": 14.78,
+      "samples": 200
+     }
+    ],
+    "filterRequired": true
+   }
+  ]
+ }
+]

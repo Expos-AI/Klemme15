@@ -158,4 +158,56 @@ public class BaselineTests
         Assert.All(model.Curves, c => Assert.False(BaselineAligner.Applies(noLoad, c)));
         Assert.Null(BaselineAligner.Compare(noLoad, model.Curves[0]));
     }
+
+    [Fact]
+    public void The_intake_pipeline_builds_exactly_what_Klemme15_would()
+    {
+        // scripts/baseline_intake.py built contrib-expected.json from this contribution; Klemme15's own code must agree.
+        var log = DataLog.Parse(File.ReadAllText(Path.Combine(Root(), "tests", "Klemme15.Tests", "Fixtures", "contrib", "N52B30", "issue-1.csv")));
+        using var doc = System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(Root(), "tests", "Klemme15.Tests", "Fixtures", "contrib-expected.json")));
+        var expected = BaselineProfile.Parse(doc.RootElement[0].GetRawText())!;
+        Assert.Equal("community-n52b30", expected.Id);
+        Assert.True(expected.Fits("N52B30"));
+        foreach (var curve in expected.Curves)
+        {
+            var mine = BaselineAligner.Build([log], curve.X, curve.Y, curve.Filter, curve.BinWidth, minSamples: 20);
+            Assert.Equal(curve.Points.Select(p => p.X), mine.Points.Select(p => p.X));
+            foreach (var (a, b) in curve.Points.Zip(mine.Points))
+            {
+                Assert.Equal(a.Samples, b.Samples);
+                Assert.InRange(b.Median, a.Median - 0.01, a.Median + 0.01);
+                Assert.InRange(b.P10, a.P10 - 0.01, a.P10 + 0.01);
+                Assert.InRange(b.P90, a.P90 - 0.01, a.P90 + 0.01);
+            }
+        }
+    }
+
+    [Fact]
+    public void A_contribution_carries_only_engine_values_and_passes_its_own_check()
+    {
+        var log = DataLog.Parse(File.ReadAllText(Path.Combine(Root(), "tools", "baseline-model", "n52_model_log.csv")));
+        Assert.Empty(BaselineContribution.Check(log, "N52B30"));
+        Assert.Contains(BaselineContribution.Check(log, "not an engine"), p => p.Contains("engine code"));
+
+        var csv = BaselineContribution.ToCsv(log, "n52b30", "E9x", "325i", "0.24.0");
+        var lines = csv.Split('\n');
+        Assert.Equal(BaselineContribution.Marker, lines[0]);
+        Assert.Contains("# engine: N52B30", lines);
+        var header = lines.First(l => l.StartsWith("time,", StringComparison.Ordinal));
+        Assert.Equal("time,rpm,load,coolant,maf,stft1,ltft1", header);           // standard names, nothing else
+        var back = DataLog.Parse(csv);
+        Assert.Empty(BaselineContribution.Check(back, "N52B30"));
+        Assert.InRange(back.Channel("maf")!.Samples[0]!.Value, 4.0, 4.6);         // kg/h became g/s
+
+        var idleOnly = DataLog.Parse(string.Join("\n", lines.TakeWhile(l => !l.StartsWith("25.", StringComparison.Ordinal))));
+        Assert.Contains(BaselineContribution.Check(idleOnly, "N52B30"), p => p.Contains("3000 rpm"));
+    }
+
+    [Fact]
+    public void Engine_codes_carry_fuel_and_size()
+    {
+        Assert.Equal("N52B30", new VehicleModel { Id = "a", FamilyId = "E9x", Name = "325i", Engine = "N52 3.0 L inline-6 (2.5 L outside the US and Canada)" }.FullEngineCode);
+        Assert.Equal("M57D30", new VehicleModel { Id = "b", FamilyId = "E60", Name = "535d", Engine = "M57 3.0 L twin-turbo diesel inline-6" }.FullEngineCode);
+        Assert.Equal("N47D20", new VehicleModel { Id = "c", FamilyId = "E8x", Name = "118d", Engine = "N47 2.0 L diesel inline-4" }.FullEngineCode);
+    }
 }
