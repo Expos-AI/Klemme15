@@ -1,6 +1,10 @@
 Early alpha. Scan, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.22.0:**
+**New in 0.22.1:**
+- **Up-to-date foundations.** The app's UI framework moves to Avalonia 11.3 (bug fixes and smoother rendering on all three systems), the optional full-database import uses the latest patched SQLite library, and the serial-port and build tools are updated. No changes to what Klemme15 does.
+- Every download again comes with `SHA256SUMS.txt` and a signed build provenance ([how to verify](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download)).
+
+**0.22.0:**
 - **Verify your download.** Every release now comes with `SHA256SUMS.txt` and a signed build provenance: proof, signed through Sigstore, that each zip was built by this repository's GitHub workflow from a specific commit. Check a download with `gh attestation verify <zip> -R Expos-AI/Klemme15`, or compare its SHA-256 with `SHA256SUMS.txt` ([how](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download)).
 - **Security fix:** the phone dashboard's build tool (esbuild) is updated past a moderate advisory, and the dashboard moves to React 19. The dashboard now needs iOS 14.5 or newer (phones from 2021 on).
 - **A safer project.** CodeQL scans every change, Dependabot watches every dependency, workflows run with read-only permissions unless a job needs more, and `main` only changes through pull requests that pass every check. Contributions need a [Developer Certificate of Origin](https://github.com/Expos-AI/Klemme15/blob/main/CONTRIBUTING.md#sign-off-your-commits-dco) sign-off. A fuller [security policy](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md) explains how to report a problem privately.
