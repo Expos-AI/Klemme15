@@ -24,7 +24,7 @@ A `.k15` file is a plain zip: unzip it to see exactly what's inside.
 
 ## Opening one
 
-In the **Garage**, press **Open a snapshot...** (or double-click a `.k15` file once it's associated with Klemme15). A banner shows whose car it is and the owner's note. Faults, the car's story, health trends, modules, test results and graphs all work as usual; the live data replays on the **Analyse** page. Command line: `klemme15 open mycar.k15` (add `--report out.html` or `--forum`).
+In the **Garage**, press **Open a snapshot...** (or double-click a `.k15` file once it's associated with Klemme15). A banner shows whose car it is and the owner's note. Faults, the car's story, health trends, modules, test results and graphs all work as usual; the live data replays on the **Analyse** page. Press **Close snapshot** on the banner when you're done. Command line: `klemme15 open mycar.k15` (add `--report out.html` or `--forum`).
 
 ## Safety
 

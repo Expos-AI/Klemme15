@@ -93,6 +93,7 @@ public sealed class MainViewModel : ViewModelBase
         CoffeeCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Coffee));
 
         DismissInterruptedCommand = new RelayCommand(Session.DismissInterrupted);
+        CloseSnapshotCommand = new AsyncCommand(async () => { await Session.DisconnectAsync(); CurrentPage = Garage; });
         Session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName is nameof(SessionState.Interrupted))
@@ -143,6 +144,7 @@ public sealed class MainViewModel : ViewModelBase
     public string InterruptedAdvice => Session.InterruptedAdvice;
     public string InterruptedHeadline => Session.InterruptedHeadline;
     public RelayCommand DismissInterruptedCommand { get; }
+    public AsyncCommand CloseSnapshotCommand { get; }
     public string SnapshotBanner => Session.SnapshotBanner;
     public string SnapshotNote => Session.Snapshot?.Manifest.Note is { Length: > 0 } n ? $"The owner says: \u201c{n}\u201d" : "";
     public bool HasSnapshotNote => SnapshotNote.Length > 0;

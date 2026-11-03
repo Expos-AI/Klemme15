@@ -32,6 +32,37 @@ public enum MarkerState
     Absent,
 }
 
+/// <summary>Keeps fault labels on the car drawing from printing over each other.</summary>
+public static class MarkerLayout
+{
+    // A label starts just right of its dot and is roughly this wide per code at the drawing's label size.
+    private const double PerCode = 52, RowHeight = 30;
+
+    /// <summary>
+    /// Groups fault sources whose label would run into the next dot (cylinders side by side), and lets the rightmost
+    /// of each group show all the group's codes, left to right. Clicking any dot still shows its own faults.
+    /// </summary>
+    public static void CombineCrowdedLabels(IReadOnlyList<MarkerViewModel> sources)
+    {
+        foreach (var s in sources) s.LabelShownByNeighbour = false;
+        var ordered = sources.OrderBy(s => s.X).ToList();
+        var groups = new List<List<MarkerViewModel>>();
+        foreach (var s in ordered)
+        {
+            var g = groups.FirstOrDefault(g => g.Any(o => Math.Abs(o.Y - s.Y) < RowHeight && s.X - o.X < 16 + PerCode * Codes(o).Count));
+            if (g is null) groups.Add([s]); else g.Add(s);
+        }
+        foreach (var g in groups.Where(g => g.Count > 1))
+        {
+            var last = g[^1];
+            last.Label = string.Join("  ", g.SelectMany(Codes).Distinct());
+            foreach (var o in g.Take(g.Count - 1)) o.LabelShownByNeighbour = true;
+        }
+    }
+
+    private static List<string> Codes(MarkerViewModel m) => m.Faults.Select(f => f.Code).Distinct().ToList();
+}
+
 /// <summary>One dot on the car drawing: a module, or the place a fault comes from.</summary>
 public sealed class MarkerViewModel : ViewModelBase
 {
@@ -84,8 +115,20 @@ public sealed class MarkerViewModel : ViewModelBase
     public bool IsActive => _state == MarkerState.Active;
     public bool IsAbsent => _state == MarkerState.Absent;
 
-    /// <summary>Modules show their short name unless absent; fault sources show their codes.</summary>
-    public bool ShowLabel => IsFaultSource || _state != MarkerState.Absent;
+    /// <summary>Modules show their short name unless absent; fault sources show their codes, unless a neighbour shows them.</summary>
+    public bool ShowLabel => IsFaultSource ? !_labelShownByNeighbour : _state != MarkerState.Absent;
+
+    private bool _labelShownByNeighbour;
+
+    /// <summary>
+    /// Set when this fault source sits so close to another (two cylinders side by side) that their labels would print
+    /// over each other: the rightmost one of the group then shows every code, and this one shows none.
+    /// </summary>
+    public bool LabelShownByNeighbour
+    {
+        get => _labelShownByNeighbour;
+        set { if (Set(ref _labelShownByNeighbour, value)) Raise(nameof(ShowLabel)); }
+    }
 
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
 

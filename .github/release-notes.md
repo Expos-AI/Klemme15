@@ -1,6 +1,11 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.2:**
+**New in 0.99.3:**
+- **Live data cards stay tidy.** When the engine computer doesn't report a value, the card shows a dash with the reason in small print underneath, instead of the reason in large type running out of the card.
+- **Fault codes on the car drawing no longer print over each other.** When two fault locations sit side by side (neighbouring cylinders), their codes are shown together next to the right-hand one. Clicking either dot still shows its own faults.
+- **Close snapshot** button on the snapshot banner, which takes you back to the Garage.
+
+**0.99.2:**
 - **The steering lock counter reset is back** (Service > Steering lock: clear the fault counters). On early E90-family cars with a key slot, full counters bring up the red steering wheel and can stop the car starting. Charge the battery, then clear the counters in the key module and the lock. It only clears event counters: it never reads or writes keys or immobiliser data. It was removed by mistake in 0.99.1. The no-start check points to it again. 75 service functions.
 
 **0.99.1:**

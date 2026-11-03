@@ -104,10 +104,14 @@
 
       <!-- Snapshot banner: always visible while a snapshot is open -->
       <Border Grid.Row="1" IsVisible="{Binding IsSnapshot}" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" BorderThickness="0,0,0,1" Padding="28,8">
-        <StackPanel Spacing="2">
-          <TextBlock Text="{Binding SnapshotBanner}" FontWeight="SemiBold" TextWrapping="Wrap" />
-          <TextBlock Text="{Binding SnapshotNote}" TextWrapping="Wrap" IsVisible="{Binding HasSnapshotNote}" />
-        </StackPanel>
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="Close snapshot" Command="{Binding CloseSnapshotCommand}" VerticalAlignment="Center" Margin="12,0,0,0"
+                  ToolTip.Tip="Close the snapshot and go back to the Garage to connect or open the demo car" />
+          <StackPanel Spacing="2">
+            <TextBlock Text="{Binding SnapshotBanner}" FontWeight="SemiBold" TextWrapping="Wrap" />
+            <TextBlock Text="{Binding SnapshotNote}" TextWrapping="Wrap" IsVisible="{Binding HasSnapshotNote}" />
+          </StackPanel>
+        </DockPanel>
       </Border>
 
       <!-- A job that changes the car was cut off: what happened and what to do -->

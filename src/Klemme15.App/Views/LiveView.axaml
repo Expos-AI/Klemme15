@@ -74,10 +74,11 @@
                 <TextBlock Classes="muted" Text="{Binding Name}" TextTrimming="CharacterEllipsis" />
                 <StackPanel Orientation="Horizontal" Spacing="6">
                   <TextBlock Classes="figure" Text="{Binding Value}" />
-                  <TextBlock Classes="muted" Text="{Binding Unit}" VerticalAlignment="Bottom" Margin="0,0,0,9" FontSize="15" />
+                  <TextBlock Classes="muted" Text="{Binding Unit}" IsVisible="{Binding HasNumber}" VerticalAlignment="Bottom" Margin="0,0,0,9" FontSize="15" />
                 </StackPanel>
                 <c:Sparkline Values="{Binding Points}" Height="38" Stroke="{DynamicResource LitBrush}" Margin="0,4,0,4" />
                 <TextBlock Classes="muted small" Text="{Binding Range}" />
+                <TextBlock Classes="muted small" Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" />
               </StackPanel>
             </Border>
           </DataTemplate>

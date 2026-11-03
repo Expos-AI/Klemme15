@@ -25,12 +25,19 @@ public sealed class LiveParameterViewModel(LiveParameter parameter) : ViewModelB
     private readonly Queue<double> _history = new();
     private bool _isSelected;
     private string _value = "--";
+    private string? _note;
+    private bool _hasNumber;
     private double? _min, _max;
     private IReadOnlyList<double> _points = [];
 
     public LiveParameter Parameter { get; } = parameter;
     public string Name => Parameter.Name;
     public string Unit => Parameter.Unit;
+
+    /// <summary>Why there's no number ("not reported by this engine computer"), shown small under the dash.</summary>
+    public string? Note { get => _note; private set { if (Set(ref _note, value)) Raise(nameof(HasNote)); } }
+    public bool HasNote => !string.IsNullOrEmpty(_note);
+    public bool HasNumber { get => _hasNumber; private set => Set(ref _hasNumber, value); }
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public string Value { get => _value; private set => Set(ref _value, value); }
     public IReadOnlyList<double> Points { get => _points; private set => Set(ref _points, value); }
@@ -39,7 +46,9 @@ public sealed class LiveParameterViewModel(LiveParameter parameter) : ViewModelB
 
     public void Update(LiveValue v)
     {
-        Value = v.Value is { } d ? d.ToString(Math.Abs(d) >= 100 ? "0" : "0.#", CultureInfo.CurrentCulture) : v.Text ?? "--";
+        Value = v.Value is { } d ? d.ToString(Math.Abs(d) >= 100 ? "0" : "0.#", CultureInfo.CurrentCulture) : "--";
+        HasNumber = v.Value is not null;
+        Note = v.Value is null ? v.Text : null;
         Latest = v.Value;
         if (v.Value is not { } x) return;
         _min = _min is null ? x : Math.Min(_min.Value, x);
@@ -57,6 +66,8 @@ public sealed class LiveParameterViewModel(LiveParameter parameter) : ViewModelB
         Latest = null;
         Points = [];
         Value = "--";
+        HasNumber = false;
+        Note = null;
         Raise(nameof(Range));
     }
 }
