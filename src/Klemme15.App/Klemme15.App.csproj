@@ -10,9 +10,9 @@
     <ApplicationIcon>Assets\Logo\klemme15.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.3.22" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.3.22" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.22" />
+    <PackageReference Include="Avalonia" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Desktop" Version="12.1.5" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.5" />
     <!-- Avalonia 11.2 pulls Tmds.DBus.Protocol 0.20.0 (GHSA-xrw6-gwf8-vvr9); 0.21.3 is the patched version. -->
     <PackageReference Include="Tmds.DBus.Protocol" Version="0.95.2" />
     <PackageReference Include="Avalonia.Diagnostics" Version="11.3.22" Condition="'$(Configuration)' == 'Debug'" />
