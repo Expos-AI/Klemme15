@@ -13,6 +13,8 @@ permissions:
 jobs:
   dco:
     name: DCO sign-off
+    # Only open pull requests: editing the description of a closed one shouldn't run anything.
+    if: github.event.pull_request.state == 'open'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
