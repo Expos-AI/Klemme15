@@ -12,3 +12,7 @@ external/
 # Editors and systems
 .DS_Store
 node_modules/
+
+# Python bytecode
+__pycache__/
+*.pyc
