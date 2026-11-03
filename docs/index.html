@@ -302,7 +302,7 @@
         <div class="jumps">
           <a class="jump" href="#find"><b>Find what's wrong</b><span>Every module's faults, in plain English</span></a>
           <a class="jump" href="#test"><b>Test before you buy parts</b><span>Graphed tests that point to the cause</span></a>
-          <a class="jump" href="#workshop"><b>Do the workshop jobs</b><span>74 service functions, mostly experimental</span></a>
+          <a class="jump" href="#workshop"><b>Do the workshop jobs</b><span>75 service functions, mostly experimental</span></a>
           <a class="jump" href="#coding"><b>Code comfort options</b><span>Backed up first, restored if anything's off</span></a>
           <a class="jump" href="#health"><b>Keep it healthy</b><span>Trends, your cars, buying a used one</span></a>
           <a class="jump" href="#ghost"><b>Catch it in the act</b><span>Ghost Hunter, baselines, live values</span></a>
@@ -390,11 +390,12 @@
               <li><b>Service reminders.</b> Oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check.</li>
               <li><b>Engine.</b> Adaptation reset, Valvetronic and DISA learning, cylinder cut-out test, fuel tank leak test, VANOS flush.</li>
               <li><b>Component tests.</b> Radiator fan, fuel pump, thermostat, electric water pump, throttle, DISA flap, purge valve.</li>
+              <li><b>Steering lock.</b> Red steering wheel on an early E90 with a key slot? Clear the lock's event counters after charging the battery, the reset owners ask for most. Keys and immobiliser data are never touched.</li>
               <li><b>Brakes, DSC and steering.</b> Steering angle calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test.</li>
               <li><b>Gearbox, xDrive and diesel.</b> Automatic gearbox adaptation reset, SMG learning, xDrive relearn, glow plugs, EGR, injector codes.</li>
               <li><b>Body.</b> Windows, sunroof, climate flaps, rain sensor, and restarting a frozen iDrive, Bluetooth or amplifier without pulling the battery.</li>
           </ul>
-            <p class="note">74 functions in all. Battery registration is confirmed on a real car; every other function stays behind the experimental switch until someone confirms it on one.</p>
+            <p class="note">75 functions in all. Battery registration is confirmed on a real car; every other function stays behind the experimental switch until someone confirms it on one.</p>
         </div>
         <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/18-service.png" alt="Klemme15 Service page running a service function" loading="lazy" width="1440" height="900"></div>
       </div>
@@ -624,7 +625,7 @@
         <p class="section-lede">Some things a free tool should never do to your car. Klemme15 doesn't do them, on purpose.</p>
         <div class="bounds">
           <div class="bound"><b>No flashing</b>Module software is never rewritten.</div>
-          <div class="bound"><b>No immobiliser work</b>The key module and immobiliser are never written.</div>
+          <div class="bound"><b>No immobiliser work</b>Keys and immobiliser data are never touched. The key module's one job: clearing the steering lock's counters.</div>
           <div class="bound"><b>No mileage changes</b>Recorded mileage is read, never touched.</div>
           <div class="bound"><b>No BMW files bundled</b>Your own files stay yours, and stay on your computer.</div>
         </div>

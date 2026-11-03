@@ -12,7 +12,8 @@ Update everything a visitor or user reads, in the same push, so the project alwa
 
 ## Lines never crossed
 
-- Stay 100 % legal. No flashing, no bootloader access, no immobiliser, key, ISN or CAS writes or coding, never change mileage.
+- Stay 100 % legal. No flashing, no bootloader access, no immobiliser, key or ISN work, no CAS coding, never change mileage.
+- **The one agreed exception:** the service function "Steering lock: clear the fault counters" (`steering-lock-counter-reset`) writes to the CAS to clear the steering lock's event counters. It's the most requested feature and must stay. It may only use the jobs `STATUS_ELV_WERTE`, `STEUERN_ELVCOUNTER_CAS_LOESCHEN` and `STEUERN_ELVCOUNTER_ELV_LOESCHEN` (ServiceTests enforces this). Never remove it, and never add any other CAS write.
 - Never bundle BMW data or software, never decrypt ISTA. Write everything in our own words, with sources. Don't link unofficial BMW software.
 - Never commit a user's VIN or personal data.
 - Anything that drives a part or writes to a module stays experimental until confirmed on a real car.

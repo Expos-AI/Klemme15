@@ -124,7 +124,7 @@ public static class NoStartTriage
     private static string Detail(NoStartCause c) => c switch
     {
         NoStartCause.ElectricSteeringLock =>
-            "On early cars with a key slot the steering lock can fail to release and block starting. Charge the battery first: a weak battery is the usual trigger. If it keeps happening, the lock itself is wearing out and needs replacing by a workshop (its counters live in the key module, which Klemme15 never writes).",
+            "On early cars with a key slot the steering lock can fail to release and block starting. Charge the battery first: a weak battery is the usual trigger. Then use Service > Steering lock: clear the fault counters. If it keeps coming back, the lock itself is wearing out and needs replacing by a workshop.",
         NoStartCause.Immobiliser =>
             "The key module isn't releasing the engine to start. Klemme15 does not touch keys or the immobiliser. Rule out the simple causes first (a flat or failing battery, and whether the key is detected at all), then take it to a dealer or an auto locksmith: key and immobiliser work is outside this tool on purpose.",
         NoStartCause.Starter =>

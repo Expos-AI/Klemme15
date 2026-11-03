@@ -737,8 +737,22 @@ for _mod, _name in RESTARTABLE.items():
       after=["Give it up to a minute to come back. If it stays dead, it's not a simple freeze: check its power, the fault memory and the bus."],
       checks=checks(), writes=False, duration="About 10 seconds")
 
-# The steering lock counter reset was removed: it writes to the key module (CAS), which Klemme15 never writes.
-
+# ---------------------------------------------------------------------------- steering lock (early E90 with a key slot)
+# The only CAS function: it clears the steering lock's event counters and shows their causes. It never reads or
+# writes keys, the immobiliser codes or the lock's authentication data (ServiceTests enforces this).
+F("steering-lock-counter-reset", "Steering lock: clear the fault counters", DSC, ["CAS"],
+  "Shows why the electric steering lock reported problems, then clears its event counters in the key module (CAS) and in the lock itself. On early E90s with a key slot, full counters can bring up the red steering wheel and stop the car starting.",
+  "Red steering wheel warning or 'steering lock' faults on an early E90/E91/E92/E93 with a key slot (no Comfort Access), after you have checked the battery.",
+  "high",
+  [R("STATUS_ELV_WERTE", show=True,
+     then=[S("STEUERN_ELVCOUNTER_CAS_LOESCHEN", show=True), S("STEUERN_ELVCOUNTER_ELV_LOESCHEN")])],
+  before=["This only buys time: the counters fill up because the lock's motor or contacts are wearing out. Plan to replace the steering lock (or fit BMW's later repair) soon.",
+          "Charge the battery first: a weak battery is the most common reason the lock fails to unlock.",
+          "Klemme15 never touches keys or immobiliser codes: this clears event counters only."],
+  after=["Switch the ignition off, wait a minute, then try to start. Clear the CAS fault memory.",
+         "If the red steering wheel returns soon, the lock itself needs replacing."],
+  checks=checks(engineOff=True, stationary=True, minVoltage=12.5,
+                confirm=["The car is parked and the key is in the slot.", "I understand this doesn't repair the steering lock."]))
 
 # ============================================================================ Retrofits and upgrades
 RETRO = "Retrofits and upgrades"

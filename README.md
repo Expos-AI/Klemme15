@@ -93,7 +93,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Health over time**: each quick test leaves a small record on your computer, so a battery resting lower each week, fuel trims creeping lean or a fault that keeps coming back show up early.
 
 **Do the job yourself** (experimental)
-- **74 functions**: service reminder reset, battery registration, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration and Valvetronic learning run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
+- **75 functions**: service reminder reset, battery registration, the steering lock counter reset for early E90s with a key slot, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration and Valvetronic learning run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
 
 **Code comfort options**
 - **Back up, compare and restore** a comfort module's coding on D-CAN cars, without BMW files. Restoring writes to the module, so it's experimental.
@@ -109,7 +109,7 @@ No car nearby? Pick any model and press **Open demo car**.
 
 ## Safety
 
-Reading is the default; clearing faults asks first. Service functions and tests that switch a part on check the car, ask you to confirm each requirement, and hand the part back to the module when they finish, fail or you press Stop. Coding is limited to comfort modules, needs a healthy battery voltage and is backed up first. Klemme15 never flashes software, never touches keys, the immobiliser or the key module (CAS), and never changes mileage ([why](docs/ROADMAP.md#not-planned-on-purpose)).
+Reading is the default; clearing faults asks first. Service functions and tests that switch a part on check the car, ask you to confirm each requirement, and hand the part back to the module when they finish, fail or you press Stop. Coding is limited to comfort modules, needs a healthy battery voltage and is backed up first. Klemme15 never flashes software, never touches keys or the immobiliser, never codes the key module (CAS), and never changes mileage. Its one job in the key module is clearing the steering lock's event counters ([why](docs/ROADMAP.md#not-planned-on-purpose)).
 
 If a job is cut off (the cable comes out, the laptop sleeps, Windows restarts), Klemme15 remembers it and says what to do next, even after a restart. While a job runs, it keeps the computer awake.
 

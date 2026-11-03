@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.1:**
+**New in 0.99.2:**
+- **The steering lock counter reset is back** (Service > Steering lock: clear the fault counters). On early E90-family cars with a key slot, full counters bring up the red steering wheel and can stop the car starting. Charge the battery, then clear the counters in the key module and the lock. It only clears event counters: it never reads or writes keys or immobiliser data. It was removed by mistake in 0.99.1. The no-start check points to it again. 75 service functions.
+
+**0.99.1:**
 - **Clearer everywhere.** Every page, message, report and guide was reviewed for plain, precise wording and checked against what the app really does. The website and README no longer claim more than has been confirmed on a real car.
 - **Steering lock counter reset removed.** It cleared counters inside the key module (CAS), which Klemme15 never writes. The no-start check now explains the steering lock problem and points to a workshop instead. 74 service functions.
 - **Cable check on Linux now identifies the cable** (it couldn't read the USB details before), and picks the K+DCAN cable's port by itself. On macOS an FTDI chip is now reported as "probably", since the port name alone can't prove it. The check no longer blocks the window, and it lets go of the port properly before connecting.
