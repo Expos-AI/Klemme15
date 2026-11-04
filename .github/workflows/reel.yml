@@ -3,6 +3,9 @@
 name: reel
 
 on:
+  push:
+    branches: [main]
+    paths: ["tools/Klemme15.Reel/**", ".github/workflows/reel.yml"]
   workflow_dispatch:
     inputs:
       scenes:
@@ -34,7 +37,7 @@ jobs:
       - name: Record the scenes
         shell: bash
         env:
-          SCENES: ${{ inputs.scenes }}
+          SCENES: ${{ inputs.scenes || '' }}
         run: |
           set -o pipefail
           dotnet run --project tools/Klemme15.Reel -c Release -- "$RUNNER_TEMP/raw" "$SCENES" 2>&1 | tee record.log
