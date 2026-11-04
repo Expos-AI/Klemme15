@@ -529,12 +529,18 @@ public sealed class TriggerViewModel : PageViewModel
     }
 
     /// <summary>Opens a capture like any snapshot: read-only, live data on the Analyse page. Watching stops first.</summary>
-    public Func<byte[], Task>? OpenSnapshot { get; set; }
+    /// <summary>Opens a capture; returns why it couldn't, or null.</summary>
+    public Func<byte[], Task<string?>>? OpenSnapshot { get; set; }
 
     private async Task OpenCaptureAsync(string path)
     {
         if (_watching) { Banner = "Stop watching before opening a capture: opening it disconnects from the car."; return; }
-        if (OpenSnapshot is { } open) await open(await File.ReadAllBytesAsync(path));
+        if (_session.JobRunning) { Banner = $"Wait for \"{_session.BusyWith}\" to finish first: opening a capture disconnects from the car."; return; }
+        if (OpenSnapshot is not { } open) return;
+        byte[] data;
+        try { data = await File.ReadAllBytesAsync(path); }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { Banner = $"That capture can't be opened: {Problems.Describe(e)}"; LoadCaptures(); return; }
+        if (await open(data) is { } problem) Banner = $"That capture can't be opened: {problem}";
     }
 
     private void DeleteCapture(string path)

@@ -43,13 +43,13 @@ public sealed class VehicleViewModel : PageViewModel
         _session = session;
         _dialogs = dialogs;
         Topology = new TopologyOverlayViewModel(session) { PageBusy = () => _isScanning || _isDiscovering };
-        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && _session.BusyWith is null && !_isScanning && !_isDiscovering, e => Error = e.Message);
+        RunCommand = new AsyncCommand(RunAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && _session.BusyWith is null && !_isScanning && !_isDiscovering, e => Error = Problems.Describe(e));
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _isScanning);
         ClearSelectionCommand = new RelayCommand(() => Select(null));
         AskClearAllCommand = new RelayCommand(() => ConfirmClearAll = true, () => HasAnythingToClear && !_session.IsSnapshot);
         CancelClearAllCommand = new RelayCommand(() => ConfirmClearAll = false);
-        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_session.IsSnapshot && _session.BusyWith is null && !_isScanning, e => Error = e.Message);
-        DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_isScanning && !_isDiscovering, e => Error = e.Message);
+        ClearAllCommand = new AsyncCommand(ClearAllAsync, () => _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && _session.BusyWith is null && !_isScanning, e => Error = Problems.Describe(e));
+        DiscoverCommand = new AsyncCommand(DiscoverAsync, () => _session.Backend is IModuleDiscovery && !_session.IsWatching && _session.BusyWith is null && !_isScanning && !_isDiscovering, e => Error = Problems.Describe(e));
         ExportHtmlCommand = new AsyncCommand(() => ExportAsync("html"), () => _session.LastScan is not null);
         ExportMarkdownCommand = new AsyncCommand(() => ExportAsync("md"), () => _session.LastScan is not null);
         CopyForumCommand = new AsyncCommand(CopyForumAsync, () => _session.LastScan is not null);
@@ -57,7 +57,7 @@ public sealed class VehicleViewModel : PageViewModel
 
         _session.PropertyChanged += (_, e) =>
         {
-            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.BusyWith)) OnUi(() => { RunCommand.RaiseCanExecuteChanged(); ClearAllCommand.RaiseCanExecuteChanged(); Topology.RaiseCanRun(); });
+            if (e.PropertyName is nameof(SessionState.IsWatching) or nameof(SessionState.BusyWith)) OnUi(() => { RunCommand.RaiseCanExecuteChanged(); ClearAllCommand.RaiseCanExecuteChanged(); DiscoverCommand.RaiseCanExecuteChanged(); Topology.RaiseCanRun(); });
             if (e.PropertyName == nameof(SessionState.Backend))
             {
                 RunCommand.RaiseCanExecuteChanged();
@@ -262,20 +262,25 @@ public sealed class VehicleViewModel : PageViewModel
         await Topology.StopAndWaitAsync();
         var failed = new List<string>();
         var skipped = new List<string>();
-        foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
+        var clearing = _session.ClaimBus("Clearing faults");
+        try
         {
-            try
+            foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
             {
-                if (!_session.IsDemo)
+                try
                 {
-                    var guard = await WriteGuard.CheckAsync(backend, e.Ecu, e.Identity, WriteKind.ClearFaults,
-                        _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements);
-                    if (!guard.Allowed) { skipped.Add($"{e.Ecu.Name} ({guard.Reason})"); continue; }
+                    if (!_session.IsDemo)
+                    {
+                        var guard = await WriteGuard.CheckAsync(backend, e.Ecu, e.Identity, WriteKind.ClearFaults,
+                            _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements);
+                        if (!guard.Allowed) { skipped.Add($"{e.Ecu.Name} ({guard.Reason})"); continue; }
+                    }
+                    await backend.ClearFaultsAsync(e.Ecu);
                 }
-                await backend.ClearFaultsAsync(e.Ecu);
+                catch (Exception ex) when (ex is DiagnosticException or NotSupportedException or TimeoutException) { failed.Add(e.Ecu.Name); }
             }
-            catch (Exception ex) when (ex is DiagnosticException or NotSupportedException) { failed.Add(e.Ecu.Name); }
         }
+        finally { clearing.Dispose(); }
         var before = scan.Ecus.SelectMany(e => e.Faults.Where(f => !f.IsInfo).Select(f => (e.Ecu.Id, f.Code))).ToHashSet();
         await RunAsync();
         ClearResult = AfterClear(before, _session.LastScan);
@@ -415,6 +420,8 @@ public sealed class VehicleViewModel : PageViewModel
         ClearResult = null;
         Select(null);
         _session.PublishScan(null);
+        // The quick test holds the cable: live data, tests and service functions on other pages wait for it.
+        using var bus = _session.ClaimBus("The quick test");
         IsScanning = true;
         _cts = new CancellationTokenSource();
         ProgressText = "Checking battery voltage";

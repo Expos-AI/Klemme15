@@ -278,6 +278,7 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
 
     public MarkerViewModel? Marker { get; set; }
     public RelayCommand? ShowCommand { get; set; }
+    public bool CanShowOnCar => ShowCommand is not null;
 }
 
 /// <summary>A source URL shown as a short link (its site name).</summary>

@@ -71,15 +71,15 @@ public sealed class Ds2Channel(ITransport transport)
 
     public static void EnsureOk(Ds2Frame? response, string what)
     {
-        if (response is null) throw new DiagnosticException($"{what}: no response");
+        if (response is null) throw new DiagnosticException($"{what}: no answer from the module. Check the ignition is on and try again.");
         var status = response.Data[0];
         if (status == Ds2Frame.StatusOk) return;
         var text = status switch
         {
-            Ds2Frame.StatusRejected => "command rejected",
-            Ds2Frame.StatusError => "ECU reported error",
-            Ds2Frame.StatusBusy => "ECU busy",
-            _ => $"status 0x{status:X2}",
+            Ds2Frame.StatusRejected => "the module refused",
+            Ds2Frame.StatusError => "the module reported an error",
+            Ds2Frame.StatusBusy => "the module is busy; try again in a moment",
+            _ => $"the module answered with status {status:X2}",
         };
         throw new DiagnosticException($"{what}: {text}");
     }

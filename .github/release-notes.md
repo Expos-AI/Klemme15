@@ -1,6 +1,15 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.7:**
+**New in 0.99.8:** a full pass so no one is left stuck, checked against a real E90's traffic replayed through every function that talks to the car.
+- **No error closes the app any more.** Saving to a folder you can't write to, a file open in another program, a damaged backup or capture: you get a plain message with what to do, in a banner you can dismiss.
+- **Greyed-out buttons say why.** While the Ghost Hunter watches, live data records, a quick test or a service function runs, a strip at the top says what's using the cable, with a button to go there.
+- **Nothing can pull the connection out from under a job.** Disconnect, switching cars and opening a snapshot or capture wait while a service function, coding write or part test is running.
+- **Clearing one module's faults updates every page** (headline, car drawing, snapshot, buying check), and "Read again" carries on when one module doesn't answer.
+- **Error messages in plain words**: "the module refused (it doesn't offer this)" and what to try, instead of protocol codes.
+- Live data keeps a recording if you cancel the save dialog. Coding's Compare and Restore can't crash, and a file that isn't a backup says so. "Show on car" only appears for faults the drawing can show. The Readings, Service and Live data pages say the right thing in a snapshot and without BMW files.
+- **Install:** winget was never published, so the README and website now show Scoop and the zip downloads only. Corrected claims on the website: all 75 service functions are experimental, Valvetronic learning without BMW files is N52 only, and the Raspberry Pi needs a build from source.
+
+**0.99.7:**
 - **New guided test: Rough idle and air conditioning check.** For an idle that's rough, bounces or chugs when the air conditioning kicks in. It watches 20 seconds of idle with the air conditioning off, then catches the moment the compressor engages, then 20 seconds with it on. It compares engine speed with the idle speed the engine computer is aiming for, checks every cylinder and the mixture, and says what it points to: an air leak, a cylinder that only falters under load, or an engine that's fine (then worn engine mounts are the usual cause of the shake). Uses the engine computer's own idle target and air conditioning status where it reports them (MSV70 and others).
 - **New Ghost Hunter watch: Catch a chug at idle.** Saves the moment engine speed dips below 600 rpm with the car stopped, with the air conditioning and compressor state in every capture.
 - The Ghost Hunter's custom rules can use the idle target speed and the air conditioning and compressor state.

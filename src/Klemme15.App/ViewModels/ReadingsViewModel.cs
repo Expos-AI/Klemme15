@@ -147,6 +147,18 @@ public sealed class ReadingsViewModel : PageViewModel
     public bool Available => _session.Readings is not null;
     public bool NotAvailable => _session.IsConnected && !Available;
     public bool NotConnected => !_session.IsConnected;
+
+    /// <summary>What to do when readings aren't available, for this connection and this build.</summary>
+    public string NotAvailableText => _session.IsSnapshot
+        ? "This snapshot has no module readings: they're read live from the car. Faults, the car's story and any test results are on the other pages."
+        : "Module readings need a table of each module's values. In the Garage, press \"Add engine readings\" (a one-time free download, no BMW files needed) and connect again."
+          + (Klemme15.BackendFactory.EdiabasAvailable
+              ? " On Windows you can instead use your own BMW files: in the cable setup, tick 'Use my own BMW files (EDIABAS mode)'."
+              : "")
+          + " Engine values such as RPM, temperatures and fuel trims are on the Live data page either way.";
+
+    /// <summary>Readings work, but none of the modules that answered has a table yet.</summary>
+    public bool NoModules => Available && Modules.Count == 0;
     public bool HasModule => _module is not null && Available;
 
     public string ModuleTitle => _module?.Name ?? "";
@@ -208,6 +220,7 @@ public sealed class ReadingsViewModel : PageViewModel
         RebuildModules();
         Raise(nameof(Available));
         Raise(nameof(NotAvailable));
+        Raise(nameof(NotAvailableText));
         Raise(nameof(NotConnected));
         Raise(nameof(HasModule));
     }
@@ -232,6 +245,7 @@ public sealed class ReadingsViewModel : PageViewModel
             Modules.Add(m);
         }
         Status = scan is null ? "Tip: run the quick test first, so only the modules your car has are listed." : "";
+        Raise(nameof(NoModules));
         Select(Modules.FirstOrDefault(m => m.Ecu.Id == keep) ?? Modules.FirstOrDefault());
     }
 

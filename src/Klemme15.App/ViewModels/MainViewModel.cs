@@ -93,9 +93,11 @@ public sealed class MainViewModel : ViewModelBase
         CoffeeCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Coffee));
 
         DismissInterruptedCommand = new RelayCommand(Session.DismissInterrupted);
-        CloseSnapshotCommand = new AsyncCommand(async () => { await Session.DisconnectAsync(); CurrentPage = Garage; });
+        CloseSnapshotCommand = new AsyncCommand(async () => { await Session.DisconnectAsync(); CurrentPage = Garage; }, () => !Session.JobRunning);
         Session.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName is nameof(SessionState.BusyWith) or nameof(SessionState.IsWatching))
+                OnUi(RaiseCableBusy);
             if (e.PropertyName is nameof(SessionState.Interrupted))
                 OnUi(() => { Raise(nameof(HasInterrupted)); Raise(nameof(InterruptedAdvice)); Raise(nameof(InterruptedHeadline)); });
             if (e.PropertyName is nameof(SessionState.Backend) or nameof(SessionState.Model) or nameof(SessionState.Connection) or nameof(SessionState.Voltage) or nameof(SessionState.Snapshot))
@@ -130,6 +132,7 @@ public sealed class MainViewModel : ViewModelBase
             {
                 previous?.OnHidden();
                 value.OnShown();
+                RaiseCableBusy();
             }
         }
     }
@@ -144,6 +147,55 @@ public sealed class MainViewModel : ViewModelBase
     public string InterruptedAdvice => Session.InterruptedAdvice;
     public string InterruptedHeadline => Session.InterruptedHeadline;
     public RelayCommand DismissInterruptedCommand { get; }
+
+    // ---------------------------------------------------------------- who is using the cable
+
+    /// <summary>The page running what holds the cable, when it isn't the page on screen.</summary>
+    private PageViewModel? BusyPage => Session.IsWatching ? Ghost : Session.BusyWith switch
+    {
+        "Live data" => Live, "coding" => Coding, "The quick test" or "Clearing faults" => Vehicle, _ => null,
+    };
+
+    /// <summary>
+    /// Why buttons that talk to the car are greyed out: something else holds the cable (the Ghost Hunter watching, a live
+    /// recording, a test or service function still running). Hidden on the page that's running it.
+    /// </summary>
+    public string? CableBusy
+    {
+        get
+        {
+            var what = Session.IsWatching ? "The Ghost Hunter is watching the car"
+                : Session.BusyWith == "Live data" ? "Live data is reading the car"
+                : Session.BusyWith == "coding" ? "Coding is talking to the car"
+                : Session.BusyWith is { } b ? $"\"{b}\" is running" : null;
+            if (what is null || BusyPage is { } page && page == _currentPage) return null;
+            return $"{what}. Buttons that talk to the car wait until it stops: one cable carries one conversation at a time.";
+        }
+    }
+
+    public bool HasCableBusy => CableBusy is not null;
+    public bool CanGoToBusy => BusyPage is not null;
+    private RelayCommand? _goToBusy;
+    public RelayCommand GoToBusyCommand => _goToBusy ??= new(() => { if (BusyPage is { } p) CurrentPage = p; });
+
+    private void RaiseCableBusy()
+    {
+        Raise(nameof(CableBusy)); Raise(nameof(HasCableBusy)); Raise(nameof(CanGoToBusy));
+    }
+
+    private string? _problem;
+
+    /// <summary>An unexpected error, in plain words, shown in a banner until dismissed.</summary>
+    public string? Problem { get => _problem; private set { if (Set(ref _problem, value)) Raise(nameof(HasProblem)); } }
+    public bool HasProblem => !string.IsNullOrEmpty(_problem);
+    private RelayCommand? _dismissProblem;
+    public RelayCommand DismissProblemCommand => _dismissProblem ??= new(() => Problem = null);
+
+    public void ShowProblem(Exception e)
+    {
+        try { Session.Log.Note($"Error: {e}"); } catch (Exception) { }
+        OnUi(() => Problem = Problems.Describe(e));
+    }
     public AsyncCommand CloseSnapshotCommand { get; }
     public string SnapshotBanner => Session.SnapshotBanner;
     public string SnapshotNote => Session.Snapshot?.Manifest.Note is { Length: > 0 } n ? $"The owner says: \u201c{n}\u201d" : "";

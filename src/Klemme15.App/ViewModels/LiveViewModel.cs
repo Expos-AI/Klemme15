@@ -107,7 +107,7 @@ public sealed class LiveViewModel : PageViewModel
             Raise(nameof(IsRecording));
             RaiseCommands();
         }, () => _recording is null);
-        SaveRecordingCommand = new AsyncCommand(SaveRecordingAsync, () => _recording is not null);
+        SaveRecordingCommand = new AsyncCommand(SaveRecordingAsync, () => _recording is not null, e => Error = Problems.Describe(e));
         AnalyseCommand = new RelayCommand(() => { if (_recording is { } rec) AnalyseRecording?.Invoke(rec.ToString()); },
             () => _recording is not null && AnalyseRecording is not null);
         _session.PropertyChanged += (_, e) =>
@@ -126,7 +126,8 @@ public sealed class LiveViewModel : PageViewModel
     public bool IsRecording => _recording is not null;
     public string Rate { get => _rate; private set => Set(ref _rate, value); }
     public bool HasParameters => Parameters.Count > 0;
-    public string EmptyText => _session.IsConnected
+    public string EmptyText => _session.IsSnapshot ? "This snapshot has no live data. If the owner included some, it replays on the Analyse page."
+        : _session.IsConnected
         ? "This connection offers no live engine values yet. In EDIABAS mode, add values from the Expert page."
         : "Connect to your car (or open a demo car) in the Garage first.";
 
@@ -238,10 +239,11 @@ public sealed class LiveViewModel : PageViewModel
     {
         if (_recording is null) return;
         var text = _recording.ToString();
+        // Keep the recording until it's really saved: cancelling the dialog, or a save that fails, loses nothing.
+        if (!await _dialogs.SaveTextAsync("Save live data recording", $"klemme15-live-{DateTime.Now:yyyyMMdd-HHmm}.csv", "csv", text)) return;
         _recording = null;
         Raise(nameof(IsRecording));
         RaiseCommands();
-        await _dialogs.SaveTextAsync("Save live data recording", $"klemme15-live-{DateTime.Now:yyyyMMdd-HHmm}.csv", "csv", text);
     }
 
     private void RaiseCommands()

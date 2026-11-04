@@ -24,7 +24,7 @@ scoop install klemme15
 
 ## winget
 
-The generated manifests are correct, but the **first** submission to the community `microsoft/winget-pkgs` repo is a one-time manual step (it needs your own GitHub account to open the PR):
+**Status: not submitted yet**, so `winget install Expos-AI.Klemme15` doesn't work and the README and website don't offer it. The generated manifests are correct, but the **first** submission to the community `microsoft/winget-pkgs` repo is a one-time manual step (it needs your own GitHub account to open the PR):
 
 ```powershell
 winget install wingetcreate
@@ -35,6 +35,6 @@ After that, set a `WINGET_TOKEN` repository secret (a classic PAT with `public_r
 
 ## Removing the SmartScreen prompt on direct downloads
 
-Direct `.zip` downloads are unsigned, so Windows SmartScreen warns on first run. **winget and Scoop avoid it entirely**, and they cost nothing. SmartScreen reputation for the direct download also builds on its own, for free, as more people run it.
+Direct `.zip` downloads are unsigned, so Windows SmartScreen warns on first run. **Scoop avoids it entirely** (winget will too, once submitted), and they cost nothing. SmartScreen reputation for the direct download also builds on its own, for free, as more people run it.
 
 If you ever want the direct download signed too, the free route for open-source projects is **[SignPath Foundation](https://signpath.org/)**, which grants free code-signing certificates to OSS. (Paid options like Azure Trusted Signing exist but aren't necessary.) Add the signing step to the `publish` job only if you set one of these up: it's optional.

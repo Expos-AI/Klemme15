@@ -78,11 +78,12 @@ public sealed class GarageViewModel : PageViewModel
         _ediabasPath = settings.EdiabasPath;
         _trustDsr = settings.TrustDsr;
 
-        OpenDemoCommand = new AsyncCommand(() => ConnectAsync(demo: true), () => !_busy && _model is not null, e => Error = e.Message);
-        OpenSnapshotCommand = new AsyncCommand(OpenSnapshotAsync, () => !_busy, e => Error = e.Message);
-        ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && _model is not null && (_port is not null || UsesNetwork), e => Error = e.Message);
+        // While a job is changing the car, switching cars or disconnecting would cut it off: these wait.
+        OpenDemoCommand = new AsyncCommand(() => ConnectAsync(demo: true), () => !_busy && !_session.JobRunning && _model is not null, e => Error = Problems.Describe(e));
+        OpenSnapshotCommand = new AsyncCommand(OpenSnapshotAsync, () => !_busy && !_session.JobRunning, e => Error = Problems.Describe(e));
+        ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && !_session.JobRunning && _model is not null && (_port is not null || UsesNetwork), e => Error = Problems.Describe(e));
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
-        DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected);
+        DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected && !_session.JobRunning);
         RefreshPortsCommand = new RelayCommand(RefreshPorts);
         CheckCableCommand = new RelayCommand(() => _ = CheckCableAsync(tryOpen: !_session.IsConnected), () => _port is not null && !UsesNetwork && !_busy);
         BrowseEdiabasCommand = new AsyncCommand(BrowseEdiabasAsync);
@@ -95,6 +96,11 @@ public sealed class GarageViewModel : PageViewModel
 
         _session.PropertyChanged += (_, e) =>
         {
+            if (e.PropertyName is nameof(SessionState.JobRunning))
+            {
+                foreach (var c in new[] { OpenDemoCommand, OpenSnapshotCommand, ConnectCarCommand, DisconnectCommand }) c.RaiseCanExecuteChanged();
+                return;
+            }
             if (e.PropertyName is not nameof(SessionState.Backend)) return;
             DisconnectCommand.RaiseCanExecuteChanged();
             Raise(nameof(IsConnected));
@@ -352,7 +358,8 @@ public sealed class GarageViewModel : PageViewModel
     }
 
     /// <summary>Opens a snapshot's bytes (from the button, or a .k15 file the app was started with).</summary>
-    public async Task OpenSnapshotAsync(byte[] data)
+    /// <summary>Opens a snapshot; returns why it couldn't (also shown in the Garage), or null when it opened.</summary>
+    public async Task<string?> OpenSnapshotAsync(byte[] data)
     {
         Error = null;
         try
@@ -360,8 +367,9 @@ public sealed class GarageViewModel : PageViewModel
             var snapshot = Klemme15.Core.SnapshotFile.Read(data);
             if (snapshot.Manifest.ModelId is { } id) SelectModel(id);
             await _session.OpenSnapshotAsync(snapshot);
+            return null;
         }
-        catch (Klemme15.Core.SnapshotException e) { Error = e.Message; }
+        catch (Klemme15.Core.SnapshotException e) { return Error = e.Message; }
     }
     public AsyncCommand ConnectCarCommand { get; }
     public RelayCommand ShowCableCommand { get; }

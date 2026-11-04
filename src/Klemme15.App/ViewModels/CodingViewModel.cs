@@ -30,14 +30,24 @@ public sealed class CodingModuleItem(EcuDefinition ecu, EcuIdentity? identity, A
     public RelayCommand SelectCommand => new(() => select(this));
 }
 
-public sealed class CodingBackupItem(string path, CodingBackup backup, Func<CodingBackupItem, Task> restore, Func<CodingBackupItem, Task> compare) : ViewModelBase
+public sealed class CodingBackupItem : ViewModelBase
 {
-    public string Path { get; } = path;
-    public CodingBackup Backup { get; } = backup;
+    public CodingBackupItem(string path, CodingBackup backup, Func<CodingBackupItem, Task> restore, Func<CodingBackupItem, Task> compare,
+        Func<bool>? canTalk = null, Action<Exception>? onError = null)
+    {
+        Path = path;
+        Backup = backup;
+        // Created once; greyed out when the car can't be talked to (a snapshot, another job), errors shown on the page.
+        RestoreCommand = new AsyncCommand(() => restore(this), canTalk, onError);
+        CompareCommand = new AsyncCommand(() => compare(this), canTalk, onError);
+    }
+
+    public string Path { get; }
+    public CodingBackup Backup { get; }
     public string Title => $"{Backup.Taken.LocalDateTime:yyyy-MM-dd HH:mm}" + (Backup.Note is { } n ? $" · {n}" : "");
     public string Detail => $"{Backup.Blocks.Count} blocks" + (Backup.PartNumber is { } p ? $" · part {p}" : "");
-    public AsyncCommand RestoreCommand => new(() => restore(this));
-    public AsyncCommand CompareCommand => new(() => compare(this));
+    public AsyncCommand RestoreCommand { get; }
+    public AsyncCommand CompareCommand { get; }
 }
 
 /// <summary>One comfort option, or a preset (several options switched together in one write).</summary>
@@ -174,7 +184,7 @@ public sealed partial class CodingViewModel : PageViewModel
     /// <summary>Writing is unlocked only while the loaded module file is the one NCS Expert's trace verified.</summary>
     public bool IsVerified => _evidence is not null && _module is not null && _evidence.Module.FileName == _module.FileName;
 
-    private bool CanTalk => !_busy && _selected is not null && _session.Backend is IRawRequests;
+    private bool CanTalk => !_busy && _selected is not null && !_session.IsSnapshot && _session.Backend is IRawRequests;
 
     public string Status { get => _status; private set => Set(ref _status, value); }
     public string NcsStatus { get => _ncsStatus; private set => Set(ref _ncsStatus, value); }
@@ -242,9 +252,10 @@ public sealed partial class CodingViewModel : PageViewModel
         RebuildRetrofits();
     }
 
-    private static void Refresh(params AsyncCommand[] commands)
+    private void Refresh(params AsyncCommand[] commands)
     {
         foreach (var c in commands) c.RaiseCanExecuteChanged();
+        foreach (var b in Backups) { b.RestoreCommand.RaiseCanExecuteChanged(); b.CompareCommand.RaiseCanExecuteChanged(); }
     }
 
     private void Select(CodingModuleItem? item)
@@ -278,7 +289,7 @@ public sealed partial class CodingViewModel : PageViewModel
                 try
                 {
                     var b = CodingBackup.FromJson(File.ReadAllText(file));
-                    if (b.ModuleId.Equals(m.Ecu.Id, StringComparison.OrdinalIgnoreCase)) Backups.Add(new CodingBackupItem(file, b, RestoreAsync, CompareAsync));
+                    if (b.ModuleId.Equals(m.Ecu.Id, StringComparison.OrdinalIgnoreCase)) Backups.Add(new CodingBackupItem(file, b, RestoreAsync, CompareAsync, () => CanTalk, e => Status = Problems.Describe(e)));
                 }
                 catch (Exception e) when (e is IOException or System.Text.Json.JsonException or FormatException or InvalidDataException) { }
             }
@@ -290,6 +301,7 @@ public sealed partial class CodingViewModel : PageViewModel
     private async Task<T> Busy<T>(Func<Task<T>> work)
     {
         if (_session.IsWatching) { Status = "Stop the Ghost Hunter first: one cable can only carry one conversation with the car."; return default!; }
+        if (_session.BusyWith is { } other && other != "coding") { Status = $"Wait for \"{other}\" to finish (or stop it) first: one cable can only carry one conversation with the car."; return default!; }
         using var bus = _session.ClaimBus("coding");
         _busy = true;
         Refresh(ReadCommand, BackupCommand, RestoreFileCommand, VerifyCommand, ConfirmCommand, ChooseNcsCommand, ExportCommand);
@@ -503,7 +515,13 @@ public sealed partial class CodingViewModel : PageViewModel
     {
         var text = await _dialogs.OpenTextAsync("Restore a coding backup", "Klemme15 coding backup", ["*.k15coding.json", "*.json"]);
         if (text is null || _selected is null) return;
-        var backup = CodingBackup.FromJson(text);
+        CodingBackup backup;
+        try { backup = CodingBackup.FromJson(text); }
+        catch (Exception e) when (e is System.Text.Json.JsonException or InvalidDataException or FormatException or ArgumentException or InvalidOperationException or NullReferenceException)
+        {
+            Status = "That file isn't a Klemme15 coding backup. Pick a file saved with Back up now (it ends in .k15coding.json).";
+            return;
+        }
         await RestoreAsync(new CodingBackupItem("", backup, RestoreAsync, CompareAsync));
     }
 

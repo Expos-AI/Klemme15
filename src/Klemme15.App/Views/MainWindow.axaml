@@ -114,8 +114,25 @@
         </DockPanel>
       </Border>
 
+      <StackPanel Grid.Row="2">
+      <!-- Something else holds the cable: why buttons elsewhere are greyed out -->
+      <Border IsVisible="{Binding HasCableBusy}" Background="{DynamicResource LitSoftBrush}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="0,0,0,1" Padding="28,8">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="Show it" Command="{Binding GoToBusyCommand}" IsVisible="{Binding CanGoToBusy}" VerticalAlignment="Center" Margin="12,0,0,0" />
+          <TextBlock Text="{Binding CableBusy}" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        </DockPanel>
+      </Border>
+
+      <!-- An unexpected error, in plain words -->
+      <Border IsVisible="{Binding HasProblem}" Background="{DynamicResource RedSoftBrush}" BorderBrush="{DynamicResource RedBrush}" BorderThickness="0,0,0,1" Padding="28,10" VerticalAlignment="Top">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="Dismiss" Command="{Binding DismissProblemCommand}" VerticalAlignment="Top" Margin="12,0,0,0" />
+          <TextBlock Text="{Binding Problem}" TextWrapping="Wrap" MaxWidth="900" HorizontalAlignment="Left" />
+        </DockPanel>
+      </Border>
+
       <!-- A job that changes the car was cut off: what happened and what to do -->
-      <Border Grid.Row="2" IsVisible="{Binding HasInterrupted}" Background="{DynamicResource RedSoftBrush}" BorderBrush="{DynamicResource RedBrush}" BorderThickness="0,0,0,1" Padding="28,10">
+      <Border IsVisible="{Binding HasInterrupted}" Background="{DynamicResource RedSoftBrush}" BorderBrush="{DynamicResource RedBrush}" BorderThickness="0,0,0,1" Padding="28,10">
         <DockPanel>
           <Button DockPanel.Dock="Right" Content="Dismiss" Command="{Binding DismissInterruptedCommand}" VerticalAlignment="Top" Margin="12,0,0,0"
                   ToolTip.Tip="Hide this once you've followed the steps" />
@@ -125,6 +142,7 @@
           </StackPanel>
         </DockPanel>
       </Border>
+      </StackPanel>
 
       <ContentControl Grid.Row="3" Content="{Binding CurrentPage}" />
     </Grid>

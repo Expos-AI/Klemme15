@@ -110,7 +110,7 @@ public sealed class KLineObdChannel(ITransport transport)
     public IReadOnlyList<byte[]> Request(ReadOnlySpan<byte> data, CancellationToken ct = default)
     {
         if (!IsConnected && !Connect(ct))
-            throw new DiagnosticException("OBD-II init failed: no ECU answered on the K-line. Check ignition and that the cable switch is in K-line mode.");
+            throw new DiagnosticException("The engine computer didn't answer on the K-line. Check the ignition is on and the cable's switch is on K-line, then try again.");
 
         var wait = 60 - _sinceLastTx.Elapsed.TotalMilliseconds;      // P3min between requests
         if (wait > 0) PreciseTime.Delay(wait);

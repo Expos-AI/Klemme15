@@ -106,11 +106,11 @@ public sealed class BmwFastChannel(ITransport transport)
     /// <summary>Throws a readable error for a negative response.</summary>
     public static void EnsurePositive(byte[]? response, byte service, string what)
     {
-        if (response is null) throw new DiagnosticException($"{what}: no response");
+        if (response is null) throw new DiagnosticException($"{what}: no answer from the module. Check the ignition is on and try again.");
         if (response[0] == (byte)(service + 0x40)) return;
         if (response[0] == 0x7F && response.Length >= 3)
-            throw new DiagnosticException($"{what}: rejected by ECU ({Kwp2000.NegativeResponseText(response[2])})");
-        throw new DiagnosticException($"{what}: unexpected response {Convert.ToHexString(response)}");
+            throw new DiagnosticException($"{what}: the module refused ({Kwp2000.NegativeResponseText(response[2])}).");
+        throw new DiagnosticException($"{what}: the module gave an answer Klemme15 doesn't understand. The traffic log (Log page) has it; please send it in.");
     }
 }
 
@@ -123,16 +123,16 @@ public static class Kwp2000
 
     public static string NegativeResponseText(byte code) => code switch
     {
-        0x10 => "general reject",
-        0x11 => "service not supported",
-        0x12 => "sub-function not supported / invalid format",
-        0x21 => "busy, repeat request",
-        0x22 => "conditions not correct (check ignition / engine state)",
-        0x31 => "request out of range",
-        0x33 => "security access denied",
-        0x78 => "response pending",
-        0x80 => "service not supported in active session",
-        _ => $"code 0x{code:X2}",
+        0x10 => "it said no without a reason",
+        0x11 => "it doesn't offer this",
+        0x12 => "it doesn't accept this request",
+        0x21 => "it's busy; try again in a moment",
+        0x22 => "conditions aren't right: ignition on, engine off unless the step says otherwise",
+        0x31 => "a value is out of its range",
+        0x33 => "it's locked for this",
+        0x78 => "it's still working",
+        0x80 => "it isn't in the right mode for this",
+        _ => $"refusal code {code:X2}",
     };
 
     /// <summary>

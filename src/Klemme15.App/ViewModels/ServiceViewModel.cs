@@ -116,7 +116,7 @@ public sealed class ServiceViewModel : PageViewModel
         RebuildGroups();
 
         CheckCommand = new AsyncCommand(CheckAsync, () => _selected is { IsAvailable: true } && !_checking && !_running);
-        RunCommand = new AsyncCommand(RunAsync, CanRun, e => { Result = $"Didn't work: {e.Message}"; ResultOk = false; });
+        RunCommand = new AsyncCommand(RunAsync, CanRun, e => { Result = $"Didn't work: {Problems.Describe(e)}"; ResultOk = false; Status = "Nothing is running now. The traffic log (Log page) has the details."; });
         CancelCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
         {
@@ -180,9 +180,13 @@ public sealed class ServiceViewModel : PageViewModel
             Groups.Add(new ServiceGroupViewModel(category, visible.Where(i => i.Category == category).ToList()));
         Raise(nameof(CountText));
         Raise(nameof(NothingShown));
+        Raise(nameof(NothingText));
     }
 
     public bool NothingShown => Groups.Count == 0;
+    public string NothingText => _filter.Trim().Length > 0
+        ? $"Nothing matches \"{_filter.Trim()}\". Clear the search{(_onlyMine ? " or untick 'Only my car'" : "")}."
+        : "None of the functions fits the modules that answered in your quick test. Untick 'Only my car' to see them all.";
 
     public bool NotConnected => !_session.IsConnected;
     public bool HasScan => _session.LastScan is not null;
@@ -275,6 +279,8 @@ public sealed class ServiceViewModel : PageViewModel
 
     private ServiceAvailability AvailabilityOf(ServiceFunction f)
     {
+        if (_session.IsSnapshot)
+            return new(false, "This is a snapshot: service functions need the car itself. Close the snapshot and connect in the Garage.");
         if (!_session.IsConnected || _session.Backend is not { } backend)
             return new(false, "Connect to your car in the Garage first.");
         var ecu = ModuleOf(f);
@@ -410,12 +416,12 @@ public sealed class ServiceViewModel : PageViewModel
             cutOff = outcome.CutOff;
             foreach (var d in outcome.Details) ResultDetails.Add(d);
             Result = outcome.Success ? outcome.Message : $"Didn't work: {outcome.Message}";
-            Status = outcome.Success ? "Finished. Follow the steps under 'Afterwards'." : "Stopped. The part was handed back to the module; the traffic log has the details.";
+            Status = outcome.Success ? "Finished. Follow the steps under 'Afterwards'." : "Stopped. Nothing is running now; the traffic log (Log page) has the details.";
         }
         catch (OperationCanceledException)
         {
             ResultOk = false;
-            Result = "Stopped. The part was handed back to the module.";
+            Result = "Stopped. The module takes back control of anything it was driving.";
             Status = "";
         }
         catch (Exception e) when (e is DiagnosticException or TimeoutException && ServiceOutcome.IsCutOff(e))

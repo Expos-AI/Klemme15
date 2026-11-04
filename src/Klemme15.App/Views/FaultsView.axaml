@@ -204,6 +204,7 @@
         <TextBlock Text="{Binding Verdict}" TextWrapping="Wrap" VerticalAlignment="Center" />
       </DockPanel>
       <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
+      <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding Notice}" IsVisible="{Binding HasNotice}" />
       <TextBlock Classes="muted" Text="{Binding EmptyText}" IsVisible="{Binding IsEmpty}" TextWrapping="Wrap" MaxWidth="560" HorizontalAlignment="Left" />
     </StackPanel>
 
@@ -287,7 +288,7 @@
                           </WrapPanel>
                         </StackPanel>
                         <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,14,0" Spacing="4">
-                          <Button Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" HorizontalAlignment="Right" />
+                          <Button Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" IsVisible="{Binding CanShowOnCar}" HorizontalAlignment="Right" />
                           <Button Classes="quiet" Content="{Binding GuideButtonText}" Command="{Binding ToggleGuideCommand}" IsVisible="{Binding HasGuide}" HorizontalAlignment="Right"
                                   ToolTip.Tip="Step-by-step checks for this kind of fault" />
                           <Button Classes="quiet" Content="{Binding ChainButtonText}" Command="{Binding RunChainCommand}" IsVisible="{Binding HasChain}" HorizontalAlignment="Right"

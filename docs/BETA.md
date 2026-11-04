@@ -6,8 +6,8 @@ Everything Klemme15 does by default is read-only. Anything that writes to the ca
 
 ## Before you start
 
-1. Install the latest release (`winget install Expos-AI.Klemme15`, or the zip for your system from [Releases](https://github.com/Expos-AI/Klemme15/releases)). Check the download with `SHA256SUMS.txt` if you like ([how](../SECURITY.md#verifying-your-download)).
-2. Plug in your cable, pick its port in the Garage and press **Check cable**. Fix anything it flags (latency, port in use), and **note what it said about your cable** for your report.
+1. Install the latest release (on Windows with Scoop: `scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15` then `scoop install klemme15`; or the zip for your system from [Releases](https://github.com/Expos-AI/Klemme15/releases)). Check the download with `SHA256SUMS.txt` if you like ([how](../SECURITY.md#verifying-your-download)).
+2. Plug in your cable, pick your car in the Garage, press **Connect to my car**, choose the cable's port and press **Check cable**. Fix anything it flags (latency, port in use), and **note what it said about your cable** for your report.
 3. Put a battery charger on the car for anything longer than a quick test.
 
 ## What to test
@@ -18,7 +18,7 @@ Do as many as you can, in any order. Each is useful on its own.
 |---|---|---|---|
 | 1 | **Quick test** | Vehicle → Run quick test | Did every fitted module answer? How long did it take? Any module missing or wrong? |
 | 2 | **Faults** | Faults page | Do the meanings make sense for your car? Anything clearly wrong or missing? |
-| 3 | **Ghost Hunter on your commute** | Ghost Hunter → tick *Catch a voltage dip* (or anything that fits your car) → Start, then drive 30 to 45 minutes | Did the app stay responsive? Did the laptop stay awake? Did the *Right now* list make sense? Any captures, and do they look right? |
+| 3 | **Ghost Hunter on your commute** | Ghost Hunter → tick *Catch a voltage dip* (or anything that fits your car) → **Start watching**, then drive 30 to 45 minutes | Did the app stay responsive? Did the laptop stay awake? Did the *Right now* list make sense? Any captures, and do they look right? |
 | 4 | **Live data and Analyse** | Live data → record a few minutes → Analyse | Smooth, or stuttering? Do the values match the dash? |
 | 5 | **Guided tests** | Tests → fuel trim test, cylinder roughness, water pump health | Did each finish with a verdict that makes sense? |
 | 6 | **Battery drain finder** | Faults → Battery going flat? | Did it find your car's own clues? If you measured a drain, how did the hunt go? |

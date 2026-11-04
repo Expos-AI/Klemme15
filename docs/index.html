@@ -76,9 +76,9 @@
     .button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 16px; }
     .button.primary { background: var(--lit); color: #0b1218; }
     .button.primary:hover { text-decoration: none; filter: brightness(1.08); }
-    .code { display: inline-flex; align-items: center; gap: 12px; padding: 0 8px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: 15px var(--mono); color: var(--ink); }
+    .code { display: inline-flex; align-items: center; gap: 12px; padding: 0 8px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: 15px var(--mono); color: var(--ink); max-width: 100%; }
     .code .prompt { color: var(--muted); user-select: none; }
-    .code > span { white-space: nowrap; overflow-x: auto; padding: 12px 0; }
+    .code > span { white-space: nowrap; overflow-x: auto; min-width: 0; padding: 12px 0; }
     .copy { border: 0; background: var(--raised); color: var(--muted); border-radius: 7px; padding: 8px 10px; font: 500 13px var(--body); cursor: pointer; }
     .copy:hover { color: var(--ink); }
     .meta { margin-top: 18px; color: var(--muted); font-size: 14px; }
@@ -283,8 +283,8 @@
             Download .ZIP
           </a>
           <div class="code">
-            <span><span class="prompt">&gt; </span><code id="winget">winget install Expos-AI.Klemme15</code></span>
-            <button class="copy" type="button" data-copy="winget">Copy</button>
+            <span><span class="prompt">&gt; </span><code id="scoop">scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15</code></span>
+            <button class="copy" type="button" data-copy="scoop">Copy</button>
           </div>
         </div>
         <p class="meta"><span>Windows, macOS, Linux</span><span>GPL-3.0</span><span>Not affiliated with BMW AG</span></p>
@@ -302,7 +302,7 @@
         <div class="jumps">
           <a class="jump" href="#find"><b>Find what's wrong</b><span>Every module's faults, in plain English</span></a>
           <a class="jump" href="#test"><b>Test before you buy parts</b><span>Graphed tests that point to the cause</span></a>
-          <a class="jump" href="#workshop"><b>Do the workshop jobs</b><span>75 service functions, mostly experimental</span></a>
+          <a class="jump" href="#workshop"><b>Do the workshop jobs</b><span>75 service functions, all experimental</span></a>
           <a class="jump" href="#coding"><b>Code comfort options</b><span>Backed up first, restored if anything's off</span></a>
           <a class="jump" href="#health"><b>Keep it healthy</b><span>Trends, your cars, buying a used one</span></a>
           <a class="jump" href="#ghost"><b>Catch it in the act</b><span>Ghost Hunter, baselines, live values</span></a>
@@ -326,15 +326,15 @@
               <tr><th scope="row"><b>E60 · E61 · E63 · E64</b><span>5 Series, 6 Series</span></th><td>2007-2010</td><td class="models">520d-550i, 535d, 650i</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · test reports wanted</span></td></tr>
               <tr><th scope="row"><b>E70 · E71</b><span>X5, X6</span></th><td>2007-2014</td><td class="models">X5 3.0si-4.8i, xDrive35d, X6 xDrive35i, 50i</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · test reports wanted</span></td></tr>
               <tr><th scope="row"><b>E89</b><span>Z4</span></th><td>2009-2016</td><td class="models">sDrive18i-35is</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · test reports wanted</span></td></tr>
-              <tr><th scope="row"><b>E46</b><span>3 Series</span></th><td>1999-2006</td><td class="models">323i-330xi</td><td><span class="switch">K-line</span></td><td><span class="badge">Supported · full fault memory with your BMW files</span></td></tr>
-              <tr><th scope="row"><b>E39</b><span>5 Series</span></th><td>1997-2003</td><td class="models">525i-540i, M5, 525d, 530d</td><td><span class="switch">K-line</span></td><td><span class="badge">Supported · full fault memory with your BMW files</span></td></tr>
-              <tr><th scope="row"><b>E53</b><span>X5</span></th><td>2000-2006</td><td class="models">3.0i-4.8is, 3.0d</td><td><span class="switch">K-line</span></td><td><span class="badge">Supported · full fault memory with your BMW files</span></td></tr>
-              <tr><th scope="row"><b>E38</b><span>7 Series</span></th><td>1995-2001</td><td class="models">728i-750iL, 730d</td><td><span class="switch">K-line</span></td><td><span class="badge">Supported · full fault memory with your BMW files</span></td></tr>
+              <tr><th scope="row"><b>E46</b><span>3 Series</span></th><td>1999-2006</td><td class="models">323i-330xi</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification out of the box · test reports wanted</span></td></tr>
+              <tr><th scope="row"><b>E39</b><span>5 Series</span></th><td>1997-2003</td><td class="models">525i-540i, M5, 525d, 530d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification out of the box · test reports wanted</span></td></tr>
+              <tr><th scope="row"><b>E53</b><span>X5</span></th><td>2000-2006</td><td class="models">3.0i-4.8is, 3.0d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification out of the box · test reports wanted</span></td></tr>
+              <tr><th scope="row"><b>E38</b><span>7 Series</span></th><td>1995-2001</td><td class="models">728i-750iL, 730d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification out of the box · test reports wanted</span></td></tr>
             </tbody>
           </table>
         </div>
         <ul class="small-print">
-          <li><b>D-CAN cars</b> (2006 on) get, without BMW files: every module's faults and dash messages, engine readings and live data, the guided tests, coding backups, battery registration and Valvetronic learning. Your own BMW files (EDIABAS mode, Windows) add every module's readings, the other service functions and BMW's fault texts.</li>
+          <li><b>D-CAN cars</b> (2006 on) get, without BMW files: every module's faults and dash messages, engine readings and live data, the guided tests except the water pump sweep, coding backups, battery registration (most engine computers) and Valvetronic learning (N52 engines only). Your own BMW files (EDIABAS mode, Windows) add every module's readings, the other service functions and BMW's fault texts.</li>
           <li><b>K-line cars</b> (E46 and older) get module identification, engine faults, live data, health history and the fuel trim test out of the box; every module's full fault memory needs your own BMW files (EDIABAS mode, Windows).</li>
           <li><b>E60 / E61 / E63 / E64 and E8x built before March 2007</b> have no D-CAN and need EDIABAS mode. <b>F- and G-series</b> (Ethernet) aren't supported yet.</li>
         </ul>
@@ -385,7 +385,7 @@
         <div class="feature-text">
           <span class="eyebrow">Service functions</span>
           <h2>Do the workshop jobs yourself</h2>
-          <p class="section-lede">Service functions check the car first, ask you to confirm each requirement, run BMW's own procedure for your module version and show the result. Battery registration and Valvetronic learning work over the cable alone; the rest use your own BMW files (EDIABAS mode, Windows).</p>
+          <p class="section-lede">Service functions check the car first, ask you to confirm each requirement, run BMW's own procedure for your module version and show the result. Battery registration (on most engine computers) and Valvetronic learning (N52 engines with MSV70 or MSV80 engine computers only) work over the cable alone; the rest use your own BMW files (EDIABAS mode, Windows).</p>
           <ul class="ticks">
               <li><b>Battery registration.</b> After fitting a new battery. Confirmed on a real E90.</li>
               <li><b>Service reminders.</b> Oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check.</li>
@@ -396,7 +396,7 @@
               <li><b>Gearbox, xDrive and diesel.</b> Automatic gearbox adaptation reset, SMG learning, xDrive relearn, glow plugs, EGR, injector codes.</li>
               <li><b>Body.</b> Windows, sunroof, climate flaps, rain sensor, and restarting a frozen iDrive, Bluetooth or amplifier without pulling the battery.</li>
           </ul>
-            <p class="note">75 functions in all. Battery registration is confirmed on a real car; every other function stays behind the experimental switch until someone confirms it on one.</p>
+            <p class="note">75 functions in all, all experimental. Battery registration is confirmed on a real E90; it and every other function stay behind the experimental switch until marked confirmed.</p>
         </div>
         <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/18-service.png" alt="Klemme15 Service page running a service function" loading="lazy" width="1440" height="900"></div>
       </div>
@@ -409,7 +409,7 @@
           <p class="section-lede">Back up a module's coding before any tool touches it, switch popular options, and get the original back automatically if anything reads back wrong.</p>
           <ul class="ticks">
               <li><b>Backup, compare, restore.</b> For the comfort modules on D-CAN cars, with no BMW files. Restoring writes to the module, so it's experimental.</li>
-              <li><b>Quick codes (experimental).</b> LED bulb-check off, digital speed, mirror fold, windows closing on lock, and more.</li>
+              <li><b>Quick codes (experimental).</b> LED bulb-check off, digital speed, mirror fold, windows that keep closing when a door opens, and more.</li>
               <li><b>Never guesses.</b> An option unlocks only when Klemme15 knows exactly where it lives on your module: verified against NCS Expert, learned from another tool, or a shared coding map.</li>
               <li><b>FRM3 protection.</b> The footwell module that corrupts itself on a voltage dip is recognised and only written to at 13.0 V or more, on a charger.</li>
               <li><b>Retrofit checker.</b> Notices a swapped or added module and tells you what the job needs.</li>
@@ -440,7 +440,7 @@
         <div class="feature-text">
           <span class="eyebrow">Catch and compare</span>
           <h2>Catch the fault that only happens sometimes</h2>
-          <p class="section-lede">The warning that comes and goes is the hardest one to fix. Set a trap, drive, and let Klemme15 catch it.</p>
+          <p class="section-lede">Tick what you're chasing, drive, and Klemme15 saves the minute before and after it happens.</p>
           <ul class="ticks">
               <li><b>Ghost Hunter.</b> Say what you're chasing in plain words (an intermittent misfire, a voltage dip, a lean idle, a chug at idle, running rich, overheating, a charging dropout, a stall) and drive. When it happens, Klemme15 saves a snapshot with the minute before and the minute after, and for a misfire it names the rough cylinder. A <i>Right now</i> list shows what each watch is waiting for, like a warm engine or the car moving. Nothing to tap while driving.</li>
               <li><b>Known good baselines.</b> The healthy range drawn behind your log, lined up by engine speed, with a line saying where your engine leaves it. Make one from your own car when it runs well, or share it with one button: a check on GitHub builds your engine's community baseline. An N52 physics model ships, clearly labelled as not measured.</li>
@@ -461,12 +461,12 @@
         <div class="feature-text">
           <span class="eyebrow">Get help</span>
           <h2>Get help from anyone, anywhere</h2>
-          <p class="section-lede">Stop pasting codes into forums. Share the whole car, and whoever helps you sees exactly what your car sees.</p>
+          <p class="section-lede">Send one file instead of a list of codes. Whoever helps you opens your car read-only.</p>
           <ul class="ticks">
-              <li><b>Snapshots (.k15).</b> Modules, faults, dash messages, health trends, the last minute of live data and your test graphs, in one file, opened read-only with your note on top. VIN removed.</li>
+              <li><b>Snapshots (.k15).</b> Modules, faults, dash messages, health trends, your test graphs and, if you include it, the last minute of live data, in one file, opened read-only with your note on top. VIN removed.</li>
               <li><b>Forum post.</b> One click copies a short summary with the VIN removed, ready for E90Post, Reddit or Bimmerforums.</li>
               <li><b>Reports.</b> HTML, Markdown or JSON.</li>
-              <li><b>Phone dashboard.</b> Leave a Raspberry Pi on the OBD port and watch gauges and faults on your phone.</li>
+              <li><b>Phone dashboard.</b> Leave a small Linux computer on the OBD port and watch gauges and faults on your phone. A Raspberry Pi needs a build from source for now.</li>
           </ul>
         </div>
         <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" alt="A shared Klemme15 snapshot opened read-only with the owner's note" loading="lazy" width="1440" height="900"></div>
@@ -476,12 +476,12 @@
     <section id="why">
       <div class="wrap">
         <h2>Built for owners, not dealerships</h2>
-        <p class="section-lede">Factory tools are made for workshops with a licence, a dedicated laptop and an afternoon to install them. Klemme15 is made for you and your car.</p>
+        <p class="section-lede">Factory tools are made for workshops with a licence, a dedicated laptop and an afternoon to install them. Klemme15 runs on the laptop you already have.</p>
         <div class="grid">
           <article class="card">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
             <h3>Small and portable</h3>
-            <p>Unzip and run, or install with one winget command. It runs on the Windows, Mac or Linux laptop you already have, without a licence key or a virtual machine.</p>
+            <p>Unzip and run, or install with Scoop on Windows. It runs on the Windows, Mac or Linux laptop you already have, without a licence key or a virtual machine.</p>
           </article>
           <article class="card">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.4-8 9-4.6-.6-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
@@ -501,7 +501,7 @@
           <article class="card">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
             <h3>Survives a pulled cable</h3>
-            <p>If a job is cut off by a loose cable, a sleeping laptop or a forced restart, Klemme15 remembers it and says exactly what to do next. Parts it switched on are switched off again when you reconnect, and the laptop stays awake while jobs run.</p>
+            <p>If a job is cut off by a loose cable, a sleeping laptop or a forced restart, Klemme15 remembers it and says what to do next. The water pump test's pump is switched off again when you reconnect; other part tests end on BMW's own timeout. The laptop stays awake while jobs run.</p>
           </article>
           <article class="card">
             <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
@@ -512,24 +512,21 @@
       </div>
     </section>
 
-    <!-- Demo reels: videos play only while visible, and not at all for people who prefer reduced motion.
-         Put the MP4s in docs/media/. Until they exist, the poster (a CI screenshot of the current build) is shown. -->
+    <!-- Demo reels: CI screenshots of the current build. -->
     <section id="demos">
       <div class="wrap">
-        <h2>See it move</h2>
+        <h2>Try it on the demo car</h2>
         <p class="section-lede">Each of these runs on the built-in demo car, so you can try it without a cable.</p>
 
         <div class="reel">
           <div class="reel-text">
             <span class="eyebrow">Snapshots</span>
             <h3>Share your whole car in one file</h3>
-            <p>Save a snapshot and attach it to your forum post. Whoever opens it explores your car as if they were plugged in: every module, every fault, the dash warning history, the last minute of live data. Read-only, and the VIN is removed everywhere.</p>
+            <p>Save a snapshot and attach it to your forum post. Whoever opens it explores your car as if they were plugged in: every module, every fault, the dash warning history and, if you include it, the last minute of live data. Read-only, with the VIN removed; if you add the optional traffic log, give it a skim first.</p>
             <ul><li>Your note on top: what's wrong, what you tried</li><li>Live data replays on the Analyse page</li></ul>
           </div>
           <div class="frame">
-            <video autoplay loop muted playsinline preload="none" poster="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" aria-label="Opening a shared snapshot in Klemme15">
-              <source src="media/digital-twin.mp4" type="video/mp4">
-            </video>
+            <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" alt="Opening a shared snapshot in Klemme15" loading="lazy" width="1440" height="900">
           </div>
         </div>
 
@@ -538,12 +535,10 @@
             <span class="eyebrow">Diagnostic Chains</span>
             <h3>A mechanic's reasoning, step by step</h3>
             <p>Lean codes? The Vacuum leak hunter compares your fuel trims at idle and 2,500 rpm, checks the airflow against your engine's size, asks you one question and points to the likely cause, with the numbers and graphs to back it up.</p>
-            <ul><li>Written by the community, read-only by design</li><li>Offered right under the fault it explains</li></ul>
+            <ul><li>Anyone can write one; chains only read and ask</li><li>Offered right under the fault it explains</li></ul>
           </div>
           <div class="frame">
-            <video autoplay loop muted playsinline preload="none" poster="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/25-chain-question.png" aria-label="Running the Vacuum leak hunter diagnostic chain">
-              <source src="media/diagnostic-chains.mp4" type="video/mp4">
-            </video>
+            <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/25-chain-question.png" alt="Running the Vacuum leak hunter diagnostic chain" loading="lazy" width="1440" height="900">
           </div>
         </div>
 
@@ -555,9 +550,7 @@
             <ul><li>Comfort modules only: never the key, engine, brakes or airbags</li><li>Only settings Klemme15 knows exactly for your module</li></ul>
           </div>
           <div class="frame">
-            <video autoplay loop muted playsinline preload="none" poster="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/20-coding.png" aria-label="Backing up and coding a module with automatic restore">
-              <source src="media/coding-auto-restore.mp4" type="video/mp4">
-            </video>
+            <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/20-coding.png" alt="Backing up and coding a module with automatic restore" loading="lazy" width="1440" height="900">
           </div>
         </div>
       </div>
@@ -577,10 +570,10 @@
             <tr><th scope="row">Fault meanings</th><td>BMW's texts, written for workshops</td><td>Plain English, sorted by priority, with what to check next. BMW's own text needs your files or a free download</td></tr>
             <tr><th scope="row">Live values and module status</th><td class="yes">Yes</td><td class="yes">Engine values out of the box, every module with your BMW files. Graphs, recording and replay</td></tr>
             <tr><th scope="row">Guided fault finding and component tests</th><td class="yes">Yes, test plans for each fault</td><td>A smaller set of graphed tests and diagnostic chains</td></tr>
-            <tr><th scope="row">Service functions (battery registration, resets, calibrations)</th><td class="yes">Yes</td><td>74. Most need your BMW files (Windows); all but battery registration are experimental until confirmed on a car</td></tr>
+            <tr><th scope="row">Service functions (battery registration, resets, calibrations)</th><td class="yes">Yes</td><td>75. Most need your BMW files (Windows); all are experimental. Battery registration is confirmed on a real E90 but stays behind the experimental switch until marked confirmed</td></tr>
             <tr><th scope="row">Coding comfort options</th><td>A separate tool (NCS Expert)</td><td>Built in for comfort modules, with backup and automatic restore (experimental)</td></tr>
             <tr><th scope="row">Health trends, pre-purchase check, shareable snapshots</th><td class="no">No</td><td class="yes">Yes</td></tr>
-            <tr><th scope="row">Programming / flashing modules, keys and immobiliser</th><td class="yes">Yes</td><td class="no">No, never, on purpose</td></tr>
+            <tr><th scope="row">Programming / flashing modules, keys and immobiliser</th><td class="yes">Yes</td><td class="no">No</td></tr>
             <tr><th scope="row">Wiring diagrams</th><td class="yes">Yes</td><td>Connector notes and checks in our own words</td></tr>
             <tr><th scope="row">F- and G-series cars</th><td class="yes">Yes</td><td>Not yet (E-series)</td></tr>
             <tr><th scope="row">Track record</th><td>BMW's dealer tool</td><td>Beta, confirmed on one 2006 E90 325i so far</td></tr>
@@ -599,8 +592,8 @@
         <p class="section-lede">Klemme15 talks to E-series BMWs through a K+DCAN cable, the inexpensive USB cable sold for INPA and NCS Expert.</p>
         <div class="grid">
           <article class="card"><span class="step">1</span><h3>Get the cable</h3><p>A K+DCAN USB cable with a K-line / D-CAN switch (see below). Set the switch for your car before plugging in.</p></article>
-          <article class="card"><span class="step">2</span><h3>Install Klemme15</h3><p><code>winget install Expos-AI.Klemme15</code> on Windows, or download the .zip for Windows, macOS or Linux and run it. No installer, no account. Every download comes with checksums and a signed build provenance, so you can <a href="https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download">check it</a>.</p></article>
-          <article class="card"><span class="step">3</span><h3>Run a quick test</h3><p>Ignition on, pick your model in the Garage, press Check cable, then Connect and Run quick test. No car nearby? Open a demo car.</p></article>
+          <article class="card"><span class="step">2</span><h3>Install Klemme15</h3><p>On Windows: <code>scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15</code> then <code>scoop install klemme15</code>. Or download the .zip for Windows, macOS or Linux and run it. No installer, no account. Every download comes with checksums and a signed build provenance, so you can <a href="https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download">check it</a>.</p></article>
+          <article class="card"><span class="step">3</span><h3>Run a quick test</h3><p>Ignition on, pick your model in the Garage and press Connect to my car. Choose the port, press Check cable, then Connect and Run quick test. No car nearby? Open a demo car.</p></article>
         </div>
         <div class="cable">
           <div class="cable-text">
@@ -611,7 +604,7 @@
               <li><b>An FTDI chip.</b> Klemme15 recognises FTDI cables by itself and picks the right port; on Windows the driver usually installs automatically.</li>
               <li><b>Confirmed with Klemme15 on a real car:</b> the inexpensive <a href="https://www.amazon.com/dp/B079KC43WG">AntiBreak K+DCAN cable with switch</a> (FTDI), used on a 2006 E90 325i for every real-car test so far: quick test, faults, dash messages, live data, fuel trim test and battery registration.</li>
               <li><b>Also popular:</b> the <a href="https://www.bimmergeeks.net/store">BimmerGeeks</a> K+DCAN cables, and plenty of plain FTDI cables with a switch. Klemme15 isn't affiliated with any seller.</li>
-              <li><b>Klemme15 checks it for you.</b> Press <b>Check cable</b> in the Garage: it tells you whether the chip is a genuine FTDI or shows the signs of a clone, whether the latency timer is slowing things down (and exactly where to set it to 1 ms), and whether another program still has the port.</li>
+              <li><b>Klemme15 checks it for you.</b> In the Garage, press <b>Connect to my car</b>, then <b>Check cable</b>: it tells you whether the chip is a genuine FTDI or shows the signs of a clone, whether the latency timer is slowing things down (and exactly where to set it to 1 ms), and whether another program still has the port.</li>
               <li><b>No laptop in the car?</b> A cable behind a Wi-Fi bridge (ser2net or an ESP32) works too, best on D-CAN cars.</li>
             </ul>
           </div>
@@ -623,7 +616,7 @@
     <section>
       <div class="wrap">
         <h2>Lines we don't cross</h2>
-        <p class="section-lede">Some things a free tool should never do to your car. Klemme15 doesn't do them, on purpose.</p>
+        <p class="section-lede">Some things a free tool should never do to your car. Klemme15 never does these:</p>
         <div class="bounds">
           <div class="bound"><b>No flashing</b>Module software is never rewritten.</div>
           <div class="bound"><b>No immobiliser work</b>Keys and immobiliser data are never touched. The key module's one job: clearing the steering lock's counters.</div>
@@ -635,16 +628,16 @@
     <!-- Bottom call to action -->
     <section id="download" class="final">
       <div class="wrap">
-        <h2>Plug in. Find out. Fix it.</h2>
-        <p class="section-lede">Free, open source, and yours to keep. Try it on the demo car first, no cable needed.</p>
+        <h2>Try it on the demo car first</h2>
+        <p class="section-lede">Free, open source, and yours to keep. The demo car needs no cable.</p>
         <div class="cta">
           <a class="button primary" href="https://github.com/Expos-AI/Klemme15/releases/latest">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
             Download Klemme15
           </a>
           <div class="code">
-            <span><span class="prompt">&gt; </span><code id="winget-bottom">winget install Expos-AI.Klemme15</code></span>
-            <button class="copy" type="button" data-copy="winget-bottom">Copy</button>
+            <span><span class="prompt">&gt; </span><code id="scoop-bottom">scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15</code></span>
+            <button class="copy" type="button" data-copy="scoop-bottom">Copy</button>
           </div>
         </div>
         <p class="meta"><span>Windows, macOS, Linux</span><span>No installer, no account</span><span>Not affiliated with BMW AG</span></p>

@@ -40,9 +40,15 @@ public abstract class ViewModelBase : INotifyPropertyChanged
     }
 }
 
-/// <summary>Async command that disables itself while running and reports errors through a callback.</summary>
+/// <summary>
+/// Async command that disables itself while running and reports errors through a callback. A command without its own
+/// callback reports to <see cref="DefaultError"/> (a banner in the main window), so no error ever closes the app.
+/// </summary>
 public sealed class AsyncCommand(Func<Task> execute, Func<bool>? canExecute = null, Action<Exception>? onError = null) : ICommand
 {
+    /// <summary>Where errors go when a command has no callback of its own. Set by the app at start.</summary>
+    public static Action<Exception>? DefaultError { get; set; }
+
     private bool _running;
 
     public event EventHandler? CanExecuteChanged;
@@ -58,8 +64,9 @@ public sealed class AsyncCommand(Func<Task> execute, Func<bool>? canExecute = nu
         catch (OperationCanceledException) { }
         catch (Exception e)
         {
-            if (onError is null) throw;
-            onError(e);
+            if (onError is not null) onError(e);
+            else if (DefaultError is not null) DefaultError(e);
+            else System.Diagnostics.Trace.TraceError($"Unhandled command error: {e}");
         }
         finally
         {
@@ -114,4 +121,21 @@ public static class Icons
     public static readonly Geometry Analyse = StreamGeometry.Parse("M3 3v18h18v-2H5V3zm4 11 3-3 3 3 5-6-1.4-1.4L15 11l-3-3-5 5z");
     public static readonly Geometry Coding = StreamGeometry.Parse("M9 2v2H7a2 2 0 0 0-2 2v2H3v2h2v2H3v2h2v2a2 2 0 0 0 2 2h2v2h2v-2h2v2h2v-2h2a2 2 0 0 0 2-2v-2h2v-2h-2v-2h2V8h-2V6a2 2 0 0 0-2-2h-2V2h-2v2h-2V2zM7 6h10v12H7zm2 3v6h6V9z");
     public static readonly Geometry Log = StreamGeometry.Parse("M4 5h16v2H4zm0 6h16v2H4zm0 6h10v2H4z");
+}
+
+/// <summary>Turns an unexpected error into one plain sentence with a next step.</summary>
+public static class Problems
+{
+    public static string Describe(Exception e) => e switch
+    {
+        UnauthorizedAccessException => $"Klemme15 isn't allowed to use that file or folder. Pick another place (your Documents folder works). ({e.Message})",
+        IOException io when io.Message.Contains("being used", StringComparison.OrdinalIgnoreCase) || io.HResult is unchecked((int)0x80070020) or unchecked((int)0x80070021) =>
+            "That file is open in another program. Close it there and try again.",
+        FileNotFoundException or DirectoryNotFoundException => "That file or folder isn't there any more. It may have been moved or deleted.",
+        IOException => $"The file couldn't be read or saved: {e.Message}",
+        System.Text.Json.JsonException => "That file isn't one Klemme15 can read: it's damaged or from another program.",
+        TimeoutException => "The car didn't answer in time. Check the cable is plugged in and the ignition is on, then try again.",
+        Klemme15.Core.DiagnosticException => e.Message,
+        _ => $"Something went wrong: {e.Message}",
+    };
 }

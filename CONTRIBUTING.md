@@ -47,7 +47,7 @@ For EDIABAS mode on Windows, run `scripts\get-ediabaslib.ps1` once (it downloads
 | `web/dashboard/` | Phone dashboard source; its build is committed to `src/Klemme15.Telemetry/wwwroot/` |
 | `tools/` | Developer tools: screenshots, logo, the N52 baseline model, research data |
 | `scripts/` | EdiabasLib download, license headers, packaging, baseline intake |
-| `bucket/`, `packaging/winget/` | Scoop and winget recipes, updated by CI on each release |
+| `bucket/`, `packaging/winget/` | Scoop and winget recipes, updated by CI on each release (winget isn't submitted yet: see docs/PACKAGING.md) |
 | `build/` | MSBuild settings for the optional EDIABAS mode |
 | `external/` | Not committed: EdiabasLib, downloaded by `scripts/get-ediabaslib.*` |
 

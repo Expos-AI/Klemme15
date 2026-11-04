@@ -32,7 +32,7 @@ Report privately anything that could:
 - make Klemme15 **write to a car** in a way it shouldn't: a write without a backup, a coding change outside the option's bits, a service function running when its checks failed, or anything reaching the key module (CAS) or the immobiliser;
 - run code or read files through a file someone sends you: a `.k15` snapshot, a coding map, a baseline, a chain, a CSV;
 - leak your VIN or personal data, or make Klemme15 connect anywhere you didn't ask it to;
-- tamper with the release downloads, the install recipes (winget, Scoop) or the build pipeline;
+- tamper with the release downloads, the Scoop install recipe or the build pipeline;
 - expose the headless mode's dashboard or MQTT data beyond the network you pointed it at.
 
 Not security issues (open a normal issue): wrong fault meanings, a test giving the wrong verdict, crashes with no security impact, and problems that need someone to already control your computer.
@@ -43,7 +43,7 @@ We won't pursue or support legal action against anyone who researches and report
 
 ## Supported versions
 
-Only the **latest release** gets security fixes. Klemme15 is in beta and updates often; winget and Scoop keep you current.
+Only the **latest release** gets security fixes. Klemme15 is in beta and updates often; `scoop update klemme15` keeps a Scoop install current.
 
 ## Verifying your download
 
@@ -52,10 +52,10 @@ Every release is built by GitHub Actions from this repository, and comes with:
 - **`SHA256SUMS.txt`**: the SHA-256 checksum of every zip. After downloading, check yours matches:
   - Linux: `sha256sum -c SHA256SUMS.txt --ignore-missing`
   - macOS: `shasum -a 256 -c SHA256SUMS.txt --ignore-missing`
-  - Windows (PowerShell): `Get-FileHash .\Klemme15-<version>-win-x64.zip` and compare with the line in `SHA256SUMS.txt`
-- **A signed build provenance attestation**: proof, signed through Sigstore, that the zip was built by this repository's workflow from a specific commit. With the GitHub CLI: `gh attestation verify Klemme15-<version>-win-x64.zip -R Expos-AI/Klemme15`. This is the stronger check, because it doesn't depend on a file stored next to the download.
+  - Windows (PowerShell): `Get-FileHash .\Klemme15-v<version>-win-x64.zip` and compare with the line in `SHA256SUMS.txt`
+- **A signed build provenance attestation**: proof, signed through Sigstore, that the zip was built by this repository's workflow from a specific commit. With the GitHub CLI: `gh attestation verify Klemme15-v<version>-win-x64.zip -R Expos-AI/Klemme15`. This is the stronger check, because it doesn't depend on a file stored next to the download.
 
-Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-AI/Klemme15/releases), winget (`Expos-AI.Klemme15`) or the project's Scoop bucket.
+Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-AI/Klemme15/releases) or the project's Scoop bucket.
 
 ## How the project protects itself
 

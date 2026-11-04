@@ -57,7 +57,7 @@
           <CheckBox DockPanel.Dock="Right" Content="Only my car" IsChecked="{Binding OnlyMine}" IsVisible="{Binding !NotConnected}" />
           <TextBlock Classes="muted small" Text="{Binding CountText}" VerticalAlignment="Center" TextWrapping="Wrap" />
         </DockPanel>
-        <TextBlock Classes="muted small" Text="Nothing matches. Clear the search or untick 'Only my car'." IsVisible="{Binding NothingShown}" TextWrapping="Wrap" />
+        <TextBlock Classes="muted small" Text="{Binding NothingText}" IsVisible="{Binding NothingShown}" TextWrapping="Wrap" />
         <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NotConnected}"
                    Text="Connect to your car in the Garage and run the quick test to see which functions your car supports." />
         <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding NeedsScan}"

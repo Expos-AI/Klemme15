@@ -12,7 +12,7 @@ A **K+DCAN USB cable with a K-line / D-CAN switch and an FTDI chip**, the kind s
 
 ## Check cable
 
-In the Garage, pick the cable's port and press **Check cable**. It also runs by itself before every connection. It reads what your computer knows about the cable (nothing is sent to the car) and tells you:
+In the Garage, pick your car and press **Connect to my car**, then choose the cable's port and press **Check cable**. It also runs by itself before every connection. It reads what your computer knows about the cable (nothing is sent to the car) and tells you:
 
 | Finding | What it means | What to do |
 |---|---|---|

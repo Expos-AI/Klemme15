@@ -13,7 +13,7 @@ They live in [`src/Klemme15.Data/db/service.json`](../src/Klemme15.Data/db/servi
 5. **Run.** The function runs once:
    - **With your BMW files** (EDIABAS mode): Klemme15 runs BMW's own jobs for your module version from your files, step by step, waits where a part has to run or a module has to learn, and reads back the result where BMW provides one.
    - **Timed tests always end cleanly.** Where a part is switched on by Klemme15 (fan, pump, valve, a cylinder cut-out), the function either uses BMW's built-in timeout or runs BMW's stop job afterwards, including when a step fails or you press Stop.
-   - **Without BMW files**: only where the exact request is documented for those module versions (currently battery registration on E90-family engine modules, KWP2000 StartRoutineByLocalIdentifier `31 30 00 10 00` with positive reply `71 30`, and Valvetronic end-stop learning on the engine modules listed in [SERVICE-FUNCTIONS.md](SERVICE-FUNCTIONS.md)).
+   - **Without BMW files**: only where the exact request is documented for those module versions (currently battery registration on most, not all, E90-family engine modules, KWP2000 StartRoutineByLocalIdentifier `31 30 00 10 00` with positive reply `71 30`, and Valvetronic end-stop learning on the N52's MSV70 and MSV80 engine modules only, as listed in [SERVICE-FUNCTIONS.md](SERVICE-FUNCTIONS.md)).
 6. **Result.** You see the module's answer. Every request and reply is in the traffic log.
 
 Each run needs fresh checks and confirmations.

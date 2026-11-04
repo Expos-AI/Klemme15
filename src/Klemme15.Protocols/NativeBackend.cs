@@ -195,7 +195,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
             {
                 UseFast();
                 var r = _fast.Request(ecu.Address, [Kwp2000.ReadDtcByStatus, 0x02, 0xFF, 0xFF], ct: ct);
-                BmwFastChannel.EnsurePositive(r, Kwp2000.ReadDtcByStatus, $"Read faults {ecu.Id}");
+                BmwFastChannel.EnsurePositive(r, Kwp2000.ReadDtcByStatus, $"Reading faults from {ecu.Name}");
                 var count = r![1];
                 for (int i = 2, n = 0; i + 2 < r.Length && n < count; i += 3, n++)
                 {
@@ -247,18 +247,18 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         {
             case BusProtocol.BmwFast:
                 UseFast();
-                BmwFastChannel.EnsurePositive(_fast.Request(ecu.Address, [Kwp2000.ClearDtc, 0xFF, 0xFF], ct: ct), Kwp2000.ClearDtc, $"Clear faults {ecu.Id}");
+                BmwFastChannel.EnsurePositive(_fast.Request(ecu.Address, [Kwp2000.ClearDtc, 0xFF, 0xFF], ct: ct), Kwp2000.ClearDtc, $"Clearing faults in {ecu.Name}");
                 if (ecu.IsEngine) _fast.Request(ecu.Address, [0x04], ct: ct);
                 ClearInfoMemory(ecu, ct);
                 break;
             case BusProtocol.Ds2 when !ecu.IsEngine:
                 UseDs2();
-                Ds2Channel.EnsureOk(_ds2.Request(ecu.Address, [Ds2.ClearFaultMemory], ct: ct), $"Clear faults {ecu.Id}");
+                Ds2Channel.EnsureOk(_ds2.Request(ecu.Address, [Ds2.ClearFaultMemory], ct: ct), $"Clearing faults in {ecu.Name}");
                 break;
             default:
                 UseObd();
                 if (!_obd.Request([0x04], ct).Any(p => p.Length > 0 && p[0] == 0x44))
-                    throw new DiagnosticException("Clear OBD-II codes: not confirmed by ECU (engine must be off, ignition on)");
+                    throw new DiagnosticException("Clearing the engine codes: the engine computer didn't confirm it. Switch the engine off, leave the ignition on, and try again.");
                 break;
         }
         return true;
@@ -278,7 +278,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         // so with "not supported". That's the module's choice, not a failure: its fault memory was still cleared.
         if (InfoMemory.Declined(reply)) return;
         if (!InfoMemory.Cleared(reply))
-            throw new DiagnosticException($"Clear Shadow / Info memory {ecu.Id}: {(reply is { Length: > 2 } && reply[0] == 0x7F ? Kwp2000.NegativeResponseText(reply[2]) : "no confirmation")}");
+            throw new DiagnosticException($"Clearing the background entries in {ecu.Name}: {(reply is { Length: > 2 } && reply[0] == 0x7F ? "the module refused (" + Kwp2000.NegativeResponseText(reply[2]) + ")" : "the module didn't confirm it")}. Its fault memory was cleared.");
     }
 
     /// <summary>

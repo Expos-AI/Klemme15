@@ -15,7 +15,7 @@
 
 **Free, open-source, offline diagnostics for older BMWs.** Read every module's faults and dash warnings and find out what they mean, track your car's health, test a part before you buy it, run service functions, and back up or code comfort modules. You need a K+DCAN cable and a Windows, macOS or Linux computer. No account, no subscription, nothing sent anywhere.
 
-> **Status: beta.** Confirmed on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration. The rest is built from public research on each module and tested against demo cars. Anything that drives a part or writes to a module stays behind an **experimental** switch until it's confirmed on real cars. [Testers wanted](docs/BETA.md).
+> **Status: beta.** Confirmed on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration. The rest is built from public research on each module and tested against demo cars. Anything that drives a part or writes to a module, battery registration included, stays behind an **experimental** switch for now. [Testers wanted](docs/BETA.md).
 
 | Faults, health and the car's story | Component tests with live graphs |
 |---|---|
@@ -29,7 +29,7 @@ The screenshots are rendered from the demo cars on every change. [See them all](
 
 | Family | Cable switch | Without BMW files | With your BMW files (EDIABAS mode, Windows) |
 |---|---|---|---|
-| E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Every module's faults and dash messages, engine readings, live data, tests, coding backups, battery registration, Valvetronic learning | Every module's readings and service functions, BMW fault texts |
+| E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Every module's faults and dash messages, engine readings, live data, tests, coding backups, battery registration (most engine computers), Valvetronic learning (N52 engines only) | Every module's readings and service functions, BMW fault texts |
 | E81/E82/E87/E88 1 Series, E60/E61 5 Series, E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E89 Z4 | D-CAN | Like the E90 family | Like the E90 family |
 | E46 3 Series (1999-2006), E39 5 Series, E53 X5, E38 7 Series | K-line | Module identification, engine faults and live data (OBD-II), health history, the fuel trim test | Every module's faults, readings and service functions |
 
@@ -43,30 +43,29 @@ The E90 family is confirmed on a real car; the others are built from BMW's modul
 
 ## Install
 
-**Windows:**
+**Windows:** with [Scoop](https://scoop.sh):
 
 ```powershell
-winget install Expos-AI.Klemme15
+scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15
+scoop install klemme15
 ```
-
-or with [Scoop](https://scoop.sh): `scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15` then `scoop install klemme15`.
 
 **Any system:** download the zip for your computer from [Releases](https://github.com/Expos-AI/Klemme15/releases), unzip it anywhere and run `Klemme15` (the command-line tool is in `cli/`). There's no installer.
 
 | Your computer | Download |
 |---|---|
-| Windows 10 or 11 | `Klemme15-<version>-win-x64.zip` |
-| Mac with an Apple chip (M1 or later) | `Klemme15-<version>-osx-arm64.zip` |
-| Mac with an Intel chip | `Klemme15-<version>-osx-x64.zip` |
-| Linux (64-bit) | `Klemme15-<version>-linux-x64.zip` |
+| Windows 10 or 11 | `Klemme15-v<version>-win-x64.zip` |
+| Mac with an Apple chip (M1 or later) | `Klemme15-v<version>-osx-arm64.zip` |
+| Mac with an Intel chip | `Klemme15-v<version>-osx-x64.zip` |
+| Linux (64-bit) | `Klemme15-v<version>-linux-x64.zip` |
 
-The Windows build isn't code-signed yet, so a downloaded zip may show a SmartScreen prompt (winget and Scoop avoid it). Every release comes with `SHA256SUMS.txt` and a signed build provenance, so you can [check your download](SECURITY.md#verifying-your-download) before you run it.
+The Windows build isn't code-signed yet, so a downloaded zip may show a SmartScreen prompt (Scoop avoids it). Every release comes with `SHA256SUMS.txt` and a signed build provenance, so you can [check your download](SECURITY.md#verifying-your-download) before you run it.
 
 ## Quick start
 
 1. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for the E46, E39, E53 and E38, **D-CAN** for the E90 family and newer.
 2. Switch the ignition on (key position 2, engine off).
-3. In Klemme15, pick your car in the Garage, choose the cable's port and press **Check cable**. Fix anything it flags.
+3. In Klemme15, pick your car in the Garage and press **Connect to my car**. Choose the cable's port and press **Check cable**. Fix anything it flags.
 4. Press **Connect**, then **Run quick test** on the Vehicle page.
 
 No car nearby? Pick any model and press **Open demo car**.
@@ -93,7 +92,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Health over time**: each quick test leaves a small record on your computer, so a battery resting lower each week, fuel trims creeping lean or a fault that keeps coming back show up early.
 
 **Do the job yourself** (experimental)
-- **75 functions**: service reminder reset, battery registration, the steering lock counter reset for early E90s with a key slot, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration and Valvetronic learning run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
+- **75 functions**: service reminder reset, battery registration, the steering lock counter reset for early E90s with a key slot, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration (on most engine computers) and Valvetronic learning (N52 engines only) run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
 
 **Code comfort options**
 - **Back up, compare and restore** a comfort module's coding on D-CAN cars, without BMW files. Restoring writes to the module, so it's experimental.
@@ -122,7 +121,7 @@ What Klemme15 reads from your car stays on your computer. There's no account, no
 ## Getting help
 
 - **Cable or connection problems:** the [cable guide](docs/CABLE.md).
-- **A bug or a question:** [open an issue](https://github.com/Expos-AI/Klemme15/issues/new/choose). A snapshot of your car (Faults page, **Share snapshot**) shows exactly what happened.
+- **A bug or a question:** [open an issue](https://github.com/Expos-AI/Klemme15/issues/new/choose). A snapshot of your car (Faults page, **Share snapshot**) shows what happened.
 - **A security problem:** report it privately, see [SECURITY.md](SECURITY.md).
 
 ## Contributing

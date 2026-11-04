@@ -121,6 +121,9 @@ public partial class App : Application
     {
         var window = new MainWindow();
         var main = new MainViewModel(new DialogService(window), settings, database, startup);
+        // No error may close the app: commands and the UI thread report to a banner instead.
+        AsyncCommand.DefaultError = main.ShowProblem;
+        Dispatcher.UIThread.UnhandledException += (_, e) => { e.Handled = true; main.ShowProblem(e.Exception); };
         main.ApplyTheme();
         window.DataContext = main;
         window.Closing += (_, _) => main.Shutdown();

@@ -44,10 +44,13 @@ public sealed class FaultGroupViewModel : ViewModelBase
         // A snapshot is read-only: nothing can be cleared on someone else's car.
         AskClearCommand = new RelayCommand(() => Confirming = true, () => !_session.IsSnapshot);
         CancelClearCommand = new RelayCommand(() => Confirming = false);
-        ClearCommand = new AsyncCommand(ClearAsync, null, e => Message = e.Message);
+        ClearCommand = new AsyncCommand(ClearAsync, () => !_session.IsSnapshot && !_session.IsWatching && _session.BusyWith is null, e => Message = Problems.Describe(e));
     }
 
     public EcuDefinition Ecu { get; }
+
+    /// <summary>Called after this module was cleared and read again, so every page shows the new state.</summary>
+    public Action<EcuDefinition, IReadOnlyList<Fault>, string>? Cleared { get; set; }
 
     /// <summary>Every fault of the module, including hidden background entries.</summary>
     public IReadOnlyList<Fault> All { get; private set; } = [];
@@ -94,7 +97,8 @@ public sealed class FaultGroupViewModel : ViewModelBase
                 SourceLinks = f.Sources.Where(u => u.StartsWith("http", StringComparison.Ordinal))
                                        .Select(u => new SourceLink(u, _openUrl)).DistinctBy(l => l.Label).ToList(),
             };
-            item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
+            // Only faults the car drawing places (background entries and faults with no known spot aren't drawn).
+            if (!f.IsInfo && where is not null) item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
             item.TranslateCommand = new RelayCommand(() => _openUrl(item.TranslateUrl));
             if (_session.Database.Guides.For(f, Ecu) is { } guide) item.Guide = BuildGuide(guide);
             if (_session.Database.Checks.For(f, Ecu) is { } check) item.Check = BuildGuide(check);
@@ -137,9 +141,11 @@ public sealed class FaultGroupViewModel : ViewModelBase
         await backend.ClearFaultsAsync(Ecu);
         var remaining = new VehicleScanner(backend, _session.Codes).Describe(await backend.ReadFaultsAsync(Ecu), Ecu, identity);
         Fill(remaining);
-        Message = remaining.Count == 0
-            ? "Fault memory cleared. Drive the car, then read it again to see which faults come back."
-            : "Cleared, but these came straight back: they are still active.";
+        var real = remaining.Count(f => !f.IsInfo);
+        Message = real == 0
+            ? "Fault memory cleared. Drive the car, then read it again to see which faults come back." + (remaining.Count > 0 ? " The module kept its background entries: many modules don't let those be cleared, and they never light a warning." : "")
+            : "Cleared, but these came straight back: their cause is still there.";
+        Cleared?.Invoke(Ecu, remaining, Message);
     }
 }
 
@@ -155,7 +161,7 @@ public sealed class FaultsViewModel : PageViewModel
         _session = session;
         _showOnCar = showOnCar;
         _openUrl = openUrl;
-        RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && !_session.IsSnapshot && _session.LastScan is not null, e => Error = e.Message);
+        RefreshCommand = new AsyncCommand(RefreshAsync, () => _session.IsConnected && !_session.IsSnapshot && _session.LastScan is not null && !_session.IsWatching && _session.BusyWith is null, e => Error = Problems.Describe(e));
         _session.ScanUpdated += () => OnUi(Rebuild);
         _session.PropertyChanged += (_, e) =>
         {
@@ -258,6 +264,24 @@ public sealed class FaultsViewModel : PageViewModel
     public bool HasError => !string.IsNullOrEmpty(_error);
     public AsyncCommand RefreshCommand { get; }
 
+    private (string EcuId, string Text, DateTimeOffset Scan)? _clearNote;
+
+    /// <summary>One module cleared on this page: every page (headline, car drawing, snapshot, buyer's check) gets the new state.</summary>
+    private void OnModuleCleared(EcuDefinition ecu, IReadOnlyList<Fault> remaining, string message)
+    {
+        if (_session.LastScan is not { } scan) return;
+        _clearNote = (ecu.Id, message, scan.Started);
+        var ecus = scan.Ecus.Select(e => e.Ecu.Id == ecu.Id ? e with { Faults = remaining, Status = remaining.Count > 0 ? EcuScanStatus.Faults : EcuScanStatus.Ok } : e).ToList();
+        _session.PublishScan(scan with { Ecus = ecus });
+        if (!Groups.Any(g => g.Ecu.Id == ecu.Id)) Notice = $"{ecu.Name}: {message}";
+    }
+
+    private string? _notice;
+
+    /// <summary>The result of clearing a module that then had nothing left to list.</summary>
+    public string? Notice { get => _notice; private set { if (Set(ref _notice, value)) Raise(nameof(HasNotice)); } }
+    public bool HasNotice => !string.IsNullOrEmpty(_notice);
+
     private void Rebuild()
     {
         Groups.Clear();
@@ -269,7 +293,9 @@ public sealed class FaultsViewModel : PageViewModel
                     v => _showBackground || v.Priority != FaultPriority.Background)
                 {
                     ReadingsCommand = OpenReadings is { } open ? new RelayCommand(() => open(ecu)) : null,
+                    Cleared = OnModuleCleared,
                 };
+                if (_clearNote is { } note && note.EcuId == ecu.Id && note.Scan == scan.Started) group.Message = note.Text;
                 if (group.Faults.Count > 0) Groups.Add(group);
             }
         RebuildTrends();
@@ -285,18 +311,32 @@ public sealed class FaultsViewModel : PageViewModel
     private async Task RefreshAsync()
     {
         Error = null;
+        Notice = null;
+        _clearNote = null;
         if (_session.Backend is not { } backend || _session.LastScan is not { } scan) return;
         var scanner = new VehicleScanner(backend, _session.Codes);
         var updated = new List<EcuScanResult>();
+        var silent = new List<string>();
         foreach (var e in scan.Ecus)
         {
             if (e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults && e.Note is null)
             {
-                var faults = scanner.Describe(await backend.ReadFaultsAsync(e.Ecu), e.Ecu, e.Identity);
-                updated.Add(e with { Faults = faults, Status = faults.Count > 0 ? EcuScanStatus.Faults : EcuScanStatus.Ok });
+                // One module that stops answering mustn't stop the others: keep its last result and say so.
+                try
+                {
+                    var faults = scanner.Describe(await backend.ReadFaultsAsync(e.Ecu), e.Ecu, e.Identity);
+                    updated.Add(e with { Faults = faults, Status = faults.Count > 0 ? EcuScanStatus.Faults : EcuScanStatus.Ok });
+                }
+                catch (Exception ex) when (ex is DiagnosticException or TimeoutException)
+                {
+                    silent.Add(e.Ecu.Name);
+                    updated.Add(e);
+                }
             }
             else updated.Add(e);
         }
         _session.PublishScan(scan with { Ecus = updated });
+        if (silent.Count > 0)
+            Error = $"{string.Join(", ", silent)} didn't answer this time, so {(silent.Count == 1 ? "its" : "their")} faults are from the last read. Check the ignition is on and read again.";
     }
 }

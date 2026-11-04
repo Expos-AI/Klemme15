@@ -1,6 +1,6 @@
 # Command line
 
-The `klemme15` command-line tool ships in the `cli/` folder of every download. It covers what the app does, for scripts, a Raspberry Pi or a quick look without the window. Run `klemme15 --help` for every option.
+The `klemme15` command-line tool ships in the `cli/` folder of every download. It covers what the app does, for scripts, a small Linux computer or a quick look without the window. Releases are built for 64-bit Windows, Linux and macOS only, so a Raspberry Pi needs a build from source for now. Run `klemme15 --help` for every option.
 
 ```bash
 klemme15 ports                                   # find the cable

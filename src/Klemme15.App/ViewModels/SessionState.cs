@@ -55,8 +55,18 @@ public sealed class SessionState : ViewModelBase
     public IDisposable BeginOperation(RunningOperation op)
     {
         if (!_isDemo) Journal.Begin(op);
-        return new Both(Klemme15.App.Services.SleepGuard.Hold(op.Title), ClaimBus(op.Title));
+        OnUiThread(() => { _jobs++; Raise(nameof(JobRunning)); });
+        var done = new Release(() => OnUiThread(() => { _jobs = Math.Max(0, _jobs - 1); Raise(nameof(JobRunning)); }));
+        return new Both(new Both(Klemme15.App.Services.SleepGuard.Hold(op.Title), ClaimBus(op.Title)), done);
     }
+
+    private int _jobs;
+
+    /// <summary>
+    /// A job that changes or drives something in the car is running (service function, coding write, a test that drives
+    /// a part). Disconnecting or switching cars now would cut it off, so the Garage waits.
+    /// </summary>
+    public bool JobRunning => _jobs > 0;
 
     // ---------------------------------------------------------------- who is using the cable
 
