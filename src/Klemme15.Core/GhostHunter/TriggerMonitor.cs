@@ -132,6 +132,9 @@ public sealed class TriggerMonitor
     public event Action<TriggerCapture>? Captured;
     public event Action<WatchStatus>? StatusChanged;
 
+    /// <summary>Every reading, after the rules have seen it (for the "Right now" list). Raised on the monitor's task.</summary>
+    public event Action<DatalogFrame>? FrameSeen;
+
     public WatchState State { get; private set; } = WatchState.Idle;
 
     /// <summary>Consumes frames until cancelled or the input is completed; then saves any capture still in progress.</summary>
@@ -188,6 +191,7 @@ public sealed class TriggerMonitor
         }
 
         if (_frames % 10 == 0) Report(null);
+        FrameSeen?.Invoke(frame);
     }
 
     /// <summary>Updates each condition's "true since" and says whether the whole rule holds now.</summary>

@@ -81,6 +81,8 @@ public sealed class RuleItem : ViewModelBase
     public string Title => Template?.Title ?? Rule.Title;
     public string? WhenToUse => Template?.WhenToUse;
     public bool HasWhenToUse => WhenToUse is not null;
+    public string? DriveTip => Template is { } t ? "How to catch it: " + t.DriveTip : null;
+    public bool HasDriveTip => DriveTip is not null;
     public string Describe => $"{TriggerViewModel.Plain(Rule)} · keeps {Rule.Before.TotalSeconds:0} s before and {Rule.After.TotalSeconds:0} s after";
     public bool IsArmed { get => _armed; set => Set(ref _armed, value); }
     public RelayCommand? DeleteCommand { get; }
@@ -88,6 +90,16 @@ public sealed class RuleItem : ViewModelBase
     public bool IsAvailable { get; set; } = true;
     public string? Unavailable { get; set; }
     public bool HasUnavailable => Unavailable is not null;
+}
+
+/// <summary>One line of the "Right now" list.</summary>
+public sealed class RightNowItem(RuleProgressLine line)
+{
+    public string Title { get; } = TriggerPresets.For(line.RuleId)?.Title ?? line.Title;
+    public string Text { get; } = line.Text;
+    public bool IsReady => line.State == RuleReadiness.Ready;
+    public bool IsWaiting => line.State is RuleReadiness.Waiting or RuleReadiness.NoReading;
+    public bool IsHolding => line.State == RuleReadiness.Holding;
 }
 
 /// <summary>A saved capture (.k15) in the captures folder.</summary>
@@ -213,7 +225,7 @@ public sealed class TriggerViewModel : PageViewModel
                     Changed();
                 });
         };
-        Status = "Pick the rules to watch, then start. Klemme15 reads the car in the background and saves a snapshot when one holds.";
+        Status = "Not watching yet.";
     }
 
     public override string Title => "Ghost Hunter";
@@ -252,7 +264,7 @@ public sealed class TriggerViewModel : PageViewModel
         : _session.BusyWith is { } busy ? $"Wait for {busy} to finish (or stop it): one cable can only carry one conversation with the car."
         : _session.LastScan is null ? "Run a quick test first: every capture includes it, so whoever opens it sees the car's modules and faults too."
         : !Rules.Any(r => r.IsArmed) ? "Tick at least one rule."
-        : "Nothing to tap while driving: captures are saved by themselves. Stop when you park.";
+        : "Then drive the way the problem usually shows up. Nothing to tap while driving: captures are saved by themselves. Stop when you park.";
 
     public RelayCommand AddConditionCommand { get; }
     public RelayCommand SaveRuleCommand { get; }
@@ -426,6 +438,15 @@ public sealed class TriggerViewModel : PageViewModel
         var monitor = new TriggerMonitor(rules, (capture, ct) => SaveCaptureAsync(capture, baseSnapshot));
         monitor.Fired += ev => OnUi(() => Banner = $"Caught {ev.At.LocalDateTime:HH:mm:ss}: {ev.Title}. Recording {rules.First(r => r.Id == ev.RuleId).After.TotalSeconds:0} s more...");
         monitor.Captured += c => OnUi(() => { LoadCaptures(); Banner = $"Saved {c.Event.At.LocalDateTime:HH:mm:ss}: {c.Event.Title}. Open it below."; });
+        var lastShown = DateTime.MinValue;
+        monitor.FrameSeen += frame =>
+        {
+            // About once a second is plenty to read, and keeps the window calm on a long drive.
+            if (DateTime.UtcNow - lastShown < TimeSpan.FromSeconds(1)) return;
+            lastShown = DateTime.UtcNow;
+            var lines = rules.Select(r => RuleProgress.Describe(r, frame.Values)).ToList();
+            OnUi(() => ShowRightNow(lines));
+        };
         monitor.StatusChanged += st => OnUi(() => Status = st.State == WatchState.Stopped ? $"Stopped. {st.Captures} capture{(st.Captures == 1 ? "" : "s")} this drive."
             : $"Watching {st.ArmedRules} rule{(st.ArmedRules == 1 ? "" : "s")} · {st.FramesPerSecond:0.0} readings/s · {st.Captures} caught");
 
@@ -459,11 +480,23 @@ public sealed class TriggerViewModel : PageViewModel
             _cts = null;
             IsWatching = false;
             _session.IsWatching = false;
+            ShowRightNow([]);
             _session.Log.Note("Ghost Hunter stopped");
         }
     }
 
     private void Stop() => _cts?.Cancel();
+
+    /// <summary>While watching: each rule's state from the latest reading ("Waiting for coolant above 70 °C (now 58 °C)").</summary>
+    public ObservableCollection<RightNowItem> RightNow { get; } = [];
+    public bool HasRightNow => RightNow.Count > 0;
+
+    private void ShowRightNow(IReadOnlyList<RuleProgressLine> lines)
+    {
+        RightNow.Clear();
+        foreach (var l in lines) RightNow.Add(new RightNowItem(l));
+        Raise(nameof(HasRightNow));
+    }
 
     /// <summary>Stops watching (when the app closes); a capture in progress is saved as it stands.</summary>
     public void StopWatching() => Stop();

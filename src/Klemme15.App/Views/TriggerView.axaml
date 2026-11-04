@@ -31,7 +31,14 @@
       <StackPanel Spacing="14" Margin="0,0,12,32">
         <TextBlock Classes="title" Text="Ghost Hunter" />
         <TextBlock Classes="muted" TextWrapping="Wrap"
-                   Text="Catch a fault that only happens sometimes. Pick what to watch for, start, and drive: Klemme15 reads the car in the background and saves a snapshot with the live data before and after (a minute each by default), every time it happens. Read-only." />
+                   Text="For a problem that comes and goes and is never there when you look. Klemme15 reads the engine computer a few times a second while you drive, and the moment the problem shows up it saves the minute before and the minute after, so you can see what led to it. Read-only: nothing is sent to the car." />
+        <Border Classes="card">
+          <StackPanel Spacing="4">
+            <TextBlock Text="1. Tick what you're chasing below. Each one says how to catch it." TextWrapping="Wrap" />
+            <TextBlock Text="2. Press Start watching, leave the laptop running and plugged in, and drive the way the problem usually happens. Most need the engine warm or the car moving: the Right now list says what each one is waiting for." TextWrapping="Wrap" />
+            <TextBlock Text="3. When it happens, a capture appears on the right by itself. Stop when you park and open the capture to see what the engine did around that moment." TextWrapping="Wrap" />
+          </StackPanel>
+        </Border>
         <DockPanel>
           <Button DockPanel.Dock="Right" Classes="quiet" Content="Check again" Command="{Binding ProbeCommand}" VerticalAlignment="Center" />
           <TextBlock Classes="muted small" Text="{Binding SignalsText}" TextWrapping="Wrap" VerticalAlignment="Center" />
@@ -48,6 +55,7 @@
                     <StackPanel Spacing="2">
                       <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
                       <TextBlock Classes="small" Text="{Binding WhenToUse}" TextWrapping="Wrap" IsVisible="{Binding HasWhenToUse}" />
+                      <TextBlock Classes="small" Text="{Binding DriveTip}" TextWrapping="Wrap" IsVisible="{Binding HasDriveTip}" />
                       <TextBlock Classes="muted small" Text="{Binding Describe}" TextWrapping="Wrap" />
                       <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="{Binding Unavailable}" TextWrapping="Wrap" IsVisible="{Binding HasUnavailable}" />
                     </StackPanel>
@@ -130,6 +138,26 @@
                 IsVisible="{Binding HasBanner}">
           <TextBlock Text="{Binding Banner}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
         </Border>
+
+        <StackPanel Spacing="8" IsVisible="{Binding HasRightNow}">
+          <TextBlock Classes="section" FontSize="16" Text="Right now" />
+          <ItemsControl ItemsSource="{Binding RightNow}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:RightNowItem">
+                <Border Classes="card" Margin="0,0,0,6">
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="small" Text="{Binding Text}" TextWrapping="Wrap"
+                               Foreground="{DynamicResource MutedBrush}" IsVisible="{Binding IsWaiting}" />
+                    <TextBlock Classes="small" Text="{Binding Text}" TextWrapping="Wrap" IsVisible="{Binding IsReady}" />
+                    <TextBlock Classes="small" Text="{Binding Text}" TextWrapping="Wrap" FontWeight="SemiBold"
+                               Foreground="{DynamicResource AmberBrush}" IsVisible="{Binding IsHolding}" />
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
 
         <TextBlock Classes="section" FontSize="16" Text="Captures" />
         <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding !HasCaptures}"

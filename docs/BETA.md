@@ -18,7 +18,7 @@ Do as many as you can, in any order. Each is useful on its own.
 |---|---|---|---|
 | 1 | **Quick test** | Vehicle → Run quick test | Did every fitted module answer? How long did it take? Any module missing or wrong? |
 | 2 | **Faults** | Faults page | Do the meanings make sense for your car? Anything clearly wrong or missing? |
-| 3 | **Ghost Hunter on your commute** | Ghost Hunter → tick *Catch a voltage dip* (or anything that fits your car) → Start, then drive 30 to 45 minutes | Did the app stay responsive? Did the laptop stay awake? Any captures, and do they look right? |
+| 3 | **Ghost Hunter on your commute** | Ghost Hunter → tick *Catch a voltage dip* (or anything that fits your car) → Start, then drive 30 to 45 minutes | Did the app stay responsive? Did the laptop stay awake? Did the *Right now* list make sense? Any captures, and do they look right? |
 | 4 | **Live data and Analyse** | Live data → record a few minutes → Analyse | Smooth, or stuttering? Do the values match the dash? |
 | 5 | **Guided tests** | Tests → fuel trim test, cylinder roughness, water pump health | Did each finish with a verdict that makes sense? |
 | 6 | **Battery drain finder** | Faults → Battery going flat? | Did it find your car's own clues? If you measured a drain, how did the hunt go? |

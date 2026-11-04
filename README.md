@@ -88,7 +88,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Live data and Analyse**: record values to CSV, then scatter and replay the log with a healthy range drawn behind it ([baselines](docs/BASELINES.md)).
 
 **Catch what only happens sometimes**
-- **Ghost Hunter**: pick what you're chasing (a misfire, a voltage dip, a lean idle, overheating, a stall) and drive. Klemme15 saves the minute before and after each time it happens.
+- **Ghost Hunter**: pick what you're chasing (a misfire, a voltage dip, a lean idle, overheating, a stall) and drive. Klemme15 saves the minute before and after each time it happens. While it watches, a *Right now* list says what each watch is waiting for ("coolant above 70 °C, now 58 °C"). Every watch is checked against readings from a real E90 325i.
 - **Battery drain finder**: what the car recorded about its battery running down, how many days your parked current leaves you, and the fuse-pull hunt for the circuit.
 - **Health over time**: each quick test leaves a small record on your computer, so a battery resting lower each week, fuel trims creeping lean or a fault that keeps coming back show up early.
 
