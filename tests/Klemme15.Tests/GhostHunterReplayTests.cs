@@ -100,7 +100,7 @@ public class GhostHunterReplayTests
     public void The_real_readings_cover_every_value_the_templates_need()
     {
         var row = RealIdle()[0].Values;
-        foreach (var id in TriggerMonitor.SignalsFor(TriggerPresets.All).Where(s => !DerivedSignals.Ids.Contains(s)))
+        foreach (var id in TriggerPresets.All.SelectMany(r => r.Parameters).Distinct().Where(s => !DerivedSignals.Ids.Contains(s)))
             Assert.True(row.ContainsKey(id) || id is "speed", $"{id} missing from the real readings");
         Assert.InRange(row["voltage"], 13.8, 14.8);
     }
@@ -146,6 +146,13 @@ public class GhostHunterReplayTests
     }
 
     [Fact]
+    public async Task A_chug_at_idle_fires_but_not_while_driving()
+    {
+        Assert.Single(await Replay(Template("idle-dip"), With(null, v => v["rpm"] = 480, 30, 32)));
+        Assert.Empty(await Replay(Template("idle-dip"), With(v => v["speed"] = 40, v => v["rpm"] = 480, 30, 32)));
+    }
+
+    [Fact]
     public async Task Stall_while_rolling_fires() =>
         Assert.Single(await Replay(Template("stall"), With(v => v["speed"] = 25, v => v["rpm"] = 0, 30, 33)));
 
@@ -169,6 +176,7 @@ public class GhostHunterReplayTests
         Assert.StartsWith("Ready. Battery voltage is 14.6 V, caught if it goes below 11.5 V", lines["voltage-dip"].Text);
         Assert.Equal(RuleReadiness.Ready, lines["misfire"].State);
         Assert.Equal(RuleReadiness.Ready, lines["overheat"].State);
+        Assert.StartsWith("Ready. Engine speed is 730 rpm, caught if it goes below 600 rpm", lines["idle-dip"].Text);
 
         Assert.Equal(RuleReadiness.NoReading, RuleProgress.Describe(TriggerPresets.All.Single(r => r.Id == "misfire"), RealIdle()[0].Values).State);
         Assert.Equal(RuleReadiness.Holding, RuleProgress.Describe(TriggerPresets.All.Single(r => r.Id == "overheat"), new Dictionary<string, double> { ["coolant"] = 118 }).State);

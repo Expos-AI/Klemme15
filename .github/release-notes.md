@@ -1,6 +1,11 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.6:**
+**New in 0.99.7:**
+- **New guided test: Rough idle and air conditioning check.** For an idle that's rough, bounces or chugs when the air conditioning kicks in. It watches 20 seconds of idle with the air conditioning off, then catches the moment the compressor engages, then 20 seconds with it on. It compares engine speed with the idle speed the engine computer is aiming for, checks every cylinder and the mixture, and says what it points to: an air leak, a cylinder that only falters under load, or an engine that's fine (then worn engine mounts are the usual cause of the shake). Uses the engine computer's own idle target and air conditioning status where it reports them (MSV70 and others).
+- **New Ghost Hunter watch: Catch a chug at idle.** Saves the moment engine speed dips below 600 rpm with the car stopped, with the air conditioning and compressor state in every capture.
+- The Ghost Hunter's custom rules can use the idle target speed and the air conditioning and compressor state.
+
+**0.99.6:**
 - **The Ghost Hunter explains itself.** The page starts with three steps, each watch says how to catch it ("let it idle warm, at lights or in the driveway"), and while watching a **Right now** list shows where each watch stands: "Waiting for coolant temperature above 70 °C (now 58 °C)", "Waiting for vehicle speed above 3 km/h", or "Ready. Battery voltage is 14.6 V, caught if it goes below 11.5 V".
 - **Every watch checked against a real car.** 77 seconds of readings from a healthy E90 325i (N52) set off none of the eight watches, and each one fires when its fault is put into those same readings. These checks now run on every change.
 

@@ -53,6 +53,11 @@ public sealed class EngineSignals(IDiagnosticBackend backend, EcuDefinition engi
         ["pump_speed"] = ["STAT_WASSERPUMPE_DREHZAHL_WERT", "STAT_EWAP_DREHZAHL_WERT"],
         ["pump_target"] = ["STAT_WASSERPUMPE_DREHZAHL_SOLL_WERT", "STAT_EWAP_DREHZAHL_SOLL_WERT"],
         ["pump_current"] = ["STAT_WASSERPUMPE_STROM_WERT"],
+        // Idle and air conditioning (names from the MSV70 measurement table): the idle speed the engine computer aims
+        // for, whether the air conditioning is on, and whether the compressor's relay is closed.
+        ["idle_target"] = ["STAT_LEERLAUFDREHZAHL_SOLL_WERT"],
+        ["ac"] = ["STAT_KLIMA_EIN"],
+        ["ac_compressor"] = ["STAT_KLIMAKOMPRESSORRELAIS_EIN"],
     };
 
     private static readonly HashSet<string> ObdIds = ["rpm", "coolant", "voltage", "stft1", "stft2", "ltft1", "ltft2", "speed", "maf", "load", "iat", "map", "throttle", "timing", "baro", "o2b1s1", "o2b1s2", "oiltemp", "ambient"];

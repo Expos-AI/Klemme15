@@ -66,6 +66,8 @@ public static class SignalLabels
         ["oiltemp"] = ("Oil temperature", "°C", 13), ["timing"] = ("Ignition timing", "°", 14),
         ["stftmax"] = ("Short-term trim, leaner bank", "%", 15), ["stftmin"] = ("Short-term trim, richer bank", "%", 16),
         ["roughratio"] = ("Roughest cylinder vs the rest", "×", 17), ["roughcyl"] = ("Roughest cylinder", "", 18),
+        ["idle_target"] = ("Idle target speed", "rpm", 19), ["ac"] = ("Air conditioning on (1 = on)", "", 20),
+        ["ac_compressor"] = ("AC compressor engaged (1 = yes)", "", 21),
     };
 
     public static string Name(string id) =>
@@ -125,7 +127,7 @@ public sealed class TriggerMonitor
 
     /// <summary>Every signal any rule needs, plus context worth having in every capture.</summary>
     public static IReadOnlyList<string> SignalsFor(IEnumerable<TriggerRule> rules) =>
-        rules.SelectMany(r => r.Parameters).Concat(["rpm", "speed", "coolant", "voltage", "load", "stft1", "ltft1"])
+        rules.SelectMany(r => r.Parameters).Concat(["rpm", "speed", "coolant", "voltage", "load", "stft1", "ltft1", "idle_target", "ac", "ac_compressor"])
             .Concat(rules.SelectMany(r => r.Parameters).Contains(DerivedSignals.RoughRatio) ? [DerivedSignals.RoughCylinder] : []).Distinct().ToList();
 
     public event Action<TriggerEvent>? Fired;

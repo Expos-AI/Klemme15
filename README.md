@@ -82,13 +82,13 @@ No car nearby? Pick any model and press **Open demo car**.
 - **See where it is**: a top view of the car with each module where it sits, each fault pinned to it, and live values (coolant, battery voltage, engine speed) where they happen.
 
 **Test before you buy parts**
-- **Guided tests with live graphs**: fuel trims at idle and 2,500 rpm, VANOS target against actual, cylinder roughness, "why won't it start?", the electric water pump, and a cooling system bleed assistant. Each ends with a verdict.
+- **Guided tests with live graphs**: fuel trims at idle and 2,500 rpm, VANOS target against actual, cylinder roughness, a rough idle and air conditioning check (does the idle hunt, does it chug when the compressor kicks in, and is it the engine or the mounts?), "why won't it start?", the electric water pump, and a cooling system bleed assistant. Each ends with a verdict.
 - **Diagnostic chains**: a mechanic's reasoning, run step by step. The Vacuum leak hunter and the Charging system check are offered under matching faults; anyone can write one ([how](docs/CHAINS.md)).
 - **Multimeter and swap checks** under matching faults: connectors, grounds, coils, VANOS solenoids, the pump's power, oxygen sensor heaters.
 - **Live data and Analyse**: record values to CSV, then scatter and replay the log with a healthy range drawn behind it ([baselines](docs/BASELINES.md)).
 
 **Catch what only happens sometimes**
-- **Ghost Hunter**: pick what you're chasing (a misfire, a voltage dip, a lean idle, overheating, a stall) and drive. Klemme15 saves the minute before and after each time it happens. While it watches, a *Right now* list says what each watch is waiting for ("coolant above 70 °C, now 58 °C"). Every watch is checked against readings from a real E90 325i.
+- **Ghost Hunter**: pick what you're chasing (a misfire, a voltage dip, a lean idle, a chug at idle, overheating, a stall) and drive. Klemme15 saves the minute before and after each time it happens. While it watches, a *Right now* list says what each watch is waiting for ("coolant above 70 °C, now 58 °C"). Every watch is checked against readings from a real E90 325i.
 - **Battery drain finder**: what the car recorded about its battery running down, how many days your parked current leaves you, and the fuse-pull hunt for the circuit.
 - **Health over time**: each quick test leaves a small record on your computer, so a battery resting lower each week, fuel trims creeping lean or a fault that keeps coming back show up early.
 

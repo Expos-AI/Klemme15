@@ -134,7 +134,7 @@ public sealed class TriggerViewModel : PageViewModel
     /// <summary>Values worth watching; only those the car actually reports are offered.</summary>
     private static readonly string[] Candidates =
         ["rpm", "speed", "coolant", "voltage", "load", "maf", "iat", "throttle", "map", "stft1", "ltft1", "stft2", "ltft2", "oiltemp", "timing",
-         "rough1", "rough2", "rough3", "rough4", "rough5", "rough6", "rough7", "rough8",
+         "rough1", "rough2", "rough3", "rough4", "rough5", "rough6", "rough7", "rough8", "idle_target", "ac", "ac_compressor",
          DerivedSignals.StftMax, DerivedSignals.StftMin, DerivedSignals.RoughRatio];
 
     /// <summary>A rule in words: "Engine speed above 1500 rpm and Short-term trim, leaner bank above 15 % for 2 s".</summary>
