@@ -1,0 +1,55 @@
+# Records the promo reel: the real app, driven headlessly with the demo cars, one clip per feature, composed into
+# vertical 1080x1920 videos (tools/Klemme15.Reel). Run it from the Actions tab; the clips land on the "reel" branch.
+name: reel
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenes:
+        description: "Scene ids to record, comma-separated (empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  reel:
+    name: Record and compose the reel
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Tools
+        shell: bash
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg python3-pil fonts-dejavu-core > /dev/null
+          ffmpeg -version | head -1
+      - name: Record the scenes
+        shell: bash
+        env:
+          SCENES: ${{ inputs.scenes }}
+        run: |
+          set -o pipefail
+          dotnet run --project tools/Klemme15.Reel -c Release -- "$RUNNER_TEMP/raw" "$SCENES" 2>&1 | tee record.log
+          if [ -s "$RUNNER_TEMP/raw/failed.txt" ]; then sed 's/^/::warning::/' "$RUNNER_TEMP/raw/failed.txt"; fi
+          exit 0
+      - name: Compose the clips
+        shell: bash
+        run: python3 tools/Klemme15.Reel/compose.py "$RUNNER_TEMP/raw" "$RUNNER_TEMP/reel"
+      - name: Publish to the reel branch
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP/reel"
+          cp "$RUNNER_TEMP/raw/failed.txt" . 2>/dev/null || true
+          printf 'Promo reel of %s, recorded headlessly with the demo cars.\n\n- reel.mp4: every captioned clip in a row\n- captioned/: one vertical clip per feature, with caption bars\n- clean/: the same clips without text\n- landscape/: the raw recordings, 1920 wide, for your own edits\n- stills/: one frame of each\n' "$GITHUB_SHA" > README.md
+          git init -q -b reel
+          git add .
+          git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Reel for $GITHUB_SHA"
+          git push -f -q "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" reel
