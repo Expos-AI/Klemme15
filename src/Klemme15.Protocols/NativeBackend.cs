@@ -73,8 +73,16 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     private readonly Dictionary<byte, HashSet<byte>?> _supportedPids = [];
     private readonly Dictionary<byte, int> _bitmapTries = [];
 
-    /// <summary>How long to wait for a module the broadcast says isn't there (one quick confirmation).</summary>
-    private static readonly TimeSpan AbsentConfirmTimeout = TimeSpan.FromMilliseconds(100);
+    /// <summary>
+    /// How long to wait for a module that didn't answer the broadcast. Not every module answers the broadcast: on a real
+    /// E90 the junction box and seat module didn't, yet answered directly (the seat module after 80 ms), and with 100 ms
+    /// the steering column switches, which other tools reach on the same car, were reported missing. 300 ms leaves
+    /// room for a module behind a gateway, at the cost of a few seconds per quick test.
+    /// </summary>
+    internal static readonly TimeSpan AbsentConfirmTimeout = TimeSpan.FromMilliseconds(300);
+
+    /// <summary>The wait for a module that didn't answer the broadcast: never longer than the normal wait.</summary>
+    private TimeSpan AbsentWait => AbsentConfirmTimeout < _options.ProbeTimeout ? AbsentConfirmTimeout : _options.ProbeTimeout;
 
     public NativeBackend(ITransport transport, NativeBackendOptions? options = null)
     {
@@ -151,7 +159,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
             case BusProtocol.BmwFast:
             {
                 UseFast();
-                var wait = _present is not null && !_present.Contains(ecu.Address) ? AbsentConfirmTimeout : _options.ProbeTimeout;
+                var wait = _present is not null && !_present.Contains(ecu.Address) ? AbsentWait : _options.ProbeTimeout;
                 var r = _fast.Request(ecu.Address, [Kwp2000.ReadEcuIdentification, 0x80], wait, ct);
                 if (r is null) return null;
                 if (r[0] == 0x7F)   // answers but refuses ident: still present
@@ -372,7 +380,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     public async Task<IReadOnlyList<DiscoveredModule>> DiscoverAsync(IReadOnlyList<byte> addresses, IProgress<int>? progress = null, CancellationToken ct = default)
     {
         var found = new List<DiscoveredModule>();
-        var timeout = TimeSpan.FromMilliseconds(150);
+        var timeout = AbsentWait;
         for (var i = 0; i < addresses.Count; i++)
         {
             ct.ThrowIfCancellationRequested();

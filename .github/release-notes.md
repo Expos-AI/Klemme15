@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.4:** fixes from the first test on a real E90 325i (N52, MSV70 engine computer, D-CAN cable).
+**New in 0.99.5:**
+- **The quick test waits longer for modules behind a gateway.** On a real E90 the steering column switches were reported as not answering, although other tools reach them on the same car. Modules that don't answer the car-wide wake-up call were given only 100 ms; they now get 300 ms. A quick test takes a few seconds longer, and "Find other modules" about a minute.
+
+**0.99.4:** fixes from the first test on a real E90 325i (N52, MSV70 engine computer, D-CAN cable).
 - **No more false misfires.** On a smooth idle, single per-cylinder roughness readings swing widely, on a different cylinder each time. The Ghost Hunter's misfire watch now averages the last 3 seconds before it judges, and the **Cylinder roughness** test compares each cylinder with the average of the others. Before, both could call a healthy cylinder "much rougher". A cylinder that really is rough still stands out.
 - **"Clear all" says what happened.** After clearing, Klemme15 reads the car again and tells you which faults came straight back (their cause is still there) and which modules kept their background entries (many modules don't allow those to be cleared, which is normal).
 - **Dash messages count as "keeps showing" only across different days.** Several quick tests in one sitting all see the same dash, so they no longer fill the health history with "parking brake applied keeps showing".

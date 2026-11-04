@@ -64,7 +64,7 @@
           <Button Content="Stop" Command="{Binding CancelCommand}" IsVisible="{Binding IsScanning}" />
           <Button Classes="quiet" Content="Clear all faults" Command="{Binding AskClearAllCommand}" IsVisible="{Binding NotConfirmClearAll}" />
           <Button Classes="quiet" Content="Find other modules" Command="{Binding DiscoverCommand}"
-                  ToolTip.Tip="Asks every address the database doesn't list (read-only). Takes about half a minute." />
+                  ToolTip.Tip="Asks every address the database doesn't list (read-only). Takes about a minute." />
         </StackPanel>
         <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" IsVisible="{Binding HasScan}">
           <TextBlock Classes="muted small" Text="Save report" VerticalAlignment="Center" Margin="0,0,4,0" />
