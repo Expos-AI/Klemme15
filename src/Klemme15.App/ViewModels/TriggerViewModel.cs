@@ -301,6 +301,7 @@ public sealed class TriggerViewModel : PageViewModel
             using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
             var read = await source.ReadAsync(Candidates, cts.Token);
             _available = read.Keys.ToHashSet();
+            if (source is DerivedSignals { ReportsRoughness: true }) _available.UnionWith([DerivedSignals.RoughRatio, DerivedSignals.RoughCylinder]);
             Signals.Clear();
             foreach (var id in Candidates.Where(_available.Contains)) Signals.Add(new SignalOption(id, SignalLabels.Header(id)));
             SignalsText = _available.Count == 0 ? "The engine computer didn't report any live values on this connection." : $"This car reports {_available.Count} values to watch.";

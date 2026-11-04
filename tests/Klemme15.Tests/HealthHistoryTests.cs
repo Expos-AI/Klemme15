@@ -31,6 +31,16 @@ public class HealthHistoryTests
     };
 
     [Fact]
+    public void Dash_messages_only_keep_showing_across_days()
+    {
+        // Three quick tests a few minutes apart see the same dash: no trend.
+        var sameSitting = new[] { S(0, cc: [308, 65]), S(0, cc: [308, 65]) with { Time = T0.AddMinutes(3) }, S(0, cc: [308, 65]) with { Time = T0.AddMinutes(6) } };
+        Assert.DoesNotContain(HealthTrends.Analyze(sameSitting), t => t.Title.Contains("keeps showing"));
+        var days = new[] { S(0, cc: [65]), S(4, cc: [65]), S(9, cc: [65]) };
+        Assert.Contains(HealthTrends.Analyze(days), t => t.Title == "CC 65 keeps showing" && t.Detail.Contains("2 earlier days"));
+    }
+
+    [Fact]
     public void KeyIsStableOneWayAndHidesTheVin()
     {
         var a = HealthSnapshot.KeyFor("WBAVB13586PT00000");

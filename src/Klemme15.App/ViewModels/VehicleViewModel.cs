@@ -252,7 +252,7 @@ public sealed class VehicleViewModel : PageViewModel
     public bool NotConfirmClearAll => !_confirmClearAll;
 
     public string ClearAllQuestion =>
-        $"Clear the fault memory and the Shadow / Info memory of {(_session.LastScan?.Ecus.Count(e => e.Faults.Count > 0) ?? 0)} modules? Read them again after a drive to see what returns. Dash messages clear by themselves once their cause is fixed.";
+        $"Clear the fault memory, and the background entries where the module allows it, of {(_session.LastScan?.Ecus.Count(e => e.Faults.Count > 0) ?? 0)} modules? Read them again after a drive to see what returns. Dash messages clear by themselves once their cause is fixed.";
 
     /// <summary>Clears every module that reported faults, then runs the quick test again.</summary>
     private async Task ClearAllAsync()
@@ -276,11 +276,33 @@ public sealed class VehicleViewModel : PageViewModel
             }
             catch (Exception ex) when (ex is DiagnosticException or NotSupportedException) { failed.Add(e.Ecu.Name); }
         }
+        var before = scan.Ecus.SelectMany(e => e.Faults.Where(f => !f.IsInfo).Select(f => (e.Ecu.Id, f.Code))).ToHashSet();
         await RunAsync();
+        ClearResult = AfterClear(before, _session.LastScan);
         var problems = new List<string>();
         if (failed.Count > 0) problems.Add("Couldn't clear: " + string.Join(", ", failed));
         if (skipped.Count > 0) problems.Add("Left alone to protect it: " + string.Join("; ", skipped));
         if (problems.Count > 0) Error = string.Join("\n", problems);
+    }
+
+    private string? _clearResult;
+
+    /// <summary>What the quick test after "Clear all" found: faults that came straight back, background entries kept.</summary>
+    public string? ClearResult { get => _clearResult; private set { if (Set(ref _clearResult, value)) Raise(nameof(HasClearResult)); } }
+    public bool HasClearResult => !string.IsNullOrEmpty(_clearResult);
+
+    internal static string? AfterClear(IReadOnlySet<(string Ecu, string Code)> before, VehicleScanResult? after)
+    {
+        if (after is null) return null;
+        var back = after.Ecus.SelectMany(e => e.Faults.Where(f => !f.IsInfo && before.Contains((e.Ecu.Id, f.Code))).Select(f => $"{e.Ecu.Name}: {f.Code}")).ToList();
+        var kept = after.Ecus.Where(e => e.Faults.Any(f => f.IsInfo)).Select(e => e.Ecu.Name).ToList();
+        var parts = new List<string>();
+        if (before.Count > 0)
+            parts.Add(back.Count == 0 ? "Cleared. No fault came straight back." :
+                $"Came straight back: {string.Join(", ", back)}. {(back.Count == 1 ? "Its cause is" : "Their causes are")} still there right now, so {(back.Count == 1 ? "it's" : "they're")} worth fixing rather than clearing again.");
+        if (kept.Count > 0)
+            parts.Add($"Background entries kept by: {string.Join(", ", kept)}. Many modules don't let these be cleared; they never light a warning and are safe to ignore.");
+        return parts.Count == 0 ? null : string.Join(" ", parts);
     }
 
     /// <summary>
@@ -390,6 +412,7 @@ public sealed class VehicleViewModel : PageViewModel
 
         Error = null;
         Warning = null;
+        ClearResult = null;
         Select(null);
         _session.PublishScan(null);
         IsScanning = true;

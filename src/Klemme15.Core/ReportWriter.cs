@@ -27,6 +27,14 @@ public static class ReportWriter
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     };
 
+    /// <summary>A module's faults, with background (shadow / info) entries counted separately so "OK" and "9" don't clash.</summary>
+    private static string Count(EcuScanResult e)
+    {
+        var real = e.Faults.Count(f => !f.IsInfo);
+        var info = e.Faults.Count - real;
+        return info == 0 ? real.ToString(System.Globalization.CultureInfo.InvariantCulture) : $"{real} (+{info} background)";
+    }
+
     private static string Label(EcuScanStatus s) => s switch
     {
         EcuScanStatus.Ok => "OK",
@@ -52,7 +60,7 @@ public static class ReportWriter
         sb.AppendLine("| Module | Address | Status | Faults | Identification |");
         sb.AppendLine("|---|---|---|---|---|");
         foreach (var e in scan.Ecus)
-            sb.AppendLine($"| {e.Ecu.Name} | {e.Ecu.AddressHex} | {Label(e.Status)} | {e.Faults.Count} | {Info(e)} |");
+            sb.AppendLine($"| {e.Ecu.Name} | {e.Ecu.AddressHex} | {Label(e.Status)} | {Count(e)} | {Info(e)} |");
         foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
         {
             sb.AppendLine();
@@ -295,7 +303,9 @@ section{margin-top:24px}
         sb.Append($"<div class=\"muted\">{scan.Started:yyyy-MM-dd HH:mm} &middot; VIN {H(scan.Vin ?? "not read")} &middot; {H(scan.Backend)}</div>");
         sb.Append("<div class=\"stats\">");
         sb.Append($"<div class=\"stat\"><b>{scan.RespondingEcus}/{scan.Ecus.Count}</b>modules answering</div>");
-        sb.Append($"<div class=\"stat\"><b>{scan.TotalFaults}</b>faults</div>");
+        sb.Append($"<div class=\"stat\"><b>{scan.TotalFaults}</b>{(scan.TotalFaults == 1 ? "fault" : "faults")}</div>");
+        var background = scan.Ecus.Sum(e => e.Faults.Count(f => f.IsInfo));
+        if (background > 0) sb.Append($"<div class=\"stat\"><b>{background}</b>background {(background == 1 ? "entry" : "entries")}</div>");
         sb.Append($"<div class=\"stat\"><b>{scan.Elapsed.TotalSeconds:0.0}s</b>duration</div>");
         if (scan.BatteryVoltage is { } v) sb.Append($"<div class=\"stat\"><b>{v:0.0} V</b>battery</div>");
         if (scan.ActiveCheckControl > 0) sb.Append($"<div class=\"stat\"><b>{scan.ActiveCheckControl}</b>dash messages</div>");
@@ -316,7 +326,7 @@ section{margin-top:24px}
         HtmlCheckControl(sb, scan, H);
         sb.Append("<div class=\"table-wrap\"><table><tr><th>Module</th><th>Address</th><th>Status</th><th>Faults</th><th>Identification</th></tr>");
         foreach (var e in scan.Ecus)
-            sb.Append($"<tr><td>{H(e.Ecu.Name)}</td><td><code>{e.Ecu.AddressHex}</code></td><td class=\"{e.Status}\">{Label(e.Status)}</td><td>{e.Faults.Count}</td><td>{H(Info(e))}</td></tr>");
+            sb.Append($"<tr><td>{H(e.Ecu.Name)}</td><td><code>{e.Ecu.AddressHex}</code></td><td class=\"{e.Status}\">{Label(e.Status)}</td><td>{Count(e)}</td><td>{H(Info(e))}</td></tr>");
         sb.Append("</table></div>");
         foreach (var e in scan.Ecus.Where(e => e.Faults.Count > 0))
         {

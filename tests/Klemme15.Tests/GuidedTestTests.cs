@@ -59,6 +59,15 @@ public class GuidedTestTests
         Assert.Equal(TestSeverity.Ok, GuidedAnalysis.Roughness([0.4, 0.5, 0.45, 0.42]).Single().Severity);
     }
 
+    [Fact]
+    public void A_smooth_real_engine_passes_the_roughness_test()
+    {
+        // The test averages the size of each cylinder's readings; a signed average put two cylinders near zero and
+        // made this healthy engine's cylinder 3 look "much rougher".
+        var averages = Enumerable.Range(0, 6).Select(c => GhostHunterTests.RealSmoothIdle.Average(r => Math.Abs(r[c]))).ToList();
+        Assert.Equal(TestSeverity.Ok, GuidedAnalysis.Roughness(averages).Single().Severity);
+    }
+
     private sealed class Scripted(Func<int, Dictionary<string, double>> at) : ISignalSource
     {
         private int _n;

@@ -107,7 +107,7 @@ public static class CarStory
         var main = kind == StoryKind.BatteryWork ? messages : messages.Where(m => !Clock.Contains(m.Id)).ToList();
         var explanation = Explain(kind, main, moment.Count(m => !Clock.Contains(m.Id) || kind == StoryKind.BatteryWork));
         if (kind != StoryKind.BatteryWork && messages.Any(m => Clock.Contains(m.Id)))
-            explanation += " The clock also needed setting, so the battery had been disconnected or completely flat.";
+            explanation += " The clock also needed setting, so the car's battery had been disconnected or gone completely flat.";
         return new(from, to, kind, TitleOf(kind, main), explanation, messages, moment.Count, worst);
     }
 

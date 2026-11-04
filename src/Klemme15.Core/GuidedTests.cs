@@ -97,17 +97,18 @@ public static class GuidedAnalysis
             $"{nums} Check the solenoid and its connector, the oil level and the solenoid's filter screen. If the solenoids are fine, the VANOS unit or low oil pressure at the cylinder head (worn seals, timing chain stretch) is likely.");
     }
 
-    /// <summary>Roughness per cylinder (BMW's own units): the cylinder that stands out from the others is the weak one.</summary>
+    /// <summary>
+    /// Roughness per cylinder (BMW's own units, the average size of each cylinder's readings): the cylinder that stands
+    /// out from the others is the weak one.
+    /// </summary>
     public static IReadOnlyList<TestFinding> Roughness(IReadOnlyList<double> perCylinder)
     {
         if (perCylinder.Count < 3) return [new(TestSeverity.Unknown, "Not enough cylinders reported", "The engine computer didn't report the per-cylinder values.")];
         var abs = perCylinder.Select(Math.Abs).ToList();
-        var median = abs.OrderBy(x => x).ElementAt(abs.Count / 2);
-        var floor = Math.Max(median, abs.Max() * 0.05) + 1e-9;
         var findings = new List<TestFinding>();
         for (var i = 0; i < abs.Count; i++)
         {
-            var ratio = abs[i] / floor;
+            var ratio = RoughnessRatio.Of(abs[i], abs);
             if (ratio >= 3 && abs[i] > 0)
                 findings.Add(new(TestSeverity.Problem, $"Cylinder {i + 1} runs much rougher than the others",
                     $"About {ratio:0}× the typical value. Swap its ignition coil with a neighbouring cylinder and test again: if the problem moves, it's the coil; if not, check the spark plug, then the injector and compression."));
@@ -118,6 +119,22 @@ public static class GuidedAnalysis
         if (findings.Count == 0)
             findings.Add(new(TestSeverity.Ok, "All cylinders run evenly", "No cylinder stands out from the others."));
         return findings;
+    }
+}
+
+/// <summary>How much rougher one cylinder is than the others: its value against the average of the rest.</summary>
+public static class RoughnessRatio
+{
+    /// <summary>
+    /// <paramref name="value"/> against the average of the other values in <paramref name="all"/> (which includes it).
+    /// Compared with the average rather than the middle value: on a real N52 at idle the middle value sometimes fell
+    /// close to zero and made a healthy cylinder look three times rougher.
+    /// </summary>
+    public static double Of(double value, IReadOnlyList<double> all)
+    {
+        if (value <= 0 || all.Count < 2) return 0;
+        var others = (all.Sum() - value) / (all.Count - 1);
+        return value / (Math.Max(others, value * 0.05) + 1e-9);
     }
 }
 
@@ -459,8 +476,10 @@ public static partial class GuidedTests
         for (var tick = 0; tick < ticks; tick++)
         {
             var v = await signals.ReadAsync(["rpm", .. names], ct);
+            // The size of each reading, not its sign: readings swing either side of zero on a healthy engine, so a signed
+            // average lands near zero for some cylinders and makes the others look rough by comparison.
             for (var i = 0; i < 8; i++)
-                if (v.TryGetValue(names[i], out var d)) { sums[i] += d; counts[i]++; }
+                if (v.TryGetValue(names[i], out var d)) { sums[i] += Math.Abs(d); counts[i]++; }
             progress?.Report(new("Let the engine idle. Don't touch the pedal.", $"{v.GetValueOrDefault("rpm"):0} rpm", (double)tick / ticks));
             await Wait(speed, ct);
         }

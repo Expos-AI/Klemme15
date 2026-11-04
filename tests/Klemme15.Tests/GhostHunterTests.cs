@@ -157,7 +157,12 @@ public class GhostHunterTests
             ["rough1"] = 1.0, ["rough2"] = 1.2, ["rough3"] = 4.5, ["rough4"] = 0.9, ["rough5"] = 1.1, ["rough6"] = 1.0,
         });
         var derived = new DerivedSignals(car);
-        var v = await derived.ReadAsync(["rpm", DerivedSignals.RoughRatio, DerivedSignals.RoughCylinder, DerivedSignals.StftMax, DerivedSignals.StftMin]);
+        string[] ask = ["rpm", DerivedSignals.RoughRatio, DerivedSignals.RoughCylinder, DerivedSignals.StftMax, DerivedSignals.StftMin];
+        var first = await derived.ReadAsync(ask);
+        Assert.False(first.ContainsKey(DerivedSignals.RoughRatio), "one reading is too noisy to judge");
+        Assert.True(derived.ReportsRoughness);
+        await derived.ReadAsync(ask);
+        var v = await derived.ReadAsync(ask);
         Assert.Equal(3, v[DerivedSignals.RoughCylinder]);
         Assert.InRange(v[DerivedSignals.RoughRatio], 3.5, 4.5);
         Assert.Equal(17, v[DerivedSignals.StftMax]);
@@ -165,6 +170,98 @@ public class GhostHunterTests
         Assert.Equal(2000, v["rpm"]);
         Assert.False(v.ContainsKey("rough3"), "only what was asked for comes back");
         Assert.False(car.Asked.Contains(DerivedSignals.RoughRatio), "derived ids are never sent to the car");
+    }
+
+    /// <summary>40 readings (about 15 s) from a real N52 (MSV70) idling smoothly with no faults, in BMW's µs.</summary>
+    internal static readonly int[][] RealSmoothIdle =
+    [
+        [43, 385, 433, 203, 35, -924],
+        [-453, 369, 405, 315, 569, -726],
+        [48, 177, 796, 355, 350, -1136],
+        [111, 237, 809, 228, -64, -946],
+        [135, 45, 563, 126, -121, -574],
+        [-380, -248, 334, 745, 407, -554],
+        [-273, -65, 1018, 865, 87, -1023],
+        [75, 240, 618, -10, 196, -598],
+        [165, -381, 585, 686, -31, -578],
+        [-427, 53, 53, 907, 545, -931],
+        [449, 234, 478, -125, -311, -291],
+        [314, 167, 488, 197, -370, 51],
+        [1739, 195, -56, -1631, 143, -175],
+        [-378, 175, 618, 694, 442, -876],
+        [504, 136, -188, -248, 240, -135],
+        [-484, -38, 843, 275, 197, -814],
+        [209, 748, 54, -144, 679, -909],
+        [194, -187, 822, 796, -219, -962],
+        [73, 346, 490, -76, 33, -595],
+        [222, 247, -53, -161, -264, -136],
+        [264, -141, 745, 387, -210, -207],
+        [-410, -170, 10, 359, 456, 138],
+        [-235, -498, 208, 875, 85, -565],
+        [-49, -80, 791, 567, 367, -904],
+        [121, 319, 307, 380, 234, -592],
+        [-99, 44, 485, 501, 240, -719],
+        [305, -219, 702, 582, 72, -848],
+        [-509, -302, 771, 1086, 335, -980],
+        [-58, 96, 324, 325, -286, -298],
+        [-243, -218, 740, 522, 370, -728],
+        [264, 111, 530, -73, 69, -522],
+        [-214, -343, 589, 788, 112, -98],
+        [-131, 172, 417, 326, 263, -750],
+        [-609, 211, 673, 574, 679, -892],
+        [359, 8, 450, 614, -380, -880],
+        [-154, -238, 254, 567, -201, -244],
+        [-469, -342, 637, 277, 485, -870],
+        [-207, 297, 436, 72, 425, -40],
+        [-530, 564, 393, 759, 236, -443],
+        [43, -142, 296, 310, 363, -443]
+    ];
+
+    private sealed class Replay(int[][] rows) : ISignalSource
+    {
+        private int _n;
+        public Task<IReadOnlyDictionary<string, double>> ReadAsync(IReadOnlyCollection<string> signals, CancellationToken ct = default)
+        {
+            var row = rows[_n++ % rows.Length];
+            var d = new Dictionary<string, double> { ["rpm"] = 730 };
+            for (var i = 0; i < row.Length; i++) d[$"rough{i + 1}"] = row[i];
+            return Task.FromResult<IReadOnlyDictionary<string, double>>(d);
+        }
+    }
+
+    [Fact]
+    public async Task A_smooth_real_engine_never_looks_like_a_misfire()
+    {
+        // Single readings from this engine jump to 9× on a different cylinder each time; the averaged ratio stays low.
+        var clock = new ManualClock();
+        var derived = new DerivedSignals(new Replay(RealSmoothIdle), clock);
+        var highest = 0.0;
+        for (var i = 0; i < RealSmoothIdle.Length; i++)
+        {
+            var v = await derived.ReadAsync([DerivedSignals.RoughRatio]);
+            if (v.TryGetValue(DerivedSignals.RoughRatio, out var r)) highest = Math.Max(highest, r);
+            clock.Advance(TimeSpan.FromMilliseconds(380));
+        }
+        Assert.InRange(highest, 1, 2.99);
+    }
+
+    [Fact]
+    public async Task A_cylinder_that_stays_rough_still_shows_through_the_noise()
+    {
+        var rows = RealSmoothIdle.Select(r => r.Select((v, i) => i == 4 ? 2500 + Math.Abs(v) : v).ToArray()).ToArray();
+        var clock = new ManualClock();
+        var derived = new DerivedSignals(new Replay(rows), clock);
+        IReadOnlyDictionary<string, double> v = new Dictionary<string, double>();
+        for (var i = 0; i < 10; i++) { v = await derived.ReadAsync([DerivedSignals.RoughRatio, DerivedSignals.RoughCylinder]); clock.Advance(TimeSpan.FromMilliseconds(380)); }
+        Assert.Equal(5, v[DerivedSignals.RoughCylinder]);
+        Assert.True(v[DerivedSignals.RoughRatio] >= 3);
+    }
+
+    private sealed class ManualClock : TimeProvider
+    {
+        private DateTimeOffset _now = new(2026, 11, 3, 18, 0, 0, TimeSpan.Zero);
+        public override DateTimeOffset GetUtcNow() => _now;
+        public void Advance(TimeSpan by) => _now += by;
     }
 
     [Fact]

@@ -1,6 +1,13 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.3:**
+**New in 0.99.4:** fixes from the first test on a real E90 325i (N52, MSV70 engine computer, D-CAN cable).
+- **No more false misfires.** On a smooth idle, single per-cylinder roughness readings swing widely, on a different cylinder each time. The Ghost Hunter's misfire watch now averages the last 3 seconds before it judges, and the **Cylinder roughness** test compares each cylinder with the average of the others. Before, both could call a healthy cylinder "much rougher". A cylinder that really is rough still stands out.
+- **"Clear all" says what happened.** After clearing, Klemme15 reads the car again and tells you which faults came straight back (their cause is still there) and which modules kept their background entries (many modules don't allow those to be cleared, which is normal).
+- **Dash messages count as "keeps showing" only across different days.** Several quick tests in one sitting all see the same dash, so they no longer fill the health history with "parking brake applied keeps showing".
+- Reports count background entries separately from faults ("0 (+9 background)") and say "1 fault", not "1 faults".
+- The car's story says "the car's battery" when the clock needed setting, so it can't be confused with the key's battery.
+
+**0.99.3:**
 - **Live data cards stay tidy.** When the engine computer doesn't report a value, the card shows a dash with the reason in small print underneath, instead of the reason in large type running out of the card.
 - **Fault codes on the car drawing no longer print over each other.** When two fault locations sit side by side (neighbouring cylinders), their codes are shown together next to the right-hand one. Clicking either dot still shows its own faults.
 - **Close snapshot** button on the snapshot banner, which takes you back to the Garage.

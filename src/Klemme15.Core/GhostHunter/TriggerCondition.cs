@@ -155,14 +155,29 @@ public static class TriggerPresets
 /// <summary>
 /// Values worked out from others, so a rule can say "any cylinder" or "either bank" without needing an OR:
 /// <list type="bullet">
-/// <item><c>roughratio</c>: the roughest cylinder against the typical one (3 or more = a misfire-like cylinder),
-/// the same measure as the cylinder roughness test, so it works whatever unit the engine computer reports.</item>
+/// <item><c>roughratio</c>: the roughest cylinder against the others (3 or more = a misfire-like cylinder), the same
+/// measure as the cylinder roughness test, so it works whatever unit the engine computer reports. Averaged over the last
+/// few seconds: single readings jump around on a healthy engine (on a real N52 at idle one reading in ten looked
+/// "3× rougher", on a different cylinder each time), while a misfiring cylinder stays out in front.</item>
 /// <item><c>roughcyl</c>: which cylinder that is.</item>
 /// <item><c>stftmax</c> / <c>stftmin</c>: the leaner / richer bank's short-term trim.</item>
 /// </list>
 /// </summary>
-public sealed class DerivedSignals(ISignalSource inner) : ISignalSource
+public sealed class DerivedSignals(ISignalSource inner, TimeProvider? clock = null) : ISignalSource
 {
+    /// <summary>How far back roughness readings are averaged, and how many it takes before there's a verdict.</summary>
+    public static readonly TimeSpan RoughWindow = TimeSpan.FromSeconds(3);
+    public const int RoughMinReadings = 3;
+
+    private readonly TimeProvider _clock = clock ?? TimeProvider.System;
+    private readonly Queue<(DateTimeOffset At, double[] Abs)> _rough = new();
+
+    /// <summary>
+    /// True once the engine computer has reported roughness for 3 or more cylinders. The roughness values themselves
+    /// only appear after a few readings, so a single check of what the car reports asks this instead.
+    /// </summary>
+    public bool ReportsRoughness { get; private set; }
+
     public const string RoughRatio = "roughratio", RoughCylinder = "roughcyl", StftMax = "stftmax", StftMin = "stftmin";
     public static readonly IReadOnlySet<string> Ids = new HashSet<string> { RoughRatio, RoughCylinder, StftMax, StftMin };
     private static readonly string[] Rough = Enumerable.Range(1, 8).Select(n => $"rough{n}").ToArray();
@@ -176,7 +191,7 @@ public sealed class DerivedSignals(ISignalSource inner) : ISignalSource
         if (wantTrim) request.AddRange(["stft1", "stft2"]);
         var read = await inner.ReadAsync(request.Distinct().ToList(), ct);
         var result = read.Where(kv => signals.Contains(kv.Key)).ToDictionary(kv => kv.Key, kv => kv.Value);
-        if (wantRough && Roughest(read) is { } r)
+        if (wantRough && Averaged(read) is { } avg && Roughest(avg) is { } r)
         {
             if (signals.Contains(RoughRatio)) result[RoughRatio] = r.Ratio;
             if (signals.Contains(RoughCylinder)) result[RoughCylinder] = r.Cylinder;
@@ -193,15 +208,34 @@ public sealed class DerivedSignals(ISignalSource inner) : ISignalSource
         return result;
     }
 
-    /// <summary>The roughest cylinder and how many times rougher it is than the typical one (needs 3 or more cylinders).</summary>
+    /// <summary>
+    /// Adds this reading to the last few seconds' and returns each cylinder's average size (rough1..roughN), or null
+    /// until there are enough readings to judge.
+    /// </summary>
+    private Dictionary<string, double>? Averaged(IReadOnlyDictionary<string, double> read)
+    {
+        var abs = Enumerable.Range(1, 8).Select(n => read.TryGetValue($"rough{n}", out var v) ? Math.Abs(v) : double.NaN).ToArray();
+        if (abs.Count(v => !double.IsNaN(v)) < 3) return null;
+        ReportsRoughness = true;
+        var now = _clock.GetUtcNow();
+        _rough.Enqueue((now, abs));
+        while (_rough.Count > 0 && now - _rough.Peek().At > RoughWindow) _rough.Dequeue();
+        if (_rough.Count < RoughMinReadings) return null;
+        var result = new Dictionary<string, double>();
+        for (var i = 0; i < 8; i++)
+        {
+            var seen = _rough.Select(r => r.Abs[i]).Where(v => !double.IsNaN(v)).ToList();
+            if (seen.Count > 0) result[$"rough{i + 1}"] = seen.Average();
+        }
+        return result;
+    }
+
+    /// <summary>The roughest cylinder and how many times rougher it is than the others (needs 3 or more cylinders).</summary>
     public static (int Cylinder, double Ratio)? Roughest(IReadOnlyDictionary<string, double> values)
     {
         var cyl = Enumerable.Range(1, 8).Where(n => values.ContainsKey($"rough{n}")).Select(n => (n, v: Math.Abs(values[$"rough{n}"]))).ToList();
         if (cyl.Count < 3) return null;
-        var sorted = cyl.Select(c => c.v).Order().ToList();
-        var median = sorted[sorted.Count / 2];
         var worst = cyl.MaxBy(c => c.v);
-        var floor = Math.Max(median, worst.v * 0.05) + 1e-9;
-        return (worst.n, worst.v <= 0 ? 0 : worst.v / floor);
+        return (worst.n, RoughnessRatio.Of(worst.v, cyl.Select(c => c.v).ToList()));
     }
 }

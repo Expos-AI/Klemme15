@@ -224,6 +224,7 @@
           <TextBlock DockPanel.Dock="Top" Classes="muted small" TextWrapping="Wrap" Margin="6,0,0,10" Text="{Binding DashNote}" IsVisible="{Binding HasDashNote}" />
           <TextBlock DockPanel.Dock="Top" Classes="section" Text="Faults" Margin="6,0,0,10" />
           <TextBlock DockPanel.Dock="Top" Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" Margin="6,0,0,10" />
+          <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Text="{Binding ClearResult}" IsVisible="{Binding HasClearResult}" Margin="6,0,0,10" />
           <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Margin="6,0"
                      IsVisible="{Binding !HasScan}"
                      Text="Faults appear here after a quick test, each pinned to the part of the car it points at." />

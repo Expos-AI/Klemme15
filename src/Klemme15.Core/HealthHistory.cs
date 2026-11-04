@@ -216,12 +216,13 @@ public static class HealthTrends
                 list.Add(new(TrendLevel.Watch, $"{Short(f)} keeps coming back", $"Present in this quick test and on {days} earlier days. A fault that returns after clearing is real: fix the cause rather than clearing it again."));
         }
 
-        // Dash messages that won't go away.
+        // Dash messages that won't go away: like faults, on two or more earlier days. Several quick tests in one
+        // sitting all see the same dash, so they prove nothing.
         foreach (var id in latest.DashMessages)
         {
-            var times = snapshots.Count(s => s.DashMessages.Contains(id));
-            if (times >= 3)
-                list.Add(new(TrendLevel.Info, $"{ccName?.Invoke(id) ?? $"CC {id}"} keeps showing", $"Seen on the dash in {times} of {snapshots.Count} quick tests."));
+            var days = snapshots.Take(snapshots.Count - 1).Where(s => s.DashMessages.Contains(id)).Select(s => s.Time.Date).Distinct().Count();
+            if (days >= 2)
+                list.Add(new(TrendLevel.Info, $"{ccName?.Invoke(id) ?? $"CC {id}"} keeps showing", $"On the dash in this quick test and on {days} earlier days."));
         }
 
         // New since the previous scan.
