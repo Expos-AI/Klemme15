@@ -236,6 +236,8 @@ def main():
                 scene = json.load(fh)
             if scene["frames"] > 0:
                 scenes.append(scene)
+    if not scenes:
+        sys.exit(f"No recorded scenes in {RAW}: check the recording step's output.")
     for i, scene in enumerate(scenes, 1):
         compose(scene, i, len(scenes))
     with open(os.path.join(OUT, "reel.txt"), "w", encoding="utf-8") as fh:

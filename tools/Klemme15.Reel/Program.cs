@@ -29,7 +29,9 @@ using Klemme15.App.Views;
 // (raw/<scene>.mp4, 30 fps, the window at 1.5x) and a list of where the action is and where the "clicks" land
 // (raw/<scene>.json). compose.py turns those into vertical clips that follow the action. No display needed.
 var outDir = Path.GetFullPath(args.Length > 0 ? args[0] : "reel-raw");
-var only = args.Length > 1 ? args[1].Split(',', StringSplitOptions.RemoveEmptyEntries).ToHashSet() : null;
+// An empty list (the workflow's default) means every scene.
+var only = args.Length > 1 && args[1].Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) is { Length: > 0 } picked
+    ? picked.ToHashSet() : null;
 Directory.CreateDirectory(outDir);
 
 AppBuilder.Configure<App>()
