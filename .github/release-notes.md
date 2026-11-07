@@ -1,6 +1,11 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.8:** a full pass so no one is left stuck, checked against a real E90's traffic replayed through every function that talks to the car.
+**New in 0.99.9:**
+- **Rough idle and air conditioning check:** the dip when the compressor engages only counts idle readings, so touching the pedal during the test can't be mistaken for a chug.
+- **Demo car:** during the idle check the demo driver stays off the pedal, switches the air conditioning on partway through, and the engine dips a little as the compressor engages, so the test shows what it's for.
+- For contributors: `tools/Klemme15.Reel` records the app with the demo cars and composes vertical clips of every feature (run the **reel** workflow).
+
+**0.99.8:** a full pass so no one is left stuck, checked against a real E90's traffic replayed through every function that talks to the car.
 - **No error closes the app any more.** Saving to a folder you can't write to, a file open in another program, a damaged backup or capture: you get a plain message with what to do, in a banner you can dismiss.
 - **Greyed-out buttons say why.** While the Ghost Hunter watches, live data records, a quick test or a service function runs, a strip at the top says what's using the cable, with a button to go there.
 - **Nothing can pull the connection out from under a job.** Disconnect, switching cars and opening a snapshot or capture wait while a service function, coding write or part test is running.
