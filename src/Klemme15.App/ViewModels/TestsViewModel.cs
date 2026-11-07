@@ -305,7 +305,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             Instruction = "This test switches a part on, which is still experimental. Turn on experimental functions on the Service page first.";
             return;
         }
-        var demoSignals = _session.IsDemo && _session.Measurements is { } demo ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine) : null;
+        var demoSignals = _session.IsDemo && _session.Measurements is { } demo ? new Klemme15.Protocols.Simulation.DemoSignals(demo, engine) { IdleCheck = test.Info.Id == "idle-ac" } : null;
         ISignalSource signals = demoSignals is not null ? demoSignals : new EngineSignals(backend, engine, _session.Measurements);
         IActuator? actuator = !test.Info.DrivesParts ? null
             : demoSignals is not null ? new Klemme15.App.Services.DemoPumpActuator(demoSignals)

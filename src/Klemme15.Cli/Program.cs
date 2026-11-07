@@ -684,7 +684,7 @@ internal static class Cli
         if (info is null) { Console.Error.WriteLine($"Unknown test '{id}'. See 'klemme15 test'."); return 2; }
         var engine = vehicle.Modules.First(m => m.IsEngine);
         var measurements = demo ? new Klemme15.Protocols.Simulation.DemoReadings(model) : await MeasurementsFor(backend, db, vehicle, model, log, ct);
-        ISignalSource signals = demo ? new Klemme15.Protocols.Simulation.DemoSignals(measurements!, engine) : new EngineSignals(backend, engine, measurements);
+        ISignalSource signals = demo ? new Klemme15.Protocols.Simulation.DemoSignals(measurements!, engine) { IdleCheck = info.Id == "idle-ac" } : new EngineSignals(backend, engine, measurements);
         Console.WriteLine();
         Console.WriteLine(info.Title);
         Console.WriteLine($"  {info.Requirements}");

@@ -23,6 +23,12 @@ public sealed class DemoSignals(IMeasurementReader measurements, EcuDefinition e
     private readonly Random _random = new(7);
     private int _reads;
 
+    /// <summary>
+    /// The rough idle and air conditioning check is running: the driver stays off the pedal, switches the air
+    /// conditioning on partway through, and the engine dips a little as the compressor engages.
+    /// </summary>
+    public bool IdleCheck { get; init; }
+
     /// <summary>What the demo "actuator" last asked the pump for (0-1), or null when the engine computer drives it.</summary>
     public double? PumpCommand { get; set; }
 
@@ -32,9 +38,7 @@ public sealed class DemoSignals(IMeasurementReader measurements, EcuDefinition e
     {
         _reads++;
         // Idle for the first readings of a test, then the "driver" holds 2,500 rpm for a while, then idles again.
-        // The rough idle and air conditioning check asks for the idle target: then the driver stays off the pedal,
-        // switches the air conditioning on partway through, and the engine dips a little as the compressor engages.
-        var idleCheck = signals.Contains("idle_target");
+        var idleCheck = IdleCheck;
         var loaded = !idleCheck && _reads % 90 is > 34 and < 75;
         var rpm = loaded ? J(2500, 60) : J(760, 15);
         if (idleCheck && _reads is >= 50 and < 53) rpm = J(655, 10);
