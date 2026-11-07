@@ -211,7 +211,8 @@ public static partial class GuidedTests
         for (var i = 0; i < 10; i++)   // the 5 seconds after it engages
         {
             var v = await Read("Air conditioning on. Don't touch the pedal.", "Watching the engine take the load", 0.5);
-            if (v.TryGetValue("rpm", out var r) && r > 300) lowest = lowest is { } l ? Math.Min(l, r) : r;
+            // Only idle readings count: a blip of the pedal isn't the compressor's dip.
+            if (v.TryGetValue("rpm", out var r) && r is > 300 and < 1500 && v.GetValueOrDefault("speed") < 3) lowest = lowest is { } l ? Math.Min(l, r) : r;
             await Wait(speed, ct);
         }
         var on = await Phase("Keep idling with the air conditioning ON. Don't touch the pedal.", 0.5);

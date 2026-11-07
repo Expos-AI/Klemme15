@@ -121,16 +121,21 @@ void QuickTest()
     reel.Run(600);
     reel.Click(reel.Button("Run quick test"), () => vm.Vehicle.RunCommand.Execute(null));
     reel.Until(() => vm.Vehicle.IsScanning);
-    if (reel.Find<Control>(c => c.Name == "Drawing") is { } drawing) reel.Focus(drawing); else reel.Overview();
+    // The car drawing (it sits in a Viewbox): watch the modules light up one by one.
+    if (reel.Find<Viewbox>() is { } drawing) reel.Focus(drawing, pad: 20); else reel.Overview();
     reel.Speed = 1.5;
     reel.Until(() => !vm.Vehicle.IsScanning && vm.Vehicle.HasScan, 30000);
     reel.Speed = 1;
     reel.Overview();
     reel.Run(1800);
+    if (reel.Find<Viewbox>() is { } car) reel.Focus(car, pad: 20);
+    reel.Run(600);
     var marker = vm.Vehicle.Markers.First(m => m.IsFaultSource);
     if (reel.Find<Button>(b => ReferenceEquals(b.DataContext, marker)) is { } dot)
         reel.Click(dot, () => vm.Vehicle.Select(marker));
     else vm.Vehicle.Select(marker);
+    reel.Run(600);
+    reel.Overview();
     reel.Run(2200);
     vm.Vehicle.Select(null);
 }

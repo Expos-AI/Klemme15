@@ -83,6 +83,7 @@ def plan(scene):
     shown, start_from, goal, start = fit(full, fw, fh), None, fit(full, fw, fh), -10_000
     cursor_from = cursor_to = None
     cursor_start = -10_000
+    rest_at, rest_to = None, None
     clicks = []
     crops, cursors, ripples = [], [], []
     i = 0
@@ -101,11 +102,18 @@ def plan(scene):
                 centre = (r[0] + r[2] / 2, r[1] + r[3] / 2)
                 here = cursors[-1] if cursors and cursors[-1] else (centre[0] + 260, centre[1] + 220)
                 cursor_from, cursor_to, cursor_start = here, centre, f
+                rest_at = None
             elif e["t"] == "click":
-                clicks.append((f, (r[0] + r[2] / 2, r[1] + r[3] / 2)))
+                centre = (r[0] + r[2] / 2, r[1] + r[3] / 2)
+                clicks.append((f, centre))
+                rest_at = f + 8                 # then drift off the button, so its text shows
+                rest_to = (centre[0] + 70, centre[1] + 90)
             new_goal = fit(goal_raw, fw, fh)
             if new_goal != goal:
                 start_from, goal, start = shown, new_goal, f
+        if rest_at is not None and f >= rest_at and cursor_to is not None:
+            cursor_from, cursor_to, cursor_start = cursor_to, rest_to, f
+            rest_at = None
         shown = lerp(start_from, goal, smooth((f - start) / EASE)) if start_from else goal
         crops.append(shown)
         if cursor_to is None:

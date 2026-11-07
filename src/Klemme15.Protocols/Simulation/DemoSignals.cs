@@ -32,14 +32,24 @@ public sealed class DemoSignals(IMeasurementReader measurements, EcuDefinition e
     {
         _reads++;
         // Idle for the first readings of a test, then the "driver" holds 2,500 rpm for a while, then idles again.
-        var loaded = _reads % 90 is > 34 and < 75;
+        // The rough idle and air conditioning check asks for the idle target: then the driver stays off the pedal,
+        // switches the air conditioning on partway through, and the engine dips a little as the compressor engages.
+        var idleCheck = signals.Contains("idle_target");
+        var loaded = !idleCheck && _reads % 90 is > 34 and < 75;
         var rpm = loaded ? J(2500, 60) : J(760, 15);
+        if (idleCheck && _reads is >= 50 and < 53) rpm = J(655, 10);
         var values = new Dictionary<string, double>
         {
             ["rpm"] = rpm, ["coolant"] = 92, ["voltage"] = 14.1, ["maf"] = loaded ? J(11.5, 0.4) : J(3.6, 0.15), ["load"] = loaded ? J(24, 1) : J(18, 1),
             ["stft1"] = loaded ? J(1, 2) : J(4, 2), ["ltft1"] = loaded ? J(2, 0.5) : J(10, 0.5),
             ["stft2"] = loaded ? J(0, 2) : J(3, 2), ["ltft2"] = loaded ? J(1, 0.5) : J(9, 0.5),
         };
+        if (idleCheck)
+        {
+            values["idle_target"] = 760;
+            values["ac"] = _reads >= 48 ? 1 : 0;
+            values["ac_compressor"] = _reads >= 50 ? 1 : 0;
+        }
         // A slightly tired electric water pump: it reaches about 90 % of what's asked, a bit less at high demand.
         if (PumpCommand is { } cmd)
         {
