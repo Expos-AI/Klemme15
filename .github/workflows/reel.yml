@@ -51,7 +51,7 @@ jobs:
         run: |
           cd "$RUNNER_TEMP/reel"
           cp "$RUNNER_TEMP/raw/failed.txt" . 2>/dev/null || true
-          printf 'Promo reel of %s, recorded headlessly with the demo cars.\n\n- reel.mp4: every captioned clip in a row\n- captioned/: one vertical clip per feature, with caption bars\n- clean/: the same clips without text\n- landscape/: the raw recordings, 1920 wide, for your own edits\n- stills/: one frame of each\n' "$GITHUB_SHA" > README.md
+          printf 'Promo reel of %s, recorded headlessly with the demo cars.\n\n- reel.mp4: every captioned clip in a row\n- captioned/: one vertical clip per feature, with caption bars\n- labeled/: the same clips with only the small print (demo car shown) at the top\n- timelines.txt: what each clip shows from which second\n- clean/: the same clips without text\n- landscape/: the raw recordings, 1920 wide, for your own edits\n- stills/: one frame of each\n' "$GITHUB_SHA" > README.md
           git init -q -b reel
           git add .
           git -c user.name="github-actions" -c user.email="github-actions@users.noreply.github.com" commit -qm "Reel for $GITHUB_SHA"

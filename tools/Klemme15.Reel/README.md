@@ -10,7 +10,9 @@ pushed to the `reel` branch:
 
 - `reel.mp4`: every captioned clip in a row
 - `captioned/`: one clip per feature, with caption bars
+- `labeled/`: the same clips with only the small print ("demo car shown") in a pill at the top, for videos where you do the talking
 - `clean/`: the same clips without text, for your own captions
+- `timelines.txt`: what each clip shows from which second, to time a voiceover or a script against
 - `landscape/`: the raw recordings, 1920 wide
 - `stills/`: one frame of each clip
 
@@ -18,4 +20,4 @@ Locally (Linux, with ffmpeg and Pillow): `dotnet run --project tools/Klemme15.Re
 `python3 tools/Klemme15.Reel/compose.py raw reel`.
 
 Scenes live in `Program.cs`: each one drives the view models, says where the camera should look (`Focus`,
-`Overview`) and where the cursor clicks (`Click`). `compose.py` does the rest.
+`Overview`) and where the cursor clicks (`Click`), and notes what's on screen from each moment (`Mark`, which feeds `timelines.txt`). `compose.py` does the rest.

@@ -70,6 +70,9 @@ var scenes = new List<(string Id, string Title, string? Note, Action Play)>
     ("08-battery-drain", "Battery drain finder", "demo car shown", BatteryDrain),
     ("09-service-coding", "Service resets and comfort coding", "demo car shown · beta, experimental", ServiceCoding),
     ("10-share", "One file for the forum", "demo car shown", Share),
+    ("11-older-cars", "Older E-series too", "demo car shown", OlderCars),
+    ("12-step-by-step", "Diagnosis that asks you questions", "demo car shown · sped up", StepByStep),
+    ("13-compare-healthy", "Compare with healthy engines", "demo car and demo drive shown", CompareHealthy),
 };
 var failed = new List<string>();
 foreach (var (id, title, note, play) in scenes)
@@ -101,6 +104,18 @@ void EnsureDemo(string model = "E9x-335i", bool scan = true)
     reel.Idle(300);
 }
 
+// Waits for a test, noting each instruction it shows (they say what the graph is doing: "AC on", and so on).
+void UntilMarkingInstructions(Func<bool> done, int timeoutMs)
+{
+    var last = "";
+    reel.Until(() =>
+    {
+        var now = vm.Tests.Instruction;
+        if (now.Length > 0 && now != last) { last = now; reel.Mark($"The test says: \"{now}\""); }
+        return done();
+    }, timeoutMs);
+}
+
 void Go(PageViewModel page)
 {
     var label = reel.Find<TextBlock>(t => t.Classes.Contains("raillabel") && t.Text == page.Title);
@@ -115,17 +130,21 @@ void QuickTest()
     vm.Garage.SelectModel("E9x-335i");
     reel.Run(200);
     reel.Overview();
+    reel.Mark("The Garage, E90 335i picked");
     reel.Run(700);
     reel.Click(reel.Button("Open demo car"), () => vm.Garage.OpenDemoCommand.Execute(null));
     reel.Until(() => vm.Session.IsConnected && vm.CurrentPage == vm.Vehicle);
+    reel.Mark("The car's page, before the test");
     reel.Run(600);
     reel.Click(reel.Button("Run quick test"), () => vm.Vehicle.RunCommand.Execute(null));
     reel.Until(() => vm.Vehicle.IsScanning);
+    reel.Mark("Quick test running: the modules light up one by one");
     // The car drawing (it sits in a Viewbox): watch the modules light up one by one.
     if (CarDrawing() is { } drawing) reel.Focus(drawing, pad: 20); else reel.Overview();
     reel.Speed = 1.5;
     reel.Until(() => !vm.Vehicle.IsScanning && vm.Vehicle.HasScan, 30000);
     reel.Speed = 1;
+    reel.Mark("Done: every module's result");
     reel.Overview();
     reel.Run(1800);
     if (CarDrawing() is { } car) reel.Focus(car, pad: 20);
@@ -134,6 +153,7 @@ void QuickTest()
     if (reel.Find<Button>(b => ReferenceEquals(b.DataContext, marker)) is { } dot)
         reel.Click(dot, () => vm.Vehicle.Select(marker));
     else vm.Vehicle.Select(marker);
+    reel.Mark("A module with a fault clicked: its fault shows");
     reel.Run(600);
     reel.Overview();
     reel.Run(2200);
@@ -147,15 +167,18 @@ void PlainEnglish()
 {
     EnsureDemo();
     Go(vm.Faults);
+    reel.Mark("The Faults page");
     reel.Overview();
     reel.Run(1200);
     var item = vm.Faults.Groups.SelectMany(g => g.Faults).First(f => f.HasGuide);
     var card = reel.Card(reel.Find<Control>(c => ReferenceEquals(c.DataContext, item) && c is Border)!);
     reel.ScrollTo(card, 800, top: 160);
     reel.Focus(card, width: 0.72);
+    reel.Mark("One fault card: what it means, how urgent");
     reel.Run(3000);
     var button = reel.Find<Button>(b => ReferenceEquals(b.DataContext, item) && (b.Content as string) == "Troubleshoot");
     if (button is not null) reel.Click(button, () => item.GuideOpen = true); else item.GuideOpen = true;
+    reel.Mark("Troubleshoot: the checks, step by step");
     reel.Run(400);
     reel.Focus(card, width: 0.72);
     reel.Run(4000);
@@ -169,6 +192,7 @@ void CarStory()
     var story = reel.Card(reel.Text("Every dash message your cluster has shown"));
     reel.ScrollTo(story, 1400, top: 120);
     reel.Focus(story, width: 0.75);
+    reel.Mark("Every dash message the cluster has shown");
     reel.Run(4500);
 }
 
@@ -179,12 +203,15 @@ void BuyingCheck()
     reel.ScrollTop(500);
     var purchase = vm.Faults.Purchase!;
     reel.Click(reel.Button("Buying this car?"), () => purchase.IsOpen = true);
+    reel.Mark("Buying this car? opens");
     reel.Run(400);
     var panel = reel.Card(reel.Find<StackPanel>(s => s.DataContext is PurchaseCheckViewModel)!);
     reel.Focus(panel);
     if (reel.Find<TextBox>(t => t.DataContext is PurchaseCheckViewModel) is { } box)
         reel.Click(box, () => { });
+    reel.Mark("The odometer reading is typed");
     reel.Type("152400", s => purchase.Odometer = s);
+    reel.Mark("The verdict and what it checked");
     reel.Run(600);
     reel.Focus(reel.Card(reel.Find<StackPanel>(s => s.DataContext is PurchaseCheckViewModel)!), width: 0.75);
     reel.Run(4500);
@@ -199,11 +226,13 @@ void LiveData()
     var toggle = reel.Find<Button>(b => ReferenceEquals(b.Command, vm.Vehicle.Topology.ToggleCommand));
     if (toggle is not null) reel.Click(toggle, () => vm.Vehicle.Topology.Start()); else vm.Vehicle.Topology.Start();
     reel.Until(() => vm.Vehicle.Topology.Tiles.Any(t => t.HasValue), 10000);
+    reel.Mark("Live values on the car drawing");
     reel.Run(3500);
     var stopping = vm.Vehicle.Topology.StopAndWaitAsync();
     reel.WaitQuietly(() => stopping.IsCompleted);
     Go(vm.Live);
     reel.Click(reel.Button("Start"), () => vm.Live.StartCommand.Execute(null));
+    reel.Mark("The Live data page: values moving");
     reel.Run(800);
     // The value cards: the ItemsControl around the first card.
     if (reel.Find<Border>(b => b.DataContext is LiveParameterViewModel && b.Classes.Contains("panel"))?.GetVisualAncestors().OfType<ItemsControl>().FirstOrDefault() is { } tiles)
@@ -220,19 +249,23 @@ void Tests()
     vm.Tests.SelectById("idle-ac");
     reel.Run(600);
     reel.Overview();
+    reel.Mark("The idle and AC test picked");
     vm.Tests.Speed = 3;
     reel.Click(reel.Button("Start"), () => vm.Tests.StartCommand.Execute(null));
+    reel.Mark("Test running: idle graph, AC off");
     reel.Run(800);
     if (reel.Find<ItemsControl>(i => ReferenceEquals(i.ItemsSource, vm.Tests.Charts)) is { } charts) reel.Focus(charts, pad: 60);
     reel.Speed = 2;
-    reel.Until(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 120000);
+    UntilMarkingInstructions(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 120000);
     reel.Speed = 1;
+    reel.Mark("Test done");
     reel.Run(600);
     if (reel.Find<ItemsControl>(i => ReferenceEquals(i.ItemsSource, vm.Tests.Findings)) is { } findings)
     {
         reel.ScrollTo(findings, 900, top: 200);
         reel.Focus(findings, pad: 40);
     }
+    reel.Mark("The verdict: what it found and where to look");
     reel.Run(4500);
 }
 
@@ -242,11 +275,13 @@ void GhostHunter()
     Go(vm.Ghost);
     reel.WaitQuietly(() => vm.Ghost.Signals.Count > 0, 30000);
     reel.Overview();
+    reel.Mark("The Ghost Hunter page: ready-made rules");
     reel.Run(1500);
     // The demo car's values are healthy, so a rule on the demo "driver" revving shows a real catch.
     var builder = reel.Card(reel.Text("Make your own rule"));
     reel.ScrollTo(builder, 900, top: 80);
     reel.Focus(builder);
+    reel.Mark("Making a rule: engine speed above 2,000 rpm");
     reel.Type("Revving above 2,000 rpm", s => vm.Ghost.NewTitle = s);
     vm.Ghost.NewConditions[0].Signal = vm.Ghost.Signals.First(x => x.Id == "rpm");
     vm.Ghost.NewConditions[0].Operator = TriggerViewModel.Operators[0];
@@ -260,12 +295,15 @@ void GhostHunter()
     reel.Run(600);
     reel.Overview();
     reel.Click(reel.Button("Start watching"), () => vm.Ghost.StartCommand.Execute(null));
+    reel.Mark("Start watching clicked");
     reel.Run(1500);
     if (reel.Find<TextBlock>(t => t.Text == "Right now") is { } now) reel.Focus(reel.Card(now.GetVisualParent<Control>()!), pad: 30);
+    reel.Mark("Right now: what each rule is waiting for");
     reel.Run(2500);
     reel.Speed = 4;
     reel.Until(() => vm.Ghost.HasCaptures, 120000);
     reel.Speed = 1;
+    reel.Mark("Caught: the moment is saved");
     reel.Run(500);
     var right = reel.Find<TextBlock>(t => t.Text == "Captures")?.GetVisualParent<Control>();
     if (right is not null) reel.Focus(right, pad: 20);
@@ -284,10 +322,13 @@ void BatteryDrain()
     reel.Run(500);
     var panel = reel.Card(reel.Find<StackPanel>(s => s.DataContext is DrainFinderViewModel)!);
     reel.Focus(panel, width: 0.75);
+    reel.Mark("Battery drain finder: clues from this car");
     reel.Run(2500);
     if (reel.Find<TextBox>(t => t.DataContext is DrainFinderViewModel) is { } box) reel.Click(box, () => { });
     reel.Type("85", s => drain.Milliamps = s);
+    reel.Mark("85 mA typed: too much, and how long until it won't start");
     reel.Run(2500);
+    reel.Mark("The hunt, step by step");
     reel.ScrollBy(panel, 700, 2500);
     reel.Run(1500);
     drain.IsOpen = false;
@@ -298,6 +339,7 @@ void ServiceCoding()
     EnsureDemo();
     Go(vm.Service);
     reel.Overview();
+    reel.Mark("Service functions: the list");
     reel.Run(1200);
     if (reel.Find<ItemsControl>(i => i.ItemsSource is not null && ReferenceEquals(i.ItemsSource, vm.Service.Groups)) is { } list)
     {
@@ -306,6 +348,7 @@ void ServiceCoding()
     }
     reel.Run(800);
     Go(vm.Coding);
+    reel.Mark("The Coding page");
     reel.Run(300);
     if (vm.Coding.Modules.FirstOrDefault(m => m.Ecu.Id.EndsWith(".FRM", StringComparison.Ordinal)) is { } frm)
     {
@@ -314,6 +357,7 @@ void ServiceCoding()
         reel.Run(600);
         if (reel.Find<Button>(b => (b.Content as string) == "Read coding") is { } read && read.IsEffectivelyEnabled)
             reel.Click(read, () => vm.Coding.ReadCommand.Execute(null));
+        reel.Mark("Footwell module's coding read: the comfort options");
         reel.Run(3000);
         reel.Overview();
         reel.Run(3500);
@@ -327,13 +371,131 @@ void Share()
     reel.ScrollTop(500);
     var share = vm.Faults.Share!;
     reel.Click(reel.Button("Share snapshot"), () => share.IsOpen = true);
+    reel.Mark("Share snapshot opens");
     reel.Run(500);
     var panel = reel.Card(reel.Find<StackPanel>(s => s.DataContext is SnapshotShareViewModel)!);
     reel.Focus(panel);
     if (reel.Find<TextBox>(t => t.DataContext is SnapshotShareViewModel) is { } box) reel.Click(box, () => { });
+    reel.Mark("A note for the forum is typed");
     reel.Type("Rough idle when warm, chugs with the AC on. Already replaced the oil filler cap.", s => share.Note = s, perChar: 35);
     reel.Run(3500);
     share.IsOpen = false;
+}
+
+void OlderCars()
+{
+    vm.CurrentPage = vm.Garage;
+    vm.Garage.SelectModel("E9x-335i");
+    reel.Run(200);
+    reel.Overview();
+    reel.Mark("The Garage");
+    reel.Run(600);
+    if (reel.Find<ItemsControl>(i => ReferenceEquals(i.ItemsSource, vm.Garage.Families)) is { } families) reel.Focus(families, pad: 30);
+    reel.Mark("Every E-series family it knows");
+    reel.Run(2200);
+    var e46 = vm.Garage.Families.First(f => f.Family.Id == "E46");
+    if (reel.Find<Button>(b => ReferenceEquals(b.DataContext, e46)) is { } family) reel.Click(family, () => e46.SelectCommand!.Execute(null));
+    else e46.SelectCommand!.Execute(null);
+    reel.Mark("E46 picked: its models");
+    reel.Run(900);
+    var model = vm.Garage.Models.First(m => m.Id == "E46-330i");
+    if (reel.Find<ListBoxItem>(i => ReferenceEquals(i.DataContext, model)) is { } row) reel.Click(row, () => vm.Garage.SelectModel(model.Id));
+    else vm.Garage.SelectModel(model.Id);
+    reel.Overview();
+    reel.Mark("E46 330i picked");
+    reel.Run(900);
+    reel.Click(reel.Button("Open demo car"), () => vm.Garage.OpenDemoCommand.Execute(null));
+    reel.Until(() => vm.Session.IsConnected && vm.CurrentPage == vm.Vehicle);
+    reel.Mark("The E46's page");
+    reel.Run(600);
+    reel.Click(reel.Button("Run quick test"), () => vm.Vehicle.RunCommand.Execute(null));
+    reel.Until(() => vm.Vehicle.IsScanning);
+    if (CarDrawing() is { } drawing) reel.Focus(drawing, pad: 20);
+    reel.Mark("Quick test on the E46");
+    reel.Speed = 1.5;
+    reel.Until(() => !vm.Vehicle.IsScanning && vm.Vehicle.HasScan, 30000);
+    reel.Speed = 1;
+    reel.Mark("Done: the E46's result");
+    reel.Overview();
+    reel.Run(3500);
+}
+
+void StepByStep()
+{
+    EnsureDemo();
+    Go(vm.Tests);
+    vm.Tests.SelectById("vacuum-leak-hunter");
+    reel.Run(600);
+    reel.Overview();
+    reel.Mark("Vacuum leak hunter picked: what it needs and how long");
+    reel.Run(2000);
+    vm.Tests.Speed = 10;
+    reel.Click(reel.Button("Start"), () => vm.Tests.StartCommand.Execute(null));
+    reel.Run(600);
+    if (reel.Find<ItemsControl>(i => ReferenceEquals(i.ItemsSource, vm.Tests.Charts)) is { } charts) reel.Focus(charts, pad: 60);
+    reel.Speed = 3;
+    UntilMarkingInstructions(() => vm.Tests.IsAsking, 120000);
+    reel.Speed = 1;
+    if (reel.Find<TextBlock>(t => t.Text == vm.Tests.Question) is { } question && question.GetVisualAncestors().OfType<Border>().FirstOrDefault() is { } box)
+        reel.Focus(box, pad: 40);
+    reel.Mark($"It asks: \"{vm.Tests.Question}\"");
+    reel.Run(3500);
+    var choice = vm.Tests.Choices[0];
+    if (reel.Find<Button>(b => ReferenceEquals(b.DataContext, choice)) is { } pick) reel.Click(pick, () => choice.PickCommand.Execute(null));
+    else choice.PickCommand.Execute(null);
+    reel.Mark($"Answer picked: \"{choice.Label}\"");
+    reel.Speed = 3;
+    UntilMarkingInstructions(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 120000);
+    reel.Speed = 1;
+    reel.Run(400);
+    if (reel.Find<ItemsControl>(i => ReferenceEquals(i.ItemsSource, vm.Tests.Findings)) is { } findings)
+    {
+        reel.ScrollTo(findings, 900, top: 200);
+        reel.Focus(findings, pad: 40);
+    }
+    reel.Mark("The verdict");
+    reel.Run(4500);
+}
+
+void CompareHealthy()
+{
+    EnsureDemo();
+    Go(vm.Live);
+    reel.Click(reel.Button("Start"), () => vm.Live.StartCommand.Execute(null));
+    reel.Run(500);
+    reel.Click(reel.Button("Record"), () => vm.Live.RecordCommand.Execute(null));
+    reel.Mark("Live data, recording");
+    reel.Run(3500);
+    reel.Click(reel.Button("Stop"), () => vm.Live.Stop());
+    reel.Run(300);
+    reel.Click(reel.Button("Analyse"), () => vm.Live.AnalyseCommand.Execute(null));
+    reel.Until(() => vm.CurrentPage == vm.Analyse);
+    reel.Overview();
+    reel.Mark("The recording as graphs, played back");
+    if (reel.Find<Button>(b => ReferenceEquals(b.Command, vm.Analyse.PlayCommand)) is { } play) reel.Click(play, () => vm.Analyse.PlayCommand.Execute(null));
+    reel.Run(3000);
+    if (vm.Analyse.Playing) vm.Analyse.PlayCommand.Execute(null);
+    // A warm demo drive with a small vacuum leak (lean at idle), against the example healthy baseline: the same
+    // made-up drive the screenshots use.
+    var rng = new Random(15);
+    var csv = new System.Text.StringBuilder("time,\"Engine speed (rpm)\",\"Coolant temperature (°C)\",\"Short-term fuel trim bank 1 (%)\",\"Long-term fuel trim bank 1 (%)\",\"Engine load (%)\"\n");
+    for (var i = 0; i < 400; i++)
+    {
+        var rpm = i < 120 ? 760 + rng.Next(-20, 20) : 900 + (i - 120) * 14 + rng.Next(-60, 60);
+        var lean = Math.Max(0, 13 - (rpm - 760) / 120.0);
+        csv.AppendLine(System.FormattableString.Invariant($"{i * 0.25:0.00},{rpm},91,{lean * 0.3 + rng.NextDouble() * 3 - 1.5:0.0},{lean * 0.7 + 1:0.0},{18 + rpm / 220.0:0}"));
+    }
+    vm.Analyse.Load(Klemme15.Core.DataLog.Parse(csv.ToString()), "a demo drive");
+    reel.Run(300);
+    var baseline = vm.Analyse.Baselines.FirstOrDefault(b => b.Curve?.Y == "stft1+ltft1") ?? vm.Analyse.Baselines.Skip(1).FirstOrDefault()
+        ?? throw new InvalidOperationException("no baseline fits the demo drive");
+    var combo = reel.Find<ComboBox>(c => ReferenceEquals(c.ItemsSource, vm.Analyse.Baselines));
+    if (combo is not null) reel.Click(combo, () => vm.Analyse.Baseline = baseline); else vm.Analyse.Baseline = baseline;
+    reel.Mark("A demo drive against the healthy baseline");
+    reel.Run(400);
+    if (combo is not null) reel.Focus(reel.Card(combo), pad: 20);
+    reel.Mark($"The band is healthy engines; it says: \"{vm.Analyse.BaselineSummary}\"");
+    reel.Run(5000);
 }
 
 // ---------------------------------------------------------------- the recorder
@@ -476,6 +638,9 @@ sealed class Reel(Window window, string dir)
     }
 
     public void Overview() => Event("focus", new Rect(0, 0, window.Width, window.Height));
+
+    /// <summary>Notes what the video shows from this moment on, for the script (timelines/&lt;scene&gt;.txt).</summary>
+    public void Mark(string what) => _events.Add(new() { ["t"] = "mark", ["f"] = _frame, ["label"] = what });
 
     /// <summary>The cursor travels to a control, clicks, and <paramref name="action"/> runs.</summary>
     public void Click(Control c, Action action)

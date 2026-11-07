@@ -5,8 +5,9 @@
 """
 Turns the raw scene recordings (Program.cs) into vertical 1080x1920 clips for TikTok, Reels and Shorts:
 a camera that eases between the parts of the screen that matter, a cursor that travels to each button and
-clicks, and a caption bar. Writes, per scene, a captioned clip and a clean one (same picture, no text), a
-still of each, a landscape copy of the raw recording for your own edits, and reel.mp4: every captioned
+clicks, and a caption bar. Writes, per scene, a captioned clip, a labeled one (only the small print, such as
+"demo car shown", in a pill at the top), a clean one (same picture, no text), a still of each, timelines.txt (what
+each clip shows from which second), a landscape copy of the raw recording for your own edits, and reel.mp4: every captioned
 scene in a row.
 
     python3 compose.py <raw dir> <out dir>
@@ -91,6 +92,8 @@ def plan(scene):
         while i < len(events) and events[i]["f"] <= f:
             e = events[i]
             i += 1
+            if e["t"] == "mark":
+                continue
             r = (e["x"], e["y"], e["w"], e["h"])
             if e["t"] == "focus":
                 goal_raw = r
@@ -169,6 +172,33 @@ def overlay(scene, number, total):
     return img
 
 
+def tag(scene):
+    """The small print alone, for the labeled clips: a pill at the top, clear of the app and of TikTok's buttons."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    if not scene.get("note"):
+        return img
+    d = ImageDraw.Draw(img)
+    fnt = font("Barlow_500Medium.ttf", 34)
+    text = scene["note"]
+    x0, y0, x1, y1 = d.textbbox((0, 0), text, font=fnt)
+    w, h = x1 - x0 + 44, y1 - y0 + 22
+    cx, cy = W / 2, APP_Y - 50
+    d.rounded_rectangle((cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2), radius=h / 2, fill=(0, 0, 0, 170), outline=MUTED, width=2)
+    d.text((cx, cy), text, font=fnt, fill=(235, 235, 235), anchor="mm")
+    return img
+
+
+def timeline(scene):
+    """What the clip shows from which second, from the recording's marks: the script is timed against this."""
+    lines = [f"{scene['id']}  ({scene['frames'] / 30:.1f} s)  {scene['title']}"]
+    for e in sorted((e for e in scene["events"] if e["t"] == "mark"), key=lambda e: e["f"]):
+        lines.append(f"  {e['f'] / 30:5.1f} s  {e['label']}")
+    clicks = [f"{e['f'] / 30:.1f}" for e in scene["events"] if e["t"] == "click"]
+    if clicks:
+        lines.append("  clicks at: " + ", ".join(clicks) + " s")
+    return "\n".join(lines) + "\n"
+
+
 def encoder(path):
     return subprocess.Popen(
         ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}", "-r", "30", "-i", "-",
@@ -182,10 +212,12 @@ def compose(scene, number, total):
     crops, cursors, ripples = plan(scene)
     sprite = cursor_sprite()
     text = overlay(scene, number, total)
+    label = tag(scene)
     decoder = subprocess.Popen(["ffmpeg", "-loglevel", "error", "-i", os.path.join(RAW, sid + ".mp4"), "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
                                stdout=subprocess.PIPE)
     clean = encoder(os.path.join(OUT, "clean", sid + ".mp4"))
     captioned = encoder(os.path.join(OUT, "captioned", sid + ".mp4"))
+    labeled = encoder(os.path.join(OUT, "labeled", sid + ".mp4"))
     size = fw * fh * 3
     still_at = int(n * 0.6)
     for f in range(n):
@@ -216,6 +248,9 @@ def compose(scene, number, total):
             d.rectangle((0, 0, W, APP_Y - 1), fill=BG)
             d.rectangle((0, APP_Y + APP_H, W, H), fill=BG)
         clean.stdin.write(canvas.tobytes())
+        with_tag = canvas.convert("RGBA")
+        with_tag.alpha_composite(label)
+        labeled.stdin.write(with_tag.convert("RGB").tobytes())
         with_text = canvas.convert("RGBA")
         with_text.alpha_composite(text)
         with_text = with_text.convert("RGB")
@@ -224,7 +259,7 @@ def compose(scene, number, total):
             with_text.save(os.path.join(OUT, "stills", sid + ".png"))
     decoder.stdout.close()
     decoder.wait()
-    for p in (clean, captioned):
+    for p in (clean, captioned, labeled):
         p.stdin.close()
         p.wait()
     # A landscape copy of the raw recording, for your own edits.
@@ -235,7 +270,7 @@ def compose(scene, number, total):
 
 
 def main():
-    for d in ("clean", "captioned", "stills", "landscape"):
+    for d in ("clean", "captioned", "labeled", "stills", "landscape"):
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
     scenes = []
     for name in sorted(os.listdir(RAW)):
@@ -248,6 +283,9 @@ def main():
         sys.exit(f"No recorded scenes in {RAW}: check the recording step's output.")
     for i, scene in enumerate(scenes, 1):
         compose(scene, i, len(scenes))
+    with open(os.path.join(OUT, "timelines.txt"), "w", encoding="utf-8") as fh:
+        fh.write("What each clip shows from which second (the same in captioned/, labeled/ and clean/).\n\n")
+        fh.write("\n".join(timeline(scene) for scene in scenes))
     with open(os.path.join(OUT, "reel.txt"), "w", encoding="utf-8") as fh:
         for scene in scenes:
             fh.write(f"file 'captioned/{scene['id']}.mp4'\n")
