@@ -122,13 +122,13 @@ void QuickTest()
     reel.Click(reel.Button("Run quick test"), () => vm.Vehicle.RunCommand.Execute(null));
     reel.Until(() => vm.Vehicle.IsScanning);
     // The car drawing (it sits in a Viewbox): watch the modules light up one by one.
-    if (reel.Find<Viewbox>() is { } drawing) reel.Focus(drawing, pad: 20); else reel.Overview();
+    if (CarDrawing() is { } drawing) reel.Focus(drawing, pad: 20); else reel.Overview();
     reel.Speed = 1.5;
     reel.Until(() => !vm.Vehicle.IsScanning && vm.Vehicle.HasScan, 30000);
     reel.Speed = 1;
     reel.Overview();
     reel.Run(1800);
-    if (reel.Find<Viewbox>() is { } car) reel.Focus(car, pad: 20);
+    if (CarDrawing() is { } car) reel.Focus(car, pad: 20);
     reel.Run(600);
     var marker = vm.Vehicle.Markers.First(m => m.IsFaultSource);
     if (reel.Find<Button>(b => ReferenceEquals(b.DataContext, marker)) is { } dot)
@@ -139,6 +139,9 @@ void QuickTest()
     reel.Run(2200);
     vm.Vehicle.Select(null);
 }
+
+// The car drawing: the Viewbox holding the markers (the rail's icons are Viewboxes too).
+Viewbox? CarDrawing() => reel.Find<Viewbox>(v => v.GetVisualDescendants().OfType<ItemsControl>().Any(i => ReferenceEquals(i.ItemsSource, vm.Vehicle.Markers)));
 
 void PlainEnglish()
 {
