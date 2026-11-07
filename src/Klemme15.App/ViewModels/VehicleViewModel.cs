@@ -239,7 +239,8 @@ public sealed class VehicleViewModel : PageViewModel
         var frm = scan.Ecus.FirstOrDefault(e => FrmGuard.IsFootwellModule(e.Ecu) && e.Identity is not null);
         if (frm is null) { FrmNotice = null; return; }
         var a = FrmGuard.Assess(frm.Identity);
-        _frmFragile = a.Fragile;
+        // Only a confirmed FRM3 gets the loud banner; an unidentified one still gets the strict rules, said calmly.
+        _frmFragile = a.Generation == FrmGeneration.Frm3;
         FrmNotice = $"{a.Label}{(frm.Identity!.PartNumber is { } pn ? $", part {pn}" : "")}: {a.Advice}";
     }
 
@@ -524,7 +525,7 @@ public sealed class VehicleViewModel : PageViewModel
             }
             foreach (var s in sources.Values)
                 s.Label = string.Join("  ", s.Faults.Select(f => f.Code).Distinct());
-            MarkerLayout.CombineCrowdedLabels(sources.Values.ToList());
+            MarkerLayout.CombineCrowdedLabels(sources.Values.ToList(), Markers.Where(m => m.IsModule).ToList());
             foreach (var s in sources.Values)
                 Markers.Add(s);   // fault sources drawn above modules
         }

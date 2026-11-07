@@ -85,8 +85,9 @@
       </DockPanel>
     </Border>
 
-    <!-- The car, centred with its legend directly underneath -->
-    <StackPanel Grid.Row="1" VerticalAlignment="Center" Spacing="14" Margin="28,20,24,20">
+    <!-- Notices on top, then the car, centred with its legend directly underneath -->
+    <DockPanel Grid.Row="1" Margin="28,20,24,20">
+    <StackPanel DockPanel.Dock="Top" Spacing="10">
       <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,10" IsVisible="{Binding HasWarning}">
         <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" />
       </Border>
@@ -105,6 +106,8 @@
           <TextBlock Text="{Binding ClearAllQuestion}" TextWrapping="Wrap" VerticalAlignment="Center" />
         </DockPanel>
       </Border>
+    </StackPanel>
+    <StackPanel VerticalAlignment="Center" Spacing="14">
       <Viewbox Stretch="Uniform">
         <Grid Width="1000" Height="460">
           <c:CarDrawing />
@@ -174,6 +177,7 @@
         <TextBlock Classes="muted small" Text="Locations are approximate. Click a marker for details." Margin="0,0,0,4" />
       </WrapPanel>
     </StackPanel>
+    </DockPanel>
 
     <!-- Side panel -->
     <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0">

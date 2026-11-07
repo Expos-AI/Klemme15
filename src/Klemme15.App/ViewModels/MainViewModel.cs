@@ -38,6 +38,7 @@ public sealed class MainViewModel : ViewModelBase
             Vehicle.ShowFault(fault, ecu);
         }, url => _ = dialogs.OpenUrlAsync(url));
         Readings = new ReadingsViewModel(Session, settings);
+        Faults.FaultData = Garage;
         Faults.OpenReadings = ecu =>
         {
             CurrentPage = Readings;

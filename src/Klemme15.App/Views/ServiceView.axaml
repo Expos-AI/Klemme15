@@ -82,7 +82,7 @@
                       <Button Classes="function" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
                         <DockPanel>
                           <TextBlock DockPanel.Dock="Right" Classes="muted small" Text="{Binding Badge}" VerticalAlignment="Center" Margin="8,0,0,0" />
-                          <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" Opacity="{Binding Opacity}" />
+                          <TextBlock Text="{Binding Title}" TextWrapping="Wrap" Opacity="{Binding Opacity}" />
                         </DockPanel>
                       </Button>
                     </DataTemplate>

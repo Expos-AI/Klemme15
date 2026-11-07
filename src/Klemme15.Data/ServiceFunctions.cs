@@ -172,11 +172,15 @@ public static class ServiceRunner
 
     /// <param name="variant">The module's variant: the name the module reported (EDIABAS mode) or the most likely one (native).</param>
     /// <param name="answered">Whether the module answered the last quick test.</param>
+    /// <param name="diesel">The car's engine is a diesel (null when unknown): the demo car hides engine functions for the other fuel.</param>
     public static ServiceAvailability Availability(ServiceFunction f, EcuDefinition? ecu, string? variant, bool answered,
-        bool canRunJobs, bool canSendRaw, bool demo = false)
+        bool canRunJobs, bool canSendRaw, bool demo = false, bool? diesel = null)
     {
         if (demo && ecu is not null && f.Implementations.Count > 0)
         {
+            if (!answered) return new(false, $"The demo car has no {ecu.Name}.");
+            if (diesel is { } d && ecu.IsEngine && !f.Implementations.SelectMany(i => i.Variants).Any(v => IsDieselVariant(v) == d))
+                return new(false, d ? "Only for petrol engines." : "Only for diesel engines.");
             var first = f.Implementations[0];
             return new(true, "Demo car: nothing is sent, the result is made up.", first, ServiceMode.Demo, variant?.ToLowerInvariant() ?? first.Variants.FirstOrDefault() ?? "demo");
         }
@@ -192,6 +196,10 @@ public static class ServiceRunner
             ? "Needs your BMW files: connect with \"Use my own BMW files (EDIABAS mode)\" ticked (Windows)."
             : "Not available with this connection.");
     }
+
+    /// <summary>BMW's diesel engine computer variants start with "d" and a digit (D50M57A0, D73N57B0) or "dde".</summary>
+    public static bool IsDieselVariant(string variant) =>
+        variant.Length > 1 && (variant[0] is 'd' or 'D') && (char.IsDigit(variant[1]) || variant.StartsWith("dde", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Reads voltage, engine speed and road speed where the connection allows: the standard OBD values, then BMW's own

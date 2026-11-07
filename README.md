@@ -50,7 +50,7 @@ scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15
 scoop install klemme15
 ```
 
-**Any system:** download the zip for your computer from [Releases](https://github.com/Expos-AI/Klemme15/releases), unzip it anywhere and run `Klemme15` (the command-line tool is in `cli/`). There's no installer.
+**Any system:** download the zip for your computer from [Releases](https://github.com/Expos-AI/Klemme15/releases) and unzip it. There's no installer. On Windows and Linux, run `Klemme15`; on a Mac, drag `Klemme15.app` to Applications and open it. The command-line tool is in `cli/`.
 
 | Your computer | Download |
 |---|---|
@@ -59,7 +59,15 @@ scoop install klemme15
 | Mac with an Intel chip | `Klemme15-v<version>-osx-x64.zip` |
 | Linux (64-bit) | `Klemme15-v<version>-linux-x64.zip` |
 
-The Windows build isn't code-signed yet, so a downloaded zip may show a SmartScreen prompt (Scoop avoids it). Every release comes with `SHA256SUMS.txt` and a signed build provenance, so you can [check your download](SECURITY.md#verifying-your-download) before you run it.
+### The first time you open it
+
+Klemme15 isn't signed with a paid Microsoft or Apple certificate yet, so both systems ask once whether you trust it:
+
+- **Windows:** if a blue "Windows protected your PC" box appears, click **More info**, then **Run anyway**. (Installing with Scoop skips this.)
+- **Mac:** double-click Klemme15. When macOS says it can't check the app, click **Done**, open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to Klemme15, then confirm. On macOS 14 or older, you can instead right-click Klemme15 and choose **Open**.
+- **Linux:** if it doesn't start, make it executable: `chmod +x Klemme15`.
+
+After that it opens normally. Every release comes with `SHA256SUMS.txt` and a signed build provenance, so you can [check your download](SECURITY.md#verifying-your-download) before you run it, and the whole source is here to read.
 
 ## Quick start
 

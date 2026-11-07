@@ -98,8 +98,11 @@
                     IsVisible="{Binding IsModule}"
                     Classes.idle="{Binding IsIdle}" Classes.asking="{Binding IsAsking}" Classes.ok="{Binding IsOk}"
                     Classes.stored="{Binding IsStored}" Classes.active="{Binding IsActive}" Classes.absent="{Binding IsAbsent}" />
+            <!-- a fault label that would cover a module prints to the left of its dot -->
+            <TextBlock Classes="markerlabel fault left" Canvas.Right="16" Canvas.Top="-1" Text="{Binding Label}" IsVisible="{Binding ShowLabelLeft}"
+                       Classes.active="{Binding IsActive}" />
           </Canvas>
-          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabel}"
+          <TextBlock Grid.Column="1" Classes="markerlabel" Text="{Binding Label}" IsVisible="{Binding ShowLabelRight}"
                      Classes.fault="{Binding IsFaultSource}" Classes.active="{Binding IsActive}" />
         </Grid>
       </Button>
@@ -305,6 +308,9 @@
       <Setter Property="Foreground" Value="{DynamicResource AmberBrush}" />
       <Setter Property="FontWeight" Value="Bold" />
       <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style Selector="TextBlock.markerlabel.fault.left">
+      <Setter Property="Margin" Value="0,0,12,0" />
     </Style>
     <Style Selector="TextBlock.markerlabel.fault.active">
       <Setter Property="Foreground" Value="{DynamicResource RedBrush}" />

@@ -48,7 +48,20 @@ public sealed class ReadingValueViewModel : ViewModelBase
     public ReadingValue Value { get; }
     public string Label { get; }
     public string Name => Value.Name;
-    public string Text => Value.Number is { } d ? d.ToString(Math.Abs(d) >= 1000 ? "0" : "0.###", CultureInfo.CurrentCulture) : ReadingLabels.ValueText(Value.Text);
+    public string Text => Value.Number is { } d
+        ? d.ToString(Math.Abs(d) >= 1000 ? "0" : Decimals is { } n ? "0." + new string('0', n) : "0.###", CultureInfo.CurrentCulture)
+        : ReadingLabels.ValueText(Value.Text);
+
+    /// <summary>Decimals shared by the values of one reading with the same unit, so a column of numbers lines up (0.48 and 5.00, not 5).</summary>
+    public int? Decimals { get; set; }
+
+    /// <summary>The decimals a number needs, up to three ("0.48" needs 2, "5" needs 0).</summary>
+    public static int DecimalsOf(double d)
+    {
+        var text = Math.Abs(d).ToString("0.###", CultureInfo.InvariantCulture);
+        var dot = text.IndexOf('.');
+        return dot < 0 ? 0 : text.Length - dot - 1;
+    }
     public string Unit => Units.Normalize(Value.Unit) ?? "";
     public string? Comment => Value.Comment;
     public bool CanPin => _pin is not null && Value.Number is not null && !_pinned;
@@ -327,6 +340,13 @@ public sealed class ReadingsViewModel : PageViewModel
             var canPin = source.StartsWith("ediabas:", StringComparison.Ordinal);
             var vm = new ReadingValueViewModel(v, canPin ? value => Pin(ecu, item, value) : null) { IsPinned = _settings.LiveFavorites.Any(f => f.Source == source) };
             item.Values.Add(vm);
+        }
+        // Values with the same unit in one reading get the same number of decimals, when any of them has decimals.
+        foreach (var unit in item.Values.Where(v => v.Value.Number is not null).GroupBy(v => v.Unit))
+        {
+            var places = unit.Max(v => ReadingValueViewModel.DecimalsOf(v.Value.Number!.Value));
+            if (places > 0 && unit.Count() > 1)
+                foreach (var v in unit.Where(v => Math.Abs(v.Value.Number!.Value) < 1000)) v.Decimals = places;
         }
         item.Error = values.Count == 0 ? "No values returned." : null;
         item.Updated = DateTime.Now.ToString("HH:mm:ss", CultureInfo.CurrentCulture);

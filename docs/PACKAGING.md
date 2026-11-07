@@ -35,6 +35,8 @@ After that, set a `WINGET_TOKEN` repository secret (a classic PAT with `public_r
 
 ## Removing the SmartScreen prompt on direct downloads
 
+On a Mac the zip holds `Klemme15.app`, built by `scripts/mac-bundle.sh` on the release runner: the executable and `EdiabasLib.config` go into `Contents/MacOS`, the brand icon becomes `Klemme15.icns`, and the bundle is signed ad hoc (Apple Silicon won't run unsigned code). It isn't notarised, so the first launch needs **Open Anyway** in System Settings → Privacy & Security, which the README explains. Notarisation needs a paid Apple developer account.
+
 Direct `.zip` downloads are unsigned, so Windows SmartScreen warns on first run. **Scoop avoids it entirely** (winget will too, once submitted), and they cost nothing. SmartScreen reputation for the direct download also builds on its own, for free, as more people run it.
 
 If you ever want the direct download signed too, the free route for open-source projects is **[SignPath Foundation](https://signpath.org/)**, which grants free code-signing certificates to OSS. (Paid options like Azure Trusted Signing exist but aren't necessary.) Add the signing step to the `publish` job only if you set one of these up: it's optional.

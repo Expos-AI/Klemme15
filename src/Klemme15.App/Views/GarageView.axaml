@@ -50,7 +50,7 @@
                   <TextBlock DockPanel.Dock="Right" Text="{Binding Years}" Classes="muted small" VerticalAlignment="Center" />
                   <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" />
                 </DockPanel>
-                <TextBlock Text="{Binding Engine}" Classes="muted small" TextTrimming="CharacterEllipsis" />
+                <TextBlock Text="{Binding Engine}" Classes="muted small" TextWrapping="Wrap" />
               </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>

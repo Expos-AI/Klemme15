@@ -1,6 +1,16 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.9:**
+**New in 0.99.10:** a polish pass before wider testing.
+- **Mac: a real app.** The Mac download is now `Klemme15.app` with its icon: drag it to Applications and open it. The README and website explain the one-time "Open Anyway" step (and Windows' "More info → Run anyway") for apps without a paid certificate.
+- **The website's download button picks your file** on Windows and Linux, and says which system it's for.
+- **BMW's own fault texts, offered where you need them.** When codes on the Faults page only have a general meaning, the page offers the free fault database right there, and reads the faults again once it's installed so they come back with BMW's text.
+- **Cleaner fault cards.** The common-cause tip no longer looks like a link, "Fix now:" and "Check it:" lost a stray space, and the sources line reads "Community meaning · high confidence · 3 sources:".
+- **The car drawing:** a fault label that would print over a module's name moves to the other side of its dot, and the footwell module notice sits above the drawing. When the footwell module's type isn't confirmed, the notice is calm; only a confirmed FRM3 gets the amber warning (the strict voltage rules apply either way).
+- **Readings line up:** values of one reading with the same unit share their decimals (0.48 and 5.00, not 5).
+- **Demo car:** the Service page only offers what fits the demo car's engine and modules (no diesel particulate filter on a petrol 335i). Long service names and engine descriptions wrap instead of being cut off.
+- For contributors: the reel tool records three more scenes (an E46 quick test, a diagnostic chain asking its question, a drive against a healthy baseline), writes `timelines.txt` with what each clip shows from which second, and makes `labeled/` clips with only the small print.
+
+**0.99.9:**
 - **Rough idle and air conditioning check:** the dip when the compressor engages only counts idle readings, so touching the pedal during the test can't be mistaken for a chug.
 - **Demo car:** during the idle check the demo driver stays off the pedal, switches the air conditioning on partway through, and the engine dips a little as the compressor engages, so the test shows what it's for.
 - For contributors: `tools/Klemme15.Reel` records the app with the demo cars and composes vertical clips of every feature (run the **reel** workflow).

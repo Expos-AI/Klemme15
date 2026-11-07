@@ -72,6 +72,17 @@
                 ToolTip.Tip="Save the whole car as a .k15 file someone else can open in Klemme15 and explore, read-only" />
         <TextBlock Classes="title" Text="Faults" />
       </DockPanel>
+      <!-- Some codes only have a general meaning: offer BMW's own texts (the free fault database) right here. -->
+      <Border Classes="panel" Padding="16,12" IsVisible="{Binding ShowFaultDataPrompt}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding FaultData.DownloadButtonText}" Command="{Binding FaultData.DownloadFaultDataCommand}"
+                  VerticalAlignment="Center" Margin="14,0,0,0" />
+          <StackPanel Spacing="2" VerticalAlignment="Center">
+            <TextBlock Text="Get BMW's own meaning for these codes" FontWeight="SemiBold" />
+            <TextBlock Classes="muted small" Text="{Binding FaultDataPrompt}" TextWrapping="Wrap" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
       <!-- Battery going flat? -->
       <Border Classes="panel" Padding="18,14" IsVisible="{Binding Drain.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
         <StackPanel Spacing="10" DataContext="{Binding Drain}" x:DataType="vm:DrainFinderViewModel">
@@ -249,11 +260,9 @@
                         <StackPanel Grid.Column="2" Margin="8,14,12,14" Spacing="6">
                           <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="15" />
                           <TextBlock TextWrapping="Wrap" Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}">
-                            <Run Text="{Binding VerdictLabel}" FontWeight="Bold" />
-                            <Run Text=": " />
-                            <Run Text="{Binding VerdictAdvice}" />
+                            <Run Text="{Binding VerdictLabel}" FontWeight="Bold" /><Run Text=": " /><Run Text="{Binding VerdictAdvice}" />
                           </TextBlock>
-                          <SelectableTextBlock Classes="lit" Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
+                          <SelectableTextBlock Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
                           <SelectableTextBlock Classes="muted small" Text="{Binding OfficialLine}" TextWrapping="Wrap" IsVisible="{Binding HasOfficialLine}" />
                           <TextBlock Classes="muted small" Text="{Binding VariantLine}" TextWrapping="Wrap" IsVisible="{Binding HasVariantLine}" />
                           <SelectableTextBlock Classes="muted small" Text="{Binding AlternativesText}" TextWrapping="Wrap" IsVisible="{Binding HasAlternatives}" />

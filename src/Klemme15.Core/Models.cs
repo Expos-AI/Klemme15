@@ -308,10 +308,12 @@ public sealed record VehicleModel
             if (EngineCode is not { } code) return null;
             var size = System.Text.RegularExpressions.Regex.Match(Engine, @"(\d)\.(\d)\s*L");
             if (!size.Success) return code;
-            var diesel = code is "M47" or "M57" or "M67" or "N47" or "N57" || Engine.Contains("diesel", StringComparison.OrdinalIgnoreCase);
-            return $"{code}{(diesel ? 'D' : 'B')}{size.Groups[1].Value}{size.Groups[2].Value}";
+            return $"{code}{(IsDiesel ? 'D' : 'B')}{size.Groups[1].Value}{size.Groups[2].Value}";
         }
     }
+
+    /// <summary>A diesel engine (M47, M57, M67, N47, N57, or "diesel" in the engine text).</summary>
+    public bool IsDiesel => EngineCode is "M47" or "M57" or "M67" or "N47" or "N57" || Engine.Contains("diesel", StringComparison.OrdinalIgnoreCase);
 
     public int IdleRpm { get; init; } = 700;
     public bool Turbo { get; init; }

@@ -184,9 +184,13 @@ jobs:
             dotnet publish src/Klemme15.App $common -o "$out"
             dotnet publish src/Klemme15.Cli $common -o "$out/cli"
             cp LICENSE README.md "$out/"
+            # Mac: a real Klemme15.app with its icon, instead of a bare executable.
+            if [ "$RUNNER_OS" = "macOS" ]; then ./scripts/mac-bundle.sh "$out" "$RELEASE_TAG"; fi
             (cd publish
              if [ "$RUNNER_OS" = "Windows" ]; then
                7z a -tzip "$(basename "$out").zip" "$(basename "$out")" > /dev/null
+             elif [ "$RUNNER_OS" = "macOS" ]; then
+               ditto -c -k --keepParent "$(basename "$out")" "$(basename "$out").zip"
              else
                zip -qr "$(basename "$out").zip" "$(basename "$out")"
              fi)

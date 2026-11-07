@@ -105,6 +105,26 @@ public class ServiceTests
     }
 
     [Fact]
+    public void The_demo_car_only_offers_what_fits_its_engine_and_modules()
+    {
+        // A petrol demo car doesn't offer diesel-only functions, and a diesel one doesn't offer petrol-only ones.
+        Assert.False(ServiceRunner.Availability(Fn("dpf-service"), Dme, null, true, false, false, demo: true, diesel: false).Available);
+        Assert.True(ServiceRunner.Availability(Fn("dpf-service"), Dme, null, true, false, false, demo: true, diesel: true).Available);
+        Assert.False(ServiceRunner.Availability(Fn("valvetronic-learn"), Dme, null, true, false, false, demo: true, diesel: true).Available);
+        // Battery registration exists for both.
+        Assert.True(ServiceRunner.Availability(Fn("battery-registration"), Dme, null, true, false, false, demo: true, diesel: false).Available);
+        Assert.True(ServiceRunner.Availability(Fn("battery-registration"), Dme, null, true, false, false, demo: true, diesel: true).Available);
+        // A module the demo car doesn't have isn't offered.
+        Assert.False(ServiceRunner.Availability(Fn("steering-angle-calibration"), Dsc, null, answered: false, false, false, demo: true).Available);
+
+        Assert.True(ServiceRunner.IsDieselVariant("d73n57b0"));
+        Assert.True(ServiceRunner.IsDieselVariant("dde40kw0"));
+        Assert.False(ServiceRunner.IsDieselVariant("msv70"));
+        Assert.False(ServiceRunner.IsDieselVariant("dsc_87"));
+        Assert.False(ServiceRunner.IsDieselVariant("dm5212l5"));
+    }
+
+    [Fact]
     public void Not_available_for_unknown_versions_or_silent_modules()
     {
         var f = Fn("battery-registration");

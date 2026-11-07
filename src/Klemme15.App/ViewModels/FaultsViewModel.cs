@@ -303,9 +303,47 @@ public sealed class FaultsViewModel : PageViewModel
         // Newest first: what happened most recently is what people ask about.
         foreach (var ev in (_session.LastScan?.Story?.Events ?? []).Reverse()) Story.Add(new StoryItem(ev));
         foreach (var p in new[] { nameof(HasStory), nameof(StoryHeadline), nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount), nameof(Verdict),
-                     nameof(FixNowCount), nameof(CheckCount), nameof(BackgroundCount), nameof(HasBackground) })
+                     nameof(FixNowCount), nameof(CheckCount), nameof(BackgroundCount), nameof(HasBackground), nameof(ShowFaultDataPrompt), nameof(FaultDataPrompt) })
             Raise(p);
     }
+
+    private GarageViewModel? _faultData;
+
+    /// <summary>Where the free fault database download lives (the Garage), so this page can offer it where it's needed.</summary>
+    public GarageViewModel? FaultData
+    {
+        get => _faultData;
+        set
+        {
+            _faultData = value;
+            if (value is null) return;
+            var needed = value.NeedsFaultData;
+            value.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(GarageViewModel.NeedsFaultData) or nameof(GarageViewModel.DownloadText) or nameof(GarageViewModel.FaultDataStatus))
+                    foreach (var p in new[] { nameof(ShowFaultDataPrompt), nameof(FaultDataPrompt) }) Raise(p);
+                if (e.PropertyName != nameof(GarageViewModel.NeedsFaultData)) return;
+                // Just installed: read the faults again so they come back with BMW's own text.
+                var justInstalled = needed && !value.NeedsFaultData;
+                needed = value.NeedsFaultData;
+                if (justInstalled && Unexplained > 0 && RefreshCommand.CanExecute(null)) RefreshCommand.Execute(null);
+            };
+        }
+    }
+
+    /// <summary>Faults on this page that have only a general meaning (or none), for want of BMW's own text.</summary>
+    private int Unexplained => Groups.SelectMany(g => g.Faults).Count(f =>
+        f.Fault.Description is null || f.Fault.DescriptionOrigin == "klemme15-generic");
+
+    /// <summary>
+    /// Offered on a real car when some codes have only a general meaning and the free fault database isn't installed:
+    /// that download gives BMW's own text for every code, which is most of what makes a scan as useful as a dealer's.
+    /// </summary>
+    public bool ShowFaultDataPrompt => _faultData is { NeedsFaultData: true } && !_session.IsDemo && Unexplained > 0;
+
+    public string FaultDataPrompt => _faultData?.DownloadText ?? (Unexplained == 1
+        ? "1 code here only has a general meaning. The free fault database gives BMW's own text for every code (one download, then it works offline)."
+        : $"{Unexplained} codes here only have a general meaning. The free fault database gives BMW's own text for every code (one download, then it works offline).");
 
     /// <summary>Re-read fault memory of every module that answered in the last scan.</summary>
     private async Task RefreshAsync()

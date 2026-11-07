@@ -42,9 +42,9 @@ public static class MarkerLayout
     /// Groups fault sources whose label would run into the next dot (cylinders side by side), and lets the rightmost
     /// of each group show all the group's codes, left to right. Clicking any dot still shows its own faults.
     /// </summary>
-    public static void CombineCrowdedLabels(IReadOnlyList<MarkerViewModel> sources)
+    public static void CombineCrowdedLabels(IReadOnlyList<MarkerViewModel> sources, IReadOnlyList<MarkerViewModel>? modules = null)
     {
-        foreach (var s in sources) s.LabelShownByNeighbour = false;
+        foreach (var s in sources) { s.LabelShownByNeighbour = false; s.LabelOnLeft = false; }
         var ordered = sources.OrderBy(s => s.X).ToList();
         var groups = new List<List<MarkerViewModel>>();
         foreach (var s in ordered)
@@ -58,7 +58,18 @@ public static class MarkerLayout
             last.Label = string.Join("  ", g.SelectMany(Codes).Distinct());
             foreach (var o in g.Take(g.Count - 1)) o.LabelShownByNeighbour = true;
         }
+        if (modules is null) return;
+        // A fault label that would print over a module's square or name moves to the left of its dot, if that side is clear.
+        foreach (var s in sources.Where(s => s.ShowLabel))
+        {
+            var width = PerCode * s.Label.Split("  ", StringSplitOptions.RemoveEmptyEntries).Length;
+            bool Hits(double from, double to) => modules.Any(m =>
+                Math.Abs(m.Y - s.Y) < RowHeight * 0.7 && m.X + 8 + ModuleLabelWidth(m) > from && m.X - 8 < to);
+            if (Hits(s.X + 18, s.X + 21 + width) && !Hits(s.X - 12 - width, s.X - 18)) s.LabelOnLeft = true;
+        }
     }
+
+    private static double ModuleLabelWidth(MarkerViewModel m) => m.ShowLabel ? 7 + 8 * m.Label.Length : 0;
 
     private static List<string> Codes(MarkerViewModel m) => m.Faults.Select(f => f.Code).Distinct().ToList();
 }
@@ -103,7 +114,7 @@ public sealed class MarkerViewModel : ViewModelBase
         set
         {
             if (!Set(ref _state, value)) return;
-            foreach (var p in new[] { nameof(IsIdle), nameof(IsAsking), nameof(IsOk), nameof(IsStored), nameof(IsActive), nameof(IsAbsent), nameof(ShowLabel) })
+            foreach (var p in new[] { nameof(IsIdle), nameof(IsAsking), nameof(IsOk), nameof(IsStored), nameof(IsActive), nameof(IsAbsent), nameof(ShowLabel), nameof(ShowLabelRight), nameof(ShowLabelLeft) })
                 Raise(p);
         }
     }
@@ -117,6 +128,17 @@ public sealed class MarkerViewModel : ViewModelBase
 
     /// <summary>Modules show their short name unless absent; fault sources show their codes, unless a neighbour shows them.</summary>
     public bool ShowLabel => IsFaultSource ? !_labelShownByNeighbour : _state != MarkerState.Absent;
+    public bool ShowLabelRight => ShowLabel && !_labelOnLeft;
+    public bool ShowLabelLeft => ShowLabel && _labelOnLeft;
+
+    private bool _labelOnLeft;
+
+    /// <summary>Set when the label, printed to the right, would run over a module on the drawing: it goes left instead.</summary>
+    public bool LabelOnLeft
+    {
+        get => _labelOnLeft;
+        set { if (Set(ref _labelOnLeft, value)) { Raise(nameof(ShowLabelRight)); Raise(nameof(ShowLabelLeft)); } }
+    }
 
     private bool _labelShownByNeighbour;
 
@@ -127,7 +149,7 @@ public sealed class MarkerViewModel : ViewModelBase
     public bool LabelShownByNeighbour
     {
         get => _labelShownByNeighbour;
-        set { if (Set(ref _labelShownByNeighbour, value)) Raise(nameof(ShowLabel)); }
+        set { if (Set(ref _labelShownByNeighbour, value)) { Raise(nameof(ShowLabel)); Raise(nameof(ShowLabelRight)); Raise(nameof(ShowLabelLeft)); } }
     }
 
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
@@ -184,7 +206,12 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     private string LegacyProvenance => Fault.Confidence switch
     {
         "official" => "Official text from your SGBD file",
-        "high" => Fault.Sources.Count == 1 ? "Community meaning, high confidence (1 source)" : $"Community meaning, high confidence ({Fault.Sources.Count} sources)",
+        "high" => Fault.Sources.Count switch
+        {
+            0 => "Community meaning · high confidence",
+            1 => "Community meaning · high confidence · 1 source:",
+            var n => $"Community meaning · high confidence · {n} sources:",
+        },
         "medium" => "Community meaning, medium confidence: treat as a lead",
         _ when Fault.Source == FaultSource.Obd2 && Fault.Description is not null => "Standard OBD-II meaning",
         _ when Fault.Description is null => "No meaning on file yet",

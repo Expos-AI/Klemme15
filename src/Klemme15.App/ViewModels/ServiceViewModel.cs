@@ -285,10 +285,12 @@ public sealed class ServiceViewModel : PageViewModel
             return new(false, "Connect to your car in the Garage first.");
         var ecu = ModuleOf(f);
         var scan = _session.LastScan;
-        var answered = ecu is not null && (_session.IsDemo
+        // The demo car only has the modules its quick test shows (before the first quick test, assume it has them all).
+        var answered = ecu is not null && ((_session.IsDemo && scan is null)
             || (scan?.Ecus.Any(r => r.Ecu.Id == ecu.Id && r.Status is EcuScanStatus.Ok or EcuScanStatus.Faults) ?? false));
         var variant = ecu is null ? null : _session.ServiceVariant(ecu, f);
-        return ServiceRunner.Availability(f, ecu, variant, answered, backend is IJobRunner, backend is IRawRequests, _session.IsDemo);
+        return ServiceRunner.Availability(f, ecu, variant, answered, backend is IJobRunner, backend is IRawRequests, _session.IsDemo,
+            _session.Model?.IsDiesel);
     }
 
     private void Select(ServiceItemViewModel? item)
