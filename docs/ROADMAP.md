@@ -17,7 +17,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
-- **Support**: an optional tip link on Ko-fi in the app, the website and the README; Klemme15 stays free with nothing locked.
+- **Support**: an optional tip link (PayPal) in the app, the website and the README; Klemme15 stays free with nothing locked.
 - **E36 beta (1996-1999)**: in the Garage with five models, the engine over OBD-II, and a [tester guide](E36-BETA.md) to map its other modules.
 - **Catch and compare**: the Ghost Hunter (trigger-based captures with a minute before and after), known good baselines on the Analyse page, live values on the car drawing.
 

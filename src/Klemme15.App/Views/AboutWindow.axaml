@@ -40,7 +40,7 @@
       <Button Content="Report an issue" Command="{Binding SupportCommand}" />
       <Button Content="Privacy" Command="{Binding PrivacyCommand}" />
       <Button Classes="primary" Content="Support Klemme15" Command="{Binding CoffeeCommand}" IsVisible="{Binding HasCoffee}"
-              ToolTip.Tip="Klemme15 is free and stays free. Tips on Ko-fi keep it going (card or PayPal, no account needed)." />
+              ToolTip.Tip="Klemme15 is free and stays free. Tips through PayPal keep it going." />
     </StackPanel>
 
     <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0">

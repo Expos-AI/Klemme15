@@ -1,7 +1,10 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.18:**
-- **Support Klemme15, if you like.** Klemme15 stays free with nothing locked. If it helped, you can now leave a tip on [Ko-fi](https://ko-fi.com/klemme15) (card or PayPal, no account needed): from the cup button in the sidebar, the About window, and a quiet line under a finished test's verdict. No pop-ups, no reminders.
+**New in 0.99.19:**
+- **Tips go through PayPal** ([paypal.me/KindricC](https://paypal.me/KindricC)) instead of Ko-fi. Same buttons, same deal: Klemme15 stays free with nothing locked.
+
+**0.99.18:**
+- **Support Klemme15, if you like.** Klemme15 stays free with nothing locked. If it helped, you can now leave a tip: from the cup button in the sidebar, the About window, and a quiet line under a finished test's verdict. No pop-ups, no reminders.
 
 **0.99.17:** the Vehicle page on smaller screens.
 - **The car drawing fits the window**, so its legend and the live values button no longer fall off the bottom when there are notices above it.
