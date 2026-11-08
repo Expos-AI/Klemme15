@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.11:**
+**New in 0.99.12:**
+- **Command line:** in the quick test list, a module with only a background (Shadow / Info memory) entry says "1 info entry" instead of "1 fault(s)" next to OK.
+
+**0.99.11:**
 - **Mac:** the zip no longer carries a hidden `._EdiabasLib.config` file inside `Klemme15.app`, which could make macOS call the app damaged when the zip was opened with something other than Archive Utility.
 
 **0.99.10:** a polish pass before wider testing.

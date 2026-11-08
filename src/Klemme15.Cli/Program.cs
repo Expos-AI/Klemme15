@@ -532,8 +532,11 @@ internal static class Cli
                 EcuScanStatus.Error => "ERROR",
                 _ => "     ",
             };
-            var faults = r.Faults.Count > 0 ? r.Faults.Count + " fault(s)" : "";
-            Console.WriteLine($"  [{mark}] {r.Ecu.Name,-34} {r.Ecu.AddressHex}  {faults,-10} {r.Identity?.Summary} {r.Error}".TrimEnd());
+            // Info / Shadow memory entries are background, not faults (the module's status is still OK).
+            var real = r.Faults.Count(f => !f.IsInfo);
+            var background = r.Faults.Count - real;
+            var faults = real > 0 ? real + " fault(s)" : background > 0 ? background + (background == 1 ? " info entry" : " info entries") : "";
+            Console.WriteLine($"  [{mark}] {r.Ecu.Name,-34} {r.Ecu.AddressHex}  {faults,-15} {r.Identity?.Summary} {r.Error}".TrimEnd());
         });
         var scan = await scanner.ScanAsync(vehicle.Modules, $"{vehicle.Id} {a.Get("model")}".Trim(), progress, ct);
         await Task.Delay(50, CancellationToken.None);   // let the last progress line print
