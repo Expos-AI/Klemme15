@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.10:** a polish pass before wider testing.
+**New in 0.99.11:**
+- **Mac:** the zip no longer carries a hidden `._EdiabasLib.config` file inside `Klemme15.app`, which could make macOS call the app damaged when the zip was opened with something other than Archive Utility.
+
+**0.99.10:** a polish pass before wider testing.
 - **Mac: a real app.** The Mac download is now `Klemme15.app` with its icon: drag it to Applications and open it. The README and website explain the one-time "Open Anyway" step (and Windows' "More info → Run anyway") for apps without a paid certificate.
 - **The website's download button picks your file** on Windows and Linux, and says which system it's for.
 - **BMW's own fault texts, offered where you need them.** When codes on the Faults page only have a general meaning, the page offers the free fault database right there, and reads the faults again once it's installed so they come back with BMW's text.

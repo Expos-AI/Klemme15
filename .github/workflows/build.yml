@@ -190,7 +190,7 @@ jobs:
              if [ "$RUNNER_OS" = "Windows" ]; then
                7z a -tzip "$(basename "$out").zip" "$(basename "$out")" > /dev/null
              elif [ "$RUNNER_OS" = "macOS" ]; then
-               ditto -c -k --keepParent "$(basename "$out")" "$(basename "$out").zip"
+               ditto -c -k --norsrc --noextattr --keepParent "$(basename "$out")" "$(basename "$out").zip"
              else
                zip -qr "$(basename "$out").zip" "$(basename "$out")"
              fi)

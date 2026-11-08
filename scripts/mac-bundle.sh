@@ -54,6 +54,9 @@ cat > "$app/Contents/Info.plist" <<PLIST
 </plist>
 PLIST
 
+# No extended attributes (quarantine, provenance) in the bundle: zipped, they'd come out as stray "._" files that
+# break the signature when the zip is opened with anything but Archive Utility.
+xattr -cr "$app"
 codesign --force --deep --sign - "$app"
 codesign --verify --deep "$app"
 echo "Built $app ($version)"
