@@ -536,7 +536,10 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
             v.TryGetProperty("years", out var years) ? years.GetString() ?? "" : "",
             v.GetProperty("cable").GetString()!,
             modules,
-            models));
+            models)
+        {
+            Note = v.TryGetProperty("note", out var note) ? note.GetString() : null,
+        });
     }
 
     private static VehicleModel ParseModel(string familyId, JsonElement m)

@@ -320,4 +320,11 @@ public sealed record VehicleModel
 }
 
 /// <summary>A chassis family that shares modules and protocols, e.g. E46 or E9x.</summary>
-public sealed record VehicleFamily(string Id, string Name, string Years, string Cable, IReadOnlyList<EcuDefinition> Modules, IReadOnlyList<VehicleModel> Models);
+public sealed record VehicleFamily(string Id, string Name, string Years, string Cable, IReadOnlyList<EcuDefinition> Modules, IReadOnlyList<VehicleModel> Models)
+{
+    /// <summary>A note for families that are still being mapped with testers (shown in the Garage), or null.</summary>
+    public string? Note { get; init; }
+
+    /// <summary>In beta: not yet tested on a real car.</summary>
+    public bool IsBeta => Note is not null;
+}

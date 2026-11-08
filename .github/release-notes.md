@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.15:**
+**New in 0.99.16:**
+- **E36 beta (1996-1999).** The 3 Series E36 is in the Garage as a beta: 328i/328is, 323is/323i, 318i/318is, 318ti and M3. The engine (fault codes, live data, the fuel trim test) uses standard OBD-II, so it's the part most likely to work. The other modules use addresses nobody has confirmed on an E36 yet, so the Garage says so plainly, and **Find other modules** plus a saved snapshot show where they really are. Cars from before 1996 aren't supported yet. Got an E36? The [E36 tester guide](https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md) takes about 30 minutes.
+
+**0.99.15:**
 - **Each release now carries its signed build provenance as a file** (`Klemme15-v0.99.15.intoto.jsonl`), next to the checksums, so anyone can check a download was built by this project's workflow from this commit, even offline. See [SECURITY.md](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download).
 
 **0.99.14:** a security and legal pass.

@@ -6,7 +6,7 @@ Most "it won't connect" problems are the cable or its settings, not the car or t
 
 A **K+DCAN USB cable with a K-line / D-CAN switch and an FTDI chip**, the kind sold for INPA and NCS Expert.
 
-- **The switch matters.** K-line for the E46, E39, E53 and E38; D-CAN for the E90 family and newer. On K-line cars the cable has to connect OBD pins 7 and 8, and on D-CAN cars it mustn't, which is what the switch does. Cheap cables without a switch often have pins 7 and 8 bridged permanently: they work on K-line cars and not on D-CAN cars.
+- **The switch matters.** K-line for the E46, E39, E53, E38 and E36; D-CAN for the E90 family and newer. On K-line cars the cable has to connect OBD pins 7 and 8, and on D-CAN cars it mustn't, which is what the switch does. Cheap cables without a switch often have pins 7 and 8 bridged permanently: they work on K-line cars and not on D-CAN cars.
 - **FTDI is what Klemme15 is tested with.** Cables with other chips (CH340, PL2303, CP210x) can work on K-line cars, but their timing is less dependable.
 - Used for every real-car test so far: the [AntiBreak K+DCAN cable with switch](https://www.amazon.com/dp/B079KC43WG). Klemme15 isn't affiliated with any seller.
 
@@ -43,7 +43,7 @@ If another program has the port open (INPA, ISTA, NCS Expert, a terminal), close
 
 ## No module answers
 
-1. **Switch position:** K-line for the E46, E39, E53 and E38; D-CAN for the E90 family and newer. Unplug, move the switch, plug back in.
+1. **Switch position:** K-line for the E46, E39, E53, E38 and E36; D-CAN for the E90 family and newer. Unplug, move the switch, plug back in.
 2. **Ignition:** key position 2 (or Start once without the brake on push-button cars), engine off.
 3. **The right port:** the cable's port, not a Bluetooth or built-in one. Press **Refresh** after plugging in.
 4. **Battery:** below about 12 V many modules don't answer reliably. Put a charger on.

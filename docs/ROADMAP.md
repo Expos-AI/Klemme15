@@ -17,11 +17,13 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
+- **E36 beta (1996-1999)**: in the Garage with five models, the engine over OBD-II, and a [tester guide](E36-BETA.md) to map its other modules.
 - **Catch and compare**: the Ghost Hunter (trigger-based captures with a minute before and after), known good baselines on the Analyse page, live values on the car drawing.
 
 ## Next
 
 - **The beta**: testers with E46, E60 and E90-family cars and different cables, running the [tester guide](BETA.md), before 1.0.
+- **E36, round two**: add each module an E36 tester's car answers at its real address, then confirm them on a second test. Pre-1996 E36s (older protocols, the round 20-pin plug) after that.
 - Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
 - Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be confirmed on real cars. Health history and the OBD-based tests already work.
 - The first community coding maps, checks and chains in the library, and the first real baselines (three or more healthy cars per engine, starting with the N52).

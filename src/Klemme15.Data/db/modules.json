@@ -5747,6 +5747,192 @@
         910,
         300
       ]
+    },
+    {
+      "id": "E36.DME",
+      "name": "Engine (DME)",
+      "address": "12",
+      "protocol": "Ds2",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_MOTOR",
+        "D_0012"
+      ],
+      "verified": false,
+      "variants": [
+        "ms410ds0",
+        "ms410ds1",
+        "ms410ds2",
+        "ms410ds3",
+        "ms411ds1",
+        "ms411ds2",
+        "bms46ds0",
+        "bms46ds1",
+        "mss52ds0",
+        "mss52ds1",
+        "01m3_1",
+        "01m3_31",
+        "bms43ds0",
+        "bmss501",
+        "dde21k20",
+        "dde22ds0",
+        "dm172k20",
+        "dm173k20",
+        "dm331k20",
+        "dm33s501",
+        "dm524ds0",
+        "dme13_4",
+        "dme13_6",
+        "ms401k20",
+        "ms420ds0",
+        "ms420ds1",
+        "ms43_sp2"
+      ],
+      "engine": true,
+      "pos": [
+        285,
+        110
+      ]
+    },
+    {
+      "id": "E36.EGS",
+      "name": "Automatic transmission (EGS)",
+      "address": "32",
+      "protocol": "Ds2",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0032"
+      ],
+      "verified": false,
+      "variants": [
+        "_gs834",
+        "_gs870",
+        "gs832_m",
+        "gs836"
+      ],
+      "pos": [
+        415,
+        230
+      ]
+    },
+    {
+      "id": "E36.DSC",
+      "name": "ABS / ASC / DSC",
+      "address": "56",
+      "protocol": "Ds2",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0056"
+      ],
+      "verified": false,
+      "variants": [
+        "absmk20",
+        "absmk4",
+        "absmk4g",
+        "asc4gus",
+        "ascmk20",
+        "ascmk4",
+        "ascmk4g",
+        "ascmk4g1",
+        "dsc_mk60"
+      ],
+      "pos": [
+        250,
+        345
+      ]
+    },
+    {
+      "id": "E36.MRS",
+      "name": "Airbag (MRS)",
+      "address": "A4",
+      "protocol": "Ds2",
+      "category": "Safety",
+      "sgbd": [
+        "D_00A4"
+      ],
+      "verified": false,
+      "variants": [
+        "mrs4"
+      ],
+      "pos": [
+        560,
+        230
+      ]
+    },
+    {
+      "id": "E36.IKE",
+      "name": "Instrument cluster",
+      "address": "80",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0080"
+      ],
+      "verified": false,
+      "variants": [
+        "kombi36",
+        "kombi361",
+        "kombi36c"
+      ],
+      "pos": [
+        345,
+        300
+      ]
+    },
+    {
+      "id": "E36.GM",
+      "name": "Body electronics (ZKE)",
+      "address": "00",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0000"
+      ],
+      "verified": false,
+      "variants": [
+        "zke4"
+      ],
+      "pos": [
+        395,
+        110
+      ]
+    },
+    {
+      "id": "E36.IHKA",
+      "name": "Climate control (IHKA)",
+      "address": "5B",
+      "protocol": "Ds2",
+      "category": "Comfort",
+      "sgbd": [
+        "D_005B"
+      ],
+      "verified": false,
+      "variants": [
+        "ihka36",
+        "ihkr36"
+      ],
+      "pos": [
+        338,
+        255
+      ]
+    },
+    {
+      "id": "E36.PDC",
+      "name": "Park distance control (PDC)",
+      "address": "60",
+      "protocol": "Ds2",
+      "category": "Comfort",
+      "sgbd": [
+        "D_0060"
+      ],
+      "verified": false,
+      "variants": [
+        "pdce38"
+      ],
+      "pos": [
+        880,
+        340
+      ]
     }
   ]
 }

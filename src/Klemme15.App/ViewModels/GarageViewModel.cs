@@ -23,7 +23,7 @@ public sealed class FamilyOption(VehicleFamily family) : ViewModelBase
 {
     private bool _isSelected;
     public VehicleFamily Family { get; } = family;
-    public string Name => Family.Id == "E9x" ? "E90 / E91 / E92 / E93" : Family.Id;
+    public string Name => Family.Id == "E9x" ? "E90 / E91 / E92 / E93" : Family.IsBeta ? Family.Id + " beta" : Family.Id;
     public string Years => Family.Years;
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
@@ -293,6 +293,9 @@ public sealed class GarageViewModel : PageViewModel
     public string Drive => _model?.Drive ?? "";
     public string Body => _model?.Body ?? "";
     public string Years => _model?.Years ?? "";
+    public string? FamilyNote => _family.Family.Note;
+    public bool HasFamilyNote => _family.Family.Note is not null;
+
     public string CableHint => _family.Family.Cable == "KLine"
         ? "Set the cable switch to K-line. Ignition on (key position 2)."
         : "Set the cable switch to D-CAN. Ignition on (key position 2).";
@@ -429,6 +432,8 @@ public sealed class GarageViewModel : PageViewModel
         _family.IsSelected = true;
         Raise(nameof(Models));
         Raise(nameof(CableHint));
+        Raise(nameof(FamilyNote));
+        Raise(nameof(HasFamilyNote));
         Model = _family.Family.Models.FirstOrDefault();
     }
 

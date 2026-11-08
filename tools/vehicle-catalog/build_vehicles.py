@@ -2,7 +2,10 @@
 """
 Adds more BMW families to src/Klemme15.Data/db/modules.json and vehicles.json from bmw-unified-db (bmw.sqlite).
 
-    python3 tools/vehicle-catalog/build_vehicles.py /path/to/bmw.sqlite
+    python3 tools/vehicle-catalog/build_vehicles.py /path/to/bmw.sqlite [family ...]
+
+With family ids after the database (for example E36), only those families are rebuilt and everything else in the
+two files is left exactly as it is.
 
 D-CAN families (2007 and newer) take each module's diagnostic address from BMW's routing data for that chassis.
 K-line (DS2) families use the same DS2 addresses as the E46 (DME 0x12, gearbox 0x32, ABS/DSC 0x56, cluster 0x80,
@@ -115,8 +118,18 @@ DS2 = {
     "LWS": ("57", ["LWS"]),
 }
 DS2_NAMES = {"GM": ("Body module (GM)", "Body", [395, 110]), "LCM": ("Light check module", "Body", [400, 368])}
+# Names that differ on the E36: its cluster is the KOMBI (no IKE) and its body module is the ZKE IV.
+# Engine computers to try first when the part number can't be read: the 1996-1999 North American ones.
+FIRST = {"E36": ("ms41", "bms46", "mss52")}
+# Shown in the Garage under the family, for families that are still being mapped with testers.
+NOTES = {"E36": "E36 support is new and in beta, and hasn't been tested on a real car yet. It's for 1996-1999 cars with "
+                "the OBD-II port under the dashboard. The engine part (fault codes, live data and tests) uses standard "
+                "OBD-II, so it's the part most likely to work. The other modules use addresses that haven't been "
+                "confirmed on an E36 yet, so some may not answer: \"Find other modules\" and a saved report show us where "
+                "they really are. Cars from before 1996 use older protocols and aren't supported yet."}
+FAMILY_NAMES = {"E36": {"IKE": "Instrument cluster", "GM": "Body electronics (ZKE)"}}
 
-ENGINES = {"E39": ["M52", "M54", "M62", "S62", "M57"], "E53": ["M54", "M62", "N62", "M57"], "E38": ["M62", "M73", "M57"]}
+ENGINES = {"E36": ["M42", "M43", "M44", "M50", "M51", "M52", "S50", "S52"], "E39": ["M52", "M54", "M62", "S62", "M57"], "E53": ["M54", "M62", "N62", "M57"], "E38": ["M62", "M73", "M57"]}
 
 def ds2_modules(prefix, chassis_list):
     fams = collections.defaultdict(list)
@@ -138,9 +151,12 @@ def ds2_modules(prefix, chassis_list):
             continue
         src = existing_ds2.get(short) or existing_ds2.get({"IKE": "IKE", "GM": "GM5"}.get(short, short))
         name, cat, pos = DS2_NAMES.get(short) or ((src["name"], src["category"], src.get("pos")) if src else (short, "Body", None))
+        name = FAMILY_NAMES.get(prefix, {}).get(short, name)
         m = {"id": f"{prefix}.{short}", "name": name, "address": addr, "protocol": "Ds2", "category": cat,
              "sgbd": [f"D_00{addr}"], "verified": False, "variants": vs}
         if short == "DME": m["engine"] = True; m["sgbd"] = ["D_MOTOR", "D_0012"]
+        if prefix in FIRST:
+            m["variants"] = sorted(vs, key=lambda v: next((i for i, f in enumerate(FIRST[prefix]) if v.startswith(f)), len(FIRST[prefix])))
         if pos: m["pos"] = pos
         mods.append(m)
     return mods
@@ -183,6 +199,15 @@ FAMILIES = [
         ("28i", "sDrive28i", "Roadster", "2012-2016", "N20 2.0 L turbo inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
         ("18i", "sDrive18i / 20i", "Roadster", "2011-2016", "N20 2.0 L turbo inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE", "CVM"]),
     ]),
+    # E36: the DS2 addresses are the E46's, which the E36's own module descriptions don't confirm. Every module is
+    # unconfirmed until a tester's car answers (see docs/E36-BETA.md); the engine also answers standard OBD-II (1996 on).
+    ("E36", "3 Series E36 (beta)", "1996-1999", "KLine", ["E36"], [
+        ("328i", "328i / 328is", "Sedan, coupe, convertible", "1996-1999", "M52 2.8 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
+        ("323i", "323is / 323i", "Coupe, convertible", "1998-1999", "M52 2.5 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
+        ("318i", "318i / 318is", "Sedan, coupe, convertible", "1996-1999", "M44 1.9 L inline-4", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
+        ("318ti", "318ti", "Hatchback (compact)", "1996-1999", "M44 1.9 L inline-4", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
+        ("m3", "M3", "Coupe, sedan, convertible", "1996-1999", "S52 3.2 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
+    ]),
     ("E39", "5 Series E39", "1997-2003", "KLine", ["E39"], [
         ("525i", "525i / 530i", "Sedan, touring", "2001-2003", "M54 2.5 L / 3.0 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
         ("528i", "528i", "Sedan, touring", "1997-2000", "M52 2.8 L inline-6 (M52TU from 1998)", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
@@ -206,14 +231,21 @@ FAMILIES = [
     ]),
 ]
 
-mod_doc["modules"] = [m for m in mod_doc["modules"] if m["id"].split(".")[0] in KEEP]
-veh_doc["vehicles"] = [v for v in veh_doc["vehicles"] if v["id"] in KEEP]
+ONLY = set(sys.argv[2:])
+if ONLY:
+    FAMILIES = [f for f in FAMILIES if f[0] in ONLY]
+    mod_doc["modules"] = [m for m in mod_doc["modules"] if m["id"].split(".")[0] not in ONLY]
+    veh_doc["vehicles"] = [v for v in veh_doc["vehicles"] if v["id"] not in ONLY]
+else:
+    mod_doc["modules"] = [m for m in mod_doc["modules"] if m["id"].split(".")[0] in KEEP]
+    veh_doc["vehicles"] = [v for v in veh_doc["vehicles"] if v["id"] in KEEP]
 for fid, name, years, cable, chassis, models in FAMILIES:
     mods = dcan_modules(fid, chassis) if cable == "DCan" else ds2_modules(fid, chassis)
     ids = {m["id"].split(".")[1] for m in mods}
     mod_doc["modules"] += mods
     veh_doc["vehicles"].append({
         "id": fid, "name": name, "years": years, "cable": cable, "verified": False,
+        **({"note": NOTES[fid]} if fid in NOTES else {}),
         "modules": [m["id"] for m in mods],
         "models": [model(fid, mid, mname, body, yrs, eng, drv, [x for x in mm if x in ids]) for mid, mname, body, yrs, eng, drv, mm in models],
     })

@@ -1,6 +1,6 @@
 # Klemme15 beta: tester guide
 
-Thank you for testing Klemme15 before 1.0. Please **try to break it**: on your car, with your cable, the way you actually use a diagnostic tool, and tell us what happened.
+Thank you for testing Klemme15 before 1.0. **Got an E36?** Follow the [E36 tester guide](E36-BETA.md) instead. Please **try to break it**: on your car, with your cable, the way you actually use a diagnostic tool, and tell us what happened.
 
 Everything Klemme15 does by default is read-only. Anything that writes to the car (clearing faults, coding, service functions) asks first, and service functions stay behind the **Experimental** switch.
 

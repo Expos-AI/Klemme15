@@ -2035,6 +2035,161 @@
           }
         }
       ]
+    },
+    {
+      "id": "E36",
+      "name": "3 Series E36 (beta)",
+      "years": "1996-1999",
+      "cable": "KLine",
+      "verified": false,
+      "note": "E36 support is new and in beta, and hasn't been tested on a real car yet. It's for 1996-1999 cars with the OBD-II port under the dashboard. The engine part (fault codes, live data and tests) uses standard OBD-II, so it's the part most likely to work. The other modules use addresses that haven't been confirmed on an E36 yet, so some may not answer: \"Find other modules\" and a saved report show us where they really are. Cars from before 1996 use older protocols and aren't supported yet.",
+      "modules": [
+        "E36.DME",
+        "E36.EGS",
+        "E36.DSC",
+        "E36.MRS",
+        "E36.IKE",
+        "E36.GM",
+        "E36.IHKA",
+        "E36.PDC"
+      ],
+      "models": [
+        {
+          "id": "E36-328i",
+          "name": "328i / 328is",
+          "body": "Sedan, coupe, convertible",
+          "years": "1996-1999",
+          "engine": "M52 2.8 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E36.DME",
+            "E36.EGS",
+            "E36.DSC",
+            "E36.MRS",
+            "E36.IKE",
+            "E36.GM",
+            "E36.IHKA"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E36.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E36-323i",
+          "name": "323is / 323i",
+          "body": "Coupe, convertible",
+          "years": "1998-1999",
+          "engine": "M52 2.5 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E36.DME",
+            "E36.EGS",
+            "E36.DSC",
+            "E36.MRS",
+            "E36.IKE",
+            "E36.GM",
+            "E36.IHKA"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E36.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E36-318i",
+          "name": "318i / 318is",
+          "body": "Sedan, coupe, convertible",
+          "years": "1996-1999",
+          "engine": "M44 1.9 L inline-4",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E36.DME",
+            "E36.EGS",
+            "E36.DSC",
+            "E36.MRS",
+            "E36.IKE",
+            "E36.GM",
+            "E36.IHKA"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E36.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E36-318ti",
+          "name": "318ti",
+          "body": "Hatchback (compact)",
+          "years": "1996-1999",
+          "engine": "M44 1.9 L inline-4",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E36.DME",
+            "E36.EGS",
+            "E36.DSC",
+            "E36.MRS",
+            "E36.IKE",
+            "E36.GM",
+            "E36.IHKA"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E36.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E36-m3",
+          "name": "M3",
+          "body": "Coupe, sedan, convertible",
+          "years": "1996-1999",
+          "engine": "S52 3.2 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E36.DME",
+            "E36.EGS",
+            "E36.DSC",
+            "E36.MRS",
+            "E36.IKE",
+            "E36.GM",
+            "E36.IHKA"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E36.DME",
+                "present": true
+              }
+            ]
+          }
+        }
+      ]
     }
   ]
 }

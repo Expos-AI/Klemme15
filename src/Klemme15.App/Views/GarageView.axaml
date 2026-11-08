@@ -115,6 +115,14 @@
           </DockPanel>
         </Border>
 
+        <!-- Families still being mapped with testers (E36) -->
+        <Border Classes="warn" IsVisible="{Binding HasFamilyNote}">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Beta: help map this car" FontWeight="SemiBold" />
+            <TextBlock Text="{Binding FamilyNote}" TextWrapping="Wrap" Classes="small" />
+          </StackPanel>
+        </Border>
+
         <Viewbox Stretch="Uniform" MaxHeight="400" HorizontalAlignment="Left">
           <Grid Width="1000" Height="460">
             <c:CarDrawing />

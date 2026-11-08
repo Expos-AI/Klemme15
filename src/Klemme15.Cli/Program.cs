@@ -68,7 +68,7 @@ internal static class Cli
           sgbd <file.prg> [TABLE]       List the tables in one of your BMW files, or print one
 
         Options
-          --vehicle <id>     E46, E39, E53, E38 (K-line) or E9x, E8x, E60, E70, E89 (D-CAN); default E9x
+          --vehicle <id>     E46, E39, E53, E38, E36 beta (K-line) or E9x, E8x, E60, E70, E89 (D-CAN); default E9x
           --model <name>     e.g. 325i or 335i (picks the demo car; see 'klemme15 vehicles')
           --port <name>      Cable port, e.g. COM3 or /dev/ttyUSB0
           --demo             Use the built-in virtual car instead of a cable
@@ -230,6 +230,7 @@ internal static class Cli
                 foreach (var v in db.Vehicles)
                 {
                     Console.WriteLine($"{v.Id,-5} {v.Name} {v.Years}  (cable switch: {v.Cable})");
+                    if (v.Note is { } vnote) Console.WriteLine($"      {vnote}");
                     foreach (var m in v.Models)
                         Console.WriteLine($"      model {m.Name,-7} {m.Years,-10} {m.Engine}, {m.Drive}");
                     foreach (var m in v.Modules)
@@ -269,6 +270,7 @@ internal static class Cli
             Console.Error.WriteLine($"Unknown vehicle. Known: {string.Join(", ", db.Vehicles.Select(v => v.Id))}");
             return 2;
         }
+        if (vehicle.Note is { } note && !a.Has("demo")) Console.Error.WriteLine($"Beta: {note}");
 
         var model = a.Get("model") is { } wanted
             ? vehicle.Models.FirstOrDefault(m => m.Name.Equals(wanted, StringComparison.OrdinalIgnoreCase) || m.Id.Equals(wanted, StringComparison.OrdinalIgnoreCase))

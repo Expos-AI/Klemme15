@@ -187,7 +187,7 @@ public sealed record GuidedTestInfo(string Id, string Title, string Summary, str
 {
     /// <summary>
     /// The test reads BMW's own engine values (VANOS positions, per-cylinder roughness, the electric water pump), not
-    /// the standard OBD-II ones. On K-line cars (E46, E39, E53, E38) those need EDIABAS mode with your BMW files.
+    /// the standard OBD-II ones. On K-line cars (E46, E39, E53, E38, E36) those need EDIABAS mode with your BMW files.
     /// </summary>
     public bool NeedsBmwValues => Id is "vanos" or "roughness" or "water-pump" or "water-pump-sweep" or "cooling-bleed";
 }

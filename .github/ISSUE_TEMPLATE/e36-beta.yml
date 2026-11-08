@@ -1,0 +1,71 @@
+name: E36 beta report
+description: You followed the E36 tester guide. Tell us what your E36 answered.
+title: "E36 test: "
+labels: ["beta", "E36"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing on an E36! The [E36 tester guide](https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md) has the steps.
+        Attach a `.zip` with the `.k15` snapshot (traffic log ticked), the saved log and your screenshots at the bottom. The VIN is removed from the snapshot (skim the traffic log if that matters to you).
+  - type: input
+    id: car
+    attributes:
+      label: Car
+      description: Year, model, engine, gearbox and market, e.g. "1998 328i M52 automatic, US".
+    validations:
+      required: true
+  - type: input
+    id: cable
+    attributes:
+      label: Cable and computer
+      description: Cable brand, what "Check cable" said (FTDI or not, latency), operating system, and whether you used EDIABAS mode.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Klemme15 version
+      description: Shown at the bottom of the left rail.
+    validations:
+      required: true
+  - type: checkboxes
+    id: steps
+    attributes:
+      label: Steps you did
+      options:
+        - label: 2. Check cable
+        - label: 3. Connect
+        - label: 4. Quick test
+        - label: 5. Find other modules
+        - label: 6. Engine faults, live data and fuel trim test
+        - label: 7. Round 20-pin plug under the bonnet
+        - label: 8. Clear the engine's faults
+        - label: 9. EDIABAS mode
+  - type: textarea
+    id: quick
+    attributes:
+      label: Quick test
+      description: Which modules answered (through the OBD-II port, and through the round plug if you tried it), and which didn't.
+    validations:
+      required: true
+  - type: textarea
+    id: found
+    attributes:
+      label: Find other modules
+      description: The addresses and part numbers it listed (a screenshot is fine).
+  - type: textarea
+    id: engine
+    attributes:
+      label: Engine
+      description: Fault codes it found (and whether they match your car), whether live values looked right, and the fuel trim test's verdict.
+  - type: textarea
+    id: broke
+    attributes:
+      label: What broke or confused you
+      description: What you did, what you expected, what happened.
+  - type: textarea
+    id: files
+    attributes:
+      label: Files
+      description: Drag the .zip here.

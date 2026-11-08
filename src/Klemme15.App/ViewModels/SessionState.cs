@@ -276,7 +276,7 @@ public sealed class SessionState : ViewModelBase
 
     /// <summary>BMW measurement values by name (for guided tests): from the user's files, the demo, or the downloaded tables.</summary>
     /// <summary>
-    /// A K-line car (E46, E39, E53, E38) on the native connection: the engine computer gives the standard OBD-II values
+    /// A K-line car (E46, E39, E53, E38, E36) on the native connection: the engine computer gives the standard OBD-II values
     /// only. BMW's own values (VANOS, per-cylinder roughness, module readings) need EDIABAS mode with your BMW files.
     /// </summary>
     public bool ObdValuesOnly => !IsDemo && Vehicle?.Cable == "KLine" && Backend is not IMeasurementReader;

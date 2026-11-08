@@ -35,6 +35,20 @@ public class ModelTests
         Assert.All(Db.Components, c => Assert.InRange(c.Position.X, 0, 1000));
     }
 
+    [Fact]
+    public void TheE36IsABetaKLineCarWhoseModulesAreAllUnconfirmed()
+    {
+        var e36 = Db.FindVehicle("E36")!;
+        Assert.True(e36.IsBeta);
+        Assert.Equal("KLine", e36.Cable);
+        Assert.Contains("1996", e36.Note!);
+        var engine = e36.Modules.Single(m => m.IsEngine);
+        Assert.Equal(0x12, engine.Address);
+        Assert.StartsWith("ms41", engine.Variants[0]);
+        Assert.All(e36.Modules, m => Assert.False(m.Verified));
+        Assert.All(Db.Vehicles.Where(v => v.Id != "E36"), v => Assert.False(v.IsBeta));
+    }
+
     [Theory]
     [InlineData("P0303", "cyl3")]
     [InlineData("P0171", "intake")]
