@@ -265,6 +265,10 @@ foreach (var page in vm.Pages)
 }
 vm.CurrentPage = vm.Vehicle;
 if (vm.Vehicle.Markers.FirstOrDefault(m => m.IsFaultSource) is { } src) { vm.Vehicle.Select(src); Shot("s-vehicle-selected"); vm.Vehicle.Select(null); }
+// A short window (a 1080p laptop at 150 % with the taskbar and title bar): the legend and the side panel must still fit.
+window.Height = 620;
+Shot("s-vehicle-short");
+window.Height = 720;
 
 File.WriteAllLines(Path.Combine(outDir, "ui-layout.txt"), layout.Distinct());
 problems.AddRange(layout.Distinct().Select(l => "[Layout] " + l));

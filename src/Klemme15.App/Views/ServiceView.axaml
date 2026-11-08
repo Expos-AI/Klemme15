@@ -70,7 +70,7 @@
                      Text="Functions marked experimental follow BMW's own procedures but haven't been confirmed on a real car with Klemme15 yet. Turn this on to use them at your own risk, and please report how it went." />
         </StackPanel>
       </Border>
-      <ScrollViewer>
+      <ScrollViewer Classes="page">
         <ItemsControl ItemsSource="{Binding Groups}">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:ServiceGroupViewModel">
@@ -96,7 +96,7 @@
     </DockPanel>
 
     <!-- Selected function -->
-    <ScrollViewer Grid.Column="1" IsVisible="{Binding HasSelection}">
+    <ScrollViewer Classes="page" Grid.Column="1" IsVisible="{Binding HasSelection}">
       <StackPanel Spacing="14" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32">
         <StackPanel Spacing="4">
           <TextBlock Classes="section" Text="{Binding FunctionTitle}" TextWrapping="Wrap" />

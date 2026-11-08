@@ -31,7 +31,7 @@
 
     <TextBlock Classes="muted" Text="{Binding Status}" TextWrapping="Wrap" IsVisible="{Binding NoData}" VerticalAlignment="Top" />
 
-    <ScrollViewer IsVisible="{Binding HasData}">
+    <ScrollViewer Classes="page" IsVisible="{Binding HasData}">
       <StackPanel Spacing="16" Margin="0,0,0,32">
         <!-- Playback -->
         <Border Classes="panel" Padding="18,14">

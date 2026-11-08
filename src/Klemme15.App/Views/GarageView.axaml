@@ -59,7 +59,7 @@
     </Border>
 
     <!-- Right: the selected model -->
-    <ScrollViewer Grid.Column="1">
+    <ScrollViewer Classes="page" Grid.Column="1">
       <StackPanel Margin="36,26,36,32" Spacing="22" MaxWidth="1000">
         <StackPanel Spacing="4">
           <TextBlock Text="{Binding ModelTitle}" FontFamily="{DynamicResource DisplayFont}" FontSize="44" FontWeight="SemiBold" />

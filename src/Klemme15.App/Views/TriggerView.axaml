@@ -27,7 +27,7 @@
 
   <Grid ColumnDefinitions="*,*" Margin="36,26,36,0">
     <!-- Left: rules and the builder -->
-    <ScrollViewer Grid.Column="0" Margin="0,0,18,0">
+    <ScrollViewer Classes="page" Grid.Column="0" Margin="0,0,18,0">
       <StackPanel Spacing="14" Margin="0,0,12,32">
         <TextBlock Classes="title" Text="Ghost Hunter" />
         <TextBlock Classes="muted" TextWrapping="Wrap"
@@ -122,7 +122,7 @@
     </ScrollViewer>
 
     <!-- Right: start, status, captures -->
-    <ScrollViewer Grid.Column="1" Margin="18,0,0,0">
+    <ScrollViewer Classes="page" Grid.Column="1" Margin="18,0,0,0">
       <StackPanel Spacing="14" Margin="0,0,0,32">
         <Border Classes="panel" Padding="22,20">
           <StackPanel Spacing="12">

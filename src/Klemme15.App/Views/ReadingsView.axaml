@@ -46,7 +46,7 @@
       <TextBlock DockPanel.Dock="Top" Classes="title" Text="Readings" Margin="0,0,0,14" />
       <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" IsVisible="{Binding NoModules}" Margin="0,0,0,12"
                  Text="None of the modules that answered has a readings table yet. Engine values are on the Live data page." />
-      <ScrollViewer>
+      <ScrollViewer Classes="page">
         <ItemsControl ItemsSource="{Binding Modules}" Margin="0,0,0,24">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:ReadingModuleViewModel">
@@ -80,7 +80,7 @@
         <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" TextWrapping="Wrap" />
       </StackPanel>
 
-      <ScrollViewer>
+      <ScrollViewer Classes="page">
         <ItemsControl ItemsSource="{Binding Groups}" Margin="0,0,0,32">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:ReadingGroupViewModel">

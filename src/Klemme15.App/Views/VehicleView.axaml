@@ -66,17 +66,18 @@
           <Button Classes="quiet" Content="Find other modules" Command="{Binding DiscoverCommand}"
                   ToolTip.Tip="Asks every address the database doesn't list (read-only). Takes about a minute." />
         </StackPanel>
-        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="4" IsVisible="{Binding HasScan}">
-          <TextBlock Classes="muted small" Text="Save report" VerticalAlignment="Center" Margin="0,0,4,0" />
-          <Button Classes="quiet" Content="HTML" Command="{Binding ExportHtmlCommand}" />
-          <Button Classes="quiet" Content="Markdown" Command="{Binding ExportMarkdownCommand}" />
-          <Button Classes="quiet" Content="JSON" Command="{Binding ExportJsonCommand}" />
-          <Button Classes="quiet" Content="Copy for a forum post" Command="{Binding CopyForumCommand}"
-                  ToolTip.Tip="A short summary with the VIN removed, ready to paste into E90Post, Reddit or Bimmerforums" />
-          <TextBlock Classes="muted small" Text="{Binding CopiedText}" VerticalAlignment="Center" Margin="6,0,0,0" />
-        </StackPanel>
-        <StackPanel Margin="18,0" VerticalAlignment="Center" Spacing="5">
+        <StackPanel Margin="18,0,0,0" VerticalAlignment="Center" Spacing="5">
           <TextBlock Text="{Binding Summary}" IsVisible="{Binding HasScan}" TextWrapping="Wrap" />
+          <!-- Report links sit under the summary, so a long summary never gets squeezed into a narrow column -->
+          <WrapPanel IsVisible="{Binding HasScan}">
+            <TextBlock Classes="muted small" Text="Save report" VerticalAlignment="Center" Margin="0,0,6,0" />
+            <Button Classes="quiet" Content="HTML" Command="{Binding ExportHtmlCommand}" Padding="6,2" />
+            <Button Classes="quiet" Content="Markdown" Command="{Binding ExportMarkdownCommand}" Padding="6,2" />
+            <Button Classes="quiet" Content="JSON" Command="{Binding ExportJsonCommand}" Padding="6,2" />
+            <Button Classes="quiet" Content="Copy for a forum post" Command="{Binding CopyForumCommand}" Padding="6,2"
+                    ToolTip.Tip="A short summary with the VIN removed, ready to paste into E90Post, Reddit or Bimmerforums" />
+            <TextBlock Classes="muted small" Text="{Binding CopiedText}" VerticalAlignment="Center" Margin="6,0,0,0" />
+          </WrapPanel>
           <TextBlock Text="{Binding ProgressText}" Classes="muted" IsVisible="{Binding IsScanning}" />
           <ProgressBar Value="{Binding Progress, Mode=OneWay}" Maximum="100" Height="3" MinHeight="3" IsVisible="{Binding IsScanning}" MaxWidth="360" HorizontalAlignment="Left" />
           <TextBlock Classes="muted" Text="Connect a car in the garage first." IsVisible="{Binding NotConnected}" />
@@ -107,8 +108,8 @@
         </DockPanel>
       </Border>
     </StackPanel>
-    <StackPanel VerticalAlignment="Center" Spacing="14">
-      <Viewbox Stretch="Uniform">
+    <Grid RowDefinitions="*,Auto" Margin="0,10,0,0">
+      <Viewbox Stretch="Uniform" VerticalAlignment="Center">
         <Grid Width="1000" Height="460">
           <c:CarDrawing />
           <!-- Live values pinned to the drawing (under the module markers, which stay clickable). -->
@@ -152,7 +153,7 @@
         </Grid>
       </Viewbox>
 
-      <WrapPanel HorizontalAlignment="Center">
+      <WrapPanel Grid.Row="1" HorizontalAlignment="Center" Margin="0,14,0,0">
         <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,0,22,4">
           <Button Content="{Binding Topology.ToggleLabel}" Command="{Binding Topology.ToggleCommand}" Padding="10,4"
                   ToolTip.Tip="Coolant, battery voltage, oil, intake air, engine and road speed, live on the drawing. Reads the engine computer only." />
@@ -176,19 +177,20 @@
         </StackPanel>
         <TextBlock Classes="muted small" Text="Locations are approximate. Click a marker for details." Margin="0,0,0,4" />
       </WrapPanel>
-    </StackPanel>
+    </Grid>
     </DockPanel>
 
     <!-- Side panel -->
     <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0">
       <Grid>
         <!-- Nothing selected: all faults -->
-        <DockPanel IsVisible="{Binding NoSelection}" Margin="18,20,18,0">
-          <Border DockPanel.Dock="Top" Classes="panel" Background="{DynamicResource RaisedBrush}" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDiscovery}">
+        <ScrollViewer IsVisible="{Binding NoSelection}" HorizontalScrollBarVisibility="Disabled" Padding="18,20,22,16">
+        <StackPanel>
+          <Border Classes="panel" Background="{DynamicResource RaisedBrush}" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDiscovery}">
             <SelectableTextBlock Text="{Binding Discovery}" TextWrapping="Wrap" FontSize="13" LineHeight="19" />
           </Border>
           <!-- Dash (Check Control) messages: why the triangle is lit, even with no fault codes -->
-          <Border DockPanel.Dock="Top" Classes="panel" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDashMessages}"
+          <Border Classes="panel" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDashMessages}"
                   Background="{DynamicResource RaisedBrush}">
             <StackPanel Spacing="8">
               <StackPanel Orientation="Horizontal" Spacing="8">
@@ -199,7 +201,6 @@
               </StackPanel>
               <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding DashExplainsTriangle}"
                          Text="This is why the warning triangle is on. Dash messages aren't fault codes, so the fault memory can be empty." />
-              <ScrollViewer MaxHeight="380" HorizontalScrollBarVisibility="Disabled">
               <ItemsControl ItemsSource="{Binding DashMessages}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate DataType="vm:CheckControlItem">
@@ -222,35 +223,33 @@
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
-              </ScrollViewer>
             </StackPanel>
           </Border>
-          <TextBlock DockPanel.Dock="Top" Classes="muted small" TextWrapping="Wrap" Margin="6,0,0,10" Text="{Binding DashNote}" IsVisible="{Binding HasDashNote}" />
-          <TextBlock DockPanel.Dock="Top" Classes="section" Text="Faults" Margin="6,0,0,10" />
-          <TextBlock DockPanel.Dock="Top" Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" Margin="6,0,0,10" />
-          <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Text="{Binding ClearResult}" IsVisible="{Binding HasClearResult}" Margin="6,0,0,10" />
-          <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Margin="6,0"
+          <TextBlock Classes="muted small" TextWrapping="Wrap" Margin="6,0,0,10" Text="{Binding DashNote}" IsVisible="{Binding HasDashNote}" />
+          <TextBlock Classes="section" Text="Faults" Margin="6,0,0,10" />
+          <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" Margin="6,0,0,10" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Text="{Binding ClearResult}" IsVisible="{Binding HasClearResult}" Margin="6,0,0,10" />
+          <TextBlock Classes="muted" TextWrapping="Wrap" Margin="6,0"
                      IsVisible="{Binding !HasScan}"
                      Text="Faults appear here after a quick test, each pinned to the part of the car it points at." />
-          <TextBlock DockPanel.Dock="Top" Classes="muted" TextWrapping="Wrap" Margin="6,0"
+          <TextBlock Classes="muted" TextWrapping="Wrap" Margin="6,0"
                      IsVisible="{Binding NoFaultsAfterScan}" Text="No faults stored in any module that answered." />
-          <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding Faults}" Margin="0,0,0,16" />
-          </ScrollViewer>
-        </DockPanel>
+          <ItemsControl ItemsSource="{Binding Faults}" />
+        </StackPanel>
+        </ScrollViewer>
 
         <!-- A marker selected -->
-        <DockPanel IsVisible="{Binding HasSelection}" Margin="18,16,18,0">
-          <Button DockPanel.Dock="Top" Classes="quiet" Content="All faults" Command="{Binding ClearSelectionCommand}" HorizontalAlignment="Left" Margin="0,0,0,10" />
-          <StackPanel DockPanel.Dock="Top" Spacing="6" Margin="6,0,6,12">
+        <ScrollViewer IsVisible="{Binding HasSelection}" HorizontalScrollBarVisibility="Disabled" Padding="18,16,22,16">
+        <StackPanel>
+          <Button Classes="quiet" Content="All faults" Command="{Binding ClearSelectionCommand}" HorizontalAlignment="Left" Margin="0,0,0,10" />
+          <StackPanel Spacing="6" Margin="6,0,6,12">
             <TextBlock Classes="muted small" Text="{Binding SelectedKind}" />
             <TextBlock Classes="section" FontSize="22" Text="{Binding SelectedTitle}" TextWrapping="Wrap" />
             <TextBlock Classes="muted" Text="{Binding SelectedInfo}" TextWrapping="Wrap" LineHeight="21" />
           </StackPanel>
-          <ScrollViewer>
-            <ItemsControl ItemsSource="{Binding SelectedFaults}" Margin="0,0,0,16" />
-          </ScrollViewer>
-        </DockPanel>
+          <ItemsControl ItemsSource="{Binding SelectedFaults}" />
+        </StackPanel>
+        </ScrollViewer>
       </Grid>
     </Border>
   </Grid>

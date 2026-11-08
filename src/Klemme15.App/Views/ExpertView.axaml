@@ -44,7 +44,7 @@
     </StackPanel>
 
     <Border Classes="panel" Padding="12,4">
-      <ScrollViewer>
+      <ScrollViewer Classes="page">
         <ItemsControl ItemsSource="{Binding Results}">
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:JobResultRowViewModel">

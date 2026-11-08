@@ -62,7 +62,7 @@
       </ItemsControl>
     </StackPanel>
 
-    <ScrollViewer>
+    <ScrollViewer Classes="page">
       <ItemsControl ItemsSource="{Binding Selected}" Margin="0,0,0,32">
         <ItemsControl.ItemsPanel>
           <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>

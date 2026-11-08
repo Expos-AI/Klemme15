@@ -58,7 +58,7 @@
                  Text="Run the quick test: the comfort modules that answer it (footwell module, cluster, junction box...) appear here." />
     </StackPanel>
 
-    <ScrollViewer Grid.Column="1">
+    <ScrollViewer Classes="page" Grid.Column="1">
       <StackPanel Spacing="14" MaxWidth="820" HorizontalAlignment="Left" Margin="0,4,0,32">
         <TextBlock Classes="muted" Text="{Binding Status}" TextWrapping="Wrap" />
 

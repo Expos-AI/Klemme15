@@ -41,7 +41,7 @@
   </UserControl.Styles>
 
   <Grid ColumnDefinitions="300,*" Margin="36,26,36,0">
-    <ScrollViewer Grid.Column="0" Margin="0,0,12,0">
+    <ScrollViewer Classes="page" Grid.Column="0" Margin="0,0,12,0">
     <StackPanel Margin="0,0,12,24" Spacing="10">
       <TextBlock Classes="title" Text="Tests" />
       <TextBlock Classes="muted small" TextWrapping="Wrap"
@@ -87,7 +87,7 @@
     </StackPanel>
     </ScrollViewer>
 
-    <ScrollViewer Grid.Column="1">
+    <ScrollViewer Classes="page" Grid.Column="1">
       <StackPanel>
       <Border IsVisible="{Binding ShowingGuide}">
       <StackPanel Spacing="10" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32"
