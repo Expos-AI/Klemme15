@@ -35,7 +35,7 @@
               </StackPanel>
             </DockPanel>
             <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
-            <TextBlock Classes="small lit" TextWrapping="Wrap" IsVisible="{Binding HasTip}" Text="{Binding Tip}" />
+            <TextBlock Classes="small" TextWrapping="Wrap" IsVisible="{Binding HasTip}" Text="{Binding Tip}" />
             <TextBlock Classes="muted small" Text="{Binding Where}" TextWrapping="Wrap" />
             <TextBlock Classes="muted small" FontStyle="Italic" Text="{Binding Provenance}" IsVisible="{Binding HasProvenance}" TextWrapping="Wrap" />
           </StackPanel>

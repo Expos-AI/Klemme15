@@ -8,6 +8,7 @@ Beta candidate. Quick test, faults, readings, live data, guided tests and experi
 - **The car drawing:** a fault label that would print over a module's name moves to the other side of its dot, and the footwell module notice sits above the drawing. When the footwell module's type isn't confirmed, the notice is calm; only a confirmed FRM3 gets the amber warning (the strict voltage rules apply either way).
 - **Readings line up:** values of one reading with the same unit share their decimals (0.48 and 5.00, not 5).
 - **Demo car:** the Service page only offers what fits the demo car's engine and modules (no diesel particulate filter on a petrol 335i). Long service names and engine descriptions wrap instead of being cut off.
+- **Cable port problems say what to do.** A port another program is using (INPA, ISTA, NCS Expert) says so; on Linux, a port you're not allowed to open says which group to join; an unplugged cable says to plug it back in and pick the port again. On a Mac only the `cu.` port is listed, since the matching `tty.` one would hang.
 - For contributors: the reel tool records three more scenes (an E46 quick test, a diagnostic chain asking its question, a drive against a healthy baseline), writes `timelines.txt` with what each clip shows from which second, and makes `labeled/` clips with only the small print.
 
 **0.99.9:**

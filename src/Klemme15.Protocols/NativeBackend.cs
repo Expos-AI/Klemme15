@@ -107,7 +107,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         {
             if (!_transport.IsOpen) _transport.Open();
         }
-        catch (Exception e)
+        catch (Exception e) when (e is not DiagnosticException)
         {
             throw new DiagnosticException($"Could not open {_transport.Name}: {e.Message}", e);
         }

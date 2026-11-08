@@ -56,7 +56,17 @@ public sealed class SerialPortTransport(string portName) : ITransport
 
     public void Open()
     {
-        _port.Open();
+        try { _port.Open(); }
+        catch (UnauthorizedAccessException e)
+        {
+            throw new Klemme15.Core.DiagnosticException(OperatingSystem.IsLinux()
+                ? $"Linux won't let Klemme15 open {portName}. Add yourself to the group that may use serial ports (Ubuntu, Debian, Fedora: sudo usermod -aG dialout $USER; Arch: uucp), then log out and back in."
+                : $"{portName} is in use by another program (INPA, ISTA, NCS Expert, a terminal). Close it and try again.", e);
+        }
+        catch (Exception e) when (e is IOException or ArgumentException)
+        {
+            throw new Klemme15.Core.DiagnosticException($"{portName} can't be opened: the cable may have been unplugged. Plug it back in, press Refresh and pick its port again. ({e.Message})", e);
+        }
         _port.DtrEnable = false;
         _port.RtsEnable = false;
         _port.DiscardInBuffer();
@@ -123,13 +133,21 @@ public static class PortDiscovery
     public static IReadOnlyList<PortInfo> List()
     {
         var ports = new List<PortInfo>();
-        foreach (var name in SerialPort.GetPortNames().Distinct().OrderBy(n => n, StringComparer.OrdinalIgnoreCase))
+        var names = SerialPort.GetPortNames().Distinct().ToList();
+        // A Mac lists every adapter twice: /dev/tty.X waits for the cable to raise carrier detect before it opens (a
+        // K+DCAN cable never does, so it would hang), /dev/cu.X opens at once. Offer only the cu one.
+        if (OperatingSystem.IsMacOS()) names = MacCallOutOnly(names);
+        foreach (var name in names.OrderBy(n => n, StringComparer.OrdinalIgnoreCase))
         {
             var (desc, ftdi) = Describe(name);
             ports.Add(new PortInfo(name, desc, ftdi));
         }
         return ports.OrderByDescending(p => p.LikelyKDCan).ToList();
     }
+
+    /// <summary>Drops /dev/tty.X when /dev/cu.X is listed too.</summary>
+    internal static List<string> MacCallOutOnly(IReadOnlyCollection<string> names) =>
+        names.Where(n => !(n.StartsWith("/dev/tty.", StringComparison.Ordinal) && names.Contains("/dev/cu." + n["/dev/tty.".Length..]))).ToList();
 
     private static (string, bool) Describe(string name)
     {

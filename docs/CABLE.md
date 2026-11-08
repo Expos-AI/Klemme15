@@ -25,6 +25,14 @@ In the Garage, pick your car and press **Connect to my car**, then choose the ca
 
 A clone can only be suspected from these signs, never proven. The latency can be read on Windows and Linux; macOS doesn't let apps read it.
 
+## Finding the port
+
+- **Windows:** the cable shows up as a COM port (COM3, COM4…). Windows installs the FTDI driver by itself the first time you plug it in.
+- **Mac:** it shows up as `/dev/cu.usbserial-…`, with Apple's built-in driver. Klemme15 lists only the `cu.` name: the matching `tty.` one waits for a signal the cable never sends, so it would hang.
+- **Linux:** it shows up as `/dev/ttyUSB0`. If Klemme15 says Linux won't let it open the port, add yourself to the serial port group (`sudo usermod -aG dialout $USER` on Ubuntu, Debian and Fedora; `uucp` on Arch), then log out and back in.
+
+If another program has the port open (INPA, ISTA, NCS Expert, a terminal), close it first: only one program can use the cable at a time.
+
 ## Set the latency to 1 ms
 
 **Windows:** Device Manager → Ports (COM & LPT) → USB Serial Port (COMx) → Properties → Port Settings → Advanced → Latency Timer (msec): choose **1**, press OK, then unplug the cable and plug it back in.
