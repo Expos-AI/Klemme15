@@ -184,8 +184,8 @@
     <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LineBrush}" BorderThickness="1,0,0,0">
       <Grid>
         <!-- Nothing selected: all faults -->
-        <ScrollViewer IsVisible="{Binding NoSelection}" HorizontalScrollBarVisibility="Disabled" Padding="18,20,22,16">
-        <StackPanel>
+        <ScrollViewer Classes="page" IsVisible="{Binding NoSelection}" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="18,20,8,16">
           <Border Classes="panel" Background="{DynamicResource RaisedBrush}" Padding="12,10" Margin="0,0,0,16" IsVisible="{Binding HasDiscovery}">
             <SelectableTextBlock Text="{Binding Discovery}" TextWrapping="Wrap" FontSize="13" LineHeight="19" />
           </Border>
@@ -239,8 +239,8 @@
         </ScrollViewer>
 
         <!-- A marker selected -->
-        <ScrollViewer IsVisible="{Binding HasSelection}" HorizontalScrollBarVisibility="Disabled" Padding="18,16,22,16">
-        <StackPanel>
+        <ScrollViewer Classes="page" IsVisible="{Binding HasSelection}" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="18,16,8,16">
           <Button Classes="quiet" Content="All faults" Command="{Binding ClearSelectionCommand}" HorizontalAlignment="Left" Margin="0,0,0,10" />
           <StackPanel Spacing="6" Margin="6,0,6,12">
             <TextBlock Classes="muted small" Text="{Binding SelectedKind}" />
