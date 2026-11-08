@@ -220,6 +220,9 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
 
     public bool HasProvenance => Provenance.Length > 0;
 
+    /// <summary>The same without the colon that leads into the source links, where the links aren't shown.</summary>
+    public string ProvenanceAlone => Provenance.TrimEnd(':');
+
     /// <summary>BMW's original wording when the headline is something else (community text or a translation).</summary>
     public string? OfficialLine => Fault.OfficialText is { } t && t != Fault.Description ? $"BMW text: {t}" : null;
     public bool HasOfficialLine => OfficialLine is not null;
