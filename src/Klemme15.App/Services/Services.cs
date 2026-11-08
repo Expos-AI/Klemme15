@@ -33,6 +33,9 @@ public interface IDialogService
     /// <summary>Shows the About dialog (version, links, license).</summary>
     Task ShowAboutAsync(string version);
 
+    /// <summary>Asks a yes/no question with an explanation. Returns true only when the person confirms.</summary>
+    Task<bool> ConfirmAsync(string title, string message, string confirm);
+
     /// <summary>Puts text on the clipboard. Returns false if that isn't possible here.</summary>
     Task<bool> CopyTextAsync(string text);
 
@@ -72,6 +75,9 @@ public sealed class DialogService(Window owner) : IDialogService
         var dialog = new Views.AboutWindow { DataContext = new ViewModels.AboutViewModel(version, this) };
         await dialog.ShowDialog(owner);
     }
+
+    public Task<bool> ConfirmAsync(string title, string message, string confirm) =>
+        new Views.ConfirmWindow(title, message, confirm).ShowDialog<bool>(owner);
 
     public async Task<bool> CopyTextAsync(string text)
     {
@@ -142,6 +148,9 @@ public sealed class AppSettings
 
     /// <summary>The version of the "Before you start" notice this person last confirmed (0: never).</summary>
     public int AcceptedNotice { get; set; }
+
+    /// <summary>The person read and accepted the third-party notice for the bmw-unified-db download.</summary>
+    public bool AcceptedFaultDataNotice { get; set; }
     public bool UseEdiabas { get; set; }
     public string? EdiabasPath { get; set; }
 

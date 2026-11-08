@@ -310,4 +310,30 @@ public class CarStoryTests
         Assert.Contains("Battery ran low", ReportWriter.ToMarkdown(scan));
         Assert.Contains("Warning history", ReportWriter.ToForumPost(scan));
     }
+
+    [Fact]
+    public void A_report_only_links_web_addresses_and_escapes_everything_else()
+    {
+        // A shared snapshot can carry anything in its sources and texts: a saved report must not run it.
+        var dme = new EcuDefinition { Id = "E9x.DME", Name = "Engine <b>(DME)</b>", Address = 0x12, Protocol = BusProtocol.BmwFast, IsEngine = true };
+        var scan = new VehicleScanResult
+        {
+            Started = DateTimeOffset.Now, Backend = "t",
+            Ecus = [new EcuScanResult { Ecu = dme, Status = EcuScanStatus.Faults, Faults =
+            [
+                new Fault
+                {
+                    EcuId = dme.Id, Code = "2A82", Source = FaultSource.Bmw, State = FaultState.Stored, Confidence = "high",
+                    Description = "<script>alert(1)</script>",
+                    Sources = ["javascript:alert(1)", "file:///C:/Windows/System32/calc.exe", "https://example.org/real"],
+                },
+            ] }],
+        };
+        var html = ReportWriter.ToHtml(scan);
+        Assert.DoesNotContain("<script>alert", html);
+        Assert.DoesNotContain("javascript:", html);
+        Assert.DoesNotContain("file:///", html);
+        Assert.Contains("href=\"https://example.org/real\"", html);
+        Assert.Contains("Engine &lt;b&gt;(DME)&lt;/b&gt;", html);
+    }
 }

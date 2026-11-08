@@ -8,6 +8,8 @@
 <p align="center">
   <a href="https://github.com/Expos-AI/Klemme15/actions/workflows/build.yml"><img alt="Build" src="https://github.com/Expos-AI/Klemme15/actions/workflows/build.yml/badge.svg"></a>
   <a href="https://github.com/Expos-AI/Klemme15/releases"><img alt="Latest release" src="https://img.shields.io/github/v/release/Expos-AI/Klemme15?include_prereleases&label=download"></a>
+  <a href="https://github.com/Expos-AI/Klemme15/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/Expos-AI/Klemme15/actions/workflows/codeql.yml/badge.svg"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/Expos-AI/Klemme15"><img alt="OpenSSF Scorecard" src="https://api.scorecard.dev/projects/github.com/Expos-AI/Klemme15/badge"></a>
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/github/license/Expos-AI/Klemme15"></a>
 </p>
 

@@ -269,6 +269,9 @@ public static class ReportWriter
     public static string ToHtml(VehicleScanResult scan, PurchaseReport? purchase = null)
     {
         static string H(string? s) => WebUtility.HtmlEncode(s ?? "");
+        // Links in a report can come from a snapshot someone else made: only web addresses become links (no
+        // javascript:, file: or other schemes that could run something when clicked).
+        static bool IsWebLink(string u) => Uri.TryCreate(u, UriKind.Absolute, out var x) && x.Scheme is "https" or "http";
         var sb = new StringBuilder();
         sb.Append("""
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -351,7 +354,7 @@ section{margin-top:24px}
                 {
                     "official" => "<br><span class=\"muted\">Official text from the module's SGBD</span>",
                     "high" or "medium" => $"<br><span class=\"muted\">Community meaning ({f.Confidence} confidence): " +
-                        string.Join(", ", f.Sources.Take(3).Select(u => $"<a href=\"{H(u)}\">{H(Uri.TryCreate(u, UriKind.Absolute, out var x) ? x.Host : u)}</a>")) + "</span>",
+                        string.Join(", ", f.Sources.Where(IsWebLink).Take(3).Select(u => $"<a href=\"{H(u)}\">{H(Uri.TryCreate(u, UriKind.Absolute, out var x) ? x.Host : u)}</a>")) + "</span>",
                     _ => "",
                 };
                 sb.Append($"<tr><td><code>{H(f.Code)}</code></td><td>{state}</td><td>{H(f.DisplayDescription)}{hint}{origin}</td><td class=\"muted\">{H(details)}</td></tr>");

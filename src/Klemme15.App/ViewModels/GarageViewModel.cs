@@ -144,8 +144,22 @@ public sealed class GarageViewModel : PageViewModel
     /// Downloads the full database once and keeps only the engine measurement tables, so the Readings page works
     /// without BMW's files. Fetches the fault dictionaries first if they aren't installed yet.
     /// </summary>
+    /// <summary>
+    /// The opt-in for third-party, BMW-derived data: the first time, the notice says what it is and whose it is, and
+    /// the download only starts after a deliberate "Download it".
+    /// </summary>
+    private async Task<bool> AcceptFaultDataAsync()
+    {
+        if (_settings.AcceptedFaultDataNotice) return true;
+        if (!await _dialogs.ConfirmAsync("Third-party BMW data", FaultDataDownload.Notice, "Download it")) return false;
+        _settings.AcceptedFaultDataNotice = true;
+        _settings.Save();
+        return true;
+    }
+
     private async Task DownloadReadingsAsync()
     {
+        if (!await AcceptFaultDataAsync()) return;
         _downloading = true;
         DownloadFaultDataCommand.RaiseCanExecuteChanged();
         DownloadReadingsCommand.RaiseCanExecuteChanged();
@@ -193,6 +207,7 @@ public sealed class GarageViewModel : PageViewModel
 
     private async Task DownloadFaultDataAsync()
     {
+        if (!await AcceptFaultDataAsync()) return;
         _downloading = true;
         DownloadFaultDataCommand.RaiseCanExecuteChanged();
         DownloadText = "Starting download...";

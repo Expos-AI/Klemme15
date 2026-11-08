@@ -342,8 +342,8 @@ public sealed class FaultsViewModel : PageViewModel
     public bool ShowFaultDataPrompt => _faultData is { NeedsFaultData: true } && !_session.IsDemo && Unexplained > 0;
 
     public string FaultDataPrompt => _faultData?.DownloadText ?? (Unexplained == 1
-        ? "1 code here only has a general meaning. The free fault database gives BMW's own text for every code (one download, then it works offline)."
-        : $"{Unexplained} codes here only have a general meaning. The free fault database gives BMW's own text for every code (one download, then it works offline).");
+        ? "1 code here only has a general meaning. The optional fault database from the bmw-unified-db project (third-party, BMW-derived) gives BMW's own text for every code."
+        : $"{Unexplained} codes here only have a general meaning. The optional fault database from the bmw-unified-db project (third-party, BMW-derived) gives BMW's own text for every code.");
 
     /// <summary>Re-read fault memory of every module that answered in the last scan.</summary>
     private async Task RefreshAsync()

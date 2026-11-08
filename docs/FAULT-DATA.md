@@ -14,6 +14,8 @@ Klemme15 combines four sources, and tells you on every fault which one it used.
 | **Klemme15 research** (`src/Klemme15.Data/db/bmw-codes.json`) | Plain-English meanings, common causes and fixes, with sources | Yes, our own work |
 | **Generic OBD-II** (`obd-generic.json`, `obd-codes.json`) | Meanings for `P0xxx`-style codes | Yes |
 
+**About bmw-unified-db:** it's an independent project, not Klemme15's and not BMW's, and it describes its BMW-derived layers as copyrighted by BMW, published for interoperability and right to repair. Before the first download, Klemme15 (and `klemme15 db download`) shows a short notice saying so, and downloads only after you confirm. Whether you may use the data where you live is your responsibility; Klemme15 works without it. See [Safety, legal and transparency](LEGAL.md).
+
 ## How a code is described
 
 1. **Find the module version.** In order of trust:

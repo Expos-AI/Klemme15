@@ -170,3 +170,32 @@ public sealed class WelcomeNoticeWindow : Window
         Content = new ScrollViewer { Content = panel };
     }
 }
+
+/// <summary>A plain yes/no question with an explanation, for decisions that need a deliberate "yes".</summary>
+public sealed class ConfirmWindow : Window
+{
+    public ConfirmWindow(string title, string message, string confirm)
+    {
+        Title = title + " · Klemme15";
+        Width = 560;
+        SizeToContent = SizeToContent.Height;
+        CanResize = false;
+        WindowStartupLocation = WindowStartupLocation.CenterOwner;
+        var heading = new TextBlock { Text = title, TextWrapping = TextWrapping.Wrap };
+        heading.Classes.Add("section");
+        var body = new SelectableTextBlock { Text = message, TextWrapping = TextWrapping.Wrap };
+        var yes = new Button { Content = confirm, Padding = new Thickness(16, 7) };
+        yes.Classes.Add("primary");
+        var no = new Button { Content = "Cancel", Padding = new Thickness(14, 7) };
+        yes.Click += (_, _) => Close(true);
+        no.Click += (_, _) => Close(false);
+        var buttons = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8, HorizontalAlignment = HorizontalAlignment.Right };
+        buttons.Children.Add(no);
+        buttons.Children.Add(yes);
+        var panel = new StackPanel { Spacing = 14, Margin = new Thickness(26, 22, 26, 20) };
+        panel.Children.Add(heading);
+        panel.Children.Add(body);
+        panel.Children.Add(buttons);
+        Content = panel;
+    }
+}

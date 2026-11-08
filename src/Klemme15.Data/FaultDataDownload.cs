@@ -33,6 +33,18 @@ public static class FaultDataDownload
     public const string AssetName = "json.tar.gz";
     public const string ApproxSize = "13 MB";
 
+    /// <summary>
+    /// Said before every first download (app and command line): what this data is, whose it is, and that using it is
+    /// the user's choice and responsibility. Klemme15 only fetches it from the project, on request.
+    /// </summary>
+    public const string Notice =
+        "This download comes from bmw-unified-db, an independent community project (github.com/gediz/bmw-unified-db), " +
+        "not from Klemme15 and not from BMW. It contains fault texts and engine values derived from BMW's own diagnostic " +
+        "data, which that project says is copyrighted by BMW and published for interoperability and right to repair. " +
+        "Klemme15 doesn't include or host it: it downloads it from that project only when you ask, checks its checksum, " +
+        "and keeps it on your computer. Whether you may use it where you live, and on what terms, is your responsibility; " +
+        "the project's own terms apply. You don't need it: Klemme15 works without it, with its own researched meanings.";
+
     /// <summary>Chassis the kept variants must be listed for (E9x is filed under E89 in BMW's data).</summary>
     private static readonly HashSet<string> Chassis = new(StringComparer.OrdinalIgnoreCase)
         { "E46", "E89", "E90", "E91", "E92", "E93", "E81", "E82", "E87", "E88" };

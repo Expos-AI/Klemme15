@@ -8,6 +8,6 @@
     <Authors>Kindric Castro</Authors>
     <Copyright>Copyright (C) 2026 Kindric Castro. GPL-3.0-or-later.</Copyright>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <Version>0.99.13</Version>
+    <Version>0.99.14</Version>
   </PropertyGroup>
 </Project>

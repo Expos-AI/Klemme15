@@ -1,6 +1,12 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.13:**
+**New in 0.99.14:** a security and legal pass.
+- **The BMW fault database is opt-in, with a clear notice.** Before the first download (in the app and with `klemme15 db download`), Klemme15 says what it is: data from the independent bmw-unified-db project, derived from BMW's own and, as that project says, copyrighted by BMW. It downloads only after you confirm, and Klemme15 works without it.
+- **Safety, legal and transparency** now has a short, sourced summary of the U.S. rules Klemme15 is built around (the DMCA repair exemption, emissions, mileage, trademarks).
+- **Saved reports only link web addresses**, so a crafted snapshot can't put a `javascript:` or `file:` link into a report you save and open.
+- **Project security:** OpenSSF Scorecard checks the project weekly (badge in the README), Dependabot now also updates the GitHub Actions the builds use, and every change has a code owner.
+
+**0.99.13:**
 - **Safety, legal and transparency, in the app.** The shield button in the sidebar opens the whole page: no warranty and your own risk, working on a car safely, what experimental means, what Klemme15 never does, copyright and BMW's software, trademarks, how good the fault meanings are, privacy, and how Klemme15 is made (AI coding tools help write parts of it). The same text is [docs/LEGAL.md](https://github.com/Expos-AI/Klemme15/blob/main/docs/LEGAL.md).
 - **Before you start:** the first time Klemme15 opens, it shows the short version and asks you to tick that you understand you use it at your own risk. It asks again only if the notice changes. It doesn't add conditions to the GPL.
 

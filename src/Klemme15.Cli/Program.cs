@@ -106,6 +106,16 @@ internal static class Cli
         return 0;
     }
 
+    /// <summary>The third-party data notice; carries on with --yes, or after "y" at an interactive prompt.</summary>
+    private static bool ConfirmThirdPartyData(Args a)
+    {
+        Console.WriteLine(FaultDataDownload.Notice);
+        if (a.Has("yes")) return true;
+        if (Console.IsInputRedirected) { Console.Error.WriteLine("Add --yes to download it without asking."); return false; }
+        Console.Write("Download it? [y/N] ");
+        return Console.ReadLine()?.Trim().StartsWith('y') == true;
+    }
+
     private static async Task<int> Database(VehicleDatabase db, Args a)
     {
         switch (a.Positional.FirstOrDefault() ?? "status")
@@ -115,6 +125,7 @@ internal static class Cli
                 Console.WriteLine($"Optional database: {FaultDataDownload.ProjectUrl} (third-party; BMW-derived data, see {FaultDataDownload.LicenseUrl})");
                 return 0;
             case "download":
+                if (!ConfirmThirdPartyData(a)) return 2;
                 Console.WriteLine($"Downloading {FaultDataDownload.AssetName} from {FaultDataDownload.ProjectUrl} ...");
                 var last = -1;
                 var m = await FaultDataDownload.DownloadAsync(db, progress: new Progress<double>(p =>
@@ -134,6 +145,7 @@ internal static class Cli
                 return 0;
             case "download-full":
             {
+                if (!ConfirmThirdPartyData(a)) return 2;
                 if (FaultDataDownload.ReadManifest() is null)
                 {
                     Console.WriteLine("Downloading the fault database first ...");

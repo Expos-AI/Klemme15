@@ -65,4 +65,7 @@ Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-
 - CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; third-party workflow actions are pinned to exact commits.
 - Workflows run with read-only permissions unless a job needs more.
 - Shared baselines are untrusted input: the intake workflow only follows GitHub attachment links, caps the download size, accepts plain numbers in known columns and never runs anything from the file.
-- Contributions require a [Developer Certificate of Origin](CONTRIBUTING.md#sign-off-your-commits-dco) sign-off.
+- Contributions require a [Developer Certificate of Origin](CONTRIBUTING.md#sign-off-your-commits-dco) sign-off, and every change is reviewed by the maintainer (`.github/CODEOWNERS`).
+- Links from other people's data open only if they're web addresses (`https:`/`http:`), in the app and in saved reports, so a crafted snapshot can't launch a program or a script.
+- GitHub secret scanning and push protection are on, and security problems can be reported privately (above).
+- [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/Expos-AI/Klemme15) checks how the project is run every week and publishes the result; it's the badge at the top of the README.

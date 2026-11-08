@@ -109,7 +109,7 @@
             <StackPanel Spacing="2" Margin="0,0,16,0">
               <TextBlock Text="Get BMW's own meaning for every fault code" FontWeight="SemiBold" />
               <TextBlock Classes="muted small" TextWrapping="Wrap"
-                         Text="One-time free download from the community project bmw-unified-db (details further down), or use your own ISTA/INPA files." />
+                         Text="Optional: a one-time download from the independent project bmw-unified-db (third-party data derived from BMW's; you'll see what that means before anything downloads), or use your own ISTA/INPA files." />
               <TextBlock Classes="lit small" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
             </StackPanel>
           </DockPanel>

@@ -47,3 +47,16 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+
+  # The GitHub Actions the workflows use (checkout, setup-dotnet, CodeQL, Scorecard...), including the ones pinned
+  # to a commit: Dependabot updates the pin and its version comment together.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    labels: ["dependencies"]
+    groups:
+      actions:
+        patterns: ["*"]

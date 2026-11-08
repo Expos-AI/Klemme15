@@ -46,9 +46,18 @@ A function is **experimental** until it has been confirmed to work on a real car
 Klemme15 is written from scratch and contains **no BMW software and no BMW data files**. It doesn't decrypt or unpack BMW's programs, and it doesn't link to unofficial copies of them.
 
 - **Your own BMW files.** If you point Klemme15 at an ISTA, INPA, EDIABAS or NCS Expert installation, it reads those files on your computer and never copies or uploads them. Whether you have the right to use them is between you and BMW. Workshops can get BMW's software legally from BMW's aftersales portal.
-- **The fault database.** The optional download of BMW's fault texts comes from [bmw-unified-db](https://github.com/gediz/bmw-unified-db), an independent community project. Klemme15 fetches it only when you ask, checks its checksum, and uses it under that project's own terms.
+- **The fault database.** The optional download of BMW's fault texts and engine values comes from [bmw-unified-db](https://github.com/gediz/bmw-unified-db), an independent community project. That project describes this data as derived from BMW's own and copyrighted by BMW, published for interoperability and right to repair. Klemme15 doesn't include or host it: it fetches it from that project only when you ask, after showing you this notice once, and checks its checksum. Whether you may use it where you live, and on what terms, is your responsibility. Klemme15 works without it.
 - **EdiabasLib.** EDIABAS mode uses [EdiabasLib](https://github.com/uholeschak/ediabaslib), an open-source re-implementation of EDIABAS, under its own licence.
 - **Fonts and libraries.** The Barlow fonts are used under the SIL Open Font License; the user interface is built with Avalonia (MIT licence). Each component keeps its own licence.
+
+## The law, briefly
+
+This is a plain summary of the rules Klemme15 is built around, for the United States, as of late 2026. It isn't legal advice, laws differ between countries and states, and they change: check the rules where you live.
+
+- **Repair and diagnosis.** The U.S. Copyright Office's exemption under section 1201 of the DMCA, renewed in [October 2024](https://www.federalregister.gov/documents/2024/10/28/2024-24563/exemption-to-prohibition-on-circumvention-of-copyright-protection-systems-for-access-control), lets vehicle owners, and people acting for them, get around access controls on a vehicle's software to diagnose, repair or lawfully modify it. Klemme15 doesn't need that exemption for what it does: it talks to the car over its documented diagnostic protocols, and it never decrypts or unlocks BMW's programs.
+- **Emissions.** The Clean Air Act forbids removing or disabling a vehicle's emissions controls, and the EPA still enforces it ([EPA tampering policy](https://www.epa.gov/enforcement/epa-tampering-policy-epa-enforcement-policy-vehicle-and-engine-tampering-and)). Klemme15 has no function that disables, deletes or hides emissions equipment.
+- **Mileage.** Federal law makes it illegal to change a vehicle's recorded mileage ([49 U.S.C. § 32703](https://www.law.cornell.edu/uscode/text/49/32703)). Klemme15 only reads mileage.
+- **Trademarks.** Naming BMW, ISTA or INPA to say what Klemme15 works with is allowed as long as it's accurate and doesn't suggest BMW endorses it ([nominative fair use](https://www.inta.org/fact-sheets/fair-use-of-trademarks-intended-for-a-non-legal-audience/)). That's why Klemme15 uses BMW's names only in plain text, never its logos, and says everywhere that it isn't affiliated with BMW.
 
 ## Trademarks
 

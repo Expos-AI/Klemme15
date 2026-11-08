@@ -326,6 +326,7 @@ sealed class NoDialogs : IDialogService
     public Task<string?> OpenTextAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<string?>(null);
     public Task OpenUrlAsync(string url) => Task.CompletedTask;
     public Task ShowAboutAsync(string version) => Task.CompletedTask;
+    public Task<bool> ConfirmAsync(string title, string message, string confirm) => Task.FromResult(false);
     public Task<string?> SaveBytesAsync(string title, string suggestedName, string extension, string description, byte[] content) => Task.FromResult<string?>(null);
     public Task<(byte[] Data, string Name)?> OpenBytesAsync(string title, string description, IReadOnlyList<string> patterns) => Task.FromResult<(byte[] Data, string Name)?>(null);
 }
