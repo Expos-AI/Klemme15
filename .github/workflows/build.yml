@@ -230,9 +230,16 @@ jobs:
       - name: Signed build provenance
         # A signed statement (Sigstore) that each zip was built by this workflow from this commit. Stronger than the
         # checksums alone, which live next to the files they describe. Verify: gh attestation verify <zip> -R Expos-AI/Klemme15
+        id: provenance
         uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: dist/*.zip
+      - name: Attach the provenance to the release
+        # The same signed statement as a release file, so it can be checked offline:
+        #   gh attestation verify <zip> -R Expos-AI/Klemme15 --bundle Klemme15-<version>.intoto.jsonl
+        env:
+          BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
+        run: cp "$BUNDLE" "dist/Klemme15-${RELEASE_TAG}.intoto.jsonl"
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -244,7 +251,7 @@ jobs:
           pre=()
           if [[ "$RELEASE_TAG" == v0.* || "$RELEASE_TAG" == *-* ]]; then pre=(--prerelease); fi
           ls -la dist
-          gh release create "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt --target "$GITHUB_SHA" \
+          gh release create "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt dist/*.intoto.jsonl --target "$GITHUB_SHA" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Klemme15 $RELEASE_TAG" \
             "${pre[@]}" \

@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.14:** a security and legal pass.
+**New in 0.99.15:**
+- **Each release now carries its signed build provenance as a file** (`Klemme15-v0.99.15.intoto.jsonl`), next to the checksums, so anyone can check a download was built by this project's workflow from this commit, even offline. See [SECURITY.md](https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download).
+
+**0.99.14:** a security and legal pass.
 - **The BMW fault database is opt-in, with a clear notice.** Before the first download (in the app and with `klemme15 db download`), Klemme15 says what it is: data from the independent bmw-unified-db project, derived from BMW's own and, as that project says, copyrighted by BMW. It downloads only after you confirm, and Klemme15 works without it.
 - **Safety, legal and transparency** now has a short, sourced summary of the U.S. rules Klemme15 is built around (the DMCA repair exemption, emissions, mileage, trademarks).
 - **Saved reports only link web addresses**, so a crafted snapshot can't put a `javascript:` or `file:` link into a report you save and open.
