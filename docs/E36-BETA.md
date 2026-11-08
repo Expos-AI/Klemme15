@@ -48,7 +48,7 @@ Write down or screenshot what you see at each step. "It said X" is more useful t
 
 **8. Clear the engine's faults (optional).** On the **Faults** page, clear the engine faults and read them again. Note whether they cleared. Skip this if you need your codes for a repair, and **don't do it right before a smog check or emissions inspection**: clearing faults also resets the readiness monitors, and the car needs a few days of driving to set them again.
 
-**9. EDIABAS mode (optional, Windows only, and only if you already have INPA/EDIABAS installed).** Disconnect, then in the **Garage**'s cable panel tick **Use my own BMW files (EDIABAS mode)**, check the folder it shows (usually `C:\EDIABAS\Ecu`), press **Connect** and repeat step 4. This shows whether Klemme15 can read the other modules' faults through your INPA files.
+**9. EDIABAS mode (optional, Windows only, and only if you already have INPA/EDIABAS installed).** Disconnect, then in the **Garage**'s cable panel tick **Use my own BMW files (EDIABAS mode)**, check the folder it shows (usually `C:\EDIABAS\Ecu`), press **Connect** and repeat step 4. This shows whether Klemme15 can read the other modules' faults through your INPA files. If you use INPA anyway, it's also the perfect reference: note which modules INPA reaches on your car (and whether through the OBD-II port or the round plug), so we can compare them with what Klemme15 found.
 
 Please don't use the **Service** or **Coding** pages on your E36: there's nothing for the E36 there yet.
 
