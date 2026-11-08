@@ -90,7 +90,7 @@ public sealed class MainViewModel : ViewModelBase
         ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
         AboutCommand = new RelayCommand(() => _ = dialogs.ShowAboutAsync(Version));
         SupportCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Support));
-        PrivacyCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Privacy));
+        PrivacyCommand = new RelayCommand(() => _ = ShowNotices is { } show ? show() : dialogs.OpenUrlAsync(Services.Links.Legal));
         CoffeeCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Coffee));
 
         DismissInterruptedCommand = new RelayCommand(Session.DismissInterrupted);
@@ -218,6 +218,9 @@ public sealed class MainViewModel : ViewModelBase
     public RelayCommand AboutCommand { get; }
     public RelayCommand SupportCommand { get; }
     public RelayCommand PrivacyCommand { get; }
+
+    /// <summary>Opens "Safety, legal and transparency" in the app (set by the desktop app; elsewhere the web page opens).</summary>
+    public Func<Task>? ShowNotices { get; set; }
     public RelayCommand CoffeeCommand { get; }
     public bool HasCoffee => !string.IsNullOrWhiteSpace(Services.Links.Coffee);
 

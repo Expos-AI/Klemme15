@@ -139,6 +139,9 @@ public sealed class AppSettings
     public string Theme { get; set; } = "Dark";
     public string? Port { get; set; }
     public bool UseDemo { get; set; }
+
+    /// <summary>The version of the "Before you start" notice this person last confirmed (0: never).</summary>
+    public int AcceptedNotice { get; set; }
     public bool UseEdiabas { get; set; }
     public string? EdiabasPath { get; set; }
 

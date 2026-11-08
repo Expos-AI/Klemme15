@@ -241,6 +241,17 @@ Connect();
 ScanAndWait();
 Shot("15-e46-330i-vehicle");
 
+// The "Before you start" notice shown on first launch, and the full safety and legal page.
+foreach (var (name, notice) in new (string, Avalonia.Controls.Window)[] { ("35-before-you-start", new WelcomeNoticeWindow()), ("36-safety-legal", new NoticesWindow()) })
+{
+    notice.Show();
+    Pump(300);
+    if (notice.CaptureRenderedFrame() is { } shot) { shot.Save(Path.Combine(outDir, name + ".png")); Console.WriteLine($"  {name}.png"); }
+    else problems.Add($"{name}: no frame rendered");
+    foreach (var issue in LayoutCheck.Find(notice)) layout.Add($"{name}: {issue}");
+    notice.Close();
+}
+
 // Every page again at a 1080p laptop with 150 % scaling (1280 x 720 logical pixels), dark theme.
 window.Width = 1280; window.Height = 720;
 vm.Garage.SelectModel("E9x-325i");

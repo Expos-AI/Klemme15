@@ -30,6 +30,21 @@ public class DocsTests
     private static string Version => Regex.Match(Read("Directory.Build.props"), @"<Version>([^<]+)</Version>").Groups[1].Value;
 
     [Fact]
+    public void The_safety_and_legal_notice_has_the_short_version_the_app_asks_people_to_read()
+    {
+        // The app builds its "Before you start" screen from the bullets under "## In short" in docs/LEGAL.md.
+        var legal = Read(Path.Combine("docs", "LEGAL.md"));
+        var summary = Regex.Match(legal, @"## In short\n\n((?:- .+\n)+)").Groups[1].Value;
+        Assert.InRange(summary.Split('\n', StringSplitOptions.RemoveEmptyEntries).Length, 5, 10);
+        foreach (var must in new[] { "no warranty", "own risk", "experimental", "never", "BMW", "affiliated" })
+            Assert.Contains(must.ToLowerInvariant(), summary.ToLowerInvariant());
+        Assert.True(Regex.IsMatch(summary, @"\bAI\b"), "the short version says AI tools help make Klemme15");
+        Assert.Contains("docs/LEGAL.md", Read("README.md"));
+        Assert.Contains("docs/LEGAL.md", Read(Path.Combine("docs", "index.html")));
+        Assert.Contains("LEGAL.md", Read(Path.Combine("src", "Klemme15.App", "Klemme15.App.csproj")));
+    }
+
+    [Fact]
     public void ReleaseNotesStartWithThisVersion()
     {
         var notes = Read(Path.Combine(".github", "release-notes.md"));

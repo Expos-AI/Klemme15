@@ -18,6 +18,7 @@ public static class Links
     public const string Project = "https://github.com/Expos-AI/Klemme15";
     public const string Support = "https://github.com/Expos-AI/Klemme15/issues";
     public const string Privacy = "https://github.com/Expos-AI/Klemme15/blob/main/PRIVACY.md";
+    public const string Legal = "https://github.com/Expos-AI/Klemme15/blob/main/docs/LEGAL.md";
 
     /// <summary>Step-by-step guide to quick codes (NCS Expert route and the "teach from another tool" route).</summary>
     public const string QuickCodesGuide = "https://github.com/Expos-AI/Klemme15/blob/main/docs/QUICK-CODES.md";

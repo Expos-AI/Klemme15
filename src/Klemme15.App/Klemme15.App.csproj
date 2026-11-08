@@ -19,6 +19,8 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <!-- Safety, legal and transparency: the same text as docs/LEGAL.md, shown in the app. -->
+    <EmbeddedResource Include="..\..\docs\LEGAL.md" LogicalName="Klemme15.LEGAL.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Klemme15.Core\Klemme15.Core.csproj" />

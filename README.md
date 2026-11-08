@@ -126,6 +126,10 @@ Don't operate Klemme15 while driving: set up the Ghost Hunter or a recording bef
 
 What Klemme15 reads from your car stays on your computer. There's no account, no telemetry and no server, and it only goes online when you ask (a download, a link, a network cable you set up). The [privacy policy](PRIVACY.md) lists every file it saves.
 
+## Safety, legal and transparency
+
+Klemme15 comes with no warranty: you use it at your own risk. [Safety, legal and transparency](docs/LEGAL.md) covers working on the car safely, what experimental means, what Klemme15 never does, copyright and BMW's software, trademarks, how good the fault meanings are, and how Klemme15 is made (AI coding tools help write parts of it). The app shows the short version once when you first start it, and the whole page under the shield button in the sidebar.
+
 ## Getting help
 
 - **Cable or connection problems:** the [cable guide](docs/CABLE.md).

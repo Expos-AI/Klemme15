@@ -125,9 +125,21 @@ public partial class App : Application
         AsyncCommand.DefaultError = main.ShowProblem;
         Dispatcher.UIThread.UnhandledException += (_, e) => { e.Handled = true; main.ShowProblem(e.Exception); };
         main.ApplyTheme();
+        main.ShowNotices = () => new NoticesWindow().ShowDialog(window);
         window.DataContext = main;
         window.Closing += (_, _) => main.Shutdown();
         desktop.MainWindow = window;
+        // The first time (and after the notice changes): the short safety and legal notice, confirmed once.
+        window.Opened += async (_, _) =>
+        {
+            if (settings.AcceptedNotice >= NoticeText.Version) return;
+            if (await new WelcomeNoticeWindow().ShowDialog<bool>(window))
+            {
+                settings.AcceptedNotice = NoticeText.Version;
+                settings.Save();
+            }
+            else desktop.Shutdown();
+        };
         if (show) window.Show();
         // Started with a .k15 file (double-clicked, or "Open with Klemme15"): open it straight away.
         if (desktop.Args?.FirstOrDefault(a => a.EndsWith(Klemme15.Core.SnapshotFile.Extension, StringComparison.OrdinalIgnoreCase) && File.Exists(a)) is { } path)
