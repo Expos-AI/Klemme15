@@ -138,6 +138,12 @@
     .ticks li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 10px; height: 6px; border-left: 2px solid var(--lit); border-bottom: 2px solid var(--lit); transform: rotate(-45deg); }
     .ticks b { color: var(--ink); font-weight: 600; }
     .shot img { width: 100%; height: auto; }
+    /* Vertical clips recorded from the app (tools/Klemme15.Reel): zoomed in on what matters, so they read on a phone. */
+    .clip { margin: 0 auto; width: 100%; max-width: 430px; }
+    .clip .frame video { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+    .clip figcaption { color: var(--muted); font-size: 13px; margin-top: 10px; text-align: center; line-height: 1.5; }
+    .shot-pair .clip { max-width: 400px; }
+    .shot-pair .clip figcaption { font-size: 14px; text-align: left; }
     .note { color: var(--muted); font-size: 14px; margin: 18px 0 0; }
 
     /* Comparison */
@@ -357,7 +363,7 @@
               <li><b>See where it is.</b> A top view of the car with each fault pinned to the part it points at.</li>
           </ul>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/07-faults.png" alt="Klemme15 Faults page with faults sorted by priority, health trends and the car's warning history" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/quick-test.jpg" width="720" height="900" aria-label="Klemme15 Faults page with faults sorted by priority, health trends and the car's warning history"><source src="media/quick-test.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
       </div>
     </section>
     <section id="test" class="feature flip">
@@ -377,7 +383,7 @@
               <li><b>Readings and live data.</b> Engine values out of the box, every module's values with your BMW files. Live graphs, CSV recording and an Analyse page to replay a log.</li>
           </ul>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/19-tests.png" alt="Klemme15 Tests page with a fuel trim test graph" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/tests.jpg" width="720" height="900" aria-label="Klemme15 Tests page with a fuel trim test graph"><source src="media/tests.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app</figcaption></figure>
       </div>
     </section>
     <section id="workshop" class="feature">
@@ -398,7 +404,7 @@
           </ul>
             <p class="note">75 functions in all, all experimental. Battery registration is confirmed on a real E90; it and every other function stay behind the experimental switch until marked confirmed.</p>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/18-service.png" alt="Klemme15 Service page running a service function" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/service.jpg" width="720" height="900" aria-label="Klemme15 Service page running a service function"><source src="media/service.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
       </div>
     </section>
     <section id="coding" class="feature flip">
@@ -415,7 +421,7 @@
               <li><b>Retrofit checker.</b> Notices a swapped or added module and tells you what the job needs.</li>
           </ul>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/20-coding.png" alt="Klemme15 Coding page with a module backup and comparison" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/coding.jpg" width="720" height="900" aria-label="Klemme15 Coding page with a module backup and comparison"><source src="media/coding.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
       </div>
     </section>
     <section id="health" class="feature">
@@ -432,7 +438,7 @@
               <li><b>Private.</b> The history stores no VIN and stays on your computer. Forget a car with one click.</li>
           </ul>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/02-garage-335i.png" alt="Klemme15 Garage with every model and its demo car" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/buying-check.jpg" width="720" height="900" aria-label="Klemme15 Garage with every model and its demo car"><source src="media/buying-check.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
       </div>
     </section>
     <section id="ghost" class="feature flip">
@@ -447,13 +453,13 @@
               <li><b>Live values on the car.</b> Coolant, battery voltage, oil and intake temperature on the top view of the car, where each one happens, amber or red when out of range.</li>
           </ul>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/29-ghost-hunter.png" alt="Klemme15 Ghost Hunter watching for a condition and saving a capture" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/ghost-hunter.jpg" width="720" height="900" aria-label="Klemme15 Ghost Hunter watching for a condition and saving a capture"><source src="media/ghost-hunter.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app</figcaption></figure>
       </div>
       <div class="wrap shot-pair">
-        <figure><div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/30-analyse-baseline.png" alt="A healthy fuel trim band drawn behind a log that runs lean at idle" loading="lazy" width="1440" height="900"></div>
-          <figcaption>A healthy band behind your log. This one runs lean at idle and fine above it: the vacuum-leak pattern.</figcaption></figure>
-        <figure><div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/31-vehicle-live-values.png" alt="Coolant, engine speed and battery voltage shown live on the top view of the car" loading="lazy" width="1440" height="900"></div>
-          <figcaption>Live values where they happen: coolant at the engine, voltage at the battery.</figcaption></figure>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/compare-healthy.jpg" width="720" height="900" aria-label="A healthy fuel trim band drawn behind a log that runs lean at idle"><source src="media/compare-healthy.mp4" type="video/mp4"></video></div>
+          <figcaption><b>Demo car.</b> A healthy band behind your log. This one runs lean at idle and fine above it: the vacuum-leak pattern.</figcaption></figure>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/live-on-car.jpg" width="720" height="900" aria-label="Coolant, engine speed and battery voltage shown live on the top view of the car"><source src="media/live-on-car.mp4" type="video/mp4"></video></div>
+          <figcaption><b>Demo car.</b> Live values where they happen: coolant at the engine, voltage at the battery.</figcaption></figure>
       </div>
     </section>
     <section id="share" class="feature">
@@ -469,7 +475,7 @@
               <li><b>Phone dashboard.</b> Leave a small Linux computer on the OBD port and watch gauges and faults on your phone. A Raspberry Pi needs a build from source for now.</li>
           </ul>
         </div>
-        <div class="frame shot"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" alt="A shared Klemme15 snapshot opened read-only with the owner's note" loading="lazy" width="1440" height="900"></div>
+        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/share.jpg" width="720" height="900" aria-label="A shared Klemme15 snapshot opened read-only with the owner's note"><source src="media/share.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
       </div>
     </section>
     <!-- Why -->
@@ -520,14 +526,12 @@
 
         <div class="reel">
           <div class="reel-text">
-            <span class="eyebrow">Snapshots</span>
-            <h3>Share your whole car in one file</h3>
-            <p>Save a snapshot and attach it to your forum post. Whoever opens it explores your car as if they were plugged in: every module, every fault, the dash warning history and, if you include it, the last minute of live data. Read-only, with the VIN removed; if you add the optional traffic log, give it a skim first.</p>
-            <ul><li>Your note on top: what's wrong, what you tried</li><li>Live data replays on the Analyse page</li></ul>
+            <span class="eyebrow">Fault meanings</span>
+            <h3>What the code means, and what to check</h3>
+            <p>Every fault comes with a plain-English meaning, how urgent it is, and where on the car it points. Press Troubleshoot and the checks open, step by step, with the sources the meaning comes from.</p>
+            <ul><li>Fix now, worth checking, or background</li><li>Sources and confidence on every meaning</li></ul>
           </div>
-          <div class="frame">
-            <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/24-snapshot-faults.png" alt="Opening a shared snapshot in Klemme15" loading="lazy" width="1440" height="900">
-          </div>
+          <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/plain-english.jpg" width="720" height="900" aria-label="A fault explained in plain English, then its troubleshooting steps"><source src="media/plain-english.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
         </div>
 
         <div class="reel flip">
@@ -537,21 +541,17 @@
             <p>Lean codes? The Vacuum leak hunter compares your fuel trims at idle and 2,500 rpm, checks the airflow against your engine's size, asks you one question and points to the likely cause, with the numbers and graphs to back it up.</p>
             <ul><li>Anyone can write one; chains only read and ask</li><li>Offered right under the fault it explains</li></ul>
           </div>
-          <div class="frame">
-            <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/25-chain-question.png" alt="Running the Vacuum leak hunter diagnostic chain" loading="lazy" width="1440" height="900">
-          </div>
+          <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/step-by-step.jpg" width="720" height="900" aria-label="The Vacuum leak hunter asking its question and giving its verdict"><source src="media/step-by-step.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app</figcaption></figure>
         </div>
 
         <div class="reel">
           <div class="reel-text">
-            <span class="eyebrow">Coding with automatic restore</span>
-            <h3>One click, and a way back</h3>
-            <p>Back up a module's coding before anything touches it, switch comfort options like LED bulb-check off, and let Klemme15 read every block back. If anything doesn't match, the original goes back in automatically.</p>
-            <ul><li>Comfort modules only: never the key, engine, brakes or airbags</li><li>Only settings Klemme15 knows exactly for your module</li></ul>
+            <span class="eyebrow">Battery drain finder</span>
+            <h3>Battery flat after the car sits?</h3>
+            <p>Klemme15 lists what the car itself recorded about its battery running down, works out how many days your parked current leaves you before it won't start, and walks you through finding the circuit, fuse by fuse.</p>
+            <ul><li>The car's own records plus one meter reading</li><li>A guided hunt, one fuse at a time</li></ul>
           </div>
-          <div class="frame">
-            <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/20-coding.png" alt="Backing up and coding a module with automatic restore" loading="lazy" width="1440" height="900">
-          </div>
+          <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/battery-drain.jpg" width="720" height="900" aria-label="The battery drain finder: clues from the car, days until it won't start, the fuse hunt"><source src="media/battery-drain.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
         </div>
       </div>
     </section>
@@ -733,6 +733,20 @@
       } else start();
       // Click to watch it again.
       stage.addEventListener("click", function () { if (played) run().catch(endState); });
+    })();
+
+    // Clips play while they're on screen and pause when they leave; with reduced motion they wait for a click.
+    (function () {
+      var clips = document.querySelectorAll(".clip video");
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (still || !("IntersectionObserver" in window)) { clips.forEach(function (v) { v.controls = true; v.preload = "metadata"; }); return; }
+      var watch = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) { var p = e.target.play(); if (p && p.catch) p.catch(function () { e.target.controls = true; }); }
+          else e.target.pause();
+        });
+      }, { threshold: 0.35 });
+      clips.forEach(function (v) { watch.observe(v); });
     })();
 
     // Copy the install command.
