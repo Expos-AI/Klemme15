@@ -62,7 +62,7 @@ Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-
 - No network access except what you ask for (see [PRIVACY.md](PRIVACY.md)).
 - No flashing, no key or immobiliser functions, no coding of the key, engine, gearbox, brake or airbag modules.
 - Files from other people (snapshots, maps, baselines, chains) are size-limited, checked and validated before anything is shown or used.
-- CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; third-party workflow actions are pinned to exact commits.
+- CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; every workflow action is pinned to an exact commit, and Dependabot moves the pins forward.
 - Workflows run with read-only permissions unless a job needs more.
 - Shared baselines are untrusted input: the intake workflow only follows GitHub attachment links, caps the download size, accepts plain numbers in known columns and never runs anything from the file.
 - Contributions require a [Developer Certificate of Origin](CONTRIBUTING.md#sign-off-your-commits-dco) sign-off, and every change is reviewed by the maintainer (`.github/CODEOWNERS`).
