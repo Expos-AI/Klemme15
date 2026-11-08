@@ -31,7 +31,7 @@ Only when you ask, and only to these:
 | Download BMW fault texts or engine readings | github.com (the [bmw-unified-db](https://github.com/gediz/bmw-unified-db) project's release, found through api.github.com) | Nothing about your car |
 | **Get the latest community maps** (Coding page) | raw.githubusercontent.com (this project) | Nothing about your car |
 | **Translate** a BMW fault text | Google Translate, in your browser | That fault's German text |
-| Open a link (About, help, privacy, sponsor) | That page, in your browser | Nothing about your car |
+| Open a link (About, help, privacy, the Ko-fi tip page) | That page, in your browser | Nothing about your car |
 | Connect a Wi-Fi cable, or run `klemme15 serve` | Only the devices and the MQTT broker you set up, on your own network | Your car's live data, to them |
 
 ## Things you choose to share

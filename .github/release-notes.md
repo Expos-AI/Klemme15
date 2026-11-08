@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.17:** the Vehicle page on smaller screens.
+**New in 0.99.18:**
+- **Support Klemme15, if you like.** Klemme15 stays free with nothing locked. If it helped, you can now leave a tip on [Ko-fi](https://ko-fi.com/klemme15) (card or PayPal, no account needed): from the cup button in the sidebar, the About window, and a quiet line under a finished test's verdict. No pop-ups, no reminders.
+
+**0.99.17:** the Vehicle page on smaller screens.
 - **The car drawing fits the window**, so its legend and the live values button no longer fall off the bottom when there are notices above it.
 - **The side panel scrolls as one.** Dash messages and faults used to share it in two boxes with their own scroll bars, which could squeeze the fault list to a sliver. Now it's one list you scroll.
 - **No text under the scroll bar.** Long dash message tips and labels like "Advisory" no longer run under it or get cut off, here and on the other pages.

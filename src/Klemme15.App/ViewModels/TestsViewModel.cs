@@ -217,6 +217,11 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
     public string Status { get => _status; private set => Set(ref _status, value); }
     public double Fraction { get => _fraction; private set => Set(ref _fraction, value); }
     public bool HasResult => Findings.Count > 0;
+
+    /// <summary>A quiet thank-you link under a finished test's verdict. Klemme15 stays free either way.</summary>
+    public RelayCommand TipCommand => _tipCommand ??= new RelayCommand(() => _openUrl(Services.Links.Coffee));
+    private RelayCommand? _tipCommand;
+    public bool HasTip => HasResult && !string.IsNullOrWhiteSpace(Services.Links.Coffee);
     public bool HasValues => Values.Count > 0;
 
     /// <summary>Runs tests faster (screenshots and demos only).</summary>
@@ -290,6 +295,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         ShowTraces(report.Traces);
         SavedNote = note;
         Raise(nameof(HasResult));
+        Raise(nameof(HasTip));
         Raise(nameof(HasValues));
     }
 
@@ -315,6 +321,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         Charts.Clear();
         SavedNote = "";
         Raise(nameof(HasResult));
+        Raise(nameof(HasTip));
         Raise(nameof(HasValues));
         Raise(nameof(HasCharts));
         _cts = new CancellationTokenSource();
@@ -362,6 +369,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             _cts = null;
             IsRunning = false;
             Raise(nameof(HasResult));
+            Raise(nameof(HasTip));
             Raise(nameof(HasValues));
         }
     }

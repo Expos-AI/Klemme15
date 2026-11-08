@@ -11,6 +11,7 @@
   <a href="https://github.com/Expos-AI/Klemme15/actions/workflows/codeql.yml"><img alt="CodeQL" src="https://github.com/Expos-AI/Klemme15/actions/workflows/codeql.yml/badge.svg"></a>
   <a href="https://scorecard.dev/viewer/?uri=github.com/Expos-AI/Klemme15"><img alt="OpenSSF Scorecard" src="https://api.scorecard.dev/projects/github.com/Expos-AI/Klemme15/badge"></a>
   <a href="LICENSE"><img alt="License: GPL-3.0" src="https://img.shields.io/github/license/Expos-AI/Klemme15"></a>
+  <a href="https://ko-fi.com/klemme15"><img alt="Support on Ko-fi" src="https://img.shields.io/badge/support-Ko--fi-FF5E5B?logo=ko-fi&logoColor=white"></a>
 </p>
 
 *Named after terminal 15 (Klemme 15), the ignition-on line every BMW diagnosis starts with.*
@@ -142,6 +143,10 @@ Klemme15 comes with no warranty: you use it at your own risk. [Safety, legal and
 ## Contributing
 
 Testing on your car helps most: the [tester guide](docs/BETA.md) says what to try. You can also share a coding map, a check for a part you've tested, a healthy baseline from your car's log, or a fault meaning with sources ([how](CONTRIBUTING.md)). Building from source and the architecture are in [CONTRIBUTING.md](CONTRIBUTING.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+
+## Support Klemme15
+
+Klemme15 is free and stays free: no paid version, nothing locked, no ads. If it saved you a trip to the shop or a part you didn't need, you can leave a tip on [Ko-fi](https://ko-fi.com/klemme15) (card or PayPal, no account needed) or through [GitHub Sponsors](https://github.com/sponsors/Expos-AI). Tips are a thank-you, not a purchase: they don't come with support promises or extra features. Testing on your car and reporting how it went helps just as much.
 
 ## Legal
 

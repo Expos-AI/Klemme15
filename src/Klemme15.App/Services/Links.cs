@@ -33,6 +33,9 @@ public static class Links
     public static string ShareCodingMap(string title, string json) =>
         $"{Project}/issues/new?template=coding-map.yml&title={Uri.EscapeDataString(title)}&map={Uri.EscapeDataString(json)}";
 
-    /// <summary>Buy-me-a-coffee / donation link. Replace with your own; empty hides the button.</summary>
-    public const string Coffee = "https://github.com/sponsors/Expos-AI";
+    /// <summary>Tips for the project on Ko-fi (no account needed; card or PayPal). Empty hides the buttons.</summary>
+    public const string Coffee = "https://ko-fi.com/klemme15";
+
+    /// <summary>GitHub Sponsors, for people who'd rather support through GitHub.</summary>
+    public const string Sponsors = "https://github.com/sponsors/Expos-AI";
 }
