@@ -242,7 +242,12 @@ ScanAndWait();
 Shot("15-e46-330i-vehicle");
 
 // The "Before you start" notice shown on first launch, and the full safety and legal page.
-foreach (var (name, notice) in new (string, Avalonia.Controls.Window)[] { ("35-before-you-start", new WelcomeNoticeWindow()), ("36-safety-legal", new NoticesWindow()) })
+foreach (var (name, notice) in new (string, Avalonia.Controls.Window)[]
+{
+    ("35-before-you-start", new WelcomeNoticeWindow()), ("36-safety-legal", new NoticesWindow()),
+    ("37-about", new AboutWindow { DataContext = new AboutViewModel("Klemme15 1.0.0", new NoDialogs()) }),
+    ("38-confirm", new ConfirmWindow("Download BMW fault texts?", Klemme15.Data.FaultDataDownload.Notice, "Download")),
+})
 {
     notice.Show();
     Pump(300);
@@ -265,6 +270,18 @@ foreach (var page in vm.Pages)
 }
 vm.CurrentPage = vm.Vehicle;
 if (vm.Vehicle.Markers.FirstOrDefault(m => m.IsFaultSource) is { } src) { vm.Vehicle.Select(src); Shot("s-vehicle-selected"); vm.Vehicle.Select(null); }
+// Every page in a small window (a window not maximised on a laptop): nothing may run off the edge or overlap.
+window.Width = 1024; window.Height = 640;
+foreach (var page in vm.Pages)
+{
+    vm.CurrentPage = page;
+    Pump(200);
+    Shot($"m-{page.Title.ToLowerInvariant().Replace(' ', '-')}");
+}
+vm.CurrentPage = vm.Garage;
+Shot("m-garage");
+window.Width = 1280;
+vm.CurrentPage = vm.Vehicle;
 // A short window (a 1080p laptop at 150 % with the taskbar and title bar): the legend and the side panel must still fit.
 window.Height = 620;
 Shot("s-vehicle-short");
@@ -351,9 +368,17 @@ static class LayoutCheck
             if (tb.TransformToVisual(window) is not { } m) continue;
             var box = new Rect(tb.Bounds.Size).TransformToAABB(m);
             if (box.Width < 1 || box.Height < 1) continue;
-            if (!new Rect(0, 0, window.Width, window.Height).Intersects(box)) continue;
+            var screen = new Rect(0, 0, window.Width, window.Height);
+            if (!screen.Intersects(box)) continue;
+            // Text that runs past the window's right edge, or past a clipping container's sides, is cut off for the reader.
+            if (box.Right > screen.Right + 2) yield return $"past the window edge: \"{Short(tb.Text)}\" ({box.Right - screen.Right:0}px)";
             // Inside a scroller, only what's in its viewport is visible.
-            if (Viewport(tb, window) is { } vp) { if (!vp.Intersects(box)) continue; box = box.Intersect(vp); }
+            if (Viewport(tb, window) is { } vp)
+            {
+                if (!vp.Intersects(box)) continue;
+                if (box.Right > vp.Right + 2 || box.Left < vp.Left - 2) yield return $"clipped at the side: \"{Short(tb.Text)}\"";
+                box = box.Intersect(vp);
+            }
             texts.Add((tb, box));
             if (tb.TextWrapping == Avalonia.Media.TextWrapping.NoWrap && tb.TextTrimming == Avalonia.Media.TextTrimming.None)
             {

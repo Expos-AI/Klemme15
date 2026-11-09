@@ -18,7 +18,7 @@
         x:Class="Klemme15.App.Views.AboutWindow"
         x:DataType="vm:AboutViewModel"
         Title="About Klemme15"
-        Width="460" SizeToContent="Height" CanResize="False"
+        Width="520" SizeToContent="Height" CanResize="False"
         WindowStartupLocation="CenterOwner"
         Background="{DynamicResource BaseBrush}">
   <StackPanel Margin="28,24" Spacing="14">
@@ -35,13 +35,14 @@
     <TextBlock Text="{Binding Blurb}" TextWrapping="Wrap" Classes="muted" />
     <TextBlock Text="{Binding Confirmed}" TextWrapping="Wrap" Classes="muted small" />
 
-    <StackPanel Orientation="Horizontal" Spacing="8">
-      <Button Content="Project &amp; source" Command="{Binding ProjectCommand}" />
-      <Button Content="Report an issue" Command="{Binding SupportCommand}" />
-      <Button Content="Privacy" Command="{Binding PrivacyCommand}" />
-      <Button Classes="primary" Content="Support Klemme15" Command="{Binding CoffeeCommand}" IsVisible="{Binding HasCoffee}"
+    <!-- Wraps onto a second line rather than running past the window edge -->
+    <WrapPanel>
+      <Button Content="Project &amp; source" Command="{Binding ProjectCommand}" Margin="0,0,8,8" />
+      <Button Content="Report an issue" Command="{Binding SupportCommand}" Margin="0,0,8,8" />
+      <Button Content="Privacy" Command="{Binding PrivacyCommand}" Margin="0,0,8,8" />
+      <Button Classes="primary" Content="Support Klemme15" Command="{Binding CoffeeCommand}" IsVisible="{Binding HasCoffee}" Margin="0,0,8,8"
               ToolTip.Tip="Klemme15 is free and stays free. Tips through PayPal keep it going." />
-    </StackPanel>
+    </WrapPanel>
 
     <Border BorderBrush="{DynamicResource LineBrush}" BorderThickness="0,1,0,0" Padding="0,12,0,0">
       <StackPanel Spacing="6">
