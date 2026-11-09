@@ -69,7 +69,13 @@
               <WrapPanel Orientation="Horizontal">
                 <StackPanel Margin="0,0,10,6" IsVisible="{Binding HasBaselines}">
                   <TextBlock Classes="muted small" Text="Compare with a healthy baseline" />
-                  <ComboBox ItemsSource="{Binding Baselines}" SelectedItem="{Binding Baseline}" MinWidth="260" />
+                  <ComboBox ItemsSource="{Binding Baselines}" SelectedItem="{Binding Baseline}" MinWidth="260" MaxWidth="420">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:BaselineChoice">
+                        <TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Label}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
                 </StackPanel>
                 <StackPanel Margin="0,0,10,6">
                   <TextBlock Classes="muted small" Text="Y (up)" />
