@@ -17,6 +17,11 @@ DESC="Open-source BMW E-series diagnostics: scan modules, read and clear faults,
 
 mkdir -p bucket "packaging/winget"
 
+# ---- The website's download buttons (docs/latest.json): the newest version, read from the site itself, so a
+# download never depends on GitHub's API (rate-limited for visitors who aren't logged in) or on a "latest" release
+# (0.x versions are pre-releases, which GitHub's latest-release links skip). ----
+printf '{\n  "tag": "%s"\n}\n' "$TAG" > docs/latest.json
+
 # ---- Scoop (bucket/klemme15.json). The repo doubles as a Scoop bucket. ----
 cat > bucket/klemme15.json <<JSON
 {

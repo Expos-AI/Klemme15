@@ -1,6 +1,9 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.21:** smaller windows and clearer wording.
+**New in 0.99.22:**
+- **Downloads from the website no longer depend on GitHub's API.** Visitors on a busy mobile network could see "too many requests", and the backup link went to a page that doesn't exist yet for pre-release versions. The download buttons now link straight to the file for your computer, from a version file on the website that each release updates. Macs get the Apple silicon download with a link to the Intel one, and phones are told to open the page on a laptop.
+
+**0.99.21:** smaller windows and clearer wording.
 - **Smaller windows.** The About window's buttons wrap instead of running off the edge, the sidebar shows a scroll bar when not every page fits, and the Garage, Analyse and Readings pages no longer cut text off in a window that isn't maximised. Every page is now checked at 1024 x 640 on each change.
 - **Clearer status wording.** Cars, modules and functions are described as *validated* (tested on a vehicle with Klemme15) or *pending field validation*, consistently in the app, the website and the documentation. The E36 and X3 are labelled *in development*.
 - **Fault verdicts read more precisely**, for example "Stored, not active. Clear it and drive for a few days; repair it only if it returns."

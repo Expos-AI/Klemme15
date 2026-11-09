@@ -8,6 +8,7 @@ Klemme15 is distributed three ways. The portable `.zip` per platform is the sour
 
 - `bucket/klemme15.json`: the Scoop manifest (this repo doubles as a Scoop bucket).
 - `packaging/winget/Expos-AI.Klemme15.*.yaml`: the winget manifests.
+- `docs/latest.json`: the newest version, which the website's download buttons read to link straight to each file (no GitHub API call, so visitors who aren't logged in aren't rate-limited).
 
 The release workflow runs it automatically after every release (the `packaging` job): it downloads the new `win-x64` zip, fills in the version and SHA-256, and commits the refreshed manifests to `main`. No manual editing.
 

@@ -285,7 +285,7 @@
         <p class="lede">Read the faults and dash warnings stored in your E-series BMW, find out what they mean, and test a part before you buy it. It runs offline on your own laptop with a K+DCAN cable. Free, with no account, and nothing leaves your computer.</p>
 
         <div class="cta">
-          <a class="button primary" data-download href="https://github.com/Expos-AI/Klemme15/releases/latest">
+          <a class="button primary" data-download href="https://github.com/Expos-AI/Klemme15/releases">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
             <span data-download-label>Download .ZIP</span>
           </a>
@@ -295,6 +295,8 @@
           </div>
         </div>
         <p class="meta"><span>Windows, macOS, Linux</span><span>GPL-3.0</span><span>Not affiliated with BMW AG</span></p>
+        <p class="note" data-mac-only hidden>Intel Mac? <a data-intel-mac href="https://github.com/Expos-AI/Klemme15/releases">Download the Intel version</a>.</p>
+        <p class="note" data-on-phone hidden>Klemme15 runs on a laptop (Windows, Mac or Linux), not on a phone. Open this page on your computer to download it.</p>
         <p class="note">Beta. Confirmed so far on a 2006 E90 325i: <a href="#cars">will it work on my car?</a></p>
         <div class="frame hero-shot">
           <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/11-e90-325i-vehicle.png" alt="Klemme15 after a quick test of an E90 325i: every module on a top view of the car, with its faults and dash messages" width="1440" height="900" fetchpriority="high">
@@ -636,7 +638,7 @@
         <h2>Try it on the demo car first</h2>
         <p class="section-lede">Free, open source, and yours to keep. The demo car needs no cable.</p>
         <div class="cta">
-          <a class="button primary" data-download href="https://github.com/Expos-AI/Klemme15/releases/latest">
+          <a class="button primary" data-download href="https://github.com/Expos-AI/Klemme15/releases">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
             <span data-download-label>Download Klemme15</span>
           </a>
@@ -646,6 +648,8 @@
           </div>
         </div>
         <p class="meta"><span>Windows, macOS, Linux</span><span>No installer, no account</span><span>Not affiliated with BMW AG</span></p>
+        <p class="note" data-mac-only hidden>Intel Mac? <a data-intel-mac href="https://github.com/Expos-AI/Klemme15/releases">Download the Intel version</a>.</p>
+        <p class="note" data-on-phone hidden>Klemme15 runs on a laptop (Windows, Mac or Linux), not on a phone. Open this page on your computer to download it.</p>
         <p class="note">First launch: Windows may say "Windows protected your PC" (click <b>More info</b>, then <b>Run anyway</b>); on a Mac, open <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>. <a href="https://github.com/Expos-AI/Klemme15#the-first-time-you-open-it">Why?</a></p>
         <p class="note">Klemme15 is free and stays free, with nothing locked. If it saved you a trip to the shop, you can <a href="https://paypal.me/KindricC">leave a tip with PayPal</a>.</p>
         <p class="note">Got an E46, E60 or E90-family car and a cable? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/BETA.md">Join the beta</a> and help validate it before 1.0. Got a 1996-1999 E36? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md">Help map it</a>.</p>
@@ -693,22 +697,32 @@
         setLoad("Ready", 1); status.style.color = "#f2a93b"; lamp.style.fill = "#f2a93b";
       };
 
-      // The version shown in the corner, from the newest release (left blank if GitHub can't be reached), and the
-      // download buttons pointed straight at the file for this computer (Windows or Linux; a Mac gets the release page,
-      // since a browser can't tell an Apple chip from an Intel one).
-      fetch("https://api.github.com/repos/Expos-AI/Klemme15/releases?per_page=1")
-        .then(function (r) { return r.ok ? r.json() : []; })
-        .then(function (list) {
-          var rel = list[0];
-          if (!rel || !rel.tag_name) return;
-          stage.querySelector(".k15-version").textContent = rel.tag_name;
-          var ua = navigator.userAgent, os = /Windows/.test(ua) ? "win-x64" : /Mac/.test(ua) ? "osx" : /Linux/.test(ua) && !/Android/.test(ua) ? "linux-x64" : null;
-          var name = { "win-x64": "Windows", "linux-x64": "Linux", "osx": "Mac" }[os];
-          var asset = os && os !== "osx" ? (rel.assets || []).filter(function (a) { return a.name.indexOf(os + ".zip") > 0; })[0] : null;
+      // The newest version comes from latest.json on this site (the release workflow writes it), not from GitHub's
+      // API: the API turns away visitors who aren't logged in once their network has made too many requests, which
+      // happens to everyone on a shared mobile connection. The buttons then point straight at the file for this
+      // computer. A browser can't tell an Apple chip from an Intel one, so Macs get the Apple silicon file (every Mac
+      // since late 2020) and a link to the Intel one underneath.
+      var releases = "https://github.com/Expos-AI/Klemme15/releases";
+      fetch("latest.json", { cache: "no-cache" })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (latest) {
+          var tag = latest && latest.tag;
+          if (!/^v\d+\.\d+\.\d+/.test(tag || "")) return;
+          stage.querySelector(".k15-version").textContent = tag;
+          var file = function (rid) { return releases + "/download/" + tag + "/Klemme15-" + tag + "-" + rid + ".zip"; };
+          var ua = navigator.userAgent, mobile = /Android|iPhone|iPad|iPod/.test(ua);
+          var os = mobile ? null : /Windows/.test(ua) ? "win-x64" : /Mac/.test(ua) ? "osx-arm64" : /Linux/.test(ua) ? "linux-x64" : null;
+          var name = { "win-x64": "Windows", "linux-x64": "Linux", "osx-arm64": "Mac" }[os];
           document.querySelectorAll("[data-download]").forEach(function (a) {
-            a.href = asset ? asset.browser_download_url : rel.html_url;
+            a.href = os ? file(os) : releases + "/tag/" + tag;
             if (name) a.querySelector("[data-download-label]").textContent = "Download for " + name;
+            else if (mobile) a.querySelector("[data-download-label]").textContent = "Downloads (for your laptop)";
           });
+          document.querySelectorAll("[data-intel-mac]").forEach(function (a) {
+            a.href = file("osx-x64");
+            a.closest("[data-mac-only]").hidden = os !== "osx-arm64";
+          });
+          document.querySelectorAll("[data-on-phone]").forEach(function (p) { p.hidden = !mobile; });
         })
         .catch(function () {});
 
