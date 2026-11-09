@@ -1,13 +1,13 @@
 # E36 beta: tester guide
 
-Thank you for helping bring Klemme15 to the E36. Nobody has tried it on a real E36 yet, so **every result helps, including "nothing answered"**. This guide takes about 30 minutes. Everything in it only reads from the car, except step 8, which is optional.
+Thank you for helping bring Klemme15 to the E36. E36 support is in development and this is its first field validation, so **every result helps, including "nothing answered"**. This guide takes about 30 minutes. Everything in it only reads from the car, except step 8, which is optional.
 
 ## What's in the E36 beta
 
 | Part | What to expect |
 |---|---|
 | **Engine** (fault codes, live data, fuel trim test) | Uses standard OBD-II, which 1996 to 1999 E36s have. This is the part most likely to work. |
-| **Other modules** (ABS/ASC, airbag, cluster, body electronics, climate, automatic gearbox, park distance control) | Klemme15 asks for them at the addresses the E46 uses. Nobody has confirmed those on an E36 yet, so some may not answer. Finding out where they really are is the main point of this test. |
+| **Other modules** (ABS/ASC, airbag, cluster, body electronics, climate, automatic gearbox, park distance control) | Klemme15 asks for them at the addresses the E46 uses. These are pending validation on the E36, so some may not respond. Mapping their actual addresses is the main purpose of this test. |
 | **Cars from before 1996** | Not supported yet: their modules use older protocols. |
 
 ## What you need

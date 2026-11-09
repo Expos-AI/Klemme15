@@ -18,7 +18,7 @@
 
 **Free, open-source, offline diagnostics for older BMWs.** Read every module's faults and dash warnings and find out what they mean, track your car's health, test a part before you buy it, run service functions, and back up or code comfort modules. You need a K+DCAN cable and a Windows, macOS or Linux computer. No account, no subscription, nothing sent anywhere.
 
-> **Status: beta.** Confirmed on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration. The rest is built from public research on each module and tested against demo cars. Anything that drives a part or writes to a module, battery registration included, stays behind an **experimental** switch for now. [Testers wanted](docs/BETA.md).
+> **Status: beta.** Validated on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration. Everything else is developed from published research on each module and verified against simulated vehicles, with field validation in progress. Functions that drive a part or write to a module, battery registration included, remain behind the **experimental** switch until validated. [Become a tester](docs/BETA.md).
 
 | Faults, health and the car's story | Component tests with live graphs |
 |---|---|
@@ -39,7 +39,7 @@ The screenshots are rendered from the demo cars on every change. [See them all](
 
 M cars are listed as their own models (E46 M3, E9x M3, E60 M5/M6, 1 Series M Coupe, X5 M/X6 M, Z4 M, E39 M5, E36 M3), and so are the diesels sold outside North America. Tips and tests written for one engine aren't offered on another: a diesel doesn't get the fuel trim test, and the water pump tests are only for engines with an electric pump (N51-N55).
 
-The E90 family is confirmed on a real car; the others are built from BMW's module data and tested against demo cars, so please [report how it goes](docs/BETA.md). The E36 is newer still: nobody has tried it on a real car, and its [tester guide](docs/E36-BETA.md) is how its modules get mapped. Cars from before 1996 (E30, E32, E34, E31 and early E36) aren't supported yet. E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode; the 7 Series E65/E66, X3s built from late 2006 on and the Mini aren't supported yet. F- and G-series cars use an Ethernet cable and aren't supported yet.
+The E90 family is validated on a vehicle. The other families are developed from BMW's module data and verified against simulated vehicles; field validation is in progress, and [test reports](docs/BETA.md) move each one to validated. The E36 and E83 are in development: their module addresses are being mapped from owner reports ([E36 tester guide](docs/E36-BETA.md)). Cars built before 1996 (E30, E32, E34, E31 and early E36) are not supported. E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode; the 7 Series E65/E66, X3s built from late 2006 on and the Mini are not supported yet. F- and G-series cars use an Ethernet cable and are not supported.
 
 ## What you need
 

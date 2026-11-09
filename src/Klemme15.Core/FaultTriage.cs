@@ -67,7 +67,7 @@ public static class FaultTriage
         // the tip says when they do matter, so they don't go to the top of the list.
         if (f.UsuallyHarmless && f.State is FaultState.Present or FaultState.Intermittent)
             return new(FaultPriority.CheckIt, "Check it",
-                "Active, but this code is usually harmless on its own. Read the tip below: if you have none of the symptoms it describes, clear it and see whether it returns.");
+                "Active, but this code is usually harmless on its own. If none of the symptoms in the tip below apply, clear it and see whether it returns.");
         if (f.UsuallyHarmless && count < 10)
             return new(FaultPriority.Background, "Probably harmless",
                 "Not active now, and this code is usually harmless on its own. Read the tip below; clear it and only investigate if it returns.");
@@ -80,10 +80,10 @@ public static class FaultTriage
             case FaultState.Present:
                 return new(FaultPriority.FixNow, "Fix now",
                     lamp ? "Active now and it turned on a warning light. Start with the troubleshooting steps below."
-                         : "Active now: something is wrong at this moment. Start with the troubleshooting steps below.");
+                         : "Active now. Start with the troubleshooting steps below.");
             case FaultState.Intermittent:
                 return new(FaultPriority.CheckIt, "Check it",
-                    "Comes and goes. Clear it and drive: if it comes back, look for loose connectors or chafed wiring on that circuit.");
+                    "Intermittent. Clear it and drive; if it returns, check that circuit for loose connectors or chafed wiring.");
         }
 
         if (supply || bus)
@@ -95,7 +95,7 @@ public static class FaultTriage
                         : "Not active now. Low-voltage faults are usually left behind by a flat battery, jump-starting or battery work. Clear it; only investigate if it returns.");
 
         return count >= 5
-            ? new(FaultPriority.CheckIt, "Check it", $"Not active now, but it has happened {count} times. Clear it and drive; if it returns, fix it before it becomes permanent.")
-            : new(FaultPriority.CheckIt, "Check it", "Happened before but isn't active now. Clear it and drive a few days: if it returns, fix it; if not, no action needed.");
+            ? new(FaultPriority.CheckIt, "Check it", $"Not active, but logged {count} times. Clear it and drive; if it returns, repair it before it becomes permanent.")
+            : new(FaultPriority.CheckIt, "Check it", "Stored, not active. Clear it and drive for a few days; repair it only if it returns.");
     }
 }

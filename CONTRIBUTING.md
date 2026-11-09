@@ -4,7 +4,7 @@ Klemme15 gets better with every car it's tried on. Here's how to help, from easi
 
 ## Test it on your car
 
-Confirming Klemme15 on real cars is the most valuable contribution right now. The [tester guide](docs/BETA.md) says what to try (E36 owners: the [E36 tester guide](docs/E36-BETA.md) and its [report form](https://github.com/Expos-AI/Klemme15/issues/new?template=e36-beta.yml)). When you're done:
+Field validation on owners' cars is the most valuable contribution right now. The [tester guide](docs/BETA.md) says what to try (E36 owners: the [E36 tester guide](docs/E36-BETA.md) and its [report form](https://github.com/Expos-AI/Klemme15/issues/new?template=e36-beta.yml)). When you're done:
 
 1. On the Faults page, press **Share snapshot**, tick **the traffic log**, and save the `.k15` file. It holds your car's modules, faults and the traffic between Klemme15 and the car, with the VIN removed.
 2. Put it in a `.zip` and attach it to a [test report](https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml), with your car, your cable and what looked wrong.

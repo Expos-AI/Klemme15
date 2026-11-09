@@ -14,7 +14,7 @@ Klemme15 reads both, and keeps them apart from real faults.
 
 Reading these is read-only. Nothing is written to the car.
 
-**Reply layouts.** These were confirmed on a real E90 (KOMBI, CAS3, MSV70):
+**Reply layouts.** These were validated on an E90 (KOMBI, CAS3, MSV70):
 
 - **`$21 09`** answers `61 09` followed by 2 bytes per ID, high byte first, with no count byte. A count byte first is accepted too; Klemme15 tells the two apart by length.
 - **`$21 0F`** answers `61 0F` followed by 4 bytes per entry: the ID, then the mileage in 8 km steps, oldest first. The same message can appear many times.

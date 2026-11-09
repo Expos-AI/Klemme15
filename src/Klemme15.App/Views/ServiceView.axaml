@@ -67,7 +67,7 @@
         <StackPanel Spacing="6">
           <ToggleSwitch IsChecked="{Binding Experimental}" OnContent="Experimental functions on" OffContent="Experimental functions off" />
           <TextBlock Classes="muted small" TextWrapping="Wrap"
-                     Text="Functions marked experimental follow BMW's own procedures but haven't been confirmed on a real car with Klemme15 yet. Turn this on to use them at your own risk, and please report how it went." />
+                     Text="Experimental functions follow BMW's documented procedures and are pending field validation. Enable them at your own risk; a test report helps move a function to validated." />
         </StackPanel>
       </Border>
       <ScrollViewer Classes="page">

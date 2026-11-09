@@ -107,7 +107,7 @@
           <DockPanel>
             <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding DownloadButtonText}" Command="{Binding DownloadFaultDataCommand}" VerticalAlignment="Center" />
             <StackPanel Spacing="2" Margin="0,0,16,0">
-              <TextBlock Text="Get BMW's own meaning for every fault code" FontWeight="SemiBold" />
+              <TextBlock Text="Get BMW's own meaning for every fault code" FontWeight="SemiBold" TextWrapping="Wrap" />
               <TextBlock Classes="muted small" TextWrapping="Wrap"
                          Text="Optional: a one-time download from the independent project bmw-unified-db (third-party data derived from BMW's; you'll see what that means before anything downloads), or use your own ISTA/INPA files." />
               <TextBlock Classes="lit small" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
@@ -118,7 +118,7 @@
         <!-- Families still being mapped with testers (E36) -->
         <Border Classes="warn" IsVisible="{Binding HasFamilyNote}">
           <StackPanel Spacing="4">
-            <TextBlock Text="Beta: help map this car" FontWeight="SemiBold" />
+            <TextBlock Text="Beta · in development" FontWeight="SemiBold" />
             <TextBlock Text="{Binding FamilyNote}" TextWrapping="Wrap" Classes="small" />
           </StackPanel>
         </Border>

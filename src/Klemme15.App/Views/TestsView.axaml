@@ -136,7 +136,7 @@
           <TextBlock Classes="muted small" Text="{Binding Duration}" />
         </StackPanel>
         <Border Classes="panel" Padding="14,10" IsVisible="{Binding DrivesParts}" BorderBrush="{DynamicResource AmberBrush}">
-          <TextBlock TextWrapping="Wrap" Text="This test switches a part on through the engine computer. It isn't confirmed on a real car yet: stay with the car, and press Stop if anything sounds wrong. Klemme15 switches the part off at the end and when you stop." />
+          <TextBlock TextWrapping="Wrap" Text="This test switches a part on through the engine computer and is pending field validation. Stay with the car and press Stop if anything sounds wrong. Klemme15 switches the part off when the test ends or is stopped." />
         </Border>
 
         <Border Classes="panel" Padding="18,14">

@@ -122,16 +122,14 @@ DS2_NAMES = {"GM": ("Body module (GM)", "Body", [395, 110]), "LCM": ("Light chec
 # Engine computers to try first when the part number can't be read: the 1996-1999 North American ones.
 FIRST = {"E36": ("ms41", "bms46", "mss52")}
 # Shown in the Garage under the family, for families that are still being mapped with testers.
-NOTES = {"E83": "X3 support is new and in beta, and hasn't been tested on a real car yet. It's for 2004-2006 X3s, which use "
-                "K-line. The engine part (fault codes, live data and tests) uses standard OBD-II, so it's the part most likely "
-                "to work. Some of the X3's other modules are newer types than the E46's, so they may not answer at the "
-                "addresses Klemme15 tries: \"Find other modules\" and a saved report show us where they really are. X3s built "
-                "from late 2006 on use D-CAN and aren't supported yet.",
-         "E36": "E36 support is new and in beta, and hasn't been tested on a real car yet. It's for 1996-1999 cars with "
-                "the OBD-II port under the dashboard. The engine part (fault codes, live data and tests) uses standard "
-                "OBD-II, so it's the part most likely to work. The other modules use addresses that haven't been "
-                "confirmed on an E36 yet, so some may not answer: \"Find other modules\" and a saved report show us where "
-                "they really are. Cars from before 1996 use older protocols and aren't supported yet."}
+NOTES = {"E83": "X3 support is in development. It covers 2004-2006 X3s, which use K-line. Engine diagnostics (fault codes, "
+                "live data and guided tests) use standard OBD-II. Several of the X3's other modules differ from the E46's, so "
+                "their addresses are being mapped from owner test reports and some may not respond yet. To contribute, run "
+                "\"Find other modules\" and save a report. X3s built from late 2006 on use D-CAN and are not supported yet.",
+         "E36": "E36 support is in development. It covers 1996-1999 cars with the OBD-II port under the dashboard. Engine "
+                "diagnostics (fault codes, live data and guided tests) use standard OBD-II. Addresses for the other modules "
+                "are being mapped from owner test reports, so some may not respond yet. To contribute, run \"Find other "
+                "modules\" and save a report. Cars built before 1996 use earlier protocols and are not supported yet."}
 FAMILY_NAMES = {"E36": {"IKE": "Instrument cluster", "GM": "Body electronics (ZKE)"}}
 
 ENGINES = {"E85": ["M54", "N52", "N46", "S54"], "E83": ["M54", "N46", "M47", "M57"], "E36": ["M42", "M43", "M44", "M50", "M51", "M52", "S50", "S52"], "E39": ["M52", "M54", "M62", "S62", "M57"], "E53": ["M54", "M62", "N62", "M57"], "E38": ["M62", "M73", "M57"]}

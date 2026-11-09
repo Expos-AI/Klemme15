@@ -25,7 +25,7 @@
       </StackPanel>
       <StackPanel>
         <TextBlock Classes="title" Text="Analyse" />
-        <TextBlock Classes="muted small" Text="Scatter plots, a tuning-style map and synchronised playback of a recorded CSV. Nothing is sent to the car." />
+        <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Scatter plots, a tuning-style map and synchronised playback of a recorded CSV. Nothing is sent to the car." />
       </StackPanel>
     </DockPanel>
 

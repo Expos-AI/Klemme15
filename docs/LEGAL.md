@@ -6,7 +6,7 @@ Klemme15 talks to the computers in your car. Most of what it does only reads, bu
 
 - **Klemme15 is free and comes with no warranty.** You use it at your own risk, and you're responsible for your car.
 - **Work safely:** parked, handbrake on, a battery charger for anything that writes, and never operate the laptop while driving.
-- **Functions marked experimental** haven't been confirmed on a real car yet. They're off until you switch them on.
+- **Functions marked experimental** are pending field validation. They're off until you switch them on.
 - **Klemme15 never** flashes modules, touches keys or the immobiliser, or changes mileage.
 - **No BMW software is included.** If you use your own BMW files, having the right to use them is up to you.
 - **Fault meanings are research, not a verdict.** Brakes, airbags and steering belong with a qualified mechanic.
@@ -32,7 +32,7 @@ This page doesn't take away any right the licence gives you, and it doesn't add 
 
 ## Experimental functions
 
-A function is **experimental** until it has been confirmed to work on a real car with Klemme15. Experimental functions follow BMW's own documented procedures as closely as Klemme15 can describe them, but they haven't been tried on every module version. They're off until you switch them on in the Service page, and each one says what it does, what it needs and what to check afterwards. Please report how it went: that's how a function becomes confirmed.
+A function is **experimental** until it has been validated on a vehicle with Klemme15. Experimental functions follow BMW's documented procedures as closely as Klemme15 can describe them, but they have not been validated on every module version. They're off until you switch them on in the Service page, and each one says what it does, what it needs and what to check afterwards. A test report is how a function moves to validated.
 
 ## What Klemme15 never does
 
@@ -77,7 +77,7 @@ Klemme15 is designed, written and maintained by Kindric Castro, an E90 owner. AI
 
 - The whole source is public on GitHub, so anyone can read exactly what it does.
 - Every change is built and tested automatically on Windows, macOS and Linux before release, and releases come with checksums and signed build provenance.
-- Facts about cars (fault meanings, module jobs, value names) carry their sources, and anything that drives a part or writes to a module stays experimental until it's been confirmed on a real car.
+- Facts about cars (fault meanings, module jobs, value names) carry their sources, and anything that drives a part or writes to a module stays experimental until it has been validated on a vehicle.
 
 ## Questions and problems
 

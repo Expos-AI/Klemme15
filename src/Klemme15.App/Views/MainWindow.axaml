@@ -68,7 +68,7 @@
           <TextBlock Text="{Binding Version}" Classes="muted" FontSize="10" HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" Margin="4,0" />
         </StackPanel>
         <ListBox x:Name="Rail" Classes="rail" ItemsSource="{Binding Pages}" SelectedItem="{Binding CurrentPage}"
-                 ScrollViewer.VerticalScrollBarVisibility="Hidden" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                 ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="vm:PageViewModel">
               <StackPanel Spacing="4" HorizontalAlignment="Center" ToolTip.Tip="{Binding Title}">

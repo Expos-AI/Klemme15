@@ -1,6 +1,6 @@
 # Klemme15 beta: tester guide
 
-Thank you for testing Klemme15 before 1.0. **Got an E36?** Follow the [E36 tester guide](E36-BETA.md) instead. **Got a 2004-2006 X3 (E83)?** It's a beta too: besides the tests below, press **Find other modules** on the Vehicle page and include its result, since that shows where your X3's modules really are. Please **try to break it**: on your car, with your cable, the way you actually use a diagnostic tool, and tell us what happened.
+Thank you for testing Klemme15 before 1.0. **Got an E36?** Follow the [E36 tester guide](E36-BETA.md) instead. **Got a 2004-2006 X3 (E83)?** X3 support is in development too: in addition to the tests below, run **Find other modules** on the Vehicle page and include the result, which maps your X3's module addresses. Use Klemme15 on your car and cable the way you would use any diagnostic tool, and report what happened.
 
 Everything Klemme15 does by default is read-only. Anything that writes to the car (clearing faults, coding, service functions) asks first, and service functions stay behind the **Experimental** switch.
 

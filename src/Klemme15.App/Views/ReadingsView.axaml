@@ -74,7 +74,7 @@
             <Button Content="Stop" Command="{Binding StopCommand}" />
             <Button Classes="primary" Content="Read all" Command="{Binding ReadAllCommand}" />
           </StackPanel>
-          <TextBox Text="{Binding Filter}" Watermark="Search readings (e.g. lambda, VANOS, temperature)" MaxWidth="420" HorizontalAlignment="Left" />
+          <TextBox Text="{Binding Filter}" Watermark="Search readings" ToolTip.Tip="For example lambda, VANOS or temperature" MaxWidth="420" HorizontalAlignment="Left" />
         </DockPanel>
         <TextBlock Classes="muted small" Text="{Binding Status}" TextWrapping="Wrap" />
         <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" TextWrapping="Wrap" />

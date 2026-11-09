@@ -4,7 +4,7 @@ Every release, before tagging:
 
 1. **Version**: bump `<Version>` in `Directory.Build.props`.
 2. **Release notes**: add `**New in x.y.z:**` at the top of `.github/release-notes.md`, written for owners (what they can do now, not how it was built). Move the previous section down as `**x.y.z:**`.
-3. **README**: new features in the right "What it does" group; update the Status line when something is confirmed on a real car.
+3. **README**: new features in the right "What it does" group; update the Status line when something is validated on a vehicle.
 4. **Roadmap**: move finished items from Next to Done.
 5. **Privacy**: anything new that's saved to disk or goes online must be in `PRIVACY.md`.
 6. **CI**: the docs tests fail if the release notes don't match the version, if a number in the README or roadmap no longer matches the data, or if a link between the docs is broken. Check the layout report on the screenshots branch too.

@@ -772,7 +772,7 @@ internal static class Cli
         Console.WriteLine(f.Title);
         Console.WriteLine($"  {f.Summary}");
         Console.WriteLine($"  When: {f.When}");
-        Console.WriteLine($"  Risk: {f.Risk}{(f.Verified ? "" : ", EXPERIMENTAL (not yet confirmed on a real car)")}");
+        Console.WriteLine($"  Risk: {f.Risk}{(f.Verified ? "" : ", EXPERIMENTAL (pending field validation)")}");
         foreach (var b in f.Before) Console.WriteLine($"  Before: {b}");
         if (!ServiceRunner.Allowed(f, a.Has("experimental")))
         {

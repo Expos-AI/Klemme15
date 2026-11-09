@@ -225,11 +225,11 @@ public sealed class ServiceViewModel : PageViewModel
     /// <summary>What "experimental" means for the selected function on this connection.</summary>
     public string UnverifiedText => _selected?.Availability.Mode switch
     {
-        ServiceMode.Native => "Experimental: not yet confirmed on a real car with Klemme15. Klemme15 sends the documented request for your module version itself.",
-        ServiceMode.Ediabas => "Experimental: not yet confirmed on a real car with Klemme15. It runs BMW's own job from your BMW files.",
-        _ => "Experimental: not yet confirmed on a real car with Klemme15.",
+        ServiceMode.Native => "Experimental, pending field validation. Klemme15 sends the documented request for your module version directly.",
+        ServiceMode.Ediabas => "Experimental, pending field validation. Runs BMW's own job from your BMW files.",
+        _ => "Experimental, pending field validation.",
     };
-    public string ConfirmedText => _selected?.Function.Confirmations is { Count: > 0 } c ? "Confirmed on a real car: " + string.Join("; ", c) : "";
+    public string ConfirmedText => _selected?.Function.Confirmations is { Count: > 0 } c ? "Validated on: " + string.Join("; ", c) : "";
     public bool HasConfirmed => ConfirmedText.Length > 0;
     public string Caution => string.Join("\n\n", new[] { _selected?.Function.Caution, FrmCaution }.Where(x => x is not null));
     public bool HasCaution => Caution.Length > 0;

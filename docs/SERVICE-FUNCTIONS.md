@@ -2,7 +2,7 @@
 
 Generated from `src/Klemme15.Data/db/service.json` by `tools/service-catalog/build_service.py`. See [SERVICE.md](SERVICE.md) for how they run and how they are kept safe.
 
-All functions are **experimental** until confirmed on a real car. Except where noted, they run BMW's own procedure and need your BMW files (EDIABAS mode).
+All functions are **experimental** until validated on a vehicle. Except where noted, they run BMW's own procedure and need your BMW files (EDIABAS mode).
 
 ## Service and maintenance
 

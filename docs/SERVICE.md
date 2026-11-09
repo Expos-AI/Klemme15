@@ -20,7 +20,7 @@ Each run needs fresh checks and confirmations.
 
 ## Experimental
 
-A function is marked `"verified": false` until someone has run it on a real car with Klemme15 and confirmed it worked. Unverified functions only run after you switch on **experimental functions** (bottom left of the Service page, or `--experimental` on the command line). If you run one, please [report what happened](../CONTRIBUTING.md#test-it-on-your-car) with a snapshot including the traffic log, so it can be marked verified.
+A function is marked `"verified": false` until it has been run on a vehicle with Klemme15 and validated. Unverified functions only run after you switch on **experimental functions** (bottom left of the Service page, or `--experimental` on the command line). If you run one, please [report what happened](../CONTRIBUTING.md#test-it-on-your-car) with a snapshot including the traffic log, so it can be marked verified.
 
 ## What is not included, on purpose
 

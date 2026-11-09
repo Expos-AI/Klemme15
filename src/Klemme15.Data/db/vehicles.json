@@ -2556,7 +2556,7 @@
       "years": "2004-2006",
       "cable": "KLine",
       "verified": false,
-      "note": "X3 support is new and in beta, and hasn't been tested on a real car yet. It's for 2004-2006 X3s, which use K-line. The engine part (fault codes, live data and tests) uses standard OBD-II, so it's the part most likely to work. Some of the X3's other modules are newer types than the E46's, so they may not answer at the addresses Klemme15 tries: \"Find other modules\" and a saved report show us where they really are. X3s built from late 2006 on use D-CAN and aren't supported yet.",
+      "note": "X3 support is in development. It covers 2004-2006 X3s, which use K-line. Engine diagnostics (fault codes, live data and guided tests) use standard OBD-II. Several of the X3's other modules differ from the E46's, so their addresses are being mapped from owner test reports and some may not respond yet. To contribute, run \"Find other modules\" and save a report. X3s built from late 2006 on use D-CAN and are not supported yet.",
       "modules": [
         "E83.DME",
         "E83.EGS",
@@ -3031,7 +3031,7 @@
       "years": "1996-1999",
       "cable": "KLine",
       "verified": false,
-      "note": "E36 support is new and in beta, and hasn't been tested on a real car yet. It's for 1996-1999 cars with the OBD-II port under the dashboard. The engine part (fault codes, live data and tests) uses standard OBD-II, so it's the part most likely to work. The other modules use addresses that haven't been confirmed on an E36 yet, so some may not answer: \"Find other modules\" and a saved report show us where they really are. Cars from before 1996 use older protocols and aren't supported yet.",
+      "note": "E36 support is in development. It covers 1996-1999 cars with the OBD-II port under the dashboard. Engine diagnostics (fault codes, live data and guided tests) use standard OBD-II. Addresses for the other modules are being mapped from owner test reports, so some may not respond yet. To contribute, run \"Find other modules\" and save a report. Cars built before 1996 use earlier protocols and are not supported yet.",
       "modules": [
         "E36.DME",
         "E36.EGS",

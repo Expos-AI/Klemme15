@@ -183,7 +183,7 @@ public sealed class VehicleViewModel : PageViewModel
             var lines = new List<string> { $"Address {ecu.AddressHex}", status };
             if (!string.IsNullOrWhiteSpace(ident)) lines.Add(ident);
             if (result?.Note is { } note) lines.Add(note);
-            if (!ecu.Verified) lines.Add("This module's address hasn't been confirmed on a real car yet.");
+            if (!ecu.Verified) lines.Add("Address pending validation on this model.");
             return string.Join("\n", lines);
         }
     }

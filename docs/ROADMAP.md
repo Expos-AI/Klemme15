@@ -6,7 +6,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 
 - **Foundation**: native DS2, KWP2000 on D-CAN and OBD-II stacks; optional EDIABAS mode with your own BMW files; desktop app for Windows, macOS and Linux; command line; demo cars.
 - **Diagnose**: one-broadcast quick test of every module; faults sorted by priority; researched meanings with sources; BMW's own texts from your files or bmw-unified-db; Shadow / Info memory read and cleared; dash messages (Check Control) and their history; the car's story; readings for every module; live data, recording and analysis.
-- **Confirmed on a real E90 325i**: module identification, faults, clearing, dash messages, live data, fuel trim test, battery registration.
+- **Validated on an E90 325i**: module identification, faults, clearing, dash messages, live data, fuel trim test, battery registration.
 - **Over time**: health history with drift trends, Your cars, test results as trends.
 - **Test and fix**: guided tests with live graphs (fuel trims, VANOS, roughness, rough idle and air conditioning, no-start, cooling bleed, water pump), multimeter checks, troubleshooting and how-to guides, 75 service functions (experimental).
 - **Coding**: backup, compare, restore; quick codes verified against NCS Expert, learned from another tool, or from shared coding maps; FRM3 protection.
@@ -25,12 +25,12 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 ## Next
 
 - **The beta**: testers with E46, E60 and E90-family cars and different cables, running the [tester guide](BETA.md), before 1.0.
-- **Next cars**: the 7 Series E65/E66, X3s from late 2006 on (D-CAN), and the Mini R5x, once their module addresses can be checked against real cars.
+- **Next cars**: the 7 Series E65/E66, X3s from late 2006 on (D-CAN), and the Mini R5x, once their module addresses can be validated on vehicles.
 - **E36, round two**: add each module an E36 tester's car answers at its real address, then confirm them on a second test. Pre-1996 E36s (older protocols, the round 20-pin plug) after that.
-- Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
-- Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be confirmed on real cars. Health history and the OBD-based tests already work.
+- Validate the water pump tests, VANOS test and more service functions from field reports.
+- Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be validated on vehicles. Health history and the OBD-based tests already work.
 - The first community coding maps, checks and chains in the library, and the first real baselines (three or more healthy cars per engine, starting with the N52).
-- Wheel speeds on the car drawing, from the stability control module, once the value names are confirmed on real cars.
+- Wheel speeds on the car drawing, from the stability control module, once the value names are validated on vehicles.
 - More chains: thermostat, misfire triage, boost leaks on the N54/N55.
 
 ## Later

@@ -245,10 +245,10 @@ public sealed class FaultsViewModel : PageViewModel
     public string Headline => !AllFaults.Any() ? "No faults"
         : $"{FixNowCount} to fix now · {CheckCount} worth checking · {BackgroundCount} background";
     public string Verdict => !AllFaults.Any() ? ""
-        : _session.IsSnapshot ? (FixNowCount > 0 ? "Start with the red ones: they were active when this snapshot was taken." : "Nothing was active when this snapshot was taken.")
-        : FixNowCount > 0 ? "Start with the red ones: they are active right now."
-        : CheckCount > 0 ? "Nothing is active right now. Clear the stored faults, drive a few days and read again: only what comes back needs fixing."
-        : "Nothing needs fixing: only background entries (info memory and leftovers of battery work).";
+        : _session.IsSnapshot ? (FixNowCount > 0 ? "Start with the faults marked red; they were active when this snapshot was taken." : "No faults were active when this snapshot was taken.")
+        : FixNowCount > 0 ? "Start with the faults marked red; they are active now."
+        : CheckCount > 0 ? "No active faults. Clear the stored faults, drive for a few days and read them again; only those that return need repair."
+        : "No repairs needed. Only background entries remain (info memory and records left by battery work).";
 
     public string EmptyText => _session.LastScan is null
         ? "Run a quick test on the Vehicle page. Every fault the modules report will be listed here."
