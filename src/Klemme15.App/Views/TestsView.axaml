@@ -55,6 +55,7 @@
                 <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="Drives a part · experimental" IsVisible="{Binding DrivesParts}" />
                 <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Needs EDIABAS mode on this car" IsVisible="{Binding NeedsEdiabas}"
                            ToolTip.Tip="This test reads BMW's own engine values. On E46-era cars the standard OBD-II connection doesn't carry them: connect in EDIABAS mode with your BMW files." />
+                <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Not for this engine" IsVisible="{Binding HasNotForEngine}" ToolTip.Tip="{Binding NotForEngine}" />
               </StackPanel>
             </Button>
           </DataTemplate>

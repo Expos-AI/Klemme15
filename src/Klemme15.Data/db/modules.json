@@ -5933,6 +5933,1277 @@
         880,
         340
       ]
+    },
+    {
+      "id": "E84.JBE",
+      "name": "Junction box (JBE)",
+      "address": "00",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0000"
+      ],
+      "verified": false,
+      "variants": [
+        "jbbf87",
+        "jbbf70"
+      ],
+      "pos": [
+        395,
+        110
+      ]
+    },
+    {
+      "id": "E84.ACSM",
+      "name": "Airbag (ACSM)",
+      "address": "01",
+      "protocol": "BmwFast",
+      "category": "Safety",
+      "sgbd": [
+        "D_0001"
+      ],
+      "verified": false,
+      "variants": [
+        "acsm2",
+        "mrs5",
+        "mrs7"
+      ],
+      "pos": [
+        560,
+        230
+      ]
+    },
+    {
+      "id": "E84.DME",
+      "name": "Engine (DME)",
+      "address": "12",
+      "protocol": "BmwFast",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0012",
+        "D_MOTOR"
+      ],
+      "verified": false,
+      "variants": [
+        "d73n47a0",
+        "mevd174k",
+        "d60m47a0",
+        "d60m57a0",
+        "d62m57a0",
+        "d62m57b0",
+        "d70n47a0",
+        "d70n47b0",
+        "d71n47a0",
+        "d71n47c0",
+        "d72n47b0",
+        "d73n57b0",
+        "d73n57c0",
+        "mev9n46l",
+        "mss60",
+        "msv80",
+        "edme82",
+        "me17n45",
+        "me9n45",
+        "mev17n46",
+        "d60m57d0",
+        "d73n57d0",
+        "mevd176k",
+        "mevd17kw",
+        "msd80",
+        "msv70"
+      ],
+      "engine": true,
+      "pos": [
+        285,
+        110
+      ]
+    },
+    {
+      "id": "E84.AFS",
+      "name": "Active front steering (AFS)",
+      "address": "16",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0016"
+      ],
+      "verified": false,
+      "variants": [
+        "afs_90"
+      ],
+      "pos": [
+        262,
+        318
+      ]
+    },
+    {
+      "id": "E84.EKPS",
+      "name": "Fuel pump control (EKPS)",
+      "address": "17",
+      "protocol": "BmwFast",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0017"
+      ],
+      "verified": false,
+      "variants": [
+        "ekp360",
+        "ekpm60_2",
+        "ekpm60_3"
+      ],
+      "pos": [
+        596,
+        334
+      ]
+    },
+    {
+      "id": "E84.EGS",
+      "name": "Automatic transmission (EGS)",
+      "address": "18",
+      "protocol": "BmwFast",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0018"
+      ],
+      "verified": false,
+      "variants": [
+        "dkg_90",
+        "gs1912",
+        "gs19d",
+        "gs19b",
+        "gsb233"
+      ],
+      "pos": [
+        415,
+        230
+      ]
+    },
+    {
+      "id": "E84.VGSG",
+      "name": "Transfer case control (VGSG)",
+      "address": "19",
+      "protocol": "BmwFast",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0019"
+      ],
+      "verified": false,
+      "variants": [
+        "lmv_84",
+        "vgsg90"
+      ],
+      "pos": [
+        470,
+        262
+      ]
+    },
+    {
+      "id": "E84.LDM",
+      "name": "Longitudinal dynamics / cruise control (LDM)",
+      "address": "1C",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_001C"
+      ],
+      "verified": false,
+      "variants": [
+        "ldm_90"
+      ],
+      "pos": [
+        250,
+        300
+      ]
+    },
+    {
+      "id": "E84.RDC",
+      "name": "Tyre pressure control (RDC)",
+      "address": "20",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0020"
+      ],
+      "verified": false,
+      "variants": [
+        "rdckwp",
+        "rdc_60"
+      ],
+      "pos": [
+        705,
+        175
+      ]
+    },
+    {
+      "id": "E84.ACC",
+      "name": "Active cruise control radar (ACC)",
+      "address": "21",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0021"
+      ],
+      "verified": false,
+      "variants": [
+        "acc2"
+      ],
+      "pos": [
+        64,
+        268
+      ]
+    },
+    {
+      "id": "E84.CVM",
+      "name": "Convertible top module (CVM)",
+      "address": "24",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0024"
+      ],
+      "verified": false,
+      "variants": [
+        "ctm_93",
+        "ctm_93_2",
+        "ctm_93_3",
+        "ctm_93_4",
+        "ctm_93_5",
+        "ctm_93_6",
+        "cvm_88",
+        "cvm_88_2",
+        "ctm_89"
+      ],
+      "pos": [
+        858,
+        300
+      ]
+    },
+    {
+      "id": "E84.PGS",
+      "name": "Passive Go System (PGS)",
+      "address": "27",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0027"
+      ],
+      "verified": false,
+      "variants": [
+        "pgs_e65"
+      ],
+      "pos": [
+        560,
+        140
+      ]
+    },
+    {
+      "id": "E84.DSC",
+      "name": "Stability control (DSC)",
+      "address": "29",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0029"
+      ],
+      "verified": false,
+      "variants": [
+        "dxc_90",
+        "dsc_87",
+        "mriabs2"
+      ],
+      "pos": [
+        250,
+        345
+      ]
+    },
+    {
+      "id": "E84.EPS",
+      "name": "Electric power steering (EPS)",
+      "address": "30",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0030"
+      ],
+      "verified": false,
+      "variants": [
+        "eps_90"
+      ],
+      "pos": [
+        262,
+        130
+      ]
+    },
+    {
+      "id": "E84.TEL",
+      "name": "Telephone / telematics / Bluetooth (TEL)",
+      "address": "36",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0036"
+      ],
+      "verified": false,
+      "variants": [
+        "cmediar",
+        "tele60_2",
+        "tele60_3",
+        "ulf2_60",
+        "ulf_60"
+      ],
+      "pos": [
+        880,
+        270
+      ]
+    },
+    {
+      "id": "E84.AMP",
+      "name": "Top-HiFi / Logic7 amplifier (AMP)",
+      "address": "37",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0037"
+      ],
+      "verified": false,
+      "variants": [
+        "amp_60",
+        "amph70",
+        "ampt70",
+        "amptlr89"
+      ],
+      "pos": [
+        910,
+        300
+      ]
+    },
+    {
+      "id": "E84.EDC",
+      "name": "Electronic damper control (EDC)",
+      "address": "39",
+      "protocol": "BmwFast",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0039"
+      ],
+      "verified": false,
+      "variants": [
+        "edck65"
+      ],
+      "pos": [
+        760,
+        140
+      ]
+    },
+    {
+      "id": "E84.ASK",
+      "name": "Audio system controller (ASK)",
+      "address": "3F",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_003F"
+      ],
+      "verified": false,
+      "variants": [
+        "asd_89",
+        "ask_60"
+      ],
+      "partOf": "E84.CIC"
+    },
+    {
+      "id": "E84.CAS",
+      "name": "Car access system (CAS)",
+      "address": "40",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0040"
+      ],
+      "verified": false,
+      "variants": [
+        "cas"
+      ],
+      "pos": [
+        372,
+        330
+      ]
+    },
+    {
+      "id": "E84.DWA",
+      "name": "Anti-theft alarm (DWA)",
+      "address": "41",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0041"
+      ],
+      "verified": false,
+      "variants": [
+        "dwa_63",
+        "dwa_e65"
+      ],
+      "pos": [
+        470,
+        150
+      ]
+    },
+    {
+      "id": "E84.SHD",
+      "name": "Sunroof module (SHD)",
+      "address": "44",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0044"
+      ],
+      "verified": false,
+      "variants": [
+        "sd_kwp"
+      ],
+      "pos": [
+        520,
+        230
+      ]
+    },
+    {
+      "id": "E84.ANTTU",
+      "name": "Antenna tuner (ANTTU)",
+      "address": "47",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0047"
+      ],
+      "verified": false,
+      "variants": [
+        "ant_60"
+      ],
+      "partOf": "E84.CIC"
+    },
+    {
+      "id": "E84.VM",
+      "name": "Video module (VM)",
+      "address": "4B",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_004B"
+      ],
+      "verified": false,
+      "variants": [
+        "tvm2r",
+        "tvm_89"
+      ],
+      "pos": [
+        870,
+        230
+      ]
+    },
+    {
+      "id": "E84.SINE",
+      "name": "Alarm siren with tilt sensor (SINE)",
+      "address": "50",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0050"
+      ],
+      "verified": false,
+      "variants": [
+        "sine_65"
+      ],
+      "pos": [
+        108,
+        345
+      ]
+    },
+    {
+      "id": "E84.SDARS",
+      "name": "Satellite radio tuner (SDARS)",
+      "address": "54",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0054"
+      ],
+      "verified": false,
+      "variants": [
+        "sat_rad2"
+      ],
+      "pos": [
+        905,
+        170
+      ]
+    },
+    {
+      "id": "E84.FZD",
+      "name": "Roof function centre (FZD)",
+      "address": "56",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0056"
+      ],
+      "verified": false,
+      "variants": [
+        "fzd_87",
+        "rls_87"
+      ],
+      "pos": [
+        470,
+        230
+      ]
+    },
+    {
+      "id": "E84.KOMBI",
+      "name": "Instrument cluster (KOMBI)",
+      "address": "60",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0060"
+      ],
+      "verified": false,
+      "variants": [
+        "komb87"
+      ],
+      "pos": [
+        345,
+        300
+      ]
+    },
+    {
+      "id": "E84.MOSTGW",
+      "name": "MOST/CAN gateway (MOSTGW)",
+      "address": "62",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0062"
+      ],
+      "verified": false,
+      "variants": [
+        "rad2_gw",
+        "cccg60"
+      ],
+      "partOf": "E84.CIC"
+    },
+    {
+      "id": "E84.CIC",
+      "name": "Head unit (CCC / CIC)",
+      "address": "63",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0063"
+      ],
+      "verified": false,
+      "variants": [
+        "rad12r",
+        "rad2",
+        "rad1",
+        "ccc_60",
+        "cicmr",
+        "cicr",
+        "mask60"
+      ],
+      "pos": [
+        338,
+        205
+      ]
+    },
+    {
+      "id": "E84.PDC",
+      "name": "Park distance control (PDC)",
+      "address": "64",
+      "protocol": "BmwFast",
+      "category": "Comfort",
+      "sgbd": [
+        "D_0064"
+      ],
+      "verified": false,
+      "variants": [
+        "pdc_87"
+      ],
+      "pos": [
+        880,
+        340
+      ]
+    },
+    {
+      "id": "E84.ZBE",
+      "name": "iDrive controller (ZBE)",
+      "address": "67",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0067"
+      ],
+      "verified": false,
+      "variants": [
+        "zbeh87",
+        "zbel87",
+        "zbel87_2",
+        "zbe_60_2"
+      ],
+      "pos": [
+        505,
+        262
+      ]
+    },
+    {
+      "id": "E84.SMFA",
+      "name": "Driver seat memory module (SMFA)",
+      "address": "6D",
+      "protocol": "BmwFast",
+      "category": "Comfort",
+      "sgbd": [
+        "D_006D"
+      ],
+      "verified": false,
+      "variants": [
+        "fas_plx",
+        "fas_87"
+      ],
+      "pos": [
+        515,
+        335
+      ]
+    },
+    {
+      "id": "E84.SMBF",
+      "name": "Passenger seat module (SMBF)",
+      "address": "6E",
+      "protocol": "BmwFast",
+      "category": "Comfort",
+      "sgbd": [
+        "D_006E"
+      ],
+      "verified": false,
+      "variants": [
+        "bfs_plx",
+        "bfs_87"
+      ],
+      "pos": [
+        515,
+        125
+      ]
+    },
+    {
+      "id": "E84.AHM",
+      "name": "Trailer module (AHM)",
+      "address": "71",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0071"
+      ],
+      "verified": false,
+      "variants": [
+        "ahm_e65"
+      ],
+      "pos": [
+        935,
+        230
+      ]
+    },
+    {
+      "id": "E84.FRM",
+      "name": "Footwell module (FRM)",
+      "address": "72",
+      "protocol": "BmwFast",
+      "category": "Body",
+      "sgbd": [
+        "D_0072"
+      ],
+      "verified": false,
+      "variants": [
+        "frm_87",
+        "frm_70"
+      ],
+      "pos": [
+        400,
+        368
+      ]
+    },
+    {
+      "id": "E84.CID",
+      "name": "Central information display (CID)",
+      "address": "73",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_0073"
+      ],
+      "verified": false,
+      "variants": [
+        "cid_90",
+        "cid_87",
+        "cid_89"
+      ],
+      "pos": [
+        368,
+        230
+      ]
+    },
+    {
+      "id": "E84.IHKA",
+      "name": "Climate control (IHKA)",
+      "address": "78",
+      "protocol": "BmwFast",
+      "category": "Comfort",
+      "sgbd": [
+        "D_0078"
+      ],
+      "verified": false,
+      "variants": [
+        "ihka87_2",
+        "ihkr90",
+        "ihka87",
+        "ihr_87",
+        "ihka89",
+        "ihkr89"
+      ],
+      "pos": [
+        338,
+        255
+      ]
+    },
+    {
+      "id": "E84.CCCA",
+      "name": "CCC application processor (CCCA)",
+      "address": "A0",
+      "protocol": "BmwFast",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_00A0"
+      ],
+      "verified": false,
+      "variants": [
+        "ccca60"
+      ],
+      "partOf": "E84.CIC"
+    },
+    {
+      "id": "E85.DME",
+      "name": "Engine (DME)",
+      "address": "12",
+      "protocol": "Ds2",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_MOTOR",
+        "D_0012"
+      ],
+      "verified": false,
+      "variants": [
+        "06msd80",
+        "06msv80",
+        "mev17n46",
+        "mev9n46",
+        "mev9n46l",
+        "ms430ds0",
+        "ms450ds0",
+        "mss54ds0",
+        "mss70",
+        "msv70",
+        "msv80",
+        "msv80_alt",
+        "msv90"
+      ],
+      "engine": true,
+      "pos": [
+        285,
+        110
+      ]
+    },
+    {
+      "id": "E85.EGS",
+      "name": "Automatic transmission (EGS)",
+      "address": "32",
+      "protocol": "Ds2",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0032"
+      ],
+      "verified": false,
+      "variants": [
+        "gs30",
+        "gs8604"
+      ],
+      "pos": [
+        415,
+        230
+      ]
+    },
+    {
+      "id": "E85.DSC",
+      "name": "ABS / ASC / DSC",
+      "address": "56",
+      "protocol": "Ds2",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0056"
+      ],
+      "verified": false,
+      "variants": [
+        "dsc_85",
+        "dsc_mk60"
+      ],
+      "pos": [
+        250,
+        345
+      ]
+    },
+    {
+      "id": "E85.IKE",
+      "name": "Instrument cluster (IKE)",
+      "address": "80",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0080"
+      ],
+      "verified": false,
+      "variants": [
+        "kombi85"
+      ],
+      "pos": [
+        345,
+        300
+      ]
+    },
+    {
+      "id": "E85.GM",
+      "name": "Body module (GM)",
+      "address": "00",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0000"
+      ],
+      "verified": false,
+      "variants": [
+        "zke5",
+        "zke5_s12"
+      ],
+      "pos": [
+        395,
+        110
+      ]
+    },
+    {
+      "id": "E85.LCM",
+      "name": "Light check module",
+      "address": "D0",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_00D0"
+      ],
+      "verified": false,
+      "variants": [
+        "lsz_2"
+      ],
+      "pos": [
+        400,
+        368
+      ]
+    },
+    {
+      "id": "E85.IHKA",
+      "name": "Climate control (IHKA)",
+      "address": "5B",
+      "protocol": "Ds2",
+      "category": "Comfort",
+      "sgbd": [
+        "D_005B"
+      ],
+      "verified": false,
+      "variants": [
+        "ihka85",
+        "ihks85"
+      ],
+      "pos": [
+        338,
+        255
+      ]
+    },
+    {
+      "id": "E85.EWS",
+      "name": "Immobilizer (EWS)",
+      "address": "44",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0044"
+      ],
+      "verified": false,
+      "variants": [
+        "ews3"
+      ],
+      "pos": [
+        372,
+        330
+      ]
+    },
+    {
+      "id": "E85.PDC",
+      "name": "Park distance control (PDC)",
+      "address": "60",
+      "protocol": "Ds2",
+      "category": "Comfort",
+      "sgbd": [
+        "D_0060"
+      ],
+      "verified": false,
+      "variants": [
+        "pdcact"
+      ],
+      "pos": [
+        880,
+        340
+      ]
+    },
+    {
+      "id": "E85.RLS",
+      "name": "Rain / light sensor (RLS)",
+      "address": "E8",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_00E8"
+      ],
+      "verified": false,
+      "variants": [
+        "rls_ds2"
+      ],
+      "pos": [
+        458,
+        262
+      ]
+    },
+    {
+      "id": "E85.NAV",
+      "name": "Navigation computer (NAV)",
+      "address": "7F",
+      "protocol": "Ds2",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_007F"
+      ],
+      "verified": false,
+      "variants": [
+        "navmk4",
+        "navmk4_2"
+      ],
+      "pos": [
+        865,
+        160
+      ]
+    },
+    {
+      "id": "E85.TEL",
+      "name": "Telephone (TEL)",
+      "address": "C8",
+      "protocol": "Ds2",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_00C8"
+      ],
+      "verified": false,
+      "variants": [
+        "telibus",
+        "telibus2",
+        "telibus3"
+      ],
+      "pos": [
+        880,
+        270
+      ]
+    },
+    {
+      "id": "E83.DME",
+      "name": "Engine (DME)",
+      "address": "12",
+      "protocol": "Ds2",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_MOTOR",
+        "D_0012"
+      ],
+      "verified": false,
+      "variants": [
+        "d40m57a1",
+        "d50m47a",
+        "d50m47a0",
+        "d50m47b1",
+        "d50m57a0",
+        "d50m57a1",
+        "d50m57b1",
+        "d50m57c0",
+        "d50m57d0",
+        "d50m57e0",
+        "d50m57e1",
+        "d50v451b",
+        "d50vq02a",
+        "d50vq05a",
+        "d50vu01a",
+        "d60_pm",
+        "d60m47a0",
+        "d60m57a0",
+        "d60m57d0",
+        "d62m57a0",
+        "d62m57b0",
+        "d62vm02a m57tüs 11-03",
+        "d62vt71b",
+        "d71n47b0",
+        "d71n47d0",
+        "d71v0r1a",
+        "d71v0r2a",
+        "dde30ds0",
+        "dde40kw0",
+        "dde50k47",
+        "mev17n46",
+        "mev9n46",
+        "mev9n46l",
+        "ms430ds0",
+        "ms450ds0",
+        "msv70",
+        "msv80"
+      ],
+      "engine": true,
+      "pos": [
+        285,
+        110
+      ]
+    },
+    {
+      "id": "E83.EGS",
+      "name": "Automatic transmission (EGS)",
+      "address": "32",
+      "protocol": "Ds2",
+      "category": "Powertrain",
+      "sgbd": [
+        "D_0032"
+      ],
+      "verified": false,
+      "variants": [
+        "gs1912"
+      ],
+      "pos": [
+        415,
+        230
+      ]
+    },
+    {
+      "id": "E83.DSC",
+      "name": "ABS / ASC / DSC",
+      "address": "56",
+      "protocol": "Ds2",
+      "category": "Chassis",
+      "sgbd": [
+        "D_0056"
+      ],
+      "verified": false,
+      "variants": [
+        "dsc_81",
+        "dsc_87",
+        "dsc_87_bbv",
+        "dsc_87_ef73",
+        "dxc8",
+        "dxc_83"
+      ],
+      "pos": [
+        250,
+        345
+      ]
+    },
+    {
+      "id": "E83.MRS",
+      "name": "Airbag (MRS)",
+      "address": "A4",
+      "protocol": "Ds2",
+      "category": "Safety",
+      "sgbd": [
+        "D_00A4"
+      ],
+      "verified": false,
+      "variants": [
+        "mrs4rd",
+        "mrs5k"
+      ],
+      "pos": [
+        560,
+        230
+      ]
+    },
+    {
+      "id": "E83.IKE",
+      "name": "Instrument cluster (IKE)",
+      "address": "80",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0080"
+      ],
+      "verified": false,
+      "variants": [
+        "kombi85"
+      ],
+      "pos": [
+        345,
+        300
+      ]
+    },
+    {
+      "id": "E83.GM",
+      "name": "Body module (GM)",
+      "address": "00",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0000"
+      ],
+      "verified": false,
+      "variants": [
+        "zke5",
+        "zke5_s12"
+      ],
+      "pos": [
+        395,
+        110
+      ]
+    },
+    {
+      "id": "E83.LCM",
+      "name": "Light check module",
+      "address": "D0",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_00D0"
+      ],
+      "verified": false,
+      "variants": [
+        "lm2_83",
+        "lsz_2"
+      ],
+      "pos": [
+        400,
+        368
+      ]
+    },
+    {
+      "id": "E83.IHKA",
+      "name": "Climate control (IHKA)",
+      "address": "5B",
+      "protocol": "Ds2",
+      "category": "Comfort",
+      "sgbd": [
+        "D_005B"
+      ],
+      "verified": false,
+      "variants": [
+        "ihka83"
+      ],
+      "pos": [
+        338,
+        255
+      ]
+    },
+    {
+      "id": "E83.EWS",
+      "name": "Immobilizer (EWS)",
+      "address": "44",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_0044"
+      ],
+      "verified": false,
+      "variants": [
+        "ews3"
+      ],
+      "pos": [
+        372,
+        330
+      ]
+    },
+    {
+      "id": "E83.PDC",
+      "name": "Park distance control (PDC)",
+      "address": "60",
+      "protocol": "Ds2",
+      "category": "Comfort",
+      "sgbd": [
+        "D_0060"
+      ],
+      "verified": false,
+      "variants": [
+        "pdcact"
+      ],
+      "pos": [
+        880,
+        340
+      ]
+    },
+    {
+      "id": "E83.RLS",
+      "name": "Rain / light sensor (RLS)",
+      "address": "E8",
+      "protocol": "Ds2",
+      "category": "Body",
+      "sgbd": [
+        "D_00E8"
+      ],
+      "verified": false,
+      "variants": [
+        "rls_ds2"
+      ],
+      "pos": [
+        458,
+        262
+      ]
+    },
+    {
+      "id": "E83.NAV",
+      "name": "Navigation computer (NAV)",
+      "address": "7F",
+      "protocol": "Ds2",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_007F"
+      ],
+      "verified": false,
+      "variants": [
+        "navmk4",
+        "navmk4_2"
+      ],
+      "pos": [
+        865,
+        160
+      ]
+    },
+    {
+      "id": "E83.TEL",
+      "name": "Telephone (TEL)",
+      "address": "C8",
+      "protocol": "Ds2",
+      "category": "Infotainment",
+      "sgbd": [
+        "D_00C8"
+      ],
+      "verified": false,
+      "variants": [
+        "telibus",
+        "telibus2",
+        "telibus3"
+      ],
+      "pos": [
+        880,
+        270
+      ]
     }
   ]
 }

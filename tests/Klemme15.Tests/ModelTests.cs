@@ -35,6 +35,41 @@ public class ModelTests
         Assert.All(Db.Components, c => Assert.InRange(c.Position.X, 0, 1000));
     }
 
+    [Theory]
+    [InlineData("E9x", "E9x-m3", "S65")]
+    [InlineData("E46", "E46-m3", "S54")]
+    [InlineData("E60", "E60-m5", "S85")]
+    [InlineData("E70", "E70-x5m", "S63")]
+    [InlineData("E8x", "E8x-1m", "N54")]
+    [InlineData("E9x", "E9x-335d", "M57")]
+    public void TheMCarsAndDieselsAreModelsWithTheirOwnEngine(string family, string model, string engine)
+    {
+        var m = Db.FindVehicle(family)!.Models.Single(x => x.Id == model);
+        Assert.Equal(engine, m.EngineCode);
+        var dme = Db.FindVehicle(family)!.Modules.Single(x => x.IsEngine);
+        Assert.All(m.ModuleIds, id => Assert.Contains(Db.FindVehicle(family)!.Modules, x => x.Id == id));
+        Assert.NotEmpty(dme.Variants);
+    }
+
+    [Fact]
+    public void EngineSpecificTestsAndMeaningsDontApplyToTheWrongEngine()
+    {
+        var e9x = Db.FindVehicle("E9x")!;
+        var m3 = e9x.Models.Single(x => x.Id == "E9x-m3");
+        var d = e9x.Models.Single(x => x.Id == "E9x-335d");
+        var n52 = e9x.Models.Single(x => x.Id == "E9x-328i");
+        var test = (string id) => GuidedTests.All.Single(t => t.Id == id);
+        Assert.NotNull(test("water-pump").NotForEngine(m3));
+        Assert.NotNull(test("cooling-bleed").NotForEngine(d));
+        Assert.NotNull(test("fuel-trims").NotForEngine(d));
+        Assert.Null(test("fuel-trims").NotForEngine(m3));
+        Assert.All(GuidedTests.All, t => Assert.Null(t.NotForEngine(n52)));
+        Assert.All(GuidedTests.All, t => Assert.Null(t.NotForEngine(null)));
+        // An N52 misfire meaning on an S65 says it was recorded for other engines.
+        Assert.Contains("may differ on your S65", Db.LookupBmw("E9x.DME", "29CD", "S65")!.Text);
+        Assert.DoesNotContain("may differ", Db.LookupBmw("E9x.DME", "29CD", "N52")!.Text);
+    }
+
     [Fact]
     public void TheE36IsABetaKLineCarWhoseModulesAreAllUnconfirmed()
     {
@@ -46,7 +81,8 @@ public class ModelTests
         Assert.Equal(0x12, engine.Address);
         Assert.StartsWith("ms41", engine.Variants[0]);
         Assert.All(e36.Modules, m => Assert.False(m.Verified));
-        Assert.All(Db.Vehicles.Where(v => v.Id != "E36"), v => Assert.False(v.IsBeta));
+        Assert.All(Db.Vehicles.Where(v => v.Id is not ("E36" or "E83")), v => Assert.False(v.IsBeta));
+        Assert.True(Db.FindVehicle("E83")!.IsBeta);
     }
 
     [Theory]

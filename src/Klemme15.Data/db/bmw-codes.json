@@ -213,6 +213,17 @@
     "text": "Misfires were detected on more than one cylinder.",
     "hint": "Check the single-cylinder misfire codes stored with it; common causes are worn plugs, coils, vacuum leaks or Valvetronic/injector problems.",
     "component": "engine",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
@@ -226,6 +237,17 @@
     "text": "The engine computer detected misfiring on cylinder 1.",
     "hint": "Swap the cylinder 1 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
     "component": "cyl1",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.youtube.com/shorts/OxHnxOXbKec",
@@ -239,6 +261,17 @@
     "text": "The engine computer detected misfiring on cylinder 2.",
     "hint": "Swap the cylinder 2 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
     "component": "cyl2",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.youtube.com/shorts/OxHnxOXbKec",
@@ -250,6 +283,17 @@
     "text": "The engine computer detected combustion misfires on cylinder 3.",
     "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
     "component": "cyl3",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.youtube.com/shorts/OxHnxOXbKec",
@@ -262,6 +306,17 @@
     "text": "The engine computer detected misfiring on cylinder 4.",
     "hint": "Swap the cylinder 4 ignition coil with a neighbour and see if the fault follows it; spark plug, injector and vacuum leaks are other common causes.",
     "component": "cyl4",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.youtube.com/shorts/OxHnxOXbKec",
@@ -275,6 +330,17 @@
     "text": "The engine computer detected combustion misfires on cylinder 5.",
     "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
     "component": "cyl5",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.youtube.com/shorts/OxHnxOXbKec",
@@ -288,6 +354,17 @@
     "text": "The engine computer detected combustion misfires on cylinder 6.",
     "hint": "Common causes: worn spark plug or failing ignition coil on that cylinder; swap the coil to another cylinder to see if the misfire follows it. Leaking injectors and intake-valve carbon are known N54 causes too.",
     "component": "cyl6",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.youtube.com/shorts/OxHnxOXbKec",
@@ -892,6 +969,17 @@
     "text": "Engine computer's power management logged a battery problem.",
     "hint": "Test the battery and make sure a replacement was registered with the right type/capacity.",
     "component": "battery",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://www.e90post.com/forums/showthread.php?t=576060",
@@ -904,6 +992,17 @@
     "text": "Power management detected too much current draw while the car was asleep (parasitic drain).",
     "hint": "Look for a module keeping the car awake; in that thread the tailgate wiring harness was damaged.",
     "component": "battery",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "medium",
     "sources": [
      "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html"
@@ -1053,6 +1152,17 @@
     "text": "The engine computer has lost communication with the intelligent battery sensor (IBS).",
     "hint": "Check the IBS and its wiring; a weak battery or poor connection at the terminal is a common trigger.",
     "component": "battery",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://static.nhtsa.gov/odi/tsbs/2014/MC-10148034-9999.pdf",
@@ -1063,6 +1173,17 @@
    "2E98": {
     "text": "The engine computer cannot communicate properly with the alternator.",
     "hint": "Often logged after battery or alternator work; check the alternator's data connector and wiring, then the alternator voltage regulator.",
+    "engines": [
+     "N43",
+     "N45",
+     "N46",
+     "N51",
+     "N52",
+     "N52N",
+     "N53",
+     "N54",
+     "N55"
+    ],
     "confidence": "high",
     "sources": [
      "https://5series.net/forums/e60-discussion-2/2e98-generator-communication-bus-error-147212/",

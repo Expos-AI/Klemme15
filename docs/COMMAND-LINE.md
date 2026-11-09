@@ -24,7 +24,7 @@ klemme15 discover --port COM3                    # look for modules the database
 klemme15 scan --port COM3 --log traffic.txt      # save the raw cable traffic for a bug report
 ```
 
-`--vehicle` takes the car family: E46, E39, E53, E38 and E36 (K-line; the E36 is a beta), or E9x, E8x, E60, E70 and E89 (D-CAN). `klemme15 vehicles` lists each family's models and modules. Without `--vehicle`, Klemme15 assumes E9x.
+`--vehicle` takes the car family: E46, E39, E53, E38, E85, E83 and E36 (K-line; the E83 and E36 are betas), or E9x, E8x, E60, E70, E84 and E89 (D-CAN). `klemme15 vehicles` lists each family's models and modules. Without `--vehicle`, Klemme15 assumes E9x.
 
 BMW's own fault texts (optional, see [FAULT-DATA.md](FAULT-DATA.md)):
 

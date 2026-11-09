@@ -187,9 +187,26 @@ public sealed record GuidedTestInfo(string Id, string Title, string Summary, str
 {
     /// <summary>
     /// The test reads BMW's own engine values (VANOS positions, per-cylinder roughness, the electric water pump), not
-    /// the standard OBD-II ones. On K-line cars (E46, E39, E53, E38, E36) those need EDIABAS mode with your BMW files.
+    /// the standard OBD-II ones. On K-line cars (E46, E39, E53, E38, E85, E83, E36) those need EDIABAS mode with your BMW files.
     /// </summary>
     public bool NeedsBmwValues => Id is "vanos" or "roughness" or "water-pump" or "water-pump-sweep" or "cooling-bleed";
+
+    /// <summary>Engines with the electric water pump these tests read (and the bleed routine they walk through).</summary>
+    public static readonly IReadOnlyList<string> ElectricWaterPumpEngines = ["N51", "N52", "N53", "N54", "N55"];
+
+    /// <summary>
+    /// Why this test doesn't fit the car's engine, or null when it does (or when the engine isn't known). Diesels have
+    /// no petrol-style mixture trims or VANOS, and the water pump tests need the electric pump.
+    /// </summary>
+    public string? NotForEngine(VehicleModel? model)
+    {
+        if (model?.EngineCode is not { } engine) return null;
+        if (model.IsDiesel && Id is "fuel-trims" or "vanos" or "idle-ac")
+            return "Not for diesels: they don't correct the mixture or time the camshafts the way this test measures.";
+        if (Id is "water-pump" or "water-pump-sweep" or "cooling-bleed" && !ElectricWaterPumpEngines.Any(e => engine.StartsWith(e, StringComparison.OrdinalIgnoreCase)))
+            return $"Not for the {engine}: this test is for engines with an electric water pump ({string.Join(", ", ElectricWaterPumpEngines)}).";
+        return null;
+    }
 }
 
 /// <summary>

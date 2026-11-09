@@ -10,7 +10,18 @@
       "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
       "https://www.e90post.com/forums/showthread.php?t=2215252"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME. Snap-on source is an E90 with N43."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME. Snap-on source is an E90 with N43.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",
@@ -24,7 +35,18 @@
       "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
       "https://www.youtube.com/watch?v=TMXa9I4b1lo&vl=en"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",
@@ -37,7 +59,18 @@
       "https://www.youtube.com/shorts/OxHnxOXbKec",
       "https://e89.zpost.com/forums/showthread.php?t=1388977"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",
@@ -49,7 +82,18 @@
     "sources": [
       "https://www.youtube.com/shorts/OxHnxOXbKec"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",
@@ -63,7 +107,18 @@
       "https://www.snapon.com/display/3791/Technical-Advice/2017/Tech-Focus-January-2017/BMWE90-DiagnosisandRepair.pdf",
       "https://www.e90post.com/forums/showthread.php?t=1795417"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",
@@ -75,7 +130,18 @@
     "sources": [
       "https://www.youtube.com/shorts/OxHnxOXbKec"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",
@@ -87,7 +153,18 @@
     "sources": [
       "https://www.youtube.com/shorts/OxHnxOXbKec"
     ],
-    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME."
+    "notes": "The 29CC-29D2 misfire numbering is shared by the E9x petrol engine computers, not only the N52 DME.",
+    "engines": [
+      "N43",
+      "N45",
+      "N46",
+      "N51",
+      "N52",
+      "N52N",
+      "N53",
+      "N54",
+      "N55"
+    ]
   },
   {
     "module": "E9x.DME",

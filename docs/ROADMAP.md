@@ -17,6 +17,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
+- **More cars**: M cars and the missing diesel and later models as their own models; the X1 E84, Z4 E85/E86 and (beta) X3 E83; tests and meanings limited to the engines they fit.
 - **Support**: an optional tip link (PayPal) in the app, the website and the README; Klemme15 stays free with nothing locked.
 - **E36 beta (1996-1999)**: in the Garage with five models, the engine over OBD-II, and a [tester guide](E36-BETA.md) to map its other modules.
 - **Catch and compare**: the Ghost Hunter (trigger-based captures with a minute before and after), known good baselines on the Analyse page, live values on the car drawing.
@@ -24,6 +25,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 ## Next
 
 - **The beta**: testers with E46, E60 and E90-family cars and different cables, running the [tester guide](BETA.md), before 1.0.
+- **Next cars**: the 7 Series E65/E66, X3s from late 2006 on (D-CAN), and the Mini R5x, once their module addresses can be checked against real cars.
 - **E36, round two**: add each module an E36 tester's car answers at its real address, then confirm them on a second test. Pre-1996 E36s (older protocols, the round 20-pin plug) after that.
 - Confirm the water pump tests, VANOS test and more service functions on real cars, from test-drive reports.
 - Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be confirmed on real cars. Health history and the OBD-based tests already work.

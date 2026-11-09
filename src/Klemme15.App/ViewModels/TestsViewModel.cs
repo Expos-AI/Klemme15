@@ -49,6 +49,11 @@ public sealed class GuidedTestViewModel(GuidedTestInfo info, DiagnosticChain? ch
 
     /// <summary>On this car's connection the test can't get its values (a K-line car without EDIABAS mode).</summary>
     public bool NeedsEdiabas { get => _needsEdiabas; set => Set(ref _needsEdiabas, value); }
+
+    /// <summary>Why the test doesn't fit this car's engine (a diesel, or no electric water pump), or null.</summary>
+    public string? NotForEngine { get => _notForEngine; set { if (Set(ref _notForEngine, value)) Raise(nameof(HasNotForEngine)); } }
+    private string? _notForEngine;
+    public bool HasNotForEngine => _notForEngine is not null;
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
 }
@@ -113,7 +118,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             Chains.Add(vm);
         }
         StartCommand = new AsyncCommand(RunAsync, () => !_running && _selected is not null && _session.IsConnected && !_session.IsSnapshot && !_session.IsWatching && (_session.BusyWith is null || _running) && Engine is not null
-            && !(_selected.NeedsEdiabas), e => Instruction = $"Couldn't finish: {e.Message}");
+            && !(_selected.NeedsEdiabas) && !_selected.HasNotForEngine, e => Instruction = $"Couldn't finish: {e.Message}");
         StopCommand = new RelayCommand(() => _cts?.Cancel(), () => _running);
         _session.PropertyChanged += (_, e) =>
         {
@@ -127,7 +132,11 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
     private void MarkAvailability()
     {
         var obdOnly = _session.ObdValuesOnly;
-        foreach (var t in Tests) t.NeedsEdiabas = obdOnly && t.Info.NeedsBmwValues;
+        foreach (var t in Tests)
+        {
+            t.NeedsEdiabas = obdOnly && t.Info.NeedsBmwValues;
+            t.NotForEngine = t.IsChain ? null : t.Info.NotForEngine(_session.Model);
+        }
     }
 
     public override string Title => "Tests";
@@ -273,6 +282,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         // Viewing a snapshot: show the owner's own run of this test, graphs and all.
         if (_session.Snapshot?.Tests.LastOrDefault(t => t.TestId == test.Info.Id) is { } recorded) ShowReport(recorded.Report, $"From the snapshot: the owner ran this test on {recorded.Time.LocalDateTime:d MMM yyyy HH:mm}.");
         else if (_session.IsSnapshot) Instruction = "The snapshot has no result for this test.";
+        else if (test.NotForEngine is { } why) Instruction = why;
         foreach (var p in new[] { nameof(TestTitle), nameof(Summary), nameof(Requirements), nameof(Duration), nameof(HasResult), nameof(HasValues), nameof(HasCharts), nameof(DrivesParts) })
             Raise(p);
         Changed();

@@ -955,6 +955,17 @@
   "sources": [
    "https://www.mfcauctions.co.za/dekra-reports/DIGWBAPM76060NH81435.pdf",
    "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ],
+  "engines": [
+   "N43",
+   "N45",
+   "N46",
+   "N51",
+   "N52",
+   "N52N",
+   "N53",
+   "N54",
+   "N55"
   ]
  },
  {
@@ -966,6 +977,17 @@
   "confidence": "medium",
   "sources": [
    "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ],
+  "engines": [
+   "N43",
+   "N45",
+   "N46",
+   "N51",
+   "N52",
+   "N52N",
+   "N53",
+   "N54",
+   "N55"
   ]
  },
  {
@@ -975,6 +997,17 @@
   "confidence": "medium",
   "sources": [
    "https://www.bimmerownersclub.com/forums/topic/18044-e90-dying-overnight-30g-relay/"
+  ],
+  "engines": [
+   "N43",
+   "N45",
+   "N46",
+   "N51",
+   "N52",
+   "N52N",
+   "N53",
+   "N54",
+   "N55"
   ]
  },
  {
@@ -986,6 +1019,17 @@
   "confidence": "medium",
   "sources": [
    "https://www.bmw-syndikat.de/bmwsyndikatforum/topic394211_Bmw_e91_320i_diverse_elektronische_Fehler_3er_BMW_-_E90___E91___E92___E93.html"
+  ],
+  "engines": [
+   "N43",
+   "N45",
+   "N46",
+   "N51",
+   "N52",
+   "N52N",
+   "N53",
+   "N54",
+   "N55"
   ]
  }
 ]

@@ -68,7 +68,7 @@ internal static class Cli
           sgbd <file.prg> [TABLE]       List the tables in one of your BMW files, or print one
 
         Options
-          --vehicle <id>     E46, E39, E53, E38, E36 beta (K-line) or E9x, E8x, E60, E70, E89 (D-CAN); default E9x
+          --vehicle <id>     E46, E39, E53, E38, E85, E83 beta, E36 beta (K-line) or E9x, E8x, E60, E70, E84, E89 (D-CAN); default E9x
           --model <name>     e.g. 325i or 335i (picks the demo car; see 'klemme15 vehicles')
           --port <name>      Cable port, e.g. COM3 or /dev/ttyUSB0
           --demo             Use the built-in virtual car instead of a cable

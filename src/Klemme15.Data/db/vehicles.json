@@ -242,6 +242,102 @@
               }
             ]
           }
+        },
+        {
+          "id": "E46-m3",
+          "name": "M3",
+          "body": "Coupe, convertible",
+          "years": "2001-2006",
+          "engine": "S54 3.2 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E46.DME",
+            "E46.EGS",
+            "E46.DSC",
+            "E46.MRS",
+            "E46.IKE",
+            "E46.GM5",
+            "E46.LCM",
+            "E46.IHKA",
+            "E46.EWS",
+            "E46.PDC",
+            "E46.MFL",
+            "E46.RAD",
+            "E46.RLS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "module": "E46.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E46-318i",
+          "name": "316i / 318i",
+          "body": "Sedan, touring, coupe, convertible, compact (outside North America)",
+          "years": "1998-2006",
+          "engine": "N42/N46 1.8 L / 2.0 L inline-4 (M43 before 2001)",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E46.DME",
+            "E46.EGS",
+            "E46.DSC",
+            "E46.MRS",
+            "E46.IKE",
+            "E46.GM5",
+            "E46.LCM",
+            "E46.IHKA",
+            "E46.EWS",
+            "E46.MFL",
+            "E46.RAD"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "module": "E46.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E46-320d",
+          "name": "320d / 330d",
+          "body": "Sedan, touring, coupe, convertible (outside North America)",
+          "years": "1998-2006",
+          "engine": "M47 2.0 L / M57 3.0 L diesel",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E46.DME",
+            "E46.EGS",
+            "E46.DSC",
+            "E46.MRS",
+            "E46.IKE",
+            "E46.GM5",
+            "E46.LCM",
+            "E46.IHKA",
+            "E46.EWS",
+            "E46.MFL",
+            "E46.RAD"
+          ],
+          "demo": {
+            "idle": 750,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E46.DME",
+                "code": "P0401",
+                "present": true
+              }
+            ]
+          }
         }
       ]
     },
@@ -613,6 +709,209 @@
               67
             ]
           }
+        },
+        {
+          "id": "E9x-m3",
+          "name": "M3",
+          "body": "Sedan, coupe, convertible",
+          "years": "2008-2013",
+          "engine": "S65 4.0 L V8",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.EKPS",
+            "E9x.PDC",
+            "E9x.CIC",
+            "E9x.FZD",
+            "E9x.EDC"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E9x-335is",
+          "name": "335is",
+          "body": "Coupe, convertible",
+          "years": "2011-2013",
+          "engine": "N54 3.0 L twin-turbo inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.EKPS",
+            "E9x.PDC",
+            "E9x.CIC",
+            "E9x.FZD"
+          ],
+          "demo": {
+            "idle": 700,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E9x-335d",
+          "name": "335d",
+          "body": "Sedan",
+          "years": "2009-2011",
+          "engine": "M57 3.0 L twin-turbo diesel inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.EKPS",
+            "E9x.PDC",
+            "E9x.CIC",
+            "E9x.FZD"
+          ],
+          "demo": {
+            "idle": 750,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "P0401",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E9x-320i",
+          "name": "318i / 320i",
+          "body": "Sedan, touring, coupe, convertible (outside North America)",
+          "years": "2005-2012",
+          "engine": "N46 2.0 L inline-4 (N43 in some markets from 2007)",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.CIC",
+            "E9x.FZD"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E9x-320d",
+          "name": "318d / 320d",
+          "body": "Sedan, touring, coupe, convertible (outside North America)",
+          "years": "2005-2012",
+          "engine": "N47 2.0 L diesel inline-4 (M47 before 2007)",
+          "drive": "Rear-wheel drive or xDrive",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.CIC",
+            "E9x.FZD"
+          ],
+          "demo": {
+            "idle": 750,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "P0401",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E9x-330d",
+          "name": "325d / 330d",
+          "body": "Sedan, touring, coupe, convertible (outside North America)",
+          "years": "2005-2012",
+          "engine": "M57 3.0 L diesel inline-6 (N57 from 2010)",
+          "drive": "Rear-wheel drive or xDrive",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.CIC",
+            "E9x.FZD"
+          ],
+          "demo": {
+            "idle": 750,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "P0401",
+                "present": true
+              }
+            ]
+          }
         }
       ]
     },
@@ -830,6 +1129,38 @@
             ],
             "checkControl": [
               67
+            ]
+          }
+        },
+        {
+          "id": "E8x-1m",
+          "name": "1 Series M Coupe",
+          "body": "Coupe",
+          "years": "2011-2012",
+          "engine": "N54 3.0 L twin-turbo inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E8x.DME",
+            "E8x.EGS",
+            "E8x.DSC",
+            "E8x.ACSM",
+            "E8x.CAS",
+            "E8x.KOMBI",
+            "E8x.IHKA",
+            "E8x.PDC",
+            "E8x.CIC",
+            "E8x.FRM",
+            "E8x.JBE"
+          ],
+          "demo": {
+            "idle": 700,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E8x.DME",
+                "code": "P0171",
+                "present": true
+              }
             ]
           }
         }
@@ -1095,6 +1426,37 @@
               67
             ]
           }
+        },
+        {
+          "id": "E60-m5",
+          "name": "M5 / M6",
+          "body": "Sedan, touring, coupe, convertible",
+          "years": "2007-2010",
+          "engine": "S85 5.0 L V10",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E60.DME",
+            "E60.EGS",
+            "E60.DSC",
+            "E60.ACSM",
+            "E60.CAS",
+            "E60.KOMBI",
+            "E60.IHKA",
+            "E60.SZL",
+            "E60.PDC",
+            "E60.CIC",
+            "E60.LM"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "module": "E60.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
         }
       ]
     },
@@ -1331,6 +1693,309 @@
             ],
             "checkControl": [
               67
+            ]
+          }
+        },
+        {
+          "id": "E70-x5m",
+          "name": "X5 M / X6 M",
+          "body": "SUV, sports activity coupe",
+          "years": "2010-2013",
+          "engine": "S63 4.4 L twin-turbo V8",
+          "drive": "xDrive",
+          "modules": [
+            "E70.DME",
+            "E70.EGS",
+            "E70.DSC",
+            "E70.ACSM",
+            "E70.CAS",
+            "E70.KOMBI",
+            "E70.IHKA",
+            "E70.PDC",
+            "E70.CIC",
+            "E70.FRM",
+            "E70.JBE",
+            "E70.VGSG"
+          ],
+          "demo": {
+            "idle": 700,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E70.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E70-35i",
+          "name": "X5 xDrive35i",
+          "body": "SUV",
+          "years": "2011-2013",
+          "engine": "N55 3.0 L turbo inline-6",
+          "drive": "xDrive",
+          "modules": [
+            "E70.DME",
+            "E70.EGS",
+            "E70.DSC",
+            "E70.ACSM",
+            "E70.CAS",
+            "E70.KOMBI",
+            "E70.IHKA",
+            "E70.PDC",
+            "E70.CIC",
+            "E70.FRM",
+            "E70.JBE",
+            "E70.VGSG"
+          ],
+          "demo": {
+            "idle": 700,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E70.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E70-50i",
+          "name": "X5 xDrive50i",
+          "body": "SUV",
+          "years": "2011-2013",
+          "engine": "N63 4.4 L twin-turbo V8",
+          "drive": "xDrive",
+          "modules": [
+            "E70.DME",
+            "E70.EGS",
+            "E70.DSC",
+            "E70.ACSM",
+            "E70.CAS",
+            "E70.KOMBI",
+            "E70.IHKA",
+            "E70.PDC",
+            "E70.CIC",
+            "E70.FRM",
+            "E70.JBE",
+            "E70.VGSG"
+          ],
+          "demo": {
+            "idle": 700,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E70.DME",
+                "code": "P0171",
+                "present": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "E84",
+      "name": "X1 E84",
+      "years": "2009-2015",
+      "cable": "DCan",
+      "verified": false,
+      "modules": [
+        "E84.JBE",
+        "E84.ACSM",
+        "E84.DME",
+        "E84.AFS",
+        "E84.EKPS",
+        "E84.EGS",
+        "E84.VGSG",
+        "E84.LDM",
+        "E84.RDC",
+        "E84.ACC",
+        "E84.CVM",
+        "E84.PGS",
+        "E84.DSC",
+        "E84.EPS",
+        "E84.TEL",
+        "E84.AMP",
+        "E84.EDC",
+        "E84.ASK",
+        "E84.CAS",
+        "E84.DWA",
+        "E84.SHD",
+        "E84.ANTTU",
+        "E84.VM",
+        "E84.SINE",
+        "E84.SDARS",
+        "E84.FZD",
+        "E84.KOMBI",
+        "E84.MOSTGW",
+        "E84.CIC",
+        "E84.PDC",
+        "E84.ZBE",
+        "E84.SMFA",
+        "E84.SMBF",
+        "E84.AHM",
+        "E84.FRM",
+        "E84.CID",
+        "E84.IHKA",
+        "E84.CCCA"
+      ],
+      "models": [
+        {
+          "id": "E84-28i",
+          "name": "sDrive28i / xDrive28i",
+          "body": "SUV",
+          "years": "2012-2015",
+          "engine": "N20 2.0 L turbo inline-4",
+          "drive": "Rear-wheel drive or xDrive",
+          "modules": [
+            "E84.DME",
+            "E84.EGS",
+            "E84.DSC",
+            "E84.ACSM",
+            "E84.CAS",
+            "E84.KOMBI",
+            "E84.IHKA",
+            "E84.PDC",
+            "E84.CIC",
+            "E84.FRM",
+            "E84.JBE"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E84.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E84-35i",
+          "name": "xDrive35i",
+          "body": "SUV",
+          "years": "2013-2015",
+          "engine": "N55 3.0 L turbo inline-6",
+          "drive": "xDrive",
+          "modules": [
+            "E84.DME",
+            "E84.EGS",
+            "E84.DSC",
+            "E84.ACSM",
+            "E84.CAS",
+            "E84.KOMBI",
+            "E84.IHKA",
+            "E84.PDC",
+            "E84.CIC",
+            "E84.FRM",
+            "E84.JBE"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E84.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E84-28i-n52",
+          "name": "xDrive25i / xDrive28i",
+          "body": "SUV (outside North America)",
+          "years": "2009-2011",
+          "engine": "N52 3.0 L inline-6",
+          "drive": "xDrive",
+          "modules": [
+            "E84.DME",
+            "E84.EGS",
+            "E84.DSC",
+            "E84.ACSM",
+            "E84.CAS",
+            "E84.KOMBI",
+            "E84.IHKA",
+            "E84.PDC",
+            "E84.CIC",
+            "E84.FRM",
+            "E84.JBE"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E84.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E84-18i",
+          "name": "sDrive18i",
+          "body": "SUV (outside North America)",
+          "years": "2009-2011",
+          "engine": "N46 2.0 L inline-4",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E84.DME",
+            "E84.EGS",
+            "E84.DSC",
+            "E84.ACSM",
+            "E84.CAS",
+            "E84.KOMBI",
+            "E84.IHKA",
+            "E84.PDC",
+            "E84.CIC",
+            "E84.FRM",
+            "E84.JBE"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E84.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E84-20d",
+          "name": "sDrive18d / xDrive20d / xDrive23d",
+          "body": "SUV (outside North America)",
+          "years": "2009-2015",
+          "engine": "N47 2.0 L diesel inline-4",
+          "drive": "Rear-wheel drive or xDrive",
+          "modules": [
+            "E84.DME",
+            "E84.EGS",
+            "E84.DSC",
+            "E84.ACSM",
+            "E84.CAS",
+            "E84.KOMBI",
+            "E84.IHKA",
+            "E84.PDC",
+            "E84.CIC",
+            "E84.FRM",
+            "E84.JBE"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0401",
+                "module": "E84.DME",
+                "present": true
+              }
             ]
           }
         }
@@ -1878,6 +2543,330 @@
               {
                 "code": "P0401",
                 "module": "E53.DME",
+                "present": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "E83",
+      "name": "X3 E83 (to 2006)",
+      "years": "2004-2006",
+      "cable": "KLine",
+      "verified": false,
+      "note": "X3 support is new and in beta, and hasn't been tested on a real car yet. It's for 2004-2006 X3s, which use K-line. The engine part (fault codes, live data and tests) uses standard OBD-II, so it's the part most likely to work. Some of the X3's other modules are newer types than the E46's, so they may not answer at the addresses Klemme15 tries: \"Find other modules\" and a saved report show us where they really are. X3s built from late 2006 on use D-CAN and aren't supported yet.",
+      "modules": [
+        "E83.DME",
+        "E83.EGS",
+        "E83.DSC",
+        "E83.MRS",
+        "E83.IKE",
+        "E83.GM",
+        "E83.LCM",
+        "E83.IHKA",
+        "E83.EWS",
+        "E83.PDC",
+        "E83.RLS",
+        "E83.NAV",
+        "E83.TEL"
+      ],
+      "models": [
+        {
+          "id": "E83-30i",
+          "name": "X3 3.0i",
+          "body": "SUV",
+          "years": "2004-2006",
+          "engine": "M54 3.0 L inline-6",
+          "drive": "All-wheel drive",
+          "modules": [
+            "E83.DME",
+            "E83.EGS",
+            "E83.DSC",
+            "E83.MRS",
+            "E83.IKE",
+            "E83.LCM",
+            "E83.IHKA",
+            "E83.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E83.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E83-25i",
+          "name": "X3 2.5i",
+          "body": "SUV",
+          "years": "2004-2006",
+          "engine": "M54 2.5 L inline-6",
+          "drive": "All-wheel drive",
+          "modules": [
+            "E83.DME",
+            "E83.EGS",
+            "E83.DSC",
+            "E83.MRS",
+            "E83.IKE",
+            "E83.LCM",
+            "E83.IHKA",
+            "E83.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E83.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E83-20i",
+          "name": "X3 2.0i",
+          "body": "SUV (outside North America)",
+          "years": "2005-2006",
+          "engine": "N46 2.0 L inline-4",
+          "drive": "All-wheel drive",
+          "modules": [
+            "E83.DME",
+            "E83.DSC",
+            "E83.MRS",
+            "E83.IKE",
+            "E83.LCM",
+            "E83.IHKA",
+            "E83.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E83.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E83-30d",
+          "name": "X3 3.0d",
+          "body": "SUV (outside North America)",
+          "years": "2004-2006",
+          "engine": "M57 3.0 L diesel inline-6",
+          "drive": "All-wheel drive",
+          "modules": [
+            "E83.DME",
+            "E83.EGS",
+            "E83.DSC",
+            "E83.MRS",
+            "E83.IKE",
+            "E83.LCM",
+            "E83.IHKA",
+            "E83.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0401",
+                "module": "E83.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E83-20d",
+          "name": "X3 2.0d",
+          "body": "SUV (outside North America)",
+          "years": "2004-2006",
+          "engine": "M47 2.0 L diesel inline-4",
+          "drive": "All-wheel drive",
+          "modules": [
+            "E83.DME",
+            "E83.DSC",
+            "E83.MRS",
+            "E83.IKE",
+            "E83.LCM",
+            "E83.IHKA",
+            "E83.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0401",
+                "module": "E83.DME",
+                "present": true
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "E85",
+      "name": "Z4 E85 / E86",
+      "years": "2003-2008",
+      "cable": "KLine",
+      "verified": false,
+      "modules": [
+        "E85.DME",
+        "E85.EGS",
+        "E85.DSC",
+        "E85.IKE",
+        "E85.GM",
+        "E85.LCM",
+        "E85.IHKA",
+        "E85.EWS",
+        "E85.PDC",
+        "E85.RLS",
+        "E85.NAV",
+        "E85.TEL"
+      ],
+      "models": [
+        {
+          "id": "E85-30i",
+          "name": "2.5i / 3.0i",
+          "body": "Roadster",
+          "years": "2003-2005",
+          "engine": "M54 2.5 L / 3.0 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E85.DME",
+            "E85.EGS",
+            "E85.DSC",
+            "E85.IKE",
+            "E85.GM",
+            "E85.LCM",
+            "E85.IHKA",
+            "E85.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E85.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E85-30si",
+          "name": "3.0i / 3.0si",
+          "body": "Roadster, coupe",
+          "years": "2006-2008",
+          "engine": "N52 3.0 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E85.DME",
+            "E85.EGS",
+            "E85.DSC",
+            "E85.IKE",
+            "E85.GM",
+            "E85.LCM",
+            "E85.IHKA",
+            "E85.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E85.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E85-m",
+          "name": "Z4 M Roadster / Coupe",
+          "body": "Roadster, coupe",
+          "years": "2006-2008",
+          "engine": "S54 3.2 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E85.DME",
+            "E85.DSC",
+            "E85.IKE",
+            "E85.GM",
+            "E85.LCM",
+            "E85.IHKA",
+            "E85.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E85.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E85-25si",
+          "name": "2.5si",
+          "body": "Roadster (outside North America)",
+          "years": "2006-2008",
+          "engine": "N52 2.5 L inline-6",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E85.DME",
+            "E85.EGS",
+            "E85.DSC",
+            "E85.IKE",
+            "E85.GM",
+            "E85.LCM",
+            "E85.IHKA",
+            "E85.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E85.DME",
+                "present": true
+              }
+            ]
+          }
+        },
+        {
+          "id": "E85-20i",
+          "name": "2.0i",
+          "body": "Roadster (outside North America)",
+          "years": "2005-2008",
+          "engine": "N46 2.0 L inline-4",
+          "drive": "Rear-wheel drive",
+          "modules": [
+            "E85.DME",
+            "E85.DSC",
+            "E85.IKE",
+            "E85.GM",
+            "E85.LCM",
+            "E85.IHKA",
+            "E85.EWS"
+          ],
+          "demo": {
+            "idle": 700,
+            "faults": [
+              {
+                "code": "P0171",
+                "module": "E85.DME",
                 "present": true
               }
             ]

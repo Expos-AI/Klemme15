@@ -33,11 +33,13 @@ The screenshots are rendered from the demo cars on every change. [See them all](
 | Family | Cable switch | Without BMW files | With your BMW files (EDIABAS mode, Windows) |
 |---|---|---|---|
 | E90/E91/E92/E93 3 Series (2006-2013) | D-CAN | Every module's faults and dash messages, engine readings, live data, tests, coding backups, battery registration (most engine computers), Valvetronic learning (N52 engines only) | Every module's readings and service functions, BMW fault texts |
-| E81/E82/E87/E88 1 Series, E60/E61 5 Series, E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E89 Z4 | D-CAN | Like the E90 family | Like the E90 family |
-| E46 3 Series (1999-2006), E39 5 Series, E53 X5, E38 7 Series | K-line | Module identification, engine faults and live data (OBD-II), health history, the fuel trim test | Every module's faults, readings and service functions |
-| **Beta:** E36 3 Series (1996-1999) | K-line | Engine faults, live data and the fuel trim test (OBD-II); the other modules are being mapped with testers | Not tried yet |
+| E81/E82/E87/E88 1 Series, E60/E61 5 Series, E63/E64 6 Series (2007 on), E70 X5 / E71 X6, E84 X1, E89 Z4 | D-CAN | Like the E90 family | Like the E90 family |
+| E46 3 Series (1999-2006), E39 5 Series, E53 X5, E38 7 Series, E85/E86 Z4 | K-line | Module identification, engine faults and live data (OBD-II), health history, the fuel trim test | Every module's faults, readings and service functions |
+| **Beta:** E36 3 Series (1996-1999), E83 X3 (2004-2006) | K-line | Engine faults, live data and the fuel trim test (OBD-II); the other modules are being mapped with testers | Not tried yet |
 
-The E90 family is confirmed on a real car; the others are built from BMW's module data and tested against demo cars, so please [report how it goes](docs/BETA.md). The E36 is newer still: nobody has tried it on a real car, and its [tester guide](docs/E36-BETA.md) is how its modules get mapped. Cars from before 1996 aren't supported yet. E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode. F- and G-series cars use an Ethernet cable and aren't supported yet.
+M cars are listed as their own models (E46 M3, E9x M3, E60 M5/M6, 1 Series M Coupe, X5 M/X6 M, Z4 M, E39 M5, E36 M3), and so are the diesels sold outside North America. Tips and tests written for one engine aren't offered on another: a diesel doesn't get the fuel trim test, and the water pump tests are only for engines with an electric pump (N51-N55).
+
+The E90 family is confirmed on a real car; the others are built from BMW's module data and tested against demo cars, so please [report how it goes](docs/BETA.md). The E36 is newer still: nobody has tried it on a real car, and its [tester guide](docs/E36-BETA.md) is how its modules get mapped. Cars from before 1996 (E30, E32, E34, E31 and early E36) aren't supported yet. E60 and E87-family cars built before March 2007 have no D-CAN and need EDIABAS mode; the 7 Series E65/E66, X3s built from late 2006 on and the Mini aren't supported yet. F- and G-series cars use an Ethernet cable and aren't supported yet.
 
 ## What you need
 
@@ -75,7 +77,7 @@ After that it opens normally. Every release comes with `SHA256SUMS.txt` and a si
 
 ## Quick start
 
-1. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for the E46, E39, E53, E38 and E36, **D-CAN** for the E90 family and newer.
+1. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36, **D-CAN** for the E90 family and newer.
 2. Switch the ignition on (key position 2, engine off).
 3. In Klemme15, pick your car in the Garage and press **Connect to my car**. Choose the cable's port and press **Check cable**. Fix anything it flags.
 4. Press **Connect**, then **Run quick test** on the Vehicle page.

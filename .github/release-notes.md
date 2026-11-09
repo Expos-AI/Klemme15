@@ -1,6 +1,11 @@
 Beta candidate. Quick test, faults, readings, live data, guided tests and experimental service functions.
 
-**New in 0.99.19:**
+**New in 0.99.20:** more cars.
+- **M cars and missing models.** The E9x M3, E46 M3, E60 M5 and M6, 1 Series M Coupe, X5 M and X6 M are now models of their own, along with the 335is, the 335d, the 2011-on X5 xDrive35i and xDrive50i, and the 3 Series diesels sold outside North America.
+- **New families:** the X1 E84 (2009-2015, D-CAN, built on the E90's platform) and the Z4 E85/E86 (2003-2008, K-line). The **X3 E83** (2004-2006, K-line) joins as a beta. All of them are built from BMW's module data and not yet confirmed on a real car: please [report how it goes](https://github.com/Expos-AI/Klemme15/blob/main/docs/BETA.md).
+- **Tips and tests that fit your engine.** A diesel no longer gets the fuel trim, VANOS or idle tests, and the water pump tests are only offered on engines with an electric pump (N51-N55). The E9x petrol engines' misfire and power management meanings are now limited to those engines, so on an S65 or a diesel they say they were recorded for other engines.
+
+**0.99.19:**
 - **Tips go through PayPal** ([paypal.me/KindricC](https://paypal.me/KindricC)) instead of Ko-fi. Same buttons, same deal: Klemme15 stays free with nothing locked.
 
 **0.99.18:**

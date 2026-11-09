@@ -84,7 +84,7 @@ def dcan_modules(prefix, chassis_list):
         for v in src.get("variants", []):
             row = con.execute("select chassis from ecu_variant where lower(sgbd)=?", (v,)).fetchone()
             listed = row and row[0] and any(f'"{ch}"' in row[0] for ch in chassis_list)
-            if listed or prefix == "E8x":
+            if listed or prefix in ("E8x", "E84"):
                 by_addr[src["address"].upper().zfill(2)].add(v)
     mods = []
     for addr, vs in sorted(by_addr.items()):
@@ -122,14 +122,19 @@ DS2_NAMES = {"GM": ("Body module (GM)", "Body", [395, 110]), "LCM": ("Light chec
 # Engine computers to try first when the part number can't be read: the 1996-1999 North American ones.
 FIRST = {"E36": ("ms41", "bms46", "mss52")}
 # Shown in the Garage under the family, for families that are still being mapped with testers.
-NOTES = {"E36": "E36 support is new and in beta, and hasn't been tested on a real car yet. It's for 1996-1999 cars with "
+NOTES = {"E83": "X3 support is new and in beta, and hasn't been tested on a real car yet. It's for 2004-2006 X3s, which use "
+                "K-line. The engine part (fault codes, live data and tests) uses standard OBD-II, so it's the part most likely "
+                "to work. Some of the X3's other modules are newer types than the E46's, so they may not answer at the "
+                "addresses Klemme15 tries: \"Find other modules\" and a saved report show us where they really are. X3s built "
+                "from late 2006 on use D-CAN and aren't supported yet.",
+         "E36": "E36 support is new and in beta, and hasn't been tested on a real car yet. It's for 1996-1999 cars with "
                 "the OBD-II port under the dashboard. The engine part (fault codes, live data and tests) uses standard "
                 "OBD-II, so it's the part most likely to work. The other modules use addresses that haven't been "
                 "confirmed on an E36 yet, so some may not answer: \"Find other modules\" and a saved report show us where "
                 "they really are. Cars from before 1996 use older protocols and aren't supported yet."}
 FAMILY_NAMES = {"E36": {"IKE": "Instrument cluster", "GM": "Body electronics (ZKE)"}}
 
-ENGINES = {"E36": ["M42", "M43", "M44", "M50", "M51", "M52", "S50", "S52"], "E39": ["M52", "M54", "M62", "S62", "M57"], "E53": ["M54", "M62", "N62", "M57"], "E38": ["M62", "M73", "M57"]}
+ENGINES = {"E85": ["M54", "N52", "N46", "S54"], "E83": ["M54", "N46", "M47", "M57"], "E36": ["M42", "M43", "M44", "M50", "M51", "M52", "S50", "S52"], "E39": ["M52", "M54", "M62", "S62", "M57"], "E53": ["M54", "M62", "N62", "M57"], "E38": ["M62", "M73", "M57"]}
 
 def ds2_modules(prefix, chassis_list):
     fams = collections.defaultdict(list)
@@ -208,6 +213,29 @@ FAMILIES = [
         ("318ti", "318ti", "Hatchback (compact)", "1996-1999", "M44 1.9 L inline-4", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
         ("m3", "M3", "Coupe, sedan, convertible", "1996-1999", "S52 3.2 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "IHKA"]),
     ]),
+    # E84: built on the E90 platform (D-CAN), so it takes the E9x module versions BMW also lists for the X1.
+    ("E84", "X1 E84", "2009-2015", "DCan", ["E84"], [
+        ("28i", "sDrive28i / xDrive28i", "SUV", "2012-2015", "N20 2.0 L turbo inline-4", "Rear-wheel drive or xDrive", D_CORE + ["FRM", "JBE"]),
+        ("35i", "xDrive35i", "SUV", "2013-2015", "N55 3.0 L turbo inline-6", "xDrive", D_CORE + ["FRM", "JBE"]),
+        ("28i-n52", "xDrive25i / xDrive28i", "SUV (outside North America)", "2009-2011", "N52 3.0 L inline-6", "xDrive", D_CORE + ["FRM", "JBE"]),
+        ("18i", "sDrive18i", "SUV (outside North America)", "2009-2011", "N46 2.0 L inline-4", "Rear-wheel drive", D_CORE + ["FRM", "JBE"]),
+        ("20d", "sDrive18d / xDrive20d / xDrive23d", "SUV (outside North America)", "2009-2015", "N47 2.0 L diesel inline-4", "Rear-wheel drive or xDrive", D_CORE + ["FRM", "JBE"]),
+    ]),
+    # E85/E86 and the early E83 are K-line (DS2) cars built like the E46: same DS2 addresses, unconfirmed until tested.
+    ("E85", "Z4 E85 / E86", "2003-2008", "KLine", ["E85", "E86"], [
+        ("30i", "2.5i / 3.0i", "Roadster", "2003-2005", "M54 2.5 L / 3.0 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("30si", "3.0i / 3.0si", "Roadster, coupe", "2006-2008", "N52 3.0 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("m", "Z4 M Roadster / Coupe", "Roadster, coupe", "2006-2008", "S54 3.2 L inline-6", "Rear-wheel drive", ["DME", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("25si", "2.5si", "Roadster (outside North America)", "2006-2008", "N52 2.5 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+        ("20i", "2.0i", "Roadster (outside North America)", "2005-2008", "N46 2.0 L inline-4", "Rear-wheel drive", ["DME", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
+    ]),
+    ("E83", "X3 E83 (to 2006)", "2004-2006", "KLine", ["E83"], [
+        ("30i", "X3 3.0i", "SUV", "2004-2006", "M54 3.0 L inline-6", "All-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "LCM", "IHKA", "EWS"]),
+        ("25i", "X3 2.5i", "SUV", "2004-2006", "M54 2.5 L inline-6", "All-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "LCM", "IHKA", "EWS"]),
+        ("20i", "X3 2.0i", "SUV (outside North America)", "2005-2006", "N46 2.0 L inline-4", "All-wheel drive", ["DME", "DSC", "MRS", "IKE", "LCM", "IHKA", "EWS"]),
+        ("30d", "X3 3.0d", "SUV (outside North America)", "2004-2006", "M57 3.0 L diesel inline-6", "All-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "LCM", "IHKA", "EWS"]),
+        ("20d", "X3 2.0d", "SUV (outside North America)", "2004-2006", "M47 2.0 L diesel inline-4", "All-wheel drive", ["DME", "DSC", "MRS", "IKE", "LCM", "IHKA", "EWS"]),
+    ]),
     ("E39", "5 Series E39", "1997-2003", "KLine", ["E39"], [
         ("525i", "525i / 530i", "Sedan, touring", "2001-2003", "M54 2.5 L / 3.0 L inline-6", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
         ("528i", "528i", "Sedan, touring", "1997-2000", "M52 2.8 L inline-6 (M52TU from 1998)", "Rear-wheel drive", ["DME", "EGS", "DSC", "MRS", "IKE", "GM", "LCM", "IHKA", "EWS"]),
@@ -258,6 +286,7 @@ PREFERRED = {
     "E60": [["E60", "E61", "E63", "E64"], ["E65"], ["E89"]],
     "E70": [["E70", "E71", "E72"], ["E89"]],
     "E89": [["E89"]],
+    "E84": [["E84"], ["E90", "E91", "E92", "E93"], ["E87", "E82", "E88", "E81"]],
 }
 for m in mod_doc["modules"]:
     fam = m["id"].split(".")[0]
