@@ -51,6 +51,11 @@ public class DocsTests
         var first = Regex.Match(notes, @"\*\*New in ([0-9.]+):\*\*");
         Assert.True(first.Success, "release-notes.md needs a '**New in x.y.z:**' section");
         Assert.Equal(Version, first.Groups[1].Value);
+        // One version per release page; the history lives in the changelog, newest first.
+        Assert.Single(Regex.Matches(notes, @"\*\*(New in )?[0-9]+\.[0-9.]+:\*\*"));
+        var changelog = Regex.Match(Read("CHANGELOG.md"), @"^## ([0-9.]+)", RegexOptions.Multiline);
+        Assert.True(changelog.Success, "CHANGELOG.md needs a '## x.y.z' section");
+        Assert.Equal(Version, changelog.Groups[1].Value);
     }
 
     [Fact]

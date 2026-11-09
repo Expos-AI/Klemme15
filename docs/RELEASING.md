@@ -3,7 +3,7 @@
 Every release, before tagging:
 
 1. **Version**: bump `<Version>` in `Directory.Build.props`.
-2. **Release notes**: add `**New in x.y.z:**` at the top of `.github/release-notes.md`, written for owners (what they can do now, not how it was built). Move the previous section down as `**x.y.z:**`.
+2. **Release notes**: replace the `**New in x.y.z:**` section in `.github/release-notes.md` with this version's changes, written for owners (what they can do now, not how it was built). The release page shows only this file, so it holds one version. Add the same text under `## x.y.z` at the top of `CHANGELOG.md`, which keeps every version.
 3. **README**: new features in the right "What it does" group; update the Status line when something is validated on a vehicle.
 4. **Roadmap**: move finished items from Next to Done.
 5. **Privacy**: anything new that's saved to disk or goes online must be in `PRIVACY.md`.
