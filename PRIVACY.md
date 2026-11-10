@@ -31,6 +31,7 @@ Only when you ask, and only to these:
 | Download BMW fault texts or engine readings | github.com (the [bmw-unified-db](https://github.com/gediz/bmw-unified-db) project's release, found through api.github.com) | Nothing about your car |
 | **Get the latest community maps** (Coding page) | raw.githubusercontent.com (this project) | Nothing about your car |
 | **Translate** a BMW fault text | Google Translate, in your browser | That fault's German text |
+| **Find this part** on a fault | DuckDuckGo, in your browser | The search words: your car's model and engine, and the part's name |
 | Open a link (About, help, privacy, the PayPal tip page) | That page, in your browser | Nothing about your car |
 | **Check for updates** (the arrow button), or start Klemme15 after you said yes to checking on start (at most once a day) | expos-ai.github.io (this project's website), for one small file, `latest.json` | Nothing: not your version, not anything about you or your car. Klemme15 compares the version itself and never downloads or installs an update on its own |
 | Connect a Wi-Fi cable, or run `klemme15 serve` | Only the devices and the MQTT broker you set up, on your own network | Your car's live data, to them |

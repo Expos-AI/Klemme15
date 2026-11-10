@@ -231,6 +231,11 @@ public static class HealthTrends
             var fresh = latest.Faults.Except(snapshots[^2].Faults).ToList();
             if (fresh.Count > 0)
                 list.Add(new(TrendLevel.Info, fresh.Count == 1 ? "New since the last quick test" : $"{fresh.Count} new since the last quick test", string.Join(", ", fresh.Select(Short))));
+            // Gone since the previous scan: the proof a repair (or a clear) held.
+            var gone = snapshots[^2].Faults.Except(latest.Faults).ToList();
+            if (gone.Count > 0)
+                list.Add(new(TrendLevel.Info, gone.Count == 1 ? "Gone since the last quick test" : $"{gone.Count} gone since the last quick test",
+                    $"{string.Join(", ", gone.Select(Short))}. Stored on {snapshots[^2].Time.LocalDateTime:d MMM yyyy}, not there now. If you cleared {(gone.Count == 1 ? "it" : "them")}, drive a few days and test again to be sure."));
         }
 
         return list.OrderByDescending(t => t.Level).ToList();

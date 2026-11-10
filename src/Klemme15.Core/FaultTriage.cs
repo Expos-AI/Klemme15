@@ -41,6 +41,12 @@ public static class FaultTriage
         ["botschaft", "message missing", "no message", "timeout", "time-out", "zeitüberschreitung", "kommunikation", "communication",
          "bus off", "k-can", "pt-can", "f-can", "lo-can", "most-bus", "most bus", "byteflight", "k-bus", "i-bus"];
 
+    /// <summary>The fault's text is about supply voltage: typically left behind by a flat battery or battery work.</summary>
+    public static bool IsSupply(Fault f) => SupplyWords.Any($"{f.Description} {f.OfficialText}".ToLowerInvariant().Contains);
+
+    /// <summary>The fault's text is about a missing message or a bus: one module lost contact with another.</summary>
+    public static bool IsBus(Fault f) => BusWords.Any($"{f.Description} {f.OfficialText}".ToLowerInvariant().Contains);
+
     private static bool LampOn(string value)
     {
         var v = value.Trim().ToLowerInvariant();

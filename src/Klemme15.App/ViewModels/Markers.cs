@@ -333,6 +333,11 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     public MarkerViewModel? Marker { get; set; }
     public RelayCommand? ShowCommand { get; set; }
     public bool CanShowOnCar => ShowCommand is not null;
+
+    /// <summary>A web search for the part this fault points at, for this car (only when a part is known).</summary>
+    public RelayCommand? FindPartCommand { get; set; }
+    public bool CanFindPart => FindPartCommand is not null;
+    public string? FindPartTip { get; set; }
 }
 
 /// <summary>A source URL shown as a short link (its site name).</summary>

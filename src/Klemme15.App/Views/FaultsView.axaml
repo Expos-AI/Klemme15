@@ -14,6 +14,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sys="using:System"
+             xmlns:core="using:Klemme15.Core"
              xmlns:vm="using:Klemme15.App.ViewModels"
              x:Class="Klemme15.App.Views.FaultsView"
              x:DataType="vm:FaultsViewModel">
@@ -241,6 +242,30 @@
 
     <ScrollViewer Classes="page">
       <StackPanel MaxWidth="980" HorizontalAlignment="Left">
+      <!-- One cause, not many: faults across modules that belong together -->
+      <Border Classes="panel" Padding="18,14" Margin="0,0,0,18" IsVisible="{Binding HasCauses}">
+        <StackPanel Spacing="10">
+          <TextBlock Classes="section" FontSize="16" Text="Likely one cause, not many" />
+          <ItemsControl ItemsSource="{Binding Causes}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="core:CauseGroup">
+                <StackPanel Spacing="2" Margin="0,4">
+                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                  <TextBlock Classes="small" Text="{Binding Detail}" TextWrapping="Wrap" />
+                  <ItemsControl ItemsSource="{Binding Faults}">
+                    <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="sys:String">
+                        <TextBlock Classes="muted small mono" Text="{Binding}" Margin="0,2,12,0" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
       <ItemsControl ItemsSource="{Binding Groups}" Margin="0,0,0,32">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:FaultGroupViewModel">
@@ -324,6 +349,8 @@
                                   ToolTip.Tip="{Binding ChainTitle}" />
                           <Button Classes="quiet" Content="{Binding CheckButtonText}" Command="{Binding ToggleCheckCommand}" IsVisible="{Binding HasCheck}" HorizontalAlignment="Right"
                                   ToolTip.Tip="Test the part with a multimeter or a swap before buying it" />
+                          <Button Classes="quiet" Content="Find this part" Command="{Binding FindPartCommand}" IsVisible="{Binding CanFindPart}" HorizontalAlignment="Right"
+                                  ToolTip.Tip="{Binding FindPartTip}" />
                         </StackPanel>
                       </Grid>
                     </Border>

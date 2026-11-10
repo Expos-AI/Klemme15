@@ -100,6 +100,12 @@ public sealed class FaultGroupViewModel : ViewModelBase
             // Only faults the car drawing places (background entries and faults with no known spot aren't drawn).
             if (!f.IsInfo && where is not null) item.ShowCommand = new RelayCommand(() => _showOnCar(f, Ecu));
             item.TranslateCommand = new RelayCommand(() => _openUrl(item.TranslateUrl));
+            if (!f.IsInfo && where is { IsComponent: true } part && !_session.IsSnapshot)
+            {
+                var query = PartSearch.Query(part.Title, _session.Vehicle, _session.Model);
+                item.FindPartCommand = new RelayCommand(() => _openUrl(PartSearch.Url(query)));
+                item.FindPartTip = $"Searches the web for \"{query}\" in your browser. Test the part first: a fault code alone doesn't prove it's bad.";
+            }
             if (_session.Database.Guides.For(f, Ecu) is { } guide) item.Guide = BuildGuide(guide);
             if (_session.Database.Checks.For(f, Ecu) is { } check) item.Check = BuildGuide(check);
             if (_session.Database.ChainsFor(f.Code).FirstOrDefault() is { } chain && _guideActions?.OpenTest is { } openTest)
@@ -173,6 +179,10 @@ public sealed class FaultsViewModel : PageViewModel
     public override Geometry Icon => Icons.Faults;
 
     public ObservableCollection<FaultGroupViewModel> Groups { get; } = [];
+
+    /// <summary>Faults that most likely share one cause (a voltage dip, one module the others lost contact with).</summary>
+    public ObservableCollection<CauseGroup> Causes { get; } = [];
+    public bool HasCauses => Causes.Count > 0;
 
     /// <summary>The car's story: every dash warning the instrument cluster remembers, grouped into moments and explained.</summary>
     public ObservableCollection<StoryItem> Story { get; } = [];
@@ -298,6 +308,10 @@ public sealed class FaultsViewModel : PageViewModel
                 if (_clearNote is { } note && note.EcuId == ecu.Id && note.Scan == scan.Started) group.Message = note.Text;
                 if (group.Faults.Count > 0) Groups.Add(group);
             }
+        Causes.Clear();
+        if (_session.LastScan is { } latest)
+            foreach (var c in RootCause.Find(latest)) Causes.Add(c);
+        Raise(nameof(HasCauses));
         RebuildTrends();
         Story.Clear();
         // Newest first: what happened most recently is what people ask about.

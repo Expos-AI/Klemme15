@@ -337,6 +337,13 @@ section{margin-top:24px}
             sb.Append("<p class=\"muted\">A pre-purchase check reads what the car's modules remember. It is not a substitute for an inspection by a workshop.</p></section>");
         }
         HtmlCheckControl(sb, scan, H);
+        if (RootCause.Find(scan) is { Count: > 0 } causes)
+        {
+            sb.Append("<section><h2>Likely one cause, not many</h2><ul>");
+            foreach (var c in causes)
+                sb.Append($"<li><b>{H(c.Title)}</b><br><span class=\"muted\">{H(c.Detail)}</span><br><code>{H(string.Join(", ", c.Faults))}</code></li>");
+            sb.Append("</ul></section>");
+        }
         sb.Append("<div class=\"table-wrap\"><table><tr><th>Module</th><th>Address</th><th>Status</th><th>Faults</th><th>Identification</th></tr>");
         foreach (var e in scan.Ecus)
             sb.Append($"<tr><td>{H(e.Ecu.Name)}</td><td><code>{e.Ecu.AddressHex}</code></td><td class=\"{e.Status}\">{Label(e.Status)}</td><td>{Count(e)}</td><td>{H(Info(e))}</td></tr>");
