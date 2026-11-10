@@ -332,8 +332,9 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
             return fault with { Description = obd ?? fallbackText, DescriptionOrigin = obd is null ? null : "obd" };
         }
 
-        var community = LookupBmw(ecu.Id, fault.Code, engine);
         var match = OfficialLookup.Find(_official, ecu, identity, engine, fault.Code);
+        var community = LookupBmw(ecu.Id, fault.Code, engine)
+                        ?? LookupShared(ecu, identity?.Variant ?? match?.Variant, fault.Code, engine);
 
         // EDIABAS mode already read BMW's text live from the car's own SGBD.
         string? officialText = fault.Confidence == "official" && fault.Description is not null ? fault.Description : null;
@@ -377,6 +378,33 @@ public sealed class VehicleDatabase : IFaultCodeDatabase, IFaultCodeDetails, IFa
     }
 
     /// <summary>The same database, with BMW codes read for a specific engine (e.g. "N52").</summary>
+    /// <summary>The family whose modules the researched meanings were written for.</summary>
+    public const string ResearchedFamily = "E9x";
+
+    /// <summary>Added to a shared meaning's tip, so it's clear where the research was done.</summary>
+    public const string SharedNote = "Researched on the E90 family, which uses the same module version.";
+
+    /// <summary>
+    /// A researched meaning from the E90 family for the same module in another family (1 Series, X1, Z4, and some 5 Series
+    /// and X5 modules), but only when it is the same module version: the version the car's module reported, or, when
+    /// that isn't known, when every version this family can have is also an E90-family version.
+    /// </summary>
+    public CodeInfo? LookupShared(EcuDefinition ecu, string? variant, string code, string? engine)
+    {
+        var dot = ecu.Id.IndexOf('.');
+        if (dot < 0 || ecu.Id.StartsWith(ResearchedFamily + ".", StringComparison.OrdinalIgnoreCase)) return null;
+        var sourceId = ResearchedFamily + ecu.Id[dot..];
+        if (!_modules.TryGetValue(sourceId, out var source) || source.Protocol != ecu.Protocol || source.Variants.Count == 0) return null;
+        bool Shared(string v) => source.Variants.Contains(v, StringComparer.OrdinalIgnoreCase);
+        var same = variant is not null ? Shared(variant) : ecu.Variants.Count > 0 && ecu.Variants.All(Shared);
+        if (!same || !_bmw.ContainsKey($"{sourceId}/{code}")) return null;
+        // An engine code only when the meaning was researched for this engine: no "may differ" guesses across families.
+        if (ecu.IsEngine && (engine is null || !_bmw[$"{sourceId}/{code}"].Any(e => e.Engines is null || e.Engines.Any(x => engine.StartsWith(x, StringComparison.OrdinalIgnoreCase) || x.StartsWith(engine, StringComparison.OrdinalIgnoreCase))))) return null;
+        return LookupBmw(sourceId, code, engine) is { } info
+            ? info with { Hint = string.IsNullOrWhiteSpace(info.Hint) ? SharedNote : $"{info.Hint.TrimEnd()} {SharedNote}" }
+            : null;
+    }
+
     public IFaultCodeDatabase ForEngine(string? engine) => engine is null ? this : new EngineCodes(this, engine);
 
     private sealed class EngineCodes(VehicleDatabase inner, string engine) : IFaultCodeDatabase, IFaultCodeDetails, IFaultDescriber, ICheckControlCatalog

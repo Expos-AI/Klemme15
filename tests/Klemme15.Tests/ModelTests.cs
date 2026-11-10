@@ -71,6 +71,36 @@ public class ModelTests
     }
 
     [Fact]
+    public void ResearchedMeaningsAreSharedOnlyWithTheSameModuleVersion()
+    {
+        EcuDefinition M(string id) => Db.Modules.Single(m => m.Id == id);
+        // The 1 Series, X1 and Z4 use the E90 family's footwell module and cluster.
+        var frm = Db.LookupShared(M("E8x.FRM"), null, "A8C5", null);
+        Assert.NotNull(frm);
+        Assert.Contains(VehicleDatabase.SharedNote, frm!.Hint!);
+        Assert.NotNull(Db.LookupShared(M("E84.KOMBI"), "komb87", FirstCode("E9x.KOMBI"), null));
+        // The 5 Series cluster is a different version: nothing is borrowed, known version or not.
+        Assert.Null(Db.LookupShared(M("E60.KOMBI"), null, FirstCode("E9x.KOMBI"), null));
+        Assert.Null(Db.LookupShared(M("E60.KOMBI"), "komb60", FirstCode("E9x.KOMBI"), null));
+        // The X5's key module is the same one; its stability control isn't.
+        Assert.NotNull(Db.LookupShared(M("E70.CAS"), "cas", "A0A9", null));
+        Assert.Null(Db.LookupShared(M("E70.DSC"), null, FirstCode("E9x.DSC"), null));
+        // Engine codes only for an engine the meaning was researched on.
+        Assert.NotNull(Db.LookupShared(M("E8x.DME"), "msd80", "29CD", "N54"));
+        Assert.Null(Db.LookupShared(M("E8x.DME"), "d70n47a0", "29CD", "N47"));
+        Assert.Null(Db.LookupShared(M("E9x.FRM"), null, "A8C5", null));
+        // K-line families share nothing with the E90's D-CAN modules.
+        Assert.Null(Db.LookupShared(M("E46.DME"), null, "29CD", "M54"));
+    }
+
+    private static string FirstCode(string module)
+    {
+        foreach (var code in new[] { "9315", "5D90", "A0A9", "A8C5" })
+            if (Db.LookupBmw(module, code) is not null) return code;
+        throw new InvalidOperationException($"no researched code found for {module}");
+    }
+
+    [Fact]
     public void TheE36IsABetaKLineCarWhoseModulesAreAllUnconfirmed()
     {
         var e36 = Db.FindVehicle("E36")!;

@@ -93,7 +93,7 @@ No car nearby? Pick any model and press **Open demo car**.
 **Find out what's wrong**
 - **Quick test**: finds every fitted module with one broadcast, reads its part number and fault memory, and checks the battery. Knows 45 E90-family modules and 23 E46 modules.
 - **Faults sorted by what matters**: fix now, worth checking, and background entries, so ten codes don't turn into ten parts. Clear one module or all of them.
-- **What each code means**: 203 BMW codes for the E90 family researched with sources, all 2,066 standard OBD-II codes, and a meaning from its number range for any other code. BMW's own text for your exact module from the free [bmw-unified-db](https://github.com/gediz/bmw-unified-db) download or your own files ([how](docs/FAULT-DATA.md)).
+- **What each code means**: 203 BMW codes for the E90 family researched with sources (shown on the 1 Series, X1, Z4, 5 Series and X5 too, wherever the car has the same module version), all 2,066 standard OBD-II codes, and a meaning from its number range for any other code. BMW's own text for your exact module from the free [bmw-unified-db](https://github.com/gediz/bmw-unified-db) download or your own files ([how](docs/FAULT-DATA.md)).
 - **Dash messages**: why the triangle is lit even with no fault code. 396 messages explained, with severity and what to do ([details](docs/CHECK-CONTROL.md)).
 - **The car's story**: the cluster remembers its last few dozen dash warnings with the mileage. Klemme15 tells them as a timeline and spots patterns: five systems complaining at once is a voltage dip, not five faults.
 - **See where it is**: a top view of the car with each module where it sits, each fault pinned to it, and live values (coolant, battery voltage, engine speed) where they happen.
