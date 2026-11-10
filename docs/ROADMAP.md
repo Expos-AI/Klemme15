@@ -11,12 +11,13 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Test and fix**: guided tests with live graphs (fuel trims, VANOS, roughness, rough idle and air conditioning, no-start, cooling bleed, water pump), multimeter checks, troubleshooting and how-to guides, 75 service functions (experimental).
 - **Coding**: backup, compare, restore; quick codes verified against NCS Expert, learned from another tool, or from shared coding maps; FRM3 protection.
 - **Share**: reports, forum posts without the VIN, snapshots (.k15) others open read-only, headless mode with a phone dashboard and MQTT, network cables.
-- **Reasoning**: community diagnostic chains (Vacuum leak hunter, Charging system check), retrofit checker, pre-purchase check.
+- **Reasoning**: community diagnostic chains (Vacuum leak hunter, Charging system check, Warm-up check), retrofit checker, pre-purchase check.
 - **Trust**: CodeQL on every change, Dependabot, release checksums and signed build provenance, a protected main branch, DCO sign-off for contributions.
 - **Safety, legal and transparency**: the whole page in the app and in docs/LEGAL.md, and a short "Before you start" notice confirmed once.
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
+- **Symptom-first help**: 14 symptoms, each with what the car already reports and what to do in order; a warm-up (thermostat) chain.
 - **Reasoning across modules**: faults that share one cause are grouped (a voltage event, one module the others lost, the same mileage); faults gone since the last test; a web search for the part a fault points at.
 - **Meanings on more cars**: researched fault meanings shared with other families wherever the module version is the same.
 - **Easier to start**: find your car by model and year, three start-here steps, and a checklist when the car doesn't answer.

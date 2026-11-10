@@ -43,7 +43,18 @@
   <Grid ColumnDefinitions="300,*" Margin="36,26,36,0">
     <ScrollViewer Classes="page" Grid.Column="0" Margin="0,0,12,0">
     <StackPanel Margin="0,0,12,24" Spacing="10">
-      <TextBlock Classes="title" Text="Tests" />
+      <TextBlock Classes="title" Text="Start from a symptom" FontSize="18" />
+      <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Don't have a code, or don't know where to begin? Pick what the car does." />
+      <ItemsControl ItemsSource="{Binding Symptoms}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:SymptomItemViewModel">
+            <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
+              <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+      <TextBlock Classes="title" Text="Tests" FontSize="18" Margin="0,14,0,0" />
       <TextBlock Classes="muted small" TextWrapping="Wrap"
                  Text="Klemme15 measures the engine while it tells you what to do, then explains what the numbers mean. Only tests marked &quot;drives a part&quot; switch anything on." />
       <ItemsControl ItemsSource="{Binding Tests}">
@@ -90,6 +101,41 @@
 
     <ScrollViewer Classes="page" Grid.Column="1">
       <StackPanel>
+      <!-- A symptom's plan: what the car already reports, then what to do, in order -->
+      <Border IsVisible="{Binding ShowingSymptom}">
+      <StackPanel Spacing="12" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32"
+                  DataContext="{Binding Plan}" x:DataType="vm:SymptomPlanViewModel">
+        <TextBlock Classes="section" Text="{Binding Title}" TextWrapping="Wrap" />
+        <TextBlock Classes="muted" Text="{Binding Summary}" TextWrapping="Wrap" />
+        <Border Classes="panel" Padding="14,10" IsVisible="{Binding HasReported}">
+          <StackPanel Spacing="4">
+            <TextBlock Classes="small" FontWeight="SemiBold" Text="Your car already reports" />
+            <ItemsControl ItemsSource="{Binding Reported}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="sys:String">
+                  <TextBlock Classes="small" Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" Margin="0,1" />
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
+        </Border>
+        <TextBlock Classes="small" FontWeight="SemiBold" Text="What to do, in order" />
+        <ItemsControl ItemsSource="{Binding Steps}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:SymptomStepViewModel">
+              <Grid ColumnDefinitions="26,*" Margin="0,6">
+                <TextBlock Text="{Binding Number}" Classes="muted" />
+                <StackPanel Grid.Column="1" Spacing="3">
+                  <Button Content="{Binding Label}" Command="{Binding GoCommand}" HorizontalAlignment="Left" />
+                  <TextBlock Classes="small" Text="{Binding Why}" TextWrapping="Wrap" />
+                  <TextBlock Classes="muted small" Text="{Binding Note}" IsVisible="{Binding HasNote}" TextWrapping="Wrap" />
+                </StackPanel>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+      </Border>
       <Border IsVisible="{Binding ShowingGuide}">
       <StackPanel Spacing="10" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32"
                   DataContext="{Binding Guide}" x:DataType="vm:GuideViewModel">

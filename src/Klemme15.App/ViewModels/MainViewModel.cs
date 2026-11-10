@@ -79,6 +79,15 @@ public sealed class MainViewModel : ViewModelBase
             CurrentPage = Analyse;
         };
         Tests = new TestsViewModel(Session, url => _ = dialogs.OpenUrlAsync(url)) { ExperimentalOn = () => settings.ExperimentalService };
+        Tests.OpenPage = id =>
+        {
+            switch (id)
+            {
+                case "quick-test": CurrentPage = Vehicle; break;
+                case "drain-finder": CurrentPage = Faults; Faults.Drain!.IsOpen = true; break;
+                case "ghost-hunter": CurrentPage = Ghost!; break;
+            }
+        };
         Expert = new ExpertViewModel(Session, settings);
         Ghost = new TriggerViewModel(Session, typeof(MainViewModel).Assembly.GetName().Version?.ToString(3) ?? "")
         {

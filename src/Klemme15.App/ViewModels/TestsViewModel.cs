@@ -79,6 +79,37 @@ public sealed class GuideItemViewModel(Guide guide) : ViewModelBase
     public RelayCommand? SelectCommand { get; set; }
 }
 
+/// <summary>A symptom in the list ("Won't start, or won't crank").</summary>
+public sealed class SymptomItemViewModel(Symptom symptom) : ViewModelBase
+{
+    private bool _isSelected;
+    public Symptom Symptom { get; } = symptom;
+    public string Title => Symptom.Title;
+    public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
+    public RelayCommand? SelectCommand { get; set; }
+}
+
+/// <summary>One step of a symptom's plan, with a button that goes to the test, guide or page.</summary>
+public sealed class SymptomStepViewModel(int number, string label, string why, string? note, RelayCommand go)
+{
+    public string Number { get; } = number + ".";
+    public string Label { get; } = label;
+    public string Why { get; } = why;
+    public string? Note { get; } = note;
+    public bool HasNote => Note is not null;
+    public RelayCommand GoCommand { get; } = go;
+}
+
+/// <summary>What to do for a symptom, in order, and what the car already reports about it.</summary>
+public sealed class SymptomPlanViewModel(string title, string summary, IReadOnlyList<string> reported, IReadOnlyList<SymptomStepViewModel> steps)
+{
+    public string Title { get; } = title;
+    public string Summary { get; } = summary;
+    public IReadOnlyList<string> Reported { get; } = reported;
+    public bool HasReported => Reported.Count > 0;
+    public IReadOnlyList<SymptomStepViewModel> Steps { get; } = steps;
+}
+
 /// <summary>
 /// Guided tests: Klemme15 measures the engine while telling you what to do (idle, hold 2,500 rpm, blip the throttle)
 /// and explains what the numbers mean. Read-only except the tests marked "drives a part", which switch one part on through the engine computer.
@@ -104,6 +135,12 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
             var item = new GuideItemViewModel(g);
             item.SelectCommand = new RelayCommand(() => SelectGuide(item));
             Guides.Add(item);
+        }
+        foreach (var sy in SymptomLibrary.Load())
+        {
+            var item = new SymptomItemViewModel(sy);
+            item.SelectCommand = new RelayCommand(() => SelectSymptom(item));
+            Symptoms.Add(item);
         }
         foreach (var t in GuidedTests.All)
         {
@@ -201,12 +238,79 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
         private set { if (Set(ref _guide, value)) { Raise(nameof(ShowingGuide)); Raise(nameof(ShowingTest)); } }
     }
 
-    public bool ShowingGuide => _guide is not null;
-    public bool ShowingTest => _guide is null;
+    public bool ShowingGuide => _guide is not null && _plan is null;
+    public bool ShowingTest => _guide is null && _plan is null;
+
+    // ---------------------------------------------------------------- start from a symptom
+
+    /// <summary>What owners notice, for people who start from what the car does rather than from a code.</summary>
+    public ObservableCollection<SymptomItemViewModel> Symptoms { get; } = [];
+
+    /// <summary>Goes to another page for a step: "quick-test", "drain-finder" or "ghost-hunter". Set by the main window.</summary>
+    public Action<string>? OpenPage { get; set; }
+
+    private SymptomPlanViewModel? _plan;
+    public SymptomPlanViewModel? Plan
+    {
+        get => _plan;
+        private set { if (Set(ref _plan, value)) { Raise(nameof(ShowingSymptom)); Raise(nameof(ShowingGuide)); Raise(nameof(ShowingTest)); } }
+    }
+    public bool ShowingSymptom => _plan is not null;
+
+    private void SelectSymptom(SymptomItemViewModel item)
+    {
+        if (_running) return;
+        foreach (var t in Tests.Concat(Chains)) t.IsSelected = false;
+        foreach (var g in Guides) g.IsSelected = false;
+        foreach (var x in Symptoms) x.IsSelected = x == item;
+        var steps = new List<SymptomStepViewModel>();
+        foreach (var step in item.Symptom.Steps)
+        {
+            string? label = null, note = null;
+            RelayCommand? go = null;
+            switch (step.Kind)
+            {
+                case "test" or "chain" when Tests.Concat(Chains).FirstOrDefault(t => t.Info.Id == step.Id) is { } test:
+                    label = "Run: " + test.Title;
+                    note = test.NotForEngine is not null ? "Not for this car's engine." : test.NeedsEdiabas ? "Needs EDIABAS mode on this car." : null;
+                    go = new RelayCommand(() => { ClearSymptom(); Select(test); });
+                    break;
+                case "guide" or "check" when Guides.FirstOrDefault(g => g.Guide.Id == step.Id) is { } guide:
+                    label = (step.Kind == "check" ? "Check: " : "Read: ") + guide.Title;
+                    go = new RelayCommand(() => { ClearSymptom(); SelectGuide(guide); });
+                    break;
+                case "page":
+                    label = step.Id switch { "quick-test" => "Open: Quick test", "drain-finder" => "Open: Battery going flat?", "ghost-hunter" => "Open: Ghost Hunter", _ => null };
+                    go = new RelayCommand(() => OpenPage?.Invoke(step.Id));
+                    break;
+            }
+            if (label is not null && go is not null) steps.Add(new(steps.Count + 1, label, step.Why, note, go));
+        }
+        Plan = new SymptomPlanViewModel(item.Symptom.Title, item.Symptom.Summary, ReportedFor(item.Symptom), steps);
+    }
+
+    private void ClearSymptom()
+    {
+        foreach (var x in Symptoms) x.IsSelected = false;
+        Plan = null;
+    }
+
+    /// <summary>Faults from the last quick test that belong to this symptom (they have one of its guides or chains).</summary>
+    private List<string> ReportedFor(Symptom symptom)
+    {
+        var ids = symptom.Steps.Where(x => x.Kind is "guide" or "chain").Select(x => x.Id).ToHashSet();
+        var list = new List<string>();
+        foreach (var e in _session.LastScan?.Ecus ?? [])
+            foreach (var f in e.Faults.Where(f => !f.IsInfo && !f.IsShadow))
+                if (_session.Database.Guides.For(f, e.Ecu) is { } g && ids.Contains(g.Id) || _session.Database.ChainsFor(f.Code).Any(c => ids.Contains(c.Info.Id)))
+                    list.Add($"{e.Ecu.Name} {f.Code}: {f.DisplayDescription}");
+        return list.Distinct().Take(8).ToList();
+    }
 
     private void SelectGuide(GuideItemViewModel item)
     {
         if (_running) return;
+        ClearSymptom();
         foreach (var t in Tests.Concat(Chains)) t.IsSelected = false;
         foreach (var g in Guides) g.IsSelected = g == item;
         var steps = item.Guide.StepsFor(_session.Model?.EngineCode).Select((s, i) => new GuideStepViewModel(i + 1, s.Text, null, null)).ToList();
@@ -269,6 +373,7 @@ public sealed class TestsViewModel : PageViewModel, IChainPrompt
     private void Select(GuidedTestViewModel test)
     {
         if (_running) return;
+        ClearSymptom();
         foreach (var t in Tests.Concat(Chains)) t.IsSelected = t == test;
         foreach (var g in Guides) g.IsSelected = false;
         Guide = null;

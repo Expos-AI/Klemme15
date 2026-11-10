@@ -148,6 +148,12 @@ if ((vm.Analyse.Baselines.FirstOrDefault(b => b.Curve?.Y == "stft1+ltft1") ?? vm
 }
 else Console.WriteLine("Baseline: no baseline fits the demo recording (channels: " + string.Join(", ", vm.Analyse.Channels.Select(c => c.Label)) + ")");
 vm.CurrentPage = vm.Tests;
+// Start from a symptom: the plan for a rough idle, with what the demo car already reports.
+vm.Tests.Symptoms.First(x => x.Symptom.Id == "rough-idle").SelectCommand!.Execute(null);
+Shot("44-symptom-plan");
+if (vm.Tests.Plan is not { Steps.Count: >= 4 }) problems.Add("44-symptom-plan: the plan is missing steps");
+vm.Tests.Tests[0].SelectCommand!.Execute(null);
+
 vm.Tests.Speed = 10;
 vm.Tests.StartCommand.Execute(null);
 WaitUntil(() => vm.Tests.HasResult && !vm.Tests.IsRunning, 60000);

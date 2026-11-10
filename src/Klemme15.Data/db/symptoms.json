@@ -1,0 +1,393 @@
+{
+ "$comment": "Symptom-first help: what to do, in order, when the owner starts from what the car does rather than from a code. Each step points at an existing test, chain, guide, check or page ('quick-test', 'drain-finder', 'ghost-hunter'); tests fail if an id doesn't exist. Our own words; nothing here is a specification.",
+ "symptoms": [
+  {
+   "id": "no-start",
+   "title": "Won't start, or won't crank",
+   "summary": "Start with what the car recorded during the failed start, then the battery.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read every module first: a failed start usually leaves faults in the engine computer or the key module."
+    },
+    {
+     "kind": "test",
+     "id": "no-start",
+     "why": "Checks battery voltage, whether the engine is turning, and the faults logged during the failed start. Read-only."
+    },
+    {
+     "kind": "chain",
+     "id": "charging-check",
+     "why": "If it cranks slowly or just clicks: tells a tired battery from a charging problem."
+    },
+    {
+     "kind": "guide",
+     "id": "steering-lock",
+     "why": "If the steering lock symbol is on and nothing happens when you press Start."
+    },
+    {
+     "kind": "guide",
+     "id": "fuses-and-power",
+     "why": "If the dash stays dark or modules don't answer at all."
+    }
+   ]
+  },
+  {
+   "id": "rough-idle",
+   "title": "Rough idle, shaking or stalling",
+   "summary": "Find out whether it's one cylinder, the mixture, or the idle control, before buying parts.",
+   "steps": [
+    {
+     "kind": "test",
+     "id": "idle-ac",
+     "why": "Watches how steady the idle is with the air conditioning off and on, each cylinder and the mixture."
+    },
+    {
+     "kind": "test",
+     "id": "roughness",
+     "why": "Compares the cylinders: one that stands out points at its coil, plug or injector."
+    },
+    {
+     "kind": "test",
+     "id": "fuel-trims",
+     "why": "Shows whether the engine is correcting a lean or rich mixture."
+    },
+    {
+     "kind": "chain",
+     "id": "vacuum-leak-hunter",
+     "why": "If the trims are lean at idle: narrows down a vacuum leak."
+    },
+    {
+     "kind": "guide",
+     "id": "misfire",
+     "why": "What to swap and check when one cylinder misfires."
+    },
+    {
+     "kind": "check",
+     "id": "check-ignition-coil",
+     "why": "Test a coil by swapping it before buying one."
+    }
+   ]
+  },
+  {
+   "id": "check-engine",
+   "title": "Check engine light, or poor fuel economy",
+   "summary": "Most engine lights on these cars come down to mixture, misfires, VANOS or an oxygen sensor.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read the engine computer's faults: the code decides which path below applies."
+    },
+    {
+     "kind": "test",
+     "id": "fuel-trims",
+     "why": "For lean or rich codes: what the correction pattern points to."
+    },
+    {
+     "kind": "chain",
+     "id": "vacuum-leak-hunter",
+     "why": "For lean codes: narrows down a vacuum leak."
+    },
+    {
+     "kind": "guide",
+     "id": "mixture",
+     "why": "Step-by-step checks for lean and rich mixture."
+    },
+    {
+     "kind": "test",
+     "id": "vanos",
+     "why": "For camshaft timing codes: target against actual position."
+    },
+    {
+     "kind": "guide",
+     "id": "o2-heater",
+     "why": "For oxygen sensor heater codes."
+    },
+    {
+     "kind": "guide",
+     "id": "secondary-air",
+     "why": "For secondary air codes after a cold start."
+    }
+   ]
+  },
+  {
+   "id": "misfire",
+   "title": "Misfire, or a flashing engine light",
+   "summary": "A flashing engine light means misfires that can damage the catalytic converter: don't keep driving hard.",
+   "steps": [
+    {
+     "kind": "test",
+     "id": "roughness",
+     "why": "Shows which cylinder is weak, even before a misfire fault is stored."
+    },
+    {
+     "kind": "guide",
+     "id": "misfire",
+     "why": "Coil, plug, injector and leak checks in order."
+    },
+    {
+     "kind": "check",
+     "id": "check-ignition-coil",
+     "why": "Swap the coil to another cylinder and see if the misfire follows it."
+    },
+    {
+     "kind": "test",
+     "id": "fuel-trims",
+     "why": "Misfires on several cylinders with lean trims point at a leak or fuel delivery, not at coils."
+    }
+   ]
+  },
+  {
+   "id": "low-power",
+   "title": "Loss of power, or limp mode",
+   "summary": "The engine computer cuts power to protect the engine. The stored fault says which system it's unhappy with.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read the faults first: limp mode always leaves one."
+    },
+    {
+     "kind": "guide",
+     "id": "boost",
+     "why": "Turbo engines: boost leaks, wastegates and the charge pipe."
+    },
+    {
+     "kind": "guide",
+     "id": "hpfp",
+     "why": "Direct-injection engines: fuel pressure under load."
+    },
+    {
+     "kind": "test",
+     "id": "vanos",
+     "why": "Camshaft timing that can't reach its target costs power."
+    },
+    {
+     "kind": "test",
+     "id": "fuel-trims",
+     "why": "Running short of fuel at 2,500 rpm points at fuel delivery or the air-mass meter."
+    }
+   ]
+  },
+  {
+   "id": "overheating",
+   "title": "Overheating, or a temperature warning",
+   "summary": "Stop and let it cool before testing. Never open the expansion tank cap on a hot engine.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read the engine computer: water pump and thermostat faults are stored there."
+    },
+    {
+     "kind": "guide",
+     "id": "cooling",
+     "why": "What to check, in order, on engines with an electric water pump and a map-controlled thermostat."
+    },
+    {
+     "kind": "test",
+     "id": "water-pump",
+     "why": "Engines with an electric water pump: the speed asked for against the speed the pump reports."
+    },
+    {
+     "kind": "check",
+     "id": "check-electric-water-pump",
+     "why": "Check the pump's connector and supply before replacing it."
+    },
+    {
+     "kind": "test",
+     "id": "cooling-bleed",
+     "why": "After topping up or replacing parts: the bleed routine, watched by Klemme15."
+    }
+   ]
+  },
+  {
+   "id": "battery-flat",
+   "title": "Battery goes flat when the car sits",
+   "summary": "Something keeps the car awake, or the battery is worn out. The car records clues about both.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "drain-finder",
+     "why": "Battery going flat? on the Faults page: the car's own clues, then a step-by-step hunt for the circuit."
+    },
+    {
+     "kind": "chain",
+     "id": "charging-check",
+     "why": "Rules out a battery that isn't being charged properly."
+    },
+    {
+     "kind": "guide",
+     "id": "battery-drain",
+     "why": "How to measure the parked current and find the circuit."
+    },
+    {
+     "kind": "guide",
+     "id": "trunk-harness",
+     "why": "A known cause: wires that crack in the trunk lid or tailgate harness."
+    }
+   ]
+  },
+  {
+   "id": "charging",
+   "title": "Battery or charging warning while driving",
+   "summary": "Check the charging voltage before replacing the battery.",
+   "steps": [
+    {
+     "kind": "chain",
+     "id": "charging-check",
+     "why": "Measures resting, idle and loaded voltage, and says what the pattern points to."
+    },
+    {
+     "kind": "guide",
+     "id": "charging",
+     "why": "Alternator, battery sensor and cables, in order."
+    },
+    {
+     "kind": "check",
+     "id": "check-ground",
+     "why": "A bad ground strap looks like a bad alternator."
+    }
+   ]
+  },
+  {
+   "id": "abs-dsc",
+   "title": "ABS, DSC or traction control light",
+   "summary": "Usually one wheel speed sensor or the steering angle sensor. The fault names the corner.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read the stability control module: the fault says which sensor."
+    },
+    {
+     "kind": "guide",
+     "id": "wheel-speed",
+     "why": "Wheel speed sensor faults: sensor, wiring and the ring it reads."
+    },
+    {
+     "kind": "check",
+     "id": "check-wheel-speed-sensor",
+     "why": "Measure the sensor before buying one."
+    },
+    {
+     "kind": "guide",
+     "id": "steering-angle",
+     "why": "Steering angle faults, usually after an alignment or a steering repair."
+    }
+   ]
+  },
+  {
+   "id": "airbag",
+   "title": "Airbag light",
+   "summary": "Reading the fault is safe. Repairs on the airbag system belong with a qualified mechanic: an airbag can fire during work on its wiring.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read the airbag module's fault: it names the circuit."
+    },
+    {
+     "kind": "guide",
+     "id": "airbag",
+     "why": "What seat, belt and airbag circuit faults mean, and what's safe to check yourself."
+    }
+   ]
+  },
+  {
+   "id": "lights-windows",
+   "title": "Lights, windows or mirrors stopped working",
+   "summary": "These share one module on many cars, so check it and its power before the individual parts.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "See whether the footwell module answers and what it stored."
+    },
+    {
+     "kind": "guide",
+     "id": "frm3",
+     "why": "If the footwell module doesn't answer and several lights and windows died at once."
+    },
+    {
+     "kind": "guide",
+     "id": "fuses-and-power",
+     "why": "Fuses and power supplies for the body modules."
+    },
+    {
+     "kind": "guide",
+     "id": "trunk-harness",
+     "why": "Trunk release, number plate lights or reverse lights acting up."
+    }
+   ]
+  },
+  {
+   "id": "steering-lock",
+   "title": "Steering lock warning, or the car won't switch on",
+   "summary": "When the electric steering lock fails or loses power, the car can refuse to start and show a steering lock message.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "Read the key module's faults."
+    },
+    {
+     "kind": "guide",
+     "id": "steering-lock",
+     "why": "What the warning means, what to check, and the counter reset."
+    }
+   ]
+  },
+  {
+   "id": "intermittent",
+   "title": "A problem that comes and goes",
+   "summary": "Catch it when it happens instead of guessing afterwards.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "ghost-hunter",
+     "why": "The Ghost Hunter watches the engine while you drive and saves the minute before and after the moment it happens."
+    },
+    {
+     "kind": "check",
+     "id": "check-connector",
+     "why": "Intermittent faults are very often a connector: how to check one properly."
+    },
+    {
+     "kind": "check",
+     "id": "check-ground",
+     "why": "A poor ground gives faults that come and go: how to test one."
+    }
+   ]
+  },
+  {
+   "id": "many-warnings",
+   "title": "Many warnings at once",
+   "summary": "Several systems complaining together almost always share one cause: voltage, or one module the others depend on.",
+   "steps": [
+    {
+     "kind": "page",
+     "id": "quick-test",
+     "why": "The Faults page groups faults that share a cause: look for \"Likely one cause, not many\"."
+    },
+    {
+     "kind": "chain",
+     "id": "charging-check",
+     "why": "A weak battery or charging fault is the most common cause."
+    },
+    {
+     "kind": "guide",
+     "id": "bus",
+     "why": "When modules report missing messages from each other."
+    },
+    {
+     "kind": "guide",
+     "id": "fuses-and-power",
+     "why": "Power supplies and fuses shared by several modules."
+    }
+   ]
+  }
+ ]
+}

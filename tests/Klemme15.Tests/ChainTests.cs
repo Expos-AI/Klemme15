@@ -126,4 +126,21 @@ public class ChainTests
         var report = await ChainRunner.RunAsync(Chain("charging-check"), car, null, null, CancellationToken.None, speed: 1000);
         Assert.Equal("Charging system healthy", report.Findings[0].Title);
     }
+
+    [Fact]
+    public async Task AThermostatStuckOpenIsCaughtAfterADrive()
+    {
+        var cold = new Car(n => n < 12 ? new() { ["rpm"] = 750, ["coolant"] = 62 } : new() { ["rpm"] = 2000, ["coolant"] = 66 });
+        var report = await ChainRunner.RunAsync(Chain("warm-up-check"), cold, new Answer("long"), null, CancellationToken.None, speed: 1000);
+        Assert.Equal("The engine isn't reaching temperature", report.Findings[0].Title);
+        Assert.Equal(TestSeverity.Problem, report.Verdict);
+
+        var healthy = new Car(n => n < 12 ? new() { ["rpm"] = 750, ["coolant"] = 96 } : new() { ["rpm"] = 2000, ["coolant"] = 98 });
+        report = await ChainRunner.RunAsync(Chain("warm-up-check"), healthy, new Answer("long"), null, CancellationToken.None, speed: 1000);
+        Assert.Equal("The engine reaches its normal temperature", report.Findings[0].Title);
+
+        var notYet = new Car(n => n < 12 ? new() { ["rpm"] = 750, ["coolant"] = 62 } : new() { ["rpm"] = 2000, ["coolant"] = 66 });
+        report = await ChainRunner.RunAsync(Chain("warm-up-check"), notYet, new Answer("short"), null, CancellationToken.None, speed: 1000);
+        Assert.Equal("Too early to tell", report.Findings[0].Title);
+    }
 }
