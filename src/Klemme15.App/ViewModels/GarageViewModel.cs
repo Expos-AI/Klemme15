@@ -29,6 +29,14 @@ public sealed class FamilyOption(VehicleFamily family) : ViewModelBase
     public RelayCommand? SelectCommand { get; set; }
 }
 
+/// <summary>A car that matches the Garage's search box.</summary>
+public sealed class CarSearchResult(VehicleMatch match, Action<string> pick)
+{
+    public string Title => $"{match.Family.Id} {match.Model.Name}";
+    public string Detail => $"{match.Model.Years} · {match.Model.Engine}";
+    public RelayCommand PickCommand { get; } = new(() => pick(match.Model.Id));
+}
+
 public sealed class CableFindingViewModel(CableFinding finding)
 {
     public string Title => finding.Title;
@@ -104,6 +112,8 @@ public sealed class GarageViewModel : PageViewModel
             if (e.PropertyName is not nameof(SessionState.Backend)) return;
             DisconnectCommand.RaiseCanExecuteChanged();
             Raise(nameof(IsConnected));
+            Raise(nameof(ShowStartHere));
+            Raise(nameof(ShowConnectHelp));
             Raise(nameof(ConnectedText));
         };
         _session.HistoryChanged += () => OnUi(RebuildCars);
@@ -327,7 +337,7 @@ public sealed class GarageViewModel : PageViewModel
         }
     }
 
-    public bool ShowCable { get => _showCable; set => Set(ref _showCable, value); }
+    public bool ShowCable { get => _showCable; set { if (Set(ref _showCable, value)) Raise(nameof(ShowConnectHelp)); } }
 
     public PortInfo? Port
     {
@@ -376,10 +386,64 @@ public sealed class GarageViewModel : PageViewModel
     public string? Error
     {
         get => _error;
-        set { if (Set(ref _error, value)) Raise(nameof(HasError)); }
+        set { if (Set(ref _error, value)) { Raise(nameof(HasError)); Raise(nameof(ShowConnectHelp)); } }
     }
 
     public bool HasError => !string.IsNullOrEmpty(_error);
+
+    // ---------------------------------------------------------------- find my car
+
+    private string _search = "";
+
+    /// <summary>What the owner typed to find their car: "2011 328i", "E92", "X5 diesel".</summary>
+    public string Search
+    {
+        get => _search;
+        set
+        {
+            if (!Set(ref _search, value ?? "")) return;
+            var (matches, note) = VehicleSearch.Find(Families.Select(f => f.Family), _search);
+            SearchResults.Clear();
+            foreach (var m in matches.Take(12)) SearchResults.Add(new CarSearchResult(m, id => { SelectModel(id); Search = ""; }));
+            SearchNote = note ?? (matches.Count > 12 ? $"{matches.Count - 12} more: add the year or model to narrow it down." : "");
+            foreach (var p in new[] { nameof(IsSearching), nameof(NotSearching), nameof(SearchNote), nameof(HasSearchNote) }) Raise(p);
+        }
+    }
+
+    public ObservableCollection<CarSearchResult> SearchResults { get; } = [];
+    public string SearchNote { get; private set; } = "";
+    public bool HasSearchNote => SearchNote.Length > 0;
+    public bool IsSearching => _search.Trim().Length > 0;
+    public bool NotSearching => !IsSearching;
+
+    // ---------------------------------------------------------------- start here, and help when it won't connect
+
+    /// <summary>Three steps for someone new, until they've scanned a real car or closed it.</summary>
+    public bool ShowStartHere => !_settings.HideStartHere && !HasCars && !_session.IsConnected;
+    public string StartCableStep => $"Plug the K+DCAN cable into the port under the dashboard and your laptop. Set its switch to {(_family.Family.Cable == "KLine" ? "K-line" : "D-CAN")} for this car, turn the ignition on (engine off), then press Connect to my car.";
+    public RelayCommand HideStartHereCommand => _hideStartHere ??= new RelayCommand(() =>
+    {
+        _settings.HideStartHere = true;
+        _settings.Save();
+        Raise(nameof(ShowStartHere));
+    });
+    private RelayCommand? _hideStartHere;
+
+    /// <summary>What to check, in order, when the car didn't answer.</summary>
+    public IReadOnlyList<string> ConnectHelp =>
+    [
+        "Ignition on: key in position 2, or press Start without the brake. The dash lights should be on.",
+        _family.Family.Cable == "KLine"
+            ? "Cable switch on K-line for this car. Unplug the cable, move the switch, plug it back in."
+            : "Cable switch on D-CAN for this car. Unplug the cable, move the switch, plug it back in.",
+        "Press Check cable above. It tells you if the port is busy, the cable is a clone, or its latency setting is too high.",
+        "Close other diagnostic programs (INPA, ISTA, NCS Expert): only one program can use the cable.",
+        "Right car? A 2006 or early 2007 car can need the other switch position: try it once.",
+        "Try another USB port, plugged straight into the laptop rather than through a hub.",
+    ];
+    public bool ShowConnectHelp => HasError && ShowCable && !_session.IsConnected;
+    public AsyncCommand OpenCableGuideCommand => _openCableGuide ??= new AsyncCommand(() => _dialogs.OpenUrlAsync(Services.Links.CableGuide));
+    private AsyncCommand? _openCableGuide;
 
     public AsyncCommand OpenDemoCommand { get; }
     public AsyncCommand OpenSnapshotCommand { get; }
@@ -449,6 +513,8 @@ public sealed class GarageViewModel : PageViewModel
         _family.IsSelected = true;
         Raise(nameof(Models));
         Raise(nameof(CableHint));
+        Raise(nameof(StartCableStep));
+        Raise(nameof(ConnectHelp));
         Raise(nameof(FamilyNote));
         Raise(nameof(HasFamilyNote));
         Model = _family.Family.Models.FirstOrDefault();
@@ -469,6 +535,7 @@ public sealed class GarageViewModel : PageViewModel
         }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
         Raise(nameof(HasCars));
+        Raise(nameof(ShowStartHere));
     }
 
     /// <summary>Selects a model by id (used by the screenshot tool and saved settings).</summary>

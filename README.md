@@ -83,7 +83,7 @@ Press the **arrow button** at the bottom of the sidebar to check for a newer ver
 
 1. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36, **D-CAN** for the E90 family and newer.
 2. Switch the ignition on (key position 2, engine off).
-3. In Klemme15, pick your car in the Garage and press **Connect to my car**. Choose the cable's port and press **Check cable**. Fix anything it flags.
+3. In Klemme15, pick your car in the Garage (type the model and year, like "2011 328i", in the search box if you don't know the chassis code) and press **Connect to my car**. Choose the cable's port and press **Check cable**. Fix anything it flags.
 4. Press **Connect**, then **Run quick test** on the Vehicle page.
 
 No car nearby? Pick any model and press **Open demo car**.

@@ -42,6 +42,16 @@ var window = new MainWindow { DataContext = vm, Width = 1440, Height = 900 };
 window.Show();
 
 Shot("01-garage");
+// Find my car, and the checklist when the car doesn't answer.
+vm.Garage.Search = "2011 328i";
+Shot("42-garage-search");
+if (vm.Garage.SearchResults.Count == 0) problems.Add("42-garage-search: no result for 2011 328i");
+vm.Garage.Search = "";
+vm.Garage.ShowCable = true;
+vm.Garage.Error = "No answer from the car on this port.";
+Shot("43-connect-help");
+vm.Garage.Error = null;
+vm.Garage.ShowCable = false;
 vm.Garage.SelectModel("E9x-335i");
 Shot("02-garage-335i");
 Connect();

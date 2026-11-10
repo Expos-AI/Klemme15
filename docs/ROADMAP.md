@@ -17,6 +17,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
+- **Easier to start**: find your car by model and year, three start-here steps, and a checklist when the car doesn't answer.
 - **Easier to read**: miles and °F, a plain-word description of every module, and module names that no longer overlap on large cars.
 - **Updates**: a check-for-updates button and an optional check on start, from the website's version file; downloads open the right file for the computer.
 - **Mileage check**: the engine computer's and cluster's own counts, every module's mileage at programming, and every record, compared with each other and the odometer; typed-in jobs that could change mileage, flash or touch the immobiliser are refused.

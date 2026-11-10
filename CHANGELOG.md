@@ -2,6 +2,12 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.27
+
+- **Find your car without knowing its chassis code.** Type the model and year in the Garage's search box ("2011 328i", "08 535i", "X5 diesel") or the chassis code from the door jamb sticker ("E92"). Cars that aren't supported yet, such as F-series and Minis, get a straight answer instead of an empty list.
+- **Start here.** New to Klemme15? The Garage shows three steps: pick your car, plug in the cable (with the right switch position for that car), run the quick test. It goes away once you've scanned a car or hide it.
+- **Can't connect?** When the car doesn't answer, Klemme15 now lists what to check, in order: ignition, the cable's switch, the cable check, other programs holding the cable, and the USB port.
+
 ## 0.99.26
 
 - **Miles and °F.** Choose your units in the Garage: km and °C, or miles and °F (also mph and psi). Klemme15 starts with the units your computer's region uses. It applies to live data, readings, the car drawing, mileage records, tests and reports; recordings, snapshots and baselines stay metric so they can be shared.

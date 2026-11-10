@@ -14,6 +14,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:Klemme15.App.ViewModels"
+             xmlns:sys="using:System"
              xmlns:core="using:Klemme15.Core"
              xmlns:serial="using:Klemme15.Serial"
              xmlns:c="using:Klemme15.App.Controls"
@@ -26,7 +27,28 @@
       <DockPanel Margin="28,26,20,20">
         <StackPanel DockPanel.Dock="Top" Spacing="16" Margin="0,0,0,14">
           <TextBlock Classes="title" Text="Garage" />
-          <ItemsControl ItemsSource="{Binding Families}">
+          <!-- Find my car: for owners who know "2011 328i" but not "E9x" -->
+          <TextBox Text="{Binding Search}" Watermark="Find your car: 2011 328i, E92, X5..."
+                   ToolTip.Tip="Type the model and year, or the chassis code from the sticker in the door jamb" />
+          <StackPanel Spacing="6" IsVisible="{Binding IsSearching}">
+            <ItemsControl ItemsSource="{Binding SearchResults}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate><StackPanel Spacing="6" /></ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:CarSearchResult">
+                  <Button Classes="segment" Command="{Binding PickCommand}" HorizontalAlignment="Stretch">
+                    <StackPanel Spacing="1">
+                      <TextBlock Text="{Binding Title}" FontFamily="{DynamicResource DisplayFont}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap" />
+                      <TextBlock Text="{Binding Detail}" Classes="muted small" TextWrapping="Wrap" />
+                    </StackPanel>
+                  </Button>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock Classes="muted small" Text="{Binding SearchNote}" IsVisible="{Binding HasSearchNote}" TextWrapping="Wrap" />
+          </StackPanel>
+          <ItemsControl ItemsSource="{Binding Families}" IsVisible="{Binding NotSearching}">
             <ItemsControl.ItemsPanel>
               <ItemsPanelTemplate><StackPanel Spacing="6" /></ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
@@ -49,7 +71,7 @@
           <RadioButton GroupName="units" Content="km, °C" IsChecked="{Binding MetricUnits}" />
           <RadioButton GroupName="units" Content="miles, °F" IsChecked="{Binding UsUnits}" />
         </StackPanel>
-        <ListBox Classes="models" ItemsSource="{Binding Models}" SelectedItem="{Binding Model}">
+        <ListBox Classes="models" ItemsSource="{Binding Models}" SelectedItem="{Binding Model}" IsVisible="{Binding NotSearching}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="core:VehicleModel">
               <StackPanel Spacing="1">
@@ -72,6 +94,20 @@
           <TextBlock Text="{Binding ModelTitle}" FontFamily="{DynamicResource DisplayFont}" FontSize="44" FontWeight="SemiBold" />
           <TextBlock Text="{Binding Engine}" Classes="muted" FontSize="16" />
         </StackPanel>
+
+        <!-- Start here: three steps for someone new, until a real car has been scanned or it's closed -->
+        <Border Classes="panel" Padding="18,14" IsVisible="{Binding ShowStartHere}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1">
+          <DockPanel>
+            <Button DockPanel.Dock="Right" Classes="quiet" Content="Hide" Command="{Binding HideStartHereCommand}" VerticalAlignment="Top" />
+            <StackPanel Spacing="6">
+              <TextBlock Classes="section" FontSize="16" Text="Start here" />
+              <TextBlock TextWrapping="Wrap" Text="1.  Pick your car on the left. Not sure of the chassis code? Type the model and year in the search box." />
+              <TextBlock TextWrapping="Wrap" Text="{Binding StartCableStep, StringFormat='2.  {0}'}" />
+              <TextBlock TextWrapping="Wrap" Text="3.  Press Run quick test. Klemme15 asks every module for its faults and explains what it finds. Nothing is changed on the car." />
+              <TextBlock Classes="muted small" TextWrapping="Wrap" Text="No cable yet? Press Open demo car to look around first." />
+            </StackPanel>
+          </DockPanel>
+        </Border>
 
         <!-- Your cars: every real car scanned on this computer -->
         <StackPanel Spacing="8" IsVisible="{Binding HasCars}">
@@ -251,6 +287,21 @@
             </StackPanel>
             <TextBlock Classes="muted small" Text="{Binding EdiabasStatus}" TextWrapping="Wrap" IsVisible="{Binding EdiabasAvailable}" />
             <Button Classes="primary" Content="Connect" Command="{Binding ConnectCarCommand}" HorizontalAlignment="Left" />
+            <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding ShowConnectHelp}" TextWrapping="Wrap" />
+            <!-- The car didn't answer: what to check, in order -->
+            <Border Classes="warn" IsVisible="{Binding ShowConnectHelp}">
+              <StackPanel Spacing="4">
+                <TextBlock Text="Can't connect? Check these in order" FontWeight="SemiBold" />
+                <ItemsControl ItemsSource="{Binding ConnectHelp}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="sys:String">
+                      <TextBlock Classes="small" Text="{Binding StringFormat='• {0}'}" TextWrapping="Wrap" Margin="0,1" />
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <Button Classes="quiet" Content="Open the cable guide" Command="{Binding OpenCableGuideCommand}" HorizontalAlignment="Left" Padding="0,2" />
+              </StackPanel>
+            </Border>
           </StackPanel>
         </Border>
       </StackPanel>
