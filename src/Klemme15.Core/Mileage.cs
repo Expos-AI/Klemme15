@@ -160,7 +160,7 @@ public static class MileageAnalysis
     /// <summary>The findings for a buyer, worst first, and what couldn't be checked.</summary>
     public static (IReadOnlyList<PurchaseItem> Items, IReadOnlyList<string> NotChecked) Assess(IReadOnlyList<MileageRecord> records, long? odometerKm, bool miles = false)
     {
-        string F(long km) => miles ? $"{km / 1.609344:N0} mi ({km:N0} km)" : $"{km:N0} km";
+        string F(long km) => miles ? $"{km / DisplayUnits.KmPerMile:N0} mi ({km:N0} km)" : $"{km:N0} km";
         var items = new List<PurchaseItem>();
         var notChecked = new List<string>();
         var counted = records.Where(r => r.CountsForVerdict).ToList();

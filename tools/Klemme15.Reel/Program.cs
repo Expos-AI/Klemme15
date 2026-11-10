@@ -45,7 +45,7 @@ AvaloniaSynchronizationContext.InstallIfNeeded();
 // the full window is close to phone proportions and a zoomed-in crop stays sharp on a 1080-wide video.
 const int W = 1120, H = 1400;
 const double Scale = 1.5;
-var settings = new AppSettings { Theme = "Dark" };
+var settings = new AppSettings { Theme = "Dark", Units = "Metric" };
 var vm = new MainViewModel(new NoDialogs(), settings);
 vm.ApplyTheme();
 var window = new MainWindow { DataContext = vm, Width = W, Height = H };

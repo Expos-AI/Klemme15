@@ -2,6 +2,12 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.26
+
+- **Miles and °F.** Choose your units in the Garage: km and °C, or miles and °F (also mph and psi). Klemme15 starts with the units your computer's region uses. It applies to live data, readings, the car drawing, mileage records, tests and reports; recordings, snapshots and baselines stay metric so they can be shared.
+- **What each module does, in plain words.** Hover a module on the car drawing, or select it, to see what it's for: "Footwell module: exterior and interior lights, front windows and mirrors."
+- **No more overlapping module names** on cars with 40 to 50 modules: markers that shared a spot are nudged apart.
+
 ## 0.99.25
 
 - **335xi / 335i xDrive** is now its own model in the Garage (E90/E92, N54, with the xDrive transfer case module), so owners don't have to pick the rear-wheel-drive 335i.

@@ -293,6 +293,23 @@ public sealed class GarageViewModel : PageViewModel
     public string Drive => _model?.Drive ?? "";
     public string Body => _model?.Body ?? "";
     public string Years => _model?.Years ?? "";
+    /// <summary>Show miles, mph, °F and psi instead of km, km/h, °C and kPa. Files Klemme15 writes stay metric.</summary>
+    public bool UsUnits
+    {
+        get => DisplayUnits.IsUs;
+        set
+        {
+            if (value == DisplayUnits.IsUs) return;
+            DisplayUnits.System = value ? UnitSystem.US : UnitSystem.Metric;
+            _settings.Units = value ? "US" : "Metric";
+            _settings.Save();
+            Raise(nameof(UsUnits));
+            Raise(nameof(MetricUnits));
+            _session.RefreshViews();
+        }
+    }
+    public bool MetricUnits { get => !UsUnits; set { if (value) UsUnits = false; } }
+
     public string? FamilyNote => _family.Family.Note;
     public bool HasFamilyNote => _family.Family.Note is not null;
 
@@ -467,16 +484,19 @@ public sealed class GarageViewModel : PageViewModel
     {
         PreviewMarkers.Clear();
         if (_model is null) return;
+        var preview = new List<MarkerViewModel>();
         foreach (var ecu in _family.Family.Modules.Where(m => m.Position is not null))
         {
             var fitted = _model.ModuleIds.Contains(ecu.Id);
-            PreviewMarkers.Add(new MarkerViewModel(MarkerKind.Module, ecu.Id, ecu.Id.Split('.').Last(), ecu.Position!.Value)
+            preview.Add(new MarkerViewModel(MarkerKind.Module, ecu.Id, ecu.Id.Split('.').Last(), ecu.Position!.Value)
             {
                 Ecu = ecu,
                 State = fitted ? MarkerState.Idle : MarkerState.Absent,
-                Detail = fitted ? ecu.Name : $"{ecu.Name} (not fitted to this model's demo car)",
+                Detail = fitted ? ModuleGlossary.Describe(ecu) : $"{ModuleGlossary.Describe(ecu)}\n(Not fitted to this model's demo car.)",
             });
         }
+        MarkerLayout.SpreadModules(preview);
+        foreach (var m in preview) PreviewMarkers.Add(m);
     }
 
     private void RefreshPorts()

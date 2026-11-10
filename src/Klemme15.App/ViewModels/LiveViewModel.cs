@@ -32,7 +32,8 @@ public sealed class LiveParameterViewModel(LiveParameter parameter) : ViewModelB
 
     public LiveParameter Parameter { get; } = parameter;
     public string Name => Parameter.Name;
-    public string Unit => Parameter.Unit;
+    /// <summary>The unit as shown (°F and mph in US units); recordings keep the car's own metric unit.</summary>
+    public string Unit => DisplayUnits.Unit(Parameter.Unit);
 
     /// <summary>Why there's no number ("not reported by this engine computer"), shown small under the dash.</summary>
     public string? Note { get => _note; private set { if (Set(ref _note, value)) Raise(nameof(HasNote)); } }
@@ -46,11 +47,12 @@ public sealed class LiveParameterViewModel(LiveParameter parameter) : ViewModelB
 
     public void Update(LiveValue v)
     {
-        Value = v.Value is { } d ? d.ToString(Math.Abs(d) >= 100 ? "0" : "0.#", CultureInfo.CurrentCulture) : "--";
+        var shown = v.Value is { } raw ? DisplayUnits.Convert(raw, Parameter.Unit).Value : (double?)null;
+        Value = shown is { } d ? d.ToString(Math.Abs(d) >= 100 ? "0" : "0.#", CultureInfo.CurrentCulture) : "--";
         HasNumber = v.Value is not null;
         Note = v.Value is null ? v.Text : null;
         Latest = v.Value;
-        if (v.Value is not { } x) return;
+        if (shown is not { } x) return;
         _min = _min is null ? x : Math.Min(_min.Value, x);
         _max = _max is null ? x : Math.Max(_max.Value, x);
         _history.Enqueue(x);
@@ -88,7 +90,7 @@ public sealed class LiveViewModel : PageViewModel
     private void StartColumns()
     {
         _columns = Selected.ToList();
-        _recording?.AppendLine("time," + string.Join(",", _columns.Select(p => $"\"{p.Name} ({p.Unit})\"")));
+        _recording?.AppendLine("time," + string.Join(",", _columns.Select(p => $"\"{p.Name} ({p.Parameter.Unit})\"")));
     }
 
     /// <summary>Hands the current recording's CSV text to the Analyse page.</summary>

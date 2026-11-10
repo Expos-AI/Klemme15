@@ -37,3 +37,50 @@ public static class Units
         return u.Length == 0 ? null : u;
     }
 }
+
+/// <summary>Which units the app shows values in.</summary>
+public enum UnitSystem { Metric, US }
+
+/// <summary>
+/// Shows distances, speeds, temperatures and pressures in the units the person chose, on screen and in the reports
+/// people read. The car and the data files Klemme15 writes (recordings, snapshots, baselines) stay metric.
+/// </summary>
+public static class DisplayUnits
+{
+    public const double KmPerMile = 1.609344;
+
+    /// <summary>The chosen system. Metric unless the person (or their region) says otherwise.</summary>
+    public static UnitSystem System { get; set; } = UnitSystem.Metric;
+
+    public static bool IsUs => System == UnitSystem.US;
+
+    /// <summary>A value and its unit as shown: 90 °C → 194 °F, 100 km/h → 62 mph. Other units pass through.</summary>
+    public static (double Value, string Unit) Convert(double value, string? unit)
+    {
+        var u = unit ?? "";
+        if (!IsUs) return (value, u);
+        return u switch
+        {
+            "°C" => (value * 9 / 5 + 32, "°F"),
+            "km/h" => (value / KmPerMile, "mph"),
+            "km" => (value / KmPerMile, "mi"),
+            "kPa" => (value * 0.1450377, "psi"),
+            "bar" => (value * 14.50377, "psi"),
+            "hPa" or "mbar" => (value * 0.01450377, "psi"),
+            _ => (value, u),
+        };
+    }
+
+    /// <summary>The unit as shown ("°C" → "°F" in US units).</summary>
+    public static string Unit(string? unit) => Convert(0, unit).Unit;
+
+    /// <summary>"98,120 km" or "60,969 mi".</summary>
+    public static string Distance(long km) => IsUs ? $"{km / KmPerMile:N0} mi" : $"{km:N0} km";
+
+    /// <summary>"90 °C" or "194 °F".</summary>
+    public static string Temperature(double celsius) => IsUs ? $"{celsius * 9 / 5 + 32:0} °F" : $"{celsius:0} °C";
+
+    /// <summary>The system a region uses: US units for the United States, metric elsewhere.</summary>
+    public static UnitSystem ForRegion(string? twoLetterRegion) =>
+        string.Equals(twoLetterRegion, "US", StringComparison.OrdinalIgnoreCase) ? UnitSystem.US : UnitSystem.Metric;
+}

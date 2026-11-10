@@ -71,6 +71,27 @@ public static class MarkerLayout
 
     private static double ModuleLabelWidth(MarkerViewModel m) => m.ShowLabel ? 7 + 8 * m.Label.Length : 0;
 
+    /// <summary>
+    /// Nudges module markers apart so no square or name prints over another (families with 40 to 50 modules put several
+    /// in the same spot). Each marker keeps its place if it's free, and otherwise moves the shortest way up or down.
+    /// The result depends only on the family, so the Garage preview and the Vehicle page agree.
+    /// </summary>
+    public static void SpreadModules(IReadOnlyList<MarkerViewModel> modules)
+    {
+        const double height = 19, gap = 5, step = 5, maxShift = 90;
+        var placed = new List<(double Left, double Right, double Y)>();
+        foreach (var m in modules.OrderBy(m => m.Y).ThenBy(m => m.X))
+        {
+            double left = m.X - 9, right = m.X + 9 + 7 + 8 * m.Label.Length;
+            bool Free(double y) => y is >= 14 and <= 446 && !placed.Any(p => Math.Abs(p.Y - y) < height && p.Left < right + gap && left < p.Right + gap);
+            var y = m.Y;
+            for (var shift = step; !Free(y) && shift <= maxShift; shift += step)
+                y = Free(m.Y + shift) ? m.Y + shift : Free(m.Y - shift) ? m.Y - shift : y;
+            if (y != m.Y) m.MoveTo(m.X, y);
+            placed.Add((left, right, y));
+        }
+    }
+
     private static List<string> Codes(MarkerViewModel m) => m.Faults.Select(f => f.Code).Distinct().ToList();
 }
 
@@ -95,8 +116,11 @@ public sealed class MarkerViewModel : ViewModelBase
     public MarkerKind Kind { get; }
     public string Id { get; }
     public string Label { get => _label; set => Set(ref _label, value); }
-    public double X { get; }
-    public double Y { get; }
+    public double X { get; private set; }
+    public double Y { get; private set; }
+
+    /// <summary>Moves the marker (layout only, before it's shown): module positions are approximate anyway.</summary>
+    public void MoveTo(double x, double y) { X = x; Y = y; }
 
     /// <summary>Top-left of the 16 x 16 anchor cell, centred on the point.</summary>
     public double Left => X - 8;

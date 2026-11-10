@@ -35,7 +35,7 @@ AppBuilder.Configure<App>()
     .SetupWithoutStarting();
 AvaloniaSynchronizationContext.InstallIfNeeded();
 
-var settings = new AppSettings { Theme = "Dark" };
+var settings = new AppSettings { Theme = "Dark", Units = "Metric" };
 var vm = new MainViewModel(new NoDialogs(), settings);
 vm.ApplyTheme();
 var window = new MainWindow { DataContext = vm, Width = 1440, Height = 900 };

@@ -32,7 +32,7 @@ public sealed class TopologyTile(string id, string label, double left, double to
     public string Label { get; } = label;
     public double Left { get; } = left;
     public double Top { get; } = top;
-    public string Unit => SignalLabels.Unit(Id);
+    public string Unit => DisplayUnits.Unit(SignalLabels.Unit(Id));
     public string Value { get => _value; private set => Set(ref _value, value); }
     public bool HasValue { get => _hasValue; private set => Set(ref _hasValue, value); }
     public TileLevel Level { get => _level; private set { if (Set(ref _level, value)) { Raise(nameof(IsWarn)); Raise(nameof(IsBad)); } } }
@@ -42,7 +42,7 @@ public sealed class TopologyTile(string id, string label, double left, double to
     public void Show(double? value)
     {
         HasValue = value is not null;
-        Value = value is { } v ? v.ToString(format, CultureInfo.CurrentCulture) + (Unit.Length > 0 ? " " + Unit : "") : "–";
+        Value = value is { } v ? DisplayUnits.Convert(v, SignalLabels.Unit(Id)).Value.ToString(format, CultureInfo.CurrentCulture) + (Unit.Length > 0 ? " " + Unit : "") : "–";
         Level = value is { } x ? judge(x) : TileLevel.Normal;
     }
 }

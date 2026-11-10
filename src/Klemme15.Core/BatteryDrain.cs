@@ -77,7 +77,7 @@ public static class BatteryDrain
             var first = group.First();
             var active = group.Any(m => m.Active);
             var km = group.Where(m => m.MileageKm is not null).Select(m => m.MileageKm!.Value).DefaultIfEmpty().Max();
-            var when = active ? "showing now" : km > 0 ? $"last at about {km.ToString("N0", CultureInfo.InvariantCulture)} km" : "in the cluster's history";
+            var when = active ? "showing now" : km > 0 ? $"last at about {DisplayUnits.Distance(km)}" : "in the cluster's history";
             clues.Add(new(active ? CheckLevel.Warn : CheckLevel.Ask, $"Dash warning: {first.Title}",
                 $"The instrument cluster showed it {(group.Count() > 1 ? $"{group.Count()} times, " : "")}{when}."));
         }

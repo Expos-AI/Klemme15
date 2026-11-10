@@ -48,7 +48,7 @@ public sealed class PurchaseCheckViewModel : ViewModelBase
 {
     private readonly SessionState _session;
     private readonly IDialogService _dialogs;
-    private bool _open, _miles;
+    private bool _open, _miles = DisplayUnits.IsUs;
     private string _odometer = "", _headline = "";
 
     public PurchaseCheckViewModel(SessionState session, IDialogService dialogs)

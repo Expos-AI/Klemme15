@@ -161,6 +161,9 @@ public sealed class AppSettings
     /// <summary>Lets service functions that haven't been confirmed on a real car run. Off by default.</summary>
     public bool ExperimentalService { get; set; }
 
+    /// <summary>"Metric" (km, °C) or "US" (miles, °F). Null: follow the computer's region.</summary>
+    public string? Units { get; set; }
+
     /// <summary>Check for a newer version when Klemme15 starts (null: not asked yet). Off until the person says yes.</summary>
     public bool? CheckUpdatesOnStart { get; set; }
 

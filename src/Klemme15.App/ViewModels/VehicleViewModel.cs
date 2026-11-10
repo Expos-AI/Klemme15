@@ -180,7 +180,10 @@ public sealed class VehicleViewModel : PageViewModel
                 _ => "Not asked yet. Run a quick test.",
             };
             var ident = result?.Identity?.Summary;
-            var lines = new List<string> { $"Address {ecu.AddressHex}", status };
+            var lines = new List<string>();
+            if (ModuleGlossary.For(ecu) is { } what) lines.Add(what);
+            lines.Add($"Address {ecu.AddressHex}");
+            lines.Add(status);
             if (!string.IsNullOrWhiteSpace(ident)) lines.Add(ident);
             if (result?.Note is { } note) lines.Add(note);
             if (!ecu.Verified) lines.Add("Address pending validation on this model.");
@@ -484,11 +487,12 @@ public sealed class VehicleViewModel : PageViewModel
                 var m = new MarkerViewModel(MarkerKind.Module, ecu.Id, ecu.Id.Split('.').Last(), ecu.Position!.Value, Select)
                 {
                     Ecu = ecu,
-                    Detail = ecu.Name,
+                    Detail = ModuleGlossary.Describe(ecu),
                 };
                 _moduleMarkers[ecu.Id] = m;
-                Markers.Add(m);
             }
+            MarkerLayout.SpreadModules(_moduleMarkers.Values.ToList());
+            foreach (var m in _moduleMarkers.Values) Markers.Add(m);
         }
 
         if (_session.LastScan is { } scan)

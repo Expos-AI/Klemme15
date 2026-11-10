@@ -136,7 +136,7 @@ public static class ReportWriter
         {
             sb.AppendLine(forum ? "- Earlier:" : "- Shown earlier (cluster history):");
             foreach (var m in history.Take(forum ? 5 : 20))
-                sb.AppendLine($"  - {CcLine(m)}{(m.MileageKm is { } km ? $" at about {km:N0} km" : "")}");
+                sb.AppendLine($"  - {CcLine(m)}{(m.MileageKm is { } km ? $" at about {DisplayUnits.Distance(km)}" : "")}");
         }
         sb.AppendLine();
     }
@@ -259,7 +259,7 @@ public static class ReportWriter
         {
             sb.Append("<div class=\"muted\">Shown earlier (cluster history):</div><ul>");
             foreach (var m in history.Take(20))
-                sb.Append($"<li>{H(m.Title)} <code>{H(m.Code)}</code>{(m.MileageKm is { } km ? $" <span class=\"muted\">at about {km:N0} km</span>" : "")}</li>");
+                sb.Append($"<li>{H(m.Title)} <code>{H(m.Code)}</code>{(m.MileageKm is { } km ? $" <span class=\"muted\">at about {DisplayUnits.Distance(km)}</span>" : "")}</li>");
             sb.Append("</ul>");
         }
         sb.Append("</div>");
@@ -328,7 +328,7 @@ section{margin-top:24px}
                 foreach (var r in mileage)
                 {
                     var kind = r.Kind switch { MileageKind.Current => "Running count", MileageKind.Programmed => "At programming", MileageKind.Event => "Record", _ => "Reference (shown only)" };
-                    sb.Append($"<tr><td>{H(r.Module)}</td><td>{H(r.What)}</td><td>{kind}</td><td><code>{r.Km:N0} km</code></td></tr>");
+                    sb.Append($"<tr><td>{H(r.Module)}</td><td>{H(r.What)}</td><td>{kind}</td><td><code>{DisplayUnits.Distance(r.Km)}</code></td></tr>");
                 }
                 sb.Append("</table></div>");
             }

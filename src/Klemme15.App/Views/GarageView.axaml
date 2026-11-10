@@ -42,6 +42,13 @@
             </ItemsControl.ItemTemplate>
           </ItemsControl>
         </StackPanel>
+        <!-- Units for everything on screen; the files Klemme15 writes stay metric -->
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="12" Margin="0,12,0,0"
+                    ToolTip.Tip="Units shown on screen and in reports. Recordings, snapshots and baselines stay metric so they can be shared.">
+          <TextBlock Classes="muted small" Text="Units" VerticalAlignment="Center" />
+          <RadioButton GroupName="units" Content="km, °C" IsChecked="{Binding MetricUnits}" />
+          <RadioButton GroupName="units" Content="miles, °F" IsChecked="{Binding UsUnits}" />
+        </StackPanel>
         <ListBox Classes="models" ItemsSource="{Binding Models}" SelectedItem="{Binding Model}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="core:VehicleModel">

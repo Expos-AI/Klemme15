@@ -178,7 +178,7 @@ public sealed class FaultsViewModel : PageViewModel
     public ObservableCollection<StoryItem> Story { get; } = [];
     public bool HasStory => Story.Count > 0;
     public string StoryHeadline => _session.LastScan?.Story is { } s
-        ? $"Your car's story · {s.Entries} warnings the instrument cluster remembers" + (s.LastKm is { } km ? $", up to ~{km:N0} km" : "")
+        ? $"Your car's story · {s.Entries} warnings the instrument cluster remembers" + (s.LastKm is { } km ? $", up to ~{DisplayUnits.Distance(km)}" : "")
         : "";
     private bool _storyOpen = true;
     public bool StoryOpen { get => _storyOpen; set { if (Set(ref _storyOpen, value)) Raise(nameof(StoryToggleText)); } }

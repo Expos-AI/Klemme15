@@ -35,7 +35,7 @@ public sealed class CarCardViewModel : ViewModelBase
     public HealthSnapshot Latest { get; }
     public int Scans { get; }
     public string Name => Latest.ModelName ?? Latest.Chassis ?? "BMW";
-    public string LastScan => $"Last quick test {Latest.Time.LocalDateTime:d MMM yyyy}" + (Latest.Km is { } km ? $" · ~{km:N0} km" : "") + $" · {Scans} quick test{(Scans == 1 ? "" : "s")}";
+    public string LastScan => $"Last quick test {Latest.Time.LocalDateTime:d MMM yyyy}" + (Latest.Km is { } km ? $" · ~{DisplayUnits.Distance(km)}" : "") + $" · {Scans} quick test{(Scans == 1 ? "" : "s")}";
 
     public string Status
     {

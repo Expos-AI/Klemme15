@@ -26,7 +26,7 @@ public sealed record StoryEvent(
     int Times,
     CcSeverity Severity)
 {
-    public string When => FromKm is not { } a ? "Earlier" : ToKm is { } b && b - a >= 16 ? $"{a:N0} – {b:N0} km" : $"~{a:N0} km";
+    public string When => FromKm is not { } a ? "Earlier" : ToKm is { } b && b - a >= 16 ? $"{DisplayUnits.Distance(a).Replace(" km", "").Replace(" mi", "")} – {DisplayUnits.Distance(b)}" : $"~{DisplayUnits.Distance(a)}";
 }
 
 /// <summary>The car's warning history, told as a story.</summary>

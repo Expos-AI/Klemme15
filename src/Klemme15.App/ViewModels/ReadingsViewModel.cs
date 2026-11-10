@@ -48,7 +48,7 @@ public sealed class ReadingValueViewModel : ViewModelBase
     public ReadingValue Value { get; }
     public string Label { get; }
     public string Name => Value.Name;
-    public string Text => Value.Number is { } d
+    public string Text => Value.Number is { } raw && DisplayUnits.Convert(raw, Units.Normalize(Value.Unit)).Value is var d
         ? d.ToString(Math.Abs(d) >= 1000 ? "0" : Decimals is { } n ? "0." + new string('0', n) : "0.###", CultureInfo.CurrentCulture)
         : ReadingLabels.ValueText(Value.Text);
 
@@ -62,7 +62,7 @@ public sealed class ReadingValueViewModel : ViewModelBase
         var dot = text.IndexOf('.');
         return dot < 0 ? 0 : text.Length - dot - 1;
     }
-    public string Unit => Units.Normalize(Value.Unit) ?? "";
+    public string Unit => DisplayUnits.Unit(Units.Normalize(Value.Unit));
     public string? Comment => Value.Comment;
     public bool CanPin => _pin is not null && Value.Number is not null && !_pinned;
     public bool IsPinned { get => _pinned; set { Set(ref _pinned, value); Raise(nameof(CanPin)); } }

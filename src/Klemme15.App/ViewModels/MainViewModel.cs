@@ -37,6 +37,12 @@ public sealed class MainViewModel : ViewModelBase
             CurrentPage = Vehicle;
             Vehicle.ShowFault(fault, ecu);
         }, url => _ = dialogs.OpenUrlAsync(url));
+        DisplayUnits.System = settings.Units switch
+        {
+            "US" => UnitSystem.US,
+            "Metric" => UnitSystem.Metric,
+            _ => DisplayUnits.ForRegion(System.Globalization.RegionInfo.CurrentRegion.TwoLetterISORegionName),
+        };
         Readings = new ReadingsViewModel(Session, settings);
         Faults.FaultData = Garage;
         Faults.OpenReadings = ecu =>

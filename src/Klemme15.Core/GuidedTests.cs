@@ -230,7 +230,7 @@ public static partial class GuidedTests
     [
         new("fuel-trims", "Fuel trim test (lean / rich diagnosis)",
             "Measures how much the engine computer corrects the mixture at idle and at 2,500 rpm, and tells you what the pattern points to: vacuum leak, fuel delivery, air mass meter, leaking injector or purge valve.",
-            "Warm engine (coolant above 70 °C), idling, in P or neutral, handbrake on. You'll be asked to hold 2,500 rpm for about 15 seconds.",
+            "Warm engine (coolant above 70 °C / 160 °F), idling, in P or neutral, handbrake on. You'll be asked to hold 2,500 rpm for about 15 seconds.",
             "About 1 minute"),
         new("vanos", "VANOS test (target vs actual)",
             "Compares where the engine computer wants each camshaft with where it actually is, while you blip the throttle. A VANOS that lags or never reaches its target shows up here before it sets a fault.",
@@ -242,7 +242,7 @@ public static partial class GuidedTests
             "20 seconds"),
         new("idle-ac", "Rough idle and air conditioning check",
             "For an idle that's rough, hunts or chugs when the air conditioning kicks in. Watches the idle with the air conditioning off, then on: how steady engine speed is against the speed the engine computer aims for, the dip when the compressor engages, each cylinder, and the mixture. Tells you whether it's the engine, and where to look.",
-            "Warm engine (coolant above 70 °C), idling, car stopped, in P or neutral, handbrake on, air conditioning off to start. You'll be asked to switch the air conditioning on (coldest, fan on).",
+            "Warm engine (coolant above 70 °C / 160 °F), idling, car stopped, in P or neutral, handbrake on, air conditioning off to start. You'll be asked to switch the air conditioning on (coldest, fan on).",
             "About 1 minute"),
         new("no-start", "Why won't it start? (read-only check)",
             "For a car that cranks but won't fire, or won't crank. Klemme15 checks what it can see over the cable (battery voltage, whether the engine is actually turning, and the faults the modules logged during the failed start) and tells you what to check next. It never touches the immobiliser or keys.",
@@ -254,7 +254,7 @@ public static partial class GuidedTests
             "About 13 minutes"),
         new("water-pump", "Water pump health (requested vs actual speed)",
             "Graphs the speed the engine computer asks of the electric water pump against the speed the pump reports, at idle and at 3,000 rpm. A pump that can't keep up (worn bearing, failing electronics) shows up here before it overheats the engine. Read-only.",
-            "Warm engine (coolant above 70 °C), idling, in P or neutral, handbrake on. You'll be asked to hold 3,000 rpm for about 15 seconds.",
+            "Warm engine (coolant above 70 °C / 160 °F), idling, in P or neutral, handbrake on. You'll be asked to hold 3,000 rpm for about 15 seconds.",
             "40 seconds"),
         new("water-pump-sweep", "Water pump sweep (drives the pump)",
             "Klemme15 asks the engine computer to run the electric water pump at 30, 60 and 90 % and graphs what the pump actually does at each step. A healthy pump speeds up step by step. Experimental: drives the pump through BMW's own test job and needs your BMW files.",
@@ -288,7 +288,7 @@ public static partial class GuidedTests
         if (!now.TryGetValue("rpm", out var rpm)) return TestReport.Stop("Engine speed can't be read", "This test needs the engine computer's live values. Connect again, and run the quick test first.");
         if (rpm < 400) return TestReport.Stop("Start the engine first", "The engine isn't running. Start it, let it warm up and run the test again.");
         if (now.TryGetValue("coolant", out var coolant) && coolant < 70)
-            return TestReport.Stop("Warm the engine up first", $"Coolant is {coolant:0} °C. Mixture and VANOS behave differently on a cold engine; drive 10 minutes and test again.");
+            return TestReport.Stop("Warm the engine up first", $"Coolant is {DisplayUnits.Temperature(coolant)}. Mixture and VANOS behave differently on a cold engine; drive 10 minutes and test again.");
         return null;
     }
 
@@ -415,7 +415,7 @@ public static partial class GuidedTests
         if (first.TryGetValue("rpm", out var rpm0) && rpm0 > 300)
             return TestReport.Stop("Switch the engine off first", "The bleed routine runs with the engine off and the ignition on. Switch the engine off, turn the ignition back on (without starting) and run this again.");
         if (first.TryGetValue("coolant", out var hot) && hot > 60)
-            return TestReport.Stop("Let the engine cool down first", $"Coolant is {hot:0} °C. Bleed a cool engine: the cap must never be opened hot, and the routine is meant for a cold system.");
+            return TestReport.Stop("Let the engine cool down first", $"Coolant is {DisplayUnits.Temperature(hot)}. Bleed a cool engine: the cap must never be opened hot, and the routine is meant for a cold system.");
         var canSeePump = first.ContainsKey("pump_speed") || first.ContainsKey("pump_target");
 
         bool Running(IReadOnlyDictionary<string, double> v) =>

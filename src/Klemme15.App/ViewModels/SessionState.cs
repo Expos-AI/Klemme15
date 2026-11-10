@@ -76,6 +76,9 @@ public sealed class SessionState : ViewModelBase
     /// What is using the cable right now (a test, a service function, a coding write, live data), so the Ghost Hunter
     /// doesn't start a second conversation with the car alongside it. Null when nothing is.
     /// </summary>
+    /// <summary>Redraws everything built from the last quick test (after the display units change).</summary>
+    public void RefreshViews() => ScanUpdated?.Invoke();
+
     public string? BusyWith { get => _busyWith; private set => Set(ref _busyWith, value); }
 
     public IDisposable ClaimBus(string what)
