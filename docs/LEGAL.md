@@ -38,7 +38,8 @@ A function is **experimental** until it has been validated on a vehicle with Kle
 
 - **No flashing:** it never rewrites a module's software.
 - **No immobiliser or key work:** keys, the immobiliser and its secret key (ISN) are never read or changed. The one write to the key module (CAS) is clearing the steering lock's event counters, a documented service job.
-- **No mileage changes:** recorded mileage is read, never written. The used-car check compares the mileage the modules remember; a careful rollback can still pass it.
+- **No mileage changes:** recorded mileage is read, never written. The used-car mileage check reads the figures the modules remember (the engine computer's and cluster's own counts, and the mileage each module was last programmed at) with read-only jobs, and compares them; a professional rollback that also resets those modules can still pass it.
+- **Typed-in jobs are checked too.** The Expert page and the command line run jobs from your own BMW files, and Klemme15 refuses any that would flash a module, read or change keys or the immobiliser, change mileage, or write to the key module (apart from clearing the steering lock's counters).
 - **No help defeating emissions or safety equipment.** Keeping your car legal and roadworthy where you drive it is your responsibility. Coding presets change comfort, cluster and lighting settings (such as the bulb warnings after an LED conversion); they don't touch the engine, emissions, airbag, brake or stability systems. Make sure any lights you fit are legal where you drive, and that they work: with the bulb warning off, the car won't tell you when one fails.
 
 ## Copyright and BMW's software

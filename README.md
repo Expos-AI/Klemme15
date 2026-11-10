@@ -116,7 +116,7 @@ No car nearby? Pick any model and press **Open demo car**.
 
 **Share and automate**
 - **Snapshots (.k15)**: your whole car in one file, opened read-only by whoever helps you, with the VIN removed ([how](docs/SNAPSHOTS.md)).
-- **Buying a used BMW?** The pre-purchase check compares the mileage the modules recorded with the odometer and flags safety faults and freshly cleared memories.
+- **Buying a used BMW?** The pre-purchase check reads the mileage the modules remember (the engine computer's and cluster's own counts, the mileage each module was last programmed at, and every fault and dash message), compares them with each other and the odometer, and flags a wound-back or swapped cluster. It also flags safety faults and freshly cleared memories. Read-only; every module's figures need your BMW files (EDIABAS mode).
 - **Reports** in HTML, Markdown or JSON, a forum post summary, and a traffic log of every byte.
 - **Command line** and **headless mode** with a phone dashboard and MQTT ([command line](docs/COMMAND-LINE.md), [headless](docs/HEADLESS.md)).
 

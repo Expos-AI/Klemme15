@@ -2,6 +2,11 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.23
+
+- **A real mileage check for used cars.** "Buying this car?" now reads the mileage the modules themselves remember: the engine computer's own count, the cluster's stored mileage, and the mileage each module was last programmed at. It compares them with each other and with the odometer, alongside the mileage on every fault and dash message. A cluster that was wound back or swapped stands out, because the engine computer keeps counting. Every figure is listed in a table and in the buyer's report, and `klemme15 mileage` does the same from the command line. It only ever reads; every module's figures need your BMW files (EDIABAS mode). This is a strong check, not proof: a professional rollback that also resets the engine computer can still pass. Pending field validation.
+- **Typed-in jobs follow the same rules.** The Expert page and the command line's `job` command now refuse jobs that would flash a module, read or change keys or the immobiliser, change mileage, or write to the key module (apart from the steering lock counter reset).
+
 ## 0.99.22
 
 - **Downloads from the website no longer depend on GitHub's API.** Visitors on a busy mobile network could see "too many requests", and the backup link went to a page that doesn't exist yet for pre-release versions. The download buttons now link straight to the file for your computer, from a version file on the website that each release updates. Macs get the Apple silicon download with a link to the Intel one, and phones are told to open the page on a laptop.

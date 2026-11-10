@@ -72,6 +72,15 @@ Pump(200);
 Shot("33-drain-finder");
 if (!vm.Faults.Drain.HasClues) problems.Add("33-drain-finder: no clues on the demo car");
 vm.Faults.Drain.IsOpen = false;
+// Buying this car? with the mileage read from every module and an odometer that's been wound back.
+vm.Faults.Purchase!.IsOpen = true;
+vm.Faults.Purchase.Odometer = "72000";
+vm.Faults.Purchase.ReadMileageCommand.Execute(null);
+WaitUntil(() => vm.Faults.Purchase.HasMileage, 5000);
+Pump(200);
+Shot("39-mileage-check");
+if (!vm.Faults.Purchase.Items.Any(i => i.Title == "Mileage doesn't add up")) problems.Add("39-mileage-check: the wound-back odometer wasn't flagged");
+vm.Faults.Purchase.IsOpen = false;
 // What a cut-off job looks like: the banner that says what happened and what to do.
 vm.Session.Journal.Begin(new Klemme15.Core.RunningOperation
 {

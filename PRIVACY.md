@@ -38,6 +38,7 @@ Only when you ask, and only to these:
 
 - **Snapshots (`.k15`)** hold your car's modules, faults, dash messages, health trends, your note and, if you tick them, live data, test results, coding and the traffic log. The VIN is removed before the file is written; a VIN split across two messages in the traffic log can slip through, so skim it if that matters to you ([how snapshots work](docs/SNAPSHOTS.md)). Sharing the file is up to you.
 - **A forum post** (**Copy for a forum post**) leaves the VIN out.
+- **A buyer's report** (**Save buyer's report**) holds the pre-purchase check, including every mileage figure the modules remember and the odometer you typed. It leaves the VIN out. The mileage figures are only read when you press **Read the mileage from every module**, and aren't kept after you close Klemme15.
 - **A healthy baseline** (**Share as a healthy baseline**) saves a `.csv` with only engine values (engine speed, load, coolant, air mass, fuel trims, intake air, throttle), the engine code, the model and the Klemme15 version, and opens a GitHub form. Nothing is uploaded unless you attach it there yourself; then it's public, with your GitHub username as the contributor.
 - **Coding maps** (**Share this map**) hold a module's part number, coding index and option positions, no VIN. They're shared through a GitHub issue you submit.
 

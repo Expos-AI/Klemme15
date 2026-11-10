@@ -21,7 +21,7 @@ public enum CheckLevel { Good, Info, Ask, Warn }
 public sealed record PurchaseItem(CheckLevel Level, string Title, string Detail);
 
 /// <summary>A buyer's read of the car: what looks right, what to ask the seller, what to have checked.</summary>
-public sealed record PurchaseReport(IReadOnlyList<PurchaseItem> Items, IReadOnlyList<string> NotChecked)
+public sealed record PurchaseReport(IReadOnlyList<PurchaseItem> Items, IReadOnlyList<string> NotChecked, IReadOnlyList<MileageRecord>? Mileage = null)
 {
     public int Warnings => Items.Count(i => i.Level == CheckLevel.Warn);
     public int Questions => Items.Count(i => i.Level == CheckLevel.Ask);
@@ -37,34 +37,22 @@ public sealed record PurchaseReport(IReadOnlyList<PurchaseItem> Items, IReadOnly
 /// </summary>
 public static class PurchaseCheck
 {
-    /// <summary>Records are stored in steps (the cluster: 8 km); more than this above the odometer can't be rounding.</summary>
-    public const long MileageTolerance = 500;
-
-    public static PurchaseReport Assess(VehicleScanResult scan, VehicleModel? model, long? odometerKm = null)
+    /// <param name="stored">Mileage figures read from the modules themselves (<see cref="MileageReader"/>), if read.</param>
+    /// <param name="miles">Show distances in miles (with kilometres) for a car whose odometer reads in miles.</param>
+    public static PurchaseReport Assess(VehicleScanResult scan, VehicleModel? model, long? odometerKm = null,
+        IReadOnlyList<MileageRecord>? stored = null, bool miles = false)
     {
         var items = new List<PurchaseItem>();
         var notChecked = new List<string> { "Rust, leaks, tyres, brakes and suspension wear: look at the car, or have a workshop inspect it." };
         var answered = scan.Ecus.Where(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults).ToList();
         var faults = answered.SelectMany(e => e.Faults.Select(f => (e.Ecu, Fault: f, Verdict: FaultTriage.Assess(f)))).ToList();
 
-        // 1. Mileage: the highest mileage any module or the cluster's history recorded, against the odometer.
-        var records = new List<(long Km, string Where)>();
-        foreach (var (ecu, f, _) in faults)
-            if (f.Details.TryGetValue("Mileage", out var km) && ParseKm(km) is { } v && v > 0) records.Add((v, $"{ecu.Name} fault {f.Code}"));
-        foreach (var m in scan.CheckControl.Where(m => m.MileageKm is > 0)) records.Add((m.MileageKm!.Value, $"dash message {m.Code}"));
-        if (records.Count == 0)
-            notChecked.Add("Mileage cross-check: no module reported mileage with its records on this connection. With your own BMW files (EDIABAS mode), faults carry the mileage they happened at.");
-        else
-        {
-            var highest = records.MaxBy(r => r.Km);
-            if (odometerKm is { } odo && highest.Km > odo + MileageTolerance)
-                items.Add(new(CheckLevel.Warn, "Mileage doesn't add up",
-                    $"{highest.Where} was recorded at {highest.Km:N0} km, but the odometer shows {odo:N0} km. Either the odometer was wound back, or a module (often the cluster or the engine computer) came from a higher-mileage car. Ask for the service history and for any module replacements; if neither explains it, walk away."));
-            else
-                items.Add(new(CheckLevel.Good, "Mileage records are consistent",
-                    $"The highest mileage the car remembers is {highest.Km:N0} km ({highest.Where})." +
-                    (odometerKm is null ? " Compare it with the odometer: it should be the same or a little less." : $" The odometer shows {odometerKm:N0} km.")));
-        }
+        // 1. Mileage: every figure the car remembers (running counts, programming, faults, dash messages) against each
+        // other and the odometer.
+        var mileage = (stored ?? []).Concat(MileageAnalysis.FromScan(scan)).OrderByDescending(r => r.Km).ToList();
+        var (mileageItems, mileageNotChecked) = MileageAnalysis.Assess(mileage, odometerKm, miles);
+        items.AddRange(mileageItems);
+        notChecked.AddRange(mileageNotChecked);
 
         // 2. Faults that matter to a buyer.
         var active = faults.Where(x => x.Verdict.Priority == FaultPriority.FixNow).ToList();
@@ -118,7 +106,7 @@ public static class PurchaseCheck
         }
         else notChecked.Add("The car's story: the cluster gave no warning history on this connection.");
 
-        return new(items.OrderByDescending(i => i.Level).ToList(), notChecked);
+        return new(items.OrderByDescending(i => i.Level).ToList(), notChecked, mileage);
     }
 
     private static string ShortName(EcuDefinition ecu) => ecu.Id.Contains('.') ? ecu.Id[(ecu.Id.LastIndexOf('.') + 1)..] : ecu.Name;

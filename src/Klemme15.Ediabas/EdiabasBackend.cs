@@ -451,7 +451,10 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     }
 
     public Task<IReadOnlyList<IReadOnlyDictionary<string, string>>> RunJobAsync(string sgbd, string job, string arguments, CancellationToken ct = default) =>
-        Locked<IReadOnlyList<IReadOnlyDictionary<string, string>>>(() => RunJobCore(sgbd, job, arguments, ct), ct);
+        // Every job goes through here, so the refusals hold for the Expert page, the command line and service functions alike.
+        JobPolicy.Refusal(sgbd, job) is { } refusal
+            ? Task.FromException<IReadOnlyList<IReadOnlyDictionary<string, string>>>(new DiagnosticException(refusal))
+            : Locked<IReadOnlyList<IReadOnlyDictionary<string, string>>>(() => RunJobCore(sgbd, job, arguments, ct), ct);
 
     /// <summary>True if the currently resolved SGBD has this job.</summary>
     private bool JobExists(string job)

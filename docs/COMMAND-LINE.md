@@ -36,7 +36,8 @@ klemme15 scan --port COM3 --ecu "C:\ISTA\Ediabas\Ecu"   # or read texts from you
 
 Two folder options, both pointing at the `Ecu` folder of your EDIABAS, INPA or ISTA install:
 
-- `--ediabas <folder>` runs BMW's jobs from those files (EDIABAS mode, Windows): every module's readings, service functions, and `klemme15 job D_0012 IDENT --ediabas C:\EDIABAS\Ecu --port COM3` for any job.
+- `--ediabas <folder>` runs BMW's jobs from those files (EDIABAS mode, Windows): every module's readings, service functions, and `klemme15 job D_0012 IDENT --ediabas C:\EDIABAS\Ecu --port COM3` for any job, except the ones Klemme15 never runs (flashing, keys and the immobiliser, mileage changes, key module writes).
+- `klemme15 mileage --odometer 152000 --miles --ediabas C:\EDIABAS\Ecu --port COM3` reads the mileage every module remembers and compares it with the odometer. It exits with 1 when the figures don't add up. Without `--ediabas` it uses the fault and dash message records, plus the engine computer's count where Klemme15's own engine tables list it.
 - `--ecu <folder>` only reads BMW's fault texts from those files, on any system.
 
 For running Klemme15 unattended with a phone dashboard and MQTT, see [HEADLESS.md](HEADLESS.md).

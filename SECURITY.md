@@ -60,7 +60,7 @@ Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-
 ## How the project protects itself
 
 - No network access except what you ask for (see [PRIVACY.md](PRIVACY.md)).
-- No flashing, no key or immobiliser functions, no coding of the key, engine, gearbox, brake or airbag modules.
+- No flashing, no key or immobiliser functions, no coding of the key, engine, gearbox, brake or airbag modules. These rules are enforced where every BMW job runs (`JobPolicy`), so they also hold for jobs typed on the Expert page or the command line, and tests fail if a mileage job that could write is ever added.
 - Files from other people (snapshots, maps, baselines, chains) are size-limited, checked and validated before anything is shown or used.
 - CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; every workflow action is pinned to an exact commit, and Dependabot moves the pins forward.
 - Workflows run with read-only permissions unless a job needs more.

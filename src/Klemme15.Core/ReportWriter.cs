@@ -322,6 +322,16 @@ section{margin-top:24px}
                 sb.Append($"<tr><td>{tag}</td><td><b>{H(i.Title)}</b><br><span class=\"muted\">{H(i.Detail)}</span></td></tr>");
             }
             sb.Append("</table></div>");
+            if (purchase.Mileage is { Count: > 0 } mileage)
+            {
+                sb.Append("<h3>Mileage the car remembers</h3><div class=\"table-wrap\"><table><tr><th>Module</th><th>Figure</th><th>Kind</th><th>Mileage</th></tr>");
+                foreach (var r in mileage)
+                {
+                    var kind = r.Kind switch { MileageKind.Current => "Running count", MileageKind.Programmed => "At programming", MileageKind.Event => "Record", _ => "Reference (shown only)" };
+                    sb.Append($"<tr><td>{H(r.Module)}</td><td>{H(r.What)}</td><td>{kind}</td><td><code>{r.Km:N0} km</code></td></tr>");
+                }
+                sb.Append("</table></div>");
+            }
             if (purchase.NotChecked.Count > 0)
                 sb.Append("<p class=\"muted\">Not covered: " + string.Join(" ", purchase.NotChecked.Select(H)) + "</p>");
             sb.Append("<p class=\"muted\">A pre-purchase check reads what the car's modules remember. It is not a substitute for an inspection by a workshop.</p></section>");

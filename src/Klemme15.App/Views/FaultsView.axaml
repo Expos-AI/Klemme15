@@ -156,12 +156,15 @@
         <StackPanel Spacing="8" DataContext="{Binding Purchase}" x:DataType="vm:PurchaseCheckViewModel">
           <TextBlock Classes="section" FontSize="16" Text="{Binding Headline}" TextWrapping="Wrap" />
           <TextBlock Classes="muted small" TextWrapping="Wrap"
-                     Text="Looking at a used car? Type the odometer reading from the dash: Klemme15 compares it with the mileage the car's modules recorded, and looks for safety faults and signs of freshly cleared codes. Read-only." />
-          <StackPanel Orientation="Horizontal" Spacing="10">
-            <TextBox Watermark="Odometer reading (km, or tick Miles)" Text="{Binding Odometer}" Width="180" />
-            <CheckBox Content="Miles" IsChecked="{Binding Miles}" VerticalAlignment="Center" />
-            <Button Content="Save buyer's report..." Command="{Binding SaveCommand}" />
-          </StackPanel>
+                     Text="Looking at a used car? Type the odometer reading from the dash, then read the mileage the modules remember: the engine computer keeps its own count, so a wound-back cluster shows up. Klemme15 also looks for safety faults and signs of freshly cleared codes. Read-only: mileage is never changed." />
+          <WrapPanel>
+            <TextBox Watermark="Odometer reading" Text="{Binding Odometer}" Width="170" Margin="0,0,10,8" />
+            <CheckBox Content="Miles" IsChecked="{Binding Miles}" VerticalAlignment="Center" Margin="0,0,14,8" />
+            <Button Classes="primary" Content="Read the mileage from every module" Command="{Binding ReadMileageCommand}" Margin="0,0,10,8"
+                    ToolTip.Tip="Reads the mileage each module stores: the engine computer's and cluster's own counts, and when each module was last programmed. Read-only. Every module's figures need your BMW files (EDIABAS mode)." />
+            <Button Content="Save buyer's report..." Command="{Binding SaveCommand}" Margin="0,0,10,8" />
+          </WrapPanel>
+          <TextBlock Classes="muted small" Text="{Binding MileageStatus}" IsVisible="{Binding HasMileageStatus}" TextWrapping="Wrap" />
           <ItemsControl ItemsSource="{Binding Items}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:PurchaseItemViewModel">
@@ -180,6 +183,23 @@
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+          <!-- Every mileage figure the car remembers, highest first; red where it's above the odometer -->
+          <StackPanel Spacing="2" IsVisible="{Binding HasMileage}" Margin="0,4,0,4">
+            <TextBlock Classes="small" Text="Mileage the car remembers" FontWeight="SemiBold" />
+            <ItemsControl ItemsSource="{Binding Mileage}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:MileageRowViewModel">
+                  <Grid ColumnDefinitions="2*,3*,110,100" Margin="0,2">
+                    <TextBlock Classes="small" Text="{Binding Module}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Module}" Margin="0,0,8,0" />
+                    <TextBlock Grid.Column="1" Classes="muted small" Text="{Binding What}" TextWrapping="Wrap" Margin="0,0,8,0" />
+                    <TextBlock Grid.Column="2" Classes="muted small" Text="{Binding Kind}" />
+                    <TextBlock Grid.Column="3" Classes="small mono" Text="{Binding Figure}" HorizontalAlignment="Right"
+                               Classes.error="{Binding AboveOdometer}" FontWeight="SemiBold" />
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </StackPanel>
           <TextBlock Classes="small" Text="Not covered" FontWeight="SemiBold" />
           <ItemsControl ItemsSource="{Binding NotChecked}">
             <ItemsControl.ItemTemplate>

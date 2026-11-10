@@ -56,6 +56,9 @@ internal static class Cli
           coding --module <id> export --ncs <DATEN> --trc <FSW_PSW.TRC> [--out f] [--by name]
                                         After verifying, save this module's map to contribute to the shared database
           coding options                List the comfort options
+          mileage [--odometer N] [--miles]
+                                        Read the mileage every module remembers (read-only) and compare it with
+                                        the odometer: catches a wound-back cluster. Every module needs --ediabas.
           discover                      Probe every other address for modules the database doesn't list
           jobs    <sgbd>                List EDIABAS jobs in an SGBD (EDIABAS mode)
           job     <sgbd> <job> [args]   Run any EDIABAS job (EDIABAS mode)
@@ -320,6 +323,7 @@ internal static class Cli
                 "live" => await Live(backend, vehicle, a, cts.Token),
                 "serve" => await Serve(backend, vehicle, log, a, cts.Token, codes),
                 "discover" => await Discover(backend, vehicle, cts.Token),
+                "mileage" => await Mileage(backend, codes, vehicle, model, settings.Demo ? null : backend as IModuleReadings, a, cts.Token),
                 "coding" => await Coding(backend, db, vehicle, settings.Demo, log, a, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
                 "job" => await Job(backend, a, cts.Token),
@@ -530,6 +534,29 @@ internal static class Cli
                    m.Id.Equals(id, StringComparison.OrdinalIgnoreCase) ||
                    m.Id.EndsWith("." + id, StringComparison.OrdinalIgnoreCase))
                ?? throw new DiagnosticException($"Unknown module '{id}'. See 'klemme15 vehicles'.");
+    }
+
+    /// <summary>klemme15 mileage: every mileage figure the modules remember, against each other and the odometer. Read-only.</summary>
+    private static async Task<int> Mileage(IDiagnosticBackend backend, IFaultCodeDatabase db, VehicleFamily vehicle, VehicleModel? model,
+        IModuleReadings? readings, Args a, CancellationToken ct)
+    {
+        Console.WriteLine("Quick test first, to see which modules answer...");
+        var scan = await new VehicleScanner(backend, db).ScanAsync(vehicle.Modules, vehicle.Id, null, ct);
+        var answered = scan.Ecus.Where(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults).Select(e => e.Ecu).ToList();
+        Console.WriteLine($"{answered.Count} modules answered. Reading the mileage they remember (read-only)...");
+        var stored = await MileageReader.ReadAsync(backend, readings, answered, new Progress<string>(t => Console.Error.WriteLine("  " + t)), ct);
+        var miles = a.Has("miles");
+        long? odometer = a.Get("odometer") is { } o && MileageReader.Parse(o) is { } n ? (long)Math.Round(miles ? n * 1.609344 : n) : null;
+        var report = PurchaseCheck.Assess(scan, model, odometer, stored, miles);
+        Console.WriteLine();
+        foreach (var r in report.Mileage ?? [])
+            Console.WriteLine($"  {(miles ? $"{r.Km / 1.609344:N0} mi" : $"{r.Km:N0} km"),14}  {r.Kind,-10}  {r.Module}: {r.What}");
+        Console.WriteLine();
+        foreach (var i in report.Items.Where(i => i.Title.Contains("ileage", StringComparison.Ordinal) || i.Title.Contains("counted", StringComparison.Ordinal)))
+            Console.WriteLine($"[{i.Level}] {i.Title}\n  {i.Detail}");
+        foreach (var note in report.NotChecked.Where(x => x.Contains("ileage", StringComparison.Ordinal)))
+            Console.WriteLine($"Not checked: {note}");
+        return report.Items.Any(i => i.Level == CheckLevel.Warn && (i.Title.Contains("ileage", StringComparison.Ordinal) || i.Title.Contains("counted", StringComparison.Ordinal))) ? 1 : 0;
     }
 
     private static async Task<int> Scan(IDiagnosticBackend backend, IFaultCodeDatabase db, VehicleFamily vehicle, Args a, CancellationToken ct)
