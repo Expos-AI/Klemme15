@@ -18,8 +18,8 @@ Release from Actions: run the **build** workflow with the version (e.g. `v0.19.0
 
 Description:
 
-> Free, open-source, offline BMW diagnostics for E-series owners (E46, E90 and more): scan every module, decode faults and dash warnings, catch intermittent faults, track your car's health over time, run graphed component tests and service functions, back up and code comfort modules. Windows, macOS, Linux.
+> Free, open-source BMW E-series diagnostics that run offline on your laptop with a K+DCAN cable. Read and clear every module's faults in plain English, watch live data, catch intermittent faults, run guided tests and service functions, and back up your coding. E46, E90 family, E60, E70, X1, Z4 and more. Windows, macOS, Linux.
 
-Website: `https://github.com/Expos-AI/Klemme15/releases/latest`
+Website: `https://expos-ai.github.io/Klemme15/`
 
 Topics: `bmw` `diagnostics` `obd2` `right-to-repair` `e90` `e46` `ediabas` `kdcan` `car-diagnostics` `automotive` `open-source` `dotnet` `avalonia`

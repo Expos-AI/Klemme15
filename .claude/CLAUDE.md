@@ -6,7 +6,8 @@ Klemme15 is free, open-source, offline BMW E-series diagnostics for owners with 
 
 Update everything a visitor or user reads, in the same push, so the project always looks professional, current and trustworthy:
 
-- `README.md`, the website (`docs/index.html`), `.github/release-notes.md`, `docs/ROADMAP.md`, `PRIVACY.md` (anything new saved to disk or sent online), `SECURITY.md`, `CONTRIBUTING.md`, and the `docs/*.md` page for the feature.
+- `README.md`, the website (`docs/index.html`), `.github/release-notes.md` (this version only) and `CHANGELOG.md` (every version), `docs/ROADMAP.md`, `PRIVACY.md` (anything new saved to disk or sent online), `SECURITY.md`, `CONTRIBUTING.md`, and the `docs/*.md` page for the feature.
+- The repository's About box (description, website, topics) can't be edited from a session. When a change makes it out of date (new car families, a headline feature), give the maintainer the new text to paste, under GitHub's 350-character limit.
 - The full checklist is in [docs/RELEASING.md](../docs/RELEASING.md). The docs tests check versions, counts and links; the rest is on you.
 - Write for owners: what they can do now, in plain words. No claims that aren't true or confirmed.
 
