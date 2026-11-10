@@ -75,6 +75,10 @@ Klemme15 isn't signed with a paid Microsoft or Apple certificate yet, so both sy
 
 After that it opens normally. Every release comes with `SHA256SUMS.txt` and a signed build provenance, so you can [check your download](SECURITY.md#verifying-your-download) before you run it, and the whole source is here to read.
 
+### Updating
+
+Press the **arrow button** at the bottom of the sidebar to check for a newer version. When there is one, **Download** gets the file for your computer: unzip it and use it in place of the old folder (your settings, cars and history are kept, since they live in your user folder). Klemme15 also asks once whether to check by itself when it starts, at most once a day. With Scoop, run `scoop update klemme15`.
+
 ## Quick start
 
 1. Plug the cable into the OBD port under the dashboard and set its switch: **K-line** for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36, **D-CAN** for the E90 family and newer.

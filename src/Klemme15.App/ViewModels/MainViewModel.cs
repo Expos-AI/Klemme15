@@ -94,6 +94,20 @@ public sealed class MainViewModel : ViewModelBase
         CoffeeCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Coffee));
 
         DismissInterruptedCommand = new RelayCommand(Session.DismissInterrupted);
+        _settings = settings;
+        CheckUpdatesCommand = new AsyncCommand(() => CheckForUpdateAsync(manual: true), () => !_checkingUpdate);
+        DownloadUpdateCommand = new RelayCommand(() => { if (_update is { } u) _ = dialogs.OpenUrlAsync(u.DownloadUrl); });
+        UpdateNotesCommand = new RelayCommand(() => { if (_update is { } u) _ = dialogs.OpenUrlAsync(u.ReleaseUrl); });
+        SkipUpdateCommand = new RelayCommand(() =>
+        {
+            if (_update is { } u) { _settings.SkippedUpdate = u.Tag; _settings.Save(); }
+            SetUpdate(null, "");
+        });
+        DismissUpdateCommand = new RelayCommand(() => SetUpdate(null, ""));
+        AllowUpdateChecksCommand = new RelayCommand(() => AnswerUpdateQuestion(true));
+        DeclineUpdateChecksCommand = new RelayCommand(() => AnswerUpdateQuestion(false));
+        if (_settings.CheckUpdatesOnStart == true && (_settings.LastUpdateCheck is not { } last || DateTimeOffset.Now - last > TimeSpan.FromHours(20)))
+            _ = CheckForUpdateAsync(manual: false);
         CloseSnapshotCommand = new AsyncCommand(async () => { await Session.DisconnectAsync(); CurrentPage = Garage; }, () => !Session.JobRunning);
         Session.PropertyChanged += (_, e) =>
         {
@@ -148,6 +162,88 @@ public sealed class MainViewModel : ViewModelBase
     public string InterruptedAdvice => Session.InterruptedAdvice;
     public string InterruptedHeadline => Session.InterruptedHeadline;
     public RelayCommand DismissInterruptedCommand { get; }
+
+    // ---------------------------------------------------------------- updates
+
+    private readonly AppSettings _settings;
+    private Klemme15.Data.AvailableUpdate? _update;
+    private string _updateMessage = "";
+    private bool _checkingUpdate;
+
+    /// <summary>The running version, for comparing with the newest release.</summary>
+    public static System.Version CurrentVersion => typeof(MainViewModel).Assembly.GetName().Version ?? new System.Version(0, 0, 0);
+
+    public AsyncCommand CheckUpdatesCommand { get; }
+    public RelayCommand DownloadUpdateCommand { get; }
+    public RelayCommand UpdateNotesCommand { get; }
+    public RelayCommand SkipUpdateCommand { get; }
+    public RelayCommand DismissUpdateCommand { get; }
+    public RelayCommand AllowUpdateChecksCommand { get; }
+    public RelayCommand DeclineUpdateChecksCommand { get; }
+
+    /// <summary>A newer version is available: the banner with Download, What's new and Skip.</summary>
+    public bool HasUpdate => _update is not null;
+
+    /// <summary>"Klemme15 v0.99.24 is available (you have 0.99.23)." or the result of a manual check.</summary>
+    public string UpdateMessage => _updateMessage;
+    public bool HasUpdateMessage => _updateMessage.Length > 0;
+
+    /// <summary>Ask once whether to check on start (the privacy policy promises no network access unless asked).</summary>
+    public bool AskUpdateChecks => _settings.CheckUpdatesOnStart is null && _settings.AcceptedNotice > 0;
+
+    private void SetUpdate(Klemme15.Data.AvailableUpdate? update, string message)
+    {
+        _update = update;
+        _updateMessage = message;
+        foreach (var p in new[] { nameof(HasUpdate), nameof(UpdateMessage), nameof(HasUpdateMessage) }) Raise(p);
+    }
+
+    private void AnswerUpdateQuestion(bool yes)
+    {
+        _settings.CheckUpdatesOnStart = yes;
+        _settings.Save();
+        Raise(nameof(AskUpdateChecks));
+        if (yes) _ = CheckForUpdateAsync(manual: false);
+    }
+
+    /// <summary>Shows the "newer version" banner for an update found elsewhere (the screenshot tool uses it).</summary>
+    public void ShowAvailableUpdate(Klemme15.Data.AvailableUpdate update) =>
+        SetUpdate(update, $"Klemme15 {update.Tag} is available. You have {CurrentVersion.ToString(3)}.");
+
+    /// <summary>Raised once the first-launch notice is accepted, so the update question can appear.</summary>
+    public void NoticeAccepted() => Raise(nameof(AskUpdateChecks));
+
+    private async Task CheckForUpdateAsync(bool manual)
+    {
+        if (_checkingUpdate) return;
+        _checkingUpdate = true;
+        OnUi(CheckUpdatesCommand.RaiseCanExecuteChanged);
+        if (manual) OnUi(() => SetUpdate(null, "Checking for a newer version..."));
+        try
+        {
+            var update = await Klemme15.Data.UpdateCheck.CheckAsync(CurrentVersion);
+            _settings.LastUpdateCheck = DateTimeOffset.Now;
+            _settings.Save();
+            var current = CurrentVersion.ToString(3);
+            OnUi(() =>
+            {
+                if (update is not null && (manual || update.Tag != _settings.SkippedUpdate))
+                    SetUpdate(update, $"Klemme15 {update.Tag} is available. You have {current}.");
+                else
+                    SetUpdate(null, manual ? $"You have the latest version ({current})." : "");
+            });
+        }
+        catch (Exception) when (!manual) { /* a quiet check on start never bothers anyone */ }
+        catch (Exception)
+        {
+            OnUi(() => SetUpdate(null, "Couldn't reach the Klemme15 website to check. Try again later, or see the Releases page on GitHub."));
+        }
+        finally
+        {
+            _checkingUpdate = false;
+            OnUi(CheckUpdatesCommand.RaiseCanExecuteChanged);
+        }
+    }
 
     // ---------------------------------------------------------------- who is using the cable
 

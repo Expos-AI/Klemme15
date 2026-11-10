@@ -117,6 +117,8 @@ public static class Icons
     public static readonly Geometry Info = StreamGeometry.Parse("M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20zm-1 5h2v2h-2zm0 4h2v6h-2z");
     public static readonly Geometry Support = StreamGeometry.Parse("M12 2a10 10 0 1 0 0 20 10 10 0 1 0 0-20zm0 15.5a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4zm0-11c-2 0-3.4 1.2-3.6 3.1l1.9.3c.1-1 .7-1.6 1.6-1.6.9 0 1.5.5 1.5 1.3 0 .7-.3 1-1.2 1.6-1 .7-1.6 1.4-1.5 2.8h1.9c0-.8.3-1.2 1.2-1.8 1-.7 1.7-1.5 1.7-2.8 0-1.8-1.5-2.9-3.5-2.9z");
     public static readonly Geometry Privacy = StreamGeometry.Parse("M12 2 4 5v6c0 5 3.4 8.6 8 11 4.6-2.4 8-6 8-11V5zm0 2.2 6 2.2V11c0 3.8-2.5 6.7-6 8.7-3.5-2-6-4.9-6-8.7V6.4z");
+    /// <summary>An arrow into a tray: check for updates.</summary>
+    public static readonly Geometry Update = StreamGeometry.Parse("M11 3h2v9.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3zM4 15h2v4h12v-4h2v6H4z");
     public static readonly Geometry Coffee = StreamGeometry.Parse("M4 8h14v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zm14 0h2a3 3 0 0 1 0 6h-2zM7 2h2v3H7zm4 0h2v3h-2zM3 21h16v2H3z");
     public static readonly Geometry Analyse = StreamGeometry.Parse("M3 3v18h18v-2H5V3zm4 11 3-3 3 3 5-6-1.4-1.4L15 11l-3-3-5 5z");
     public static readonly Geometry Coding = StreamGeometry.Parse("M9 2v2H7a2 2 0 0 0-2 2v2H3v2h2v2H3v2h2v2a2 2 0 0 0 2 2h2v2h2v-2h2v2h2v-2h2a2 2 0 0 0 2-2v-2h2v-2h-2v-2h2V8h-2V6a2 2 0 0 0-2-2h-2V2h-2v2h-2V2zM7 6h10v12H7zm2 3v6h6V9z");

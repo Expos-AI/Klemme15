@@ -137,6 +137,7 @@ public partial class App : Application
             {
                 settings.AcceptedNotice = NoticeText.Version;
                 settings.Save();
+                main.NoticeAccepted();   // the one-time "check for updates on start?" question can show now
             }
             else desktop.Shutdown();
         };

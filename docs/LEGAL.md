@@ -70,7 +70,7 @@ Fault meanings, tips, guides and diagnostic chains come from public research by 
 
 ## Privacy
 
-Klemme15 runs on your computer, with no account, no server and no analytics. It goes online only when you ask (downloading the fault database or coding maps, translating a fault text, opening a link) and never sends anything about your car on its own. What it keeps on your computer, where, and what goes into files you choose to share is listed in the [privacy policy](../PRIVACY.md). The VIN is left out of forum posts, snapshots, captures and history (the policy explains the one exception, a traffic log you choose to include).
+Klemme15 runs on your computer, with no account, no server and no analytics. It goes online only when you ask (downloading the fault database or coding maps, translating a fault text, opening a link, checking for a newer version, or checking on start if you said yes) and never sends anything about your car on its own. What it keeps on your computer, where, and what goes into files you choose to share is listed in the [privacy policy](../PRIVACY.md). The VIN is left out of forum posts, snapshots, captures and history (the policy explains the one exception, a traffic log you choose to include).
 
 ## How Klemme15 is made
 

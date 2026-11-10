@@ -10,7 +10,7 @@ Klemme15 also keeps these files by itself, in a `Klemme15` folder in your user's
 
 | File or folder | What's in it | When |
 |---|---|---|
-| `settings.json` | Your last car and port, folder paths you chose, the experimental switch, your live data favourites, which version of the "Before you start" notice you confirmed, and whether you accepted the notice for the third-party fault database | When you change a setting |
+| `settings.json` | Your last car and port, folder paths you chose, the experimental switch, your live data favourites, which version of the "Before you start" notice you confirmed, whether you accepted the notice for the third-party fault database, and your update-check choice (on or off, when it last checked, a version you skipped) | When you change a setting |
 | `history/` | A small summary of each quick test of a real car: date, model, approximate mileage, battery voltage, engine speed, coolant temperature, fuel trims, fault codes, dash message numbers, module part numbers, and your guided test results. **No VIN**: cars are told apart by a one-way hash of the VIN, or, for older cars that don't report it, of their engine module's and cluster's part numbers. **Forget** under *Your cars* removes a car | After each quick test and guided test |
 | `coding-backups/` | A copy of a module's coding, taken before every coding change and restore. Some modules keep the VIN in their coding, so a backup can contain it | Before every write |
 | `captures/` | Ghost Hunter captures, saved as snapshots with the VIN removed | While the Ghost Hunter watches |
@@ -32,6 +32,7 @@ Only when you ask, and only to these:
 | **Get the latest community maps** (Coding page) | raw.githubusercontent.com (this project) | Nothing about your car |
 | **Translate** a BMW fault text | Google Translate, in your browser | That fault's German text |
 | Open a link (About, help, privacy, the PayPal tip page) | That page, in your browser | Nothing about your car |
+| **Check for updates** (the arrow button), or start Klemme15 after you said yes to checking on start (at most once a day) | expos-ai.github.io (this project's website), for one small file, `latest.json` | Nothing: not your version, not anything about you or your car. Klemme15 compares the version itself and never downloads or installs an update on its own |
 | Connect a Wi-Fi cable, or run `klemme15 serve` | Only the devices and the MQTT broker you set up, on your own network | Your car's live data, to them |
 
 ## Things you choose to share

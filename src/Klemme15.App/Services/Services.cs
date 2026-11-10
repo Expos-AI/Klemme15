@@ -161,6 +161,15 @@ public sealed class AppSettings
     /// <summary>Lets service functions that haven't been confirmed on a real car run. Off by default.</summary>
     public bool ExperimentalService { get; set; }
 
+    /// <summary>Check for a newer version when Klemme15 starts (null: not asked yet). Off until the person says yes.</summary>
+    public bool? CheckUpdatesOnStart { get; set; }
+
+    /// <summary>When Klemme15 last looked for a newer version (at most once a day on start).</summary>
+    public DateTimeOffset? LastUpdateCheck { get; set; }
+
+    /// <summary>A version the person chose to skip: its banner doesn't come back.</summary>
+    public string? SkippedUpdate { get; set; }
+
     /// <summary>The user's NCS Expert data folder (e.g. C:\NCSEXPER\DATEN), for naming coding settings.</summary>
     public string? NcsFolder { get; set; }
     public List<FavoriteParameter> LiveFavorites { get; set; } = [];

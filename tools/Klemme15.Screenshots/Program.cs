@@ -279,6 +279,18 @@ foreach (var page in vm.Pages)
 }
 vm.CurrentPage = vm.Vehicle;
 if (vm.Vehicle.Markers.FirstOrDefault(m => m.IsFaultSource) is { } src) { vm.Vehicle.Select(src); Shot("s-vehicle-selected"); vm.Vehicle.Select(null); }
+// The update banner, and the one-time question about checking on start.
+window.Width = 1280; window.Height = 720;
+vm.CurrentPage = vm.Garage;
+vm.ShowAvailableUpdate(Klemme15.Data.UpdateCheck.FromJson("{\"tag\": \"v9.9.9\"}", new Version(0, 0, 1))!);
+Shot("40-update-available");
+vm.DismissUpdateCommand.Execute(null);
+settings.AcceptedNotice = 1;
+vm.NoticeAccepted();
+Shot("41-update-question");
+settings.AcceptedNotice = 0;
+vm.NoticeAccepted();
+
 // Every page in a small window (a window not maximised on a laptop): nothing may run off the edge or overlap.
 window.Width = 1024; window.Height = 640;
 foreach (var page in vm.Pages)
