@@ -184,6 +184,11 @@ vm.Service.RunCommand.Execute(null);
 WaitUntil(() => vm.Service.HasResult);
 Shot("18-service");
 vm.Service.Experimental = false;
+vm.Service.DueCommand.Execute(null);
+WaitUntil(() => vm.Service.DueItems.Count > 0);
+Shot("45-service-due");
+if (vm.Service.DueItems.Count < 5) problems.Add("45-service-due: the demo list is missing items");
+vm.Service.CloseDueCommand.Execute(null);
 vm.CurrentPage = vm.Coding;
 Pump(100);
 if (vm.Coding.Modules.FirstOrDefault(m => m.Ecu.Id.EndsWith(".FRM", StringComparison.Ordinal)) is { } footwell)

@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klemme15 · Open a snapshot</title>
+  <meta name="description" content="Open a Klemme15 snapshot (.k15) in your browser, without installing anything. The file is read on your own device and never uploaded.">
+  <link rel="icon" href="brand/klemme15-icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #121417; --surface: #191c20; --raised: #1f2329; --line: #2b3037; --ink: #e4e8ec; --muted: #8f99a4;
+      --lit: #8ccbea; --lit-soft: rgba(140, 203, 234, 0.12); --amber: #f2a93b; --red: #ef5b4c; --green: #6fcf8e;
+      --radius: 14px;
+      --display: "Barlow Condensed", "Barlow", system-ui, sans-serif;
+      --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+      --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.55 var(--body); -webkit-font-smoothing: antialiased; }
+    a { color: var(--lit); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    :focus-visible { outline: 2px solid var(--lit); outline-offset: 3px; border-radius: 6px; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 0 16px; }
+    header.nav { border-bottom: 1px solid var(--line); }
+    header.nav .wrap { display: flex; align-items: center; gap: 16px; height: 60px; }
+    header.nav img { height: 28px; width: auto; }
+    header.nav a.back { margin-left: auto; font-size: 15px; font-weight: 500; color: var(--muted); }
+    h1 { font: 700 clamp(30px, 6vw, 44px)/1.1 var(--display); margin: 36px 0 10px; text-wrap: balance; }
+    h2 { font: 700 24px/1.2 var(--display); margin: 34px 0 12px; }
+    p.lead { color: var(--muted); max-width: 62ch; margin: 0 0 22px; }
+    #drop { border: 2px dashed var(--line); border-radius: var(--radius); background: var(--surface); padding: 34px 20px; text-align: center; }
+    #drop.over { border-color: var(--lit); background: var(--lit-soft); }
+    #drop p { margin: 0 0 14px; color: var(--muted); }
+    button, .btn { font: 600 16px var(--body); color: #0d1117; background: var(--lit); border: 0; border-radius: 10px; padding: 11px 20px; cursor: pointer; }
+    button.quiet { background: var(--raised); color: var(--ink); border: 1px solid var(--line); }
+    #error { display: none; margin-top: 16px; padding: 12px 16px; border: 1px solid var(--red); border-radius: 10px; color: #ffd0ca; background: rgba(239, 91, 76, 0.1); }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 18px; margin: 0 0 12px; }
+    .note { border-left: 3px solid var(--lit); }
+    .meta { color: var(--muted); font-size: 15px; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 16px 0; }
+    .stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+    .stat b { display: block; font: 700 28px/1.1 var(--display); font-variant-numeric: tabular-nums; }
+    .stat span { color: var(--muted); font-size: 14px; }
+    .code { font: 500 14px var(--mono); color: var(--lit); background: var(--lit-soft); border-radius: 6px; padding: 2px 7px; white-space: nowrap; }
+    .tag { font-size: 13px; font-weight: 600; border-radius: 999px; padding: 2px 9px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+    .tag.now { color: var(--red); border-color: var(--red); }
+    .tag.warn { color: var(--amber); border-color: var(--amber); }
+    .tag.ok { color: var(--green); border-color: var(--green); }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .card h3 { font: 600 17px/1.35 var(--body); margin: 0 0 4px; }
+    .card p { margin: 4px 0 0; }
+    .hint { color: var(--muted); font-size: 15.5px; }
+    .module { font: 700 19px var(--display); letter-spacing: .01em; margin: 22px 0 8px; }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: 15px; }
+    th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    th { color: var(--muted); font-weight: 500; }
+    td.num { font-family: var(--mono); font-size: 14px; }
+    details { margin: 6px 0 0; }
+    summary { cursor: pointer; color: var(--muted); font-size: 15px; }
+    svg.spark { width: 100%; height: 54px; display: block; }
+    footer { color: var(--muted); font-size: 14.5px; border-top: 1px solid var(--line); margin-top: 48px; padding: 20px 0 40px; }
+    #car { display: none; }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap">
+      <a href="./" aria-label="Klemme15 home"><img src="brand/klemme15-lockup-dark.svg" alt="Klemme15" width="111" height="28"></a>
+      <a class="back" href="./">Back to the website</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section id="start">
+      <h1>Open a snapshot in your browser</h1>
+      <p class="lead">Someone sent you a <b>.k15</b> file? Open it here to see the car's modules, faults and dash messages without installing anything. The file is read on your own device and is never uploaded.</p>
+      <div id="drop">
+        <p>Drop a .k15 file here, or</p>
+        <button id="pick" type="button">Choose a file...</button>
+        <input id="file" type="file" accept=".k15,.zip" hidden>
+      </div>
+      <div id="error" role="alert"></div>
+    </section>
+
+    <section id="car">
+      <h1 id="title"></h1>
+      <p class="meta" id="sub"></p>
+      <div id="body"></div>
+      <p style="margin-top:28px"><button class="quiet" id="again" type="button">Open another snapshot</button></p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      This page shows the main parts of a snapshot. Health trends, live data replay and graphs open in the <a href="./#download">Klemme15 app</a>, which is free.
+      A snapshot never contains the VIN. Klemme15 isn't affiliated with BMW AG.
+    </div>
+  </footer>
+
+  <script>
+  (() => {
+    "use strict";
+    // The same limits and file names the app accepts (src/Klemme15.Core/Snapshot.cs).
+    const MAX_FILE = 25 * 1024 * 1024, MAX_ENTRY = 20 * 1024 * 1024, MAX_TOTAL = 60 * 1024 * 1024, MAX_ENTRIES = 64;
+    const ALLOWED = /^(manifest\.json|scan\.json|live\.csv|log\.txt|tests\/[a-z0-9-]{1,40}-\d{1,3}\.json|coding\/[A-Za-z0-9]{1,12}\.json)$/;
+    const $ = id => document.getElementById(id);
+
+    // Every piece of text from the file goes in through textContent, never as HTML.
+    function el(tag, cls, text) {
+      const e = document.createElement(tag);
+      if (cls) e.className = cls;
+      if (text !== undefined && text !== null) e.textContent = String(text);
+      return e;
+    }
+    const str = v => typeof v === "string" ? v : "";
+    const list = v => Array.isArray(v) ? v : [];
+
+    async function inflate(bytes) {
+      if (typeof DecompressionStream === "undefined") throw new Error("This browser is too old to open snapshots. Try a current Chrome, Edge, Firefox or Safari.");
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+      const reader = stream.getReader();
+      const parts = []; let total = 0;
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        total += value.length;
+        if (total > MAX_ENTRY) { reader.cancel(); throw new Error("A part of this file is larger than a snapshot can be."); }
+        parts.push(value);
+      }
+      const out = new Uint8Array(total); let at = 0;
+      for (const p of parts) { out.set(p, at); at += p.length; }
+      return out;
+    }
+
+    async function unzip(buffer) {
+      const v = new DataView(buffer), n = buffer.byteLength;
+      let eocd = -1;
+      for (let i = n - 22; i >= Math.max(0, n - 22 - 65535); i--) if (v.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+      if (eocd < 0) throw new Error("This isn't a Klemme15 snapshot (it isn't a zip file).");
+      const count = v.getUint16(eocd + 10, true);
+      let at = v.getUint32(eocd + 16, true);
+      if (count > MAX_ENTRIES) throw new Error("This file has more parts than a snapshot can have.");
+      const files = new Map(); let total = 0;
+      for (let i = 0; i < count; i++) {
+        if (at + 46 > n || v.getUint32(at, true) !== 0x02014b50) throw new Error("This snapshot is damaged.");
+        const method = v.getUint16(at + 10, true), csize = v.getUint32(at + 20, true), usize = v.getUint32(at + 24, true);
+        const nameLen = v.getUint16(at + 28, true), extraLen = v.getUint16(at + 30, true), commentLen = v.getUint16(at + 32, true);
+        const local = v.getUint32(at + 42, true);
+        const name = new TextDecoder().decode(new Uint8Array(buffer, at + 46, nameLen));
+        at += 46 + nameLen + extraLen + commentLen;
+        if (!ALLOWED.test(name)) continue; // anything unexpected is ignored
+        total += usize;
+        if (usize > MAX_ENTRY || total > MAX_TOTAL) throw new Error("This file is larger than a snapshot can be.");
+        if (local + 30 > n || v.getUint32(local, true) !== 0x04034b50) throw new Error("This snapshot is damaged.");
+        const start = local + 30 + v.getUint16(local + 26, true) + v.getUint16(local + 28, true);
+        if (start + csize > n) throw new Error("This snapshot is damaged.");
+        const raw = new Uint8Array(buffer, start, csize);
+        if (method === 0) files.set(name, raw);
+        else if (method === 8) files.set(name, await inflate(raw));
+        else throw new Error("This snapshot uses a compression this page can't read.");
+      }
+      return files;
+    }
+
+    async function sha256(bytes) {
+      const d = new Uint8Array(await crypto.subtle.digest("SHA-256", bytes));
+      return Array.from(d, b => b.toString(16).padStart(2, "0")).join("");
+    }
+
+    async function open(file) {
+      if (file.size > MAX_FILE) throw new Error("This file is larger than a snapshot can be.");
+      const files = await unzip(await file.arrayBuffer());
+      const text = name => new TextDecoder().decode(files.get(name));
+      if (!files.has("manifest.json") || !files.has("scan.json")) throw new Error("This isn't a Klemme15 snapshot.");
+      const manifest = JSON.parse(text("manifest.json"));
+      if (manifest.Format !== "klemme15-snapshot") throw new Error("This isn't a Klemme15 snapshot.");
+      if (manifest.Version > 1) throw new Error("This snapshot was made by a newer Klemme15 than this page understands. Open it in the app.");
+      for (const s of list(manifest.Sections)) {
+        const data = files.get(str(s.Name));
+        if (!data || (await sha256(data)) !== str(s.Sha256).toLowerCase())
+          throw new Error("This snapshot is damaged or was changed after it was saved (a checksum doesn't match).");
+      }
+      const listed = new Set(list(manifest.Sections).map(s => s.Name));
+      for (const name of [...files.keys()]) if (name !== "manifest.json" && !listed.has(name)) files.delete(name);
+      const tests = [...files.keys()].filter(k => k.startsWith("tests/")).sort().map(k => JSON.parse(text(k)));
+      return { manifest, scan: JSON.parse(text("scan.json")), tests, live: files.has("live.csv") ? text("live.csv") : "", hasLog: files.has("log.txt"),
+               coding: [...files.keys()].filter(k => k.startsWith("coding/")).length };
+    }
+
+    function faultCard(f) {
+      const c = el("div", "card");
+      const row = el("div", "row");
+      row.append(el("span", "code", str(f.Code)));
+      const present = f.State === "Present";
+      row.append(el("span", "tag" + (present ? " now" : ""), str(f.MemoryLabel) || str(f.State)));
+      if (f.UsuallyHarmless) row.append(el("span", "tag ok", "Usually harmless"));
+      c.append(row);
+      c.append(el("h3", "", str(f.DisplayDescription) || str(f.Description) || "No description for this code yet"));
+      if (str(f.Hint)) c.append(el("p", "hint", f.Hint));
+      const details = f.Details && typeof f.Details === "object" ? Object.entries(f.Details) : [];
+      if (details.length) {
+        const d = el("details"); d.append(el("summary", "", "Details stored with the fault"));
+        const t = el("table");
+        for (const [k, val] of details.slice(0, 40)) { const tr = el("tr"); tr.append(el("th", "", k), el("td", "num", val)); t.append(tr); }
+        const s = el("div", "scroll"); s.append(t); d.append(s); c.append(d);
+      }
+      return c;
+    }
+
+    function spark(values) {
+      const ns = "http://www.w3.org/2000/svg", w = 600, h = 54;
+      const lo = Math.min(...values), hi = Math.max(...values), span = hi - lo || 1;
+      const pts = values.map((y, i) => `${(i / Math.max(1, values.length - 1) * w).toFixed(1)},${(h - 4 - (y - lo) / span * (h - 8)).toFixed(1)}`).join(" ");
+      const svg = document.createElementNS(ns, "svg"); svg.setAttribute("viewBox", `0 0 ${w} ${h}`); svg.setAttribute("preserveAspectRatio", "none"); svg.setAttribute("class", "spark");
+      const line = document.createElementNS(ns, "polyline"); line.setAttribute("points", pts); line.setAttribute("fill", "none"); line.setAttribute("stroke", "#8ccbea"); line.setAttribute("stroke-width", "1.6"); line.setAttribute("vector-effect", "non-scaling-stroke");
+      svg.append(line); return svg;
+    }
+
+    function parseCsv(csv) {
+      const lines = csv.split(/\r?\n/).filter(Boolean);
+      if (lines.length < 3) return [];
+      const split = l => { const out = []; let cur = "", q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === "," && !q) { out.push(cur); cur = ""; } else cur += ch; } out.push(cur); return out; };
+      const head = split(lines[0]), rows = lines.slice(1, 5001).map(split);
+      return head.slice(1, 25).map((name, i) => ({ name, values: rows.map(r => parseFloat(r[i + 1])).filter(Number.isFinite) })).filter(c => c.values.length > 1);
+    }
+
+    function show(snap) {
+      const { manifest: m, scan } = snap, body = $("body");
+      body.replaceChildren();
+      $("title").textContent = str(m.Chassis) || str(m.ModelName) || "A shared car";
+      const when = new Date(str(m.Created));
+      $("sub").textContent = "Snapshot" + (isNaN(when) ? "" : " saved " + when.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })) + (str(m.App) ? " with Klemme15 " + m.App : "") + ". Read-only.";
+
+      if (str(m.Note)) { const n = el("div", "card note"); n.append(el("div", "meta", "The owner's note")); n.append(el("p", "", m.Note)); body.append(n); }
+      if (m.Trigger && str(m.Trigger.Title)) { const n = el("div", "card note"); n.append(el("div", "meta", "Saved by the Ghost Hunter")); n.append(el("p", "", m.Trigger.Title)); body.append(n); }
+
+      const ecus = list(scan.Ecus), answered = ecus.filter(e => e.Status !== "NoResponse");
+      const faults = answered.flatMap(e => list(e.Faults).filter(f => !f.IsInfo && !f.IsShadow));
+      const stats = el("div", "stats");
+      const stat = (n, label) => { const s = el("div", "stat"); s.append(el("b", "", n), el("span", "", label)); stats.append(s); };
+      stat(answered.length, "modules answered");
+      stat(faults.length, faults.length === 1 ? "fault" : "faults");
+      stat(faults.filter(f => f.State === "Present").length, "present now");
+      const active = list(scan.CheckControl).filter(c => c.Active);
+      stat(active.length, "dash messages showing");
+      body.append(stats);
+
+      body.append(el("h2", "", "Faults"));
+      const withFaults = answered.filter(e => list(e.Faults).length);
+      if (!withFaults.length) body.append(el("p", "hint", "No faults were stored when this snapshot was saved."));
+      for (const e of withFaults) {
+        body.append(el("div", "module", str(e.Ecu && e.Ecu.Name)));
+        const all = list(e.Faults), main = all.filter(f => !f.IsInfo && !f.IsShadow), other = all.filter(f => f.IsInfo || f.IsShadow);
+        for (const f of main) body.append(faultCard(f));
+        if (other.length) {
+          const d = el("details"); d.append(el("summary", "", `${other.length} info or shadow ${other.length === 1 ? "entry" : "entries"} (background records, usually no action needed)`));
+          for (const f of other) d.append(faultCard(f));
+          body.append(d);
+        }
+      }
+
+      const cc = list(scan.CheckControl);
+      if (cc.length) {
+        body.append(el("h2", "", "Dash messages"));
+        for (const c of cc.slice(0, 60)) {
+          const card = el("div", "card"), row = el("div", "row");
+          row.append(el("span", "code", str(c.Code)));
+          row.append(el("span", "tag" + (c.Active ? " warn" : ""), c.Active ? "Showing now" : "Stored"));
+          card.append(row, el("h3", "", str(c.Title)));
+          if (str(c.Description)) card.append(el("p", "", c.Description));
+          if (str(c.Hint)) card.append(el("p", "hint", c.Hint));
+          body.append(card);
+        }
+      }
+
+      const events = list(scan.Story && scan.Story.Events);
+      if (events.length) {
+        body.append(el("h2", "", "The car's story"));
+        const t = el("table");
+        for (const ev of events.slice(0, 80)) { const tr = el("tr"); tr.append(el("td", "num", str(ev.When)), el("td", "", str(ev.Title) + (str(ev.Explanation) ? ". " + ev.Explanation : ""))); t.append(tr); }
+        const s = el("div", "scroll"); s.append(t); body.append(s);
+      }
+
+      if (snap.tests.length) {
+        body.append(el("h2", "", "Test results"));
+        for (const t of snap.tests) {
+          const card = el("div", "card"); card.append(el("h3", "", str(t.Title)));
+          for (const f of list(t.Report && t.Report.Findings)) {
+            const row = el("div", "row"), sev = str(f.Severity);
+            row.append(el("span", "tag" + (sev === "Problem" ? " now" : sev === "Watch" ? " warn" : sev === "Ok" ? " ok" : ""), sev === "Ok" ? "OK" : sev === "Unknown" ? "Not measured" : sev));
+            row.append(el("b", "", str(f.Title)));
+            card.append(row); if (str(f.Explanation)) card.append(el("p", "hint", f.Explanation));
+          }
+          body.append(card);
+        }
+      }
+
+      const cols = parseCsv(snap.live);
+      if (cols.length) {
+        body.append(el("h2", "", "Live data (the last minute before saving)"));
+        for (const c of cols) {
+          const card = el("div", "card"), lo = Math.min(...c.values), hi = Math.max(...c.values);
+          const row = el("div", "row"); row.append(el("b", "", c.name), el("span", "meta", `lowest ${+lo.toFixed(2)}, highest ${+hi.toFixed(2)}`));
+          card.append(row, spark(c.values)); body.append(card);
+        }
+      }
+
+      body.append(el("h2", "", "Modules"));
+      const t = el("table"), hr = el("tr"); hr.append(el("th", "", "Module"), el("th", "", "Part number"), el("th", "", "Made"), el("th", "", "Result")); t.append(hr);
+      for (const e of answered) {
+        const tr = el("tr"), n = list(e.Faults).filter(f => !f.IsInfo && !f.IsShadow).length, id = e.Identity || {};
+        tr.append(el("td", "", str(e.Ecu && e.Ecu.Name)), el("td", "num", str(id.PartNumber)), el("td", "num", str(id.ProductionDate)), el("td", "", n ? `${n} fault${n === 1 ? "" : "s"}` : "No faults"));
+        t.append(tr);
+      }
+      const s = el("div", "scroll"); s.append(t); body.append(s);
+      const silent = ecus.length - answered.length;
+      if (silent) body.append(el("p", "hint", `${silent} other module${silent === 1 ? "" : "s"} Klemme15 knows for this car didn't answer. Most are optional equipment the car doesn't have.`));
+
+      const extra = [];
+      if (snap.coding) extra.push("the coding of " + snap.coding + " module" + (snap.coding === 1 ? "" : "s"));
+      if (snap.hasLog) extra.push("the traffic log");
+      if (extra.length) body.append(el("p", "hint", "This snapshot also carries " + extra.join(" and ") + ". Open it in the Klemme15 app to see " + (extra.length === 1 ? "it" : "them") + "."));
+
+      $("start").style.display = "none"; $("car").style.display = "block"; window.scrollTo(0, 0);
+    }
+
+    async function load(file) {
+      const err = $("error"); err.style.display = "none";
+      try { show(await open(file)); }
+      catch (e) { err.textContent = e instanceof SyntaxError ? "This snapshot is damaged." : (e && e.message) || "This file couldn't be opened."; err.style.display = "block"; }
+    }
+
+    const drop = $("drop"), input = $("file");
+    $("pick").addEventListener("click", () => input.click());
+    input.addEventListener("change", () => { if (input.files[0]) load(input.files[0]); input.value = ""; });
+    ["dragenter", "dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+    ["dragleave", "drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+    drop.addEventListener("drop", e => { const f = e.dataTransfer.files[0]; if (f) load(f); });
+    window.addEventListener("dragover", e => e.preventDefault());
+    window.addEventListener("drop", e => e.preventDefault());
+    $("again").addEventListener("click", () => { $("car").style.display = "none"; $("start").style.display = "block"; });
+    window.k15Open = load; // used by the page's own check
+  })();
+  </script>
+</body>
+</html>

@@ -625,7 +625,7 @@ internal static class Cli
             };
             var path = snapFile.EndsWith(SnapshotFile.Extension, StringComparison.OrdinalIgnoreCase) ? snapFile : snapFile + SnapshotFile.Extension;
             File.WriteAllBytes(path, SnapshotFile.Write(snapshot));
-            Console.WriteLine($"Snapshot saved to {path} (VIN removed). Anyone can open it in Klemme15's Garage, or with 'klemme15 open {Path.GetFileName(path)}'.");
+            Console.WriteLine($"Snapshot saved to {path} (VIN removed). Anyone can open it in Klemme15's Garage, with 'klemme15 open {Path.GetFileName(path)}', or in a browser at https://expos-ai.github.io/Klemme15/viewer.html.");
         }
         return 0;
     }

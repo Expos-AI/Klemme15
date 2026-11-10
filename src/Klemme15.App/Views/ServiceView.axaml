@@ -52,6 +52,8 @@
     <DockPanel Grid.Column="0" Margin="0,0,24,0">
       <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,14">
         <TextBlock Classes="title" Text="Service" />
+        <Button Content="What's due for service?" Command="{Binding DueCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                ToolTip.Tip="Reads the service list from the instrument cluster. Read-only: nothing is changed." />
         <TextBox Text="{Binding Filter}" Watermark="Search (oil, brakes, window, injector...)" />
         <DockPanel>
           <CheckBox DockPanel.Dock="Right" Content="Only my car" IsChecked="{Binding OnlyMine}" IsVisible="{Binding !NotConnected}" />
@@ -96,7 +98,38 @@
     </DockPanel>
 
     <!-- Selected function -->
-    <ScrollViewer Classes="page" Grid.Column="1" IsVisible="{Binding HasSelection}">
+    <!-- What's due (read-only) -->
+    <ScrollViewer Classes="page" Grid.Column="1" IsVisible="{Binding ShowingDue}">
+      <StackPanel Spacing="12" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32">
+        <DockPanel>
+          <Button DockPanel.Dock="Right" Content="Close" Command="{Binding CloseDueCommand}" VerticalAlignment="Top" Margin="12,0,0,0" />
+          <StackPanel Spacing="4">
+            <TextBlock Classes="section" Text="What's due for service" TextWrapping="Wrap" />
+            <TextBlock Classes="muted small" Text="Module: instrument cluster. Read-only." />
+          </StackPanel>
+        </DockPanel>
+        <TextBlock Text="{Binding DueHeadline}" TextWrapping="Wrap" FontWeight="SemiBold" />
+        <ItemsControl ItemsSource="{Binding DueItems}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:ServiceDueRowViewModel">
+              <Border Classes.bad="{Binding IsDue}" Classes.warn="{Binding IsSoon}" Classes.good="{Binding IsOk}" Classes.panel="{Binding IsUnknown}"
+                      Padding="14,10" CornerRadius="8" Margin="0,0,0,8">
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Right" Classes="small" Text="{Binding LevelText}" FontWeight="SemiBold" VerticalAlignment="Top" Margin="12,0,0,0" />
+                  <StackPanel Spacing="2">
+                    <TextBlock Text="{Binding Name}" FontWeight="SemiBold" TextWrapping="Wrap" />
+                    <TextBlock Classes="muted small" Text="{Binding Summary}" TextWrapping="Wrap" />
+                  </StackPanel>
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        <TextBlock Classes="muted small" Text="{Binding DueStatus}" IsVisible="{Binding HasDueStatus}" TextWrapping="Wrap" />
+      </StackPanel>
+    </ScrollViewer>
+
+    <ScrollViewer Classes="page" Grid.Column="1" IsVisible="{Binding ShowFunction}">
       <StackPanel Spacing="14" MaxWidth="760" HorizontalAlignment="Left" Margin="0,4,0,32">
         <StackPanel Spacing="4">
           <TextBlock Classes="section" Text="{Binding FunctionTitle}" TextWrapping="Wrap" />

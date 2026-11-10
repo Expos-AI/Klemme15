@@ -17,6 +17,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
+- **Service due and a browser viewer**: the cluster's service list read on the Service page (EDIABAS mode, pending field validation); snapshots open in a browser on the website.
 - **Symptom-first help**: 14 symptoms, each with what the car already reports and what to do in order; a warm-up (thermostat) chain.
 - **Reasoning across modules**: faults that share one cause are grouped (a voltage event, one module the others lost, the same mileage); faults gone since the last test; a web search for the part a fault points at.
 - **Meanings on more cars**: researched fault meanings shared with other families wherever the module version is the same.

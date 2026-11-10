@@ -33,6 +33,7 @@ Only when you ask, and only to these:
 | **Translate** a BMW fault text | Google Translate, in your browser | That fault's German text |
 | **Find this part** on a fault | DuckDuckGo, in your browser | The search words: your car's model and engine, and the part's name |
 | Open a link (About, help, privacy, the PayPal tip page) | That page, in your browser | Nothing about your car |
+| Open a snapshot on the website (viewer.html) | Nowhere: the file is read in your browser, on your own device. The page itself loads from expos-ai.github.io and its fonts from Google Fonts, like the rest of the website | Nothing from the file |
 | **Check for updates** (the arrow button), or start Klemme15 after you said yes to checking on start (at most once a day) | expos-ai.github.io (this project's website), for one small file, `latest.json` | Nothing: not your version, not anything about you or your car. Klemme15 compares the version itself and never downloads or installs an update on its own |
 | Connect a Wi-Fi cable, or run `klemme15 serve` | Only the devices and the MQTT broker you set up, on your own network | Your car's live data, to them |
 

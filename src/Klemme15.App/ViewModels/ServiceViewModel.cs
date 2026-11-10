@@ -84,6 +84,18 @@ public sealed class ServiceItemViewModel(ServiceFunction function) : ViewModelBa
     public RelayCommand? SelectCommand { get; set; }
 }
 
+/// <summary>One line of the "What's due" list.</summary>
+public sealed class ServiceDueRowViewModel(ServiceDueItem item)
+{
+    public string Name => item.Name;
+    public string LevelText => item.LevelText;
+    public string Summary => item.Summary();
+    public bool IsDue => item.Level == ServiceDueLevel.Due;
+    public bool IsSoon => item.Level == ServiceDueLevel.Soon;
+    public bool IsOk => item.Level == ServiceDueLevel.Ok;
+    public bool IsUnknown => item.Level == ServiceDueLevel.Unknown;
+}
+
 public sealed class ServiceGroupViewModel(string name, IReadOnlyList<ServiceItemViewModel> items)
 {
     public string Name { get; } = name;
@@ -124,6 +136,9 @@ public sealed class ServiceViewModel : PageViewModel
             if (e.PropertyName is nameof(SessionState.BusyWith) or nameof(SessionState.IsWatching)) OnUi(RunCommand.RaiseCanExecuteChanged);
         };
         _session.ScanUpdated += () => OnUi(Refresh);
+        DueCommand = new AsyncCommand(ReadDueAsync, () => !_readingDue && !_running,
+            e => { DueHeadline = "Couldn't read what's due."; DueStatus = Problems.Describe(e); });
+        CloseDueCommand = new RelayCommand(() => ShowingDue = false);
         Select(_items.FirstOrDefault());
     }
 
@@ -205,6 +220,79 @@ public sealed class ServiceViewModel : PageViewModel
             RaiseSelection();
         }
     }
+
+    // ---------------------------------------------------------------- what's due (read-only)
+
+    private bool _showingDue, _readingDue;
+    private string _dueHeadline = "", _dueStatus = "";
+
+    /// <summary>Reads what the cluster says is due for service. Read-only.</summary>
+    public AsyncCommand DueCommand { get; }
+    public RelayCommand CloseDueCommand { get; }
+    public ObservableCollection<ServiceDueRowViewModel> DueItems { get; } = [];
+    public bool ShowingDue { get => _showingDue; private set { if (Set(ref _showingDue, value)) Raise(nameof(ShowFunction)); } }
+    public bool ShowFunction => HasSelection && !_showingDue;
+    public string DueHeadline { get => _dueHeadline; private set => Set(ref _dueHeadline, value); }
+    public string DueStatus { get => _dueStatus; private set { if (Set(ref _dueStatus, value)) Raise(nameof(HasDueStatus)); } }
+    public bool HasDueStatus => _dueStatus.Length > 0;
+
+    private async Task ReadDueAsync()
+    {
+        ShowingDue = true;
+        DueItems.Clear();
+        DueStatus = "";
+        var cluster = _session.Vehicle?.Modules.FirstOrDefault(ServiceDue.IsCluster);
+        if (_session.IsSnapshot) { DueHeadline = "A snapshot can't be asked what's due."; DueStatus = "Connect to the car itself to read its service list."; return; }
+        if (!_session.IsConnected) { DueHeadline = "Connect to your car first."; DueStatus = "Connect in the Garage, then come back here."; return; }
+        if (cluster is null) { DueHeadline = "This car doesn't keep a service list Klemme15 can read."; return; }
+        IReadOnlyList<ServiceDueItem> items;
+        if (_session.IsDemo) items = DemoDue();
+        else if (_session.Backend is IJobRunner jobs)
+        {
+            _readingDue = true;
+            DueCommand.RaiseCanExecuteChanged();
+            DueHeadline = "Reading the instrument cluster's service list...";
+            try
+            {
+                using var bus = _session.ClaimBus("Reading what's due for service");
+                var sgbd = _session.Readings?.VariantOf(cluster) ?? cluster.Sgbd.FirstOrDefault() ?? $"D_{cluster.Address:X4}";
+                items = await ServiceDue.ReadAsync(jobs, sgbd);
+            }
+            catch (Exception e) when (e is not OperationCanceledException)
+            {
+                DueHeadline = "The instrument cluster didn't give a service list.";
+                DueStatus = "Cars from before Condition Based Service (E46, E39, E53 and other older models) show their service interval on the cluster only. " + Problems.Describe(e);
+                return;
+            }
+            finally
+            {
+                _readingDue = false;
+                DueCommand.RaiseCanExecuteChanged();
+            }
+        }
+        else
+        {
+            DueHeadline = "Reading what's due needs EDIABAS mode.";
+            DueStatus = "The service list is read with BMW's own job from your BMW files. In the Garage's cable panel, tick 'Use my own BMW files (EDIABAS mode)' and connect again. Reading it without BMW files is in development.";
+            return;
+        }
+        foreach (var i in items) DueItems.Add(new ServiceDueRowViewModel(i));
+        DueHeadline = ServiceDue.Headline(items);
+        DueStatus = _session.IsDemo ? "Demo car: the figures are made up."
+            : "Read from the instrument cluster; nothing was changed. This reading is pending field validation: compare it with the service menu on the cluster, and reset an item with the service functions on the left after the work is done.";
+    }
+
+    private static IReadOnlyList<ServiceDueItem> DemoDue() => ServiceDue.Parse(
+    [
+        DemoItem("Oel", 8, 2100, "km", 6), DemoItem("Brfl", 0, 0, "", 3, 9, 26), DemoItem("Br_v", 46, 21000, "km", 2),
+        DemoItem("Br_h", 71, 38000, "km", 1), DemoItem("Filt", 54, 16000, "km", 4), DemoItem("ZKrz", 33, 31000, "km", 1), DemoItem("Sic", 60, 0, "", 2, 5, 28),
+    ]);
+
+    private static Dictionary<string, string> DemoItem(string key, int percent, long remaining, string unit, int resets, int month = 0, int year = 0) => new()
+    {
+        ["ID_FN_CBS_MESS_TEXT"] = key, ["AVAI_CBS_WERT"] = $"{percent}", ["RMMI_CBS_WERT"] = $"{remaining}", ["ST_UN_CBS_TEXT"] = unit,
+        ["COU_RSTG_CBS_MESS_WERT"] = $"{resets}", ["ZIEL_MM_WERT"] = $"{month}", ["ZIEL_YY_WERT"] = $"{year}",
+    };
 
     public ServiceItemViewModel? Selected => _selected;
     public bool HasSelection => _selected is not null;
@@ -298,6 +386,7 @@ public sealed class ServiceViewModel : PageViewModel
         if (_running) return;
         foreach (var i in _items) i.IsSelected = i == item;
         _selected = item;
+        ShowingDue = false;
         ResetChecks();
         RaiseSelection();
     }
@@ -326,7 +415,7 @@ public sealed class ServiceViewModel : PageViewModel
 
     private void RaiseSelection()
     {
-        foreach (var p in new[] { nameof(Selected), nameof(HasSelection), nameof(FunctionTitle), nameof(Summary), nameof(When), nameof(ModuleText),
+        foreach (var p in new[] { nameof(Selected), nameof(HasSelection), nameof(ShowFunction), nameof(FunctionTitle), nameof(Summary), nameof(When), nameof(ModuleText),
                      nameof(RiskText), nameof(IsHighRisk), nameof(Unverified), nameof(UnverifiedText), nameof(ConfirmedText), nameof(HasConfirmed), nameof(Caution), nameof(HasCaution), nameof(Before), nameof(After), nameof(HasBefore), nameof(HasAfter),
                      nameof(AvailabilityText), nameof(IsAvailable), nameof(Blocked), nameof(HasChecks), nameof(Duration), nameof(HasDuration) })
             Raise(p);
