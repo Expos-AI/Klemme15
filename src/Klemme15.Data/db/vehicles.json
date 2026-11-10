@@ -711,6 +711,57 @@
           }
         },
         {
+          "id": "E9x-335xi",
+          "name": "335xi / 335i xDrive",
+          "body": "Sedan, coupe (touring in some markets)",
+          "years": "2007-2008 (then 335i xDrive to 2013)",
+          "engine": "N54 3.0 L twin-turbo inline-6 (N55 from 2011)",
+          "drive": "All-wheel drive (xDrive)",
+          "modules": [
+            "E9x.DME",
+            "E9x.EGS",
+            "E9x.DSC",
+            "E9x.ACSM",
+            "E9x.CAS",
+            "E9x.KOMBI",
+            "E9x.FRM",
+            "E9x.JBE",
+            "E9x.IHKA",
+            "E9x.SZL",
+            "E9x.EKPS",
+            "E9x.PDC",
+            "E9x.CIC",
+            "E9x.FZD",
+            "E9x.VGSG"
+          ],
+          "demo": {
+            "idle": 700,
+            "turbo": true,
+            "faults": [
+              {
+                "module": "E9x.DME",
+                "code": "30FF"
+              },
+              {
+                "module": "E9x.DME",
+                "code": "29F2",
+                "present": true
+              },
+              {
+                "module": "E9x.DME",
+                "code": "29DC"
+              },
+              {
+                "module": "E9x.DME",
+                "code": "P0087"
+              }
+            ],
+            "checkControl": [
+              67
+            ]
+          }
+        },
+        {
           "id": "E9x-m3",
           "name": "M3",
           "body": "Sedan, coupe, convertible",

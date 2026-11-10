@@ -2,6 +2,10 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.25
+
+- **335xi / 335i xDrive** is now its own model in the Garage (E90/E92, N54, with the xDrive transfer case module), so owners don't have to pick the rear-wheel-drive 335i.
+
 ## 0.99.24
 
 - **Check for updates from inside the app.** Press the arrow button at the bottom of the sidebar: if there's a newer version, a banner offers **Download** (the right file for your computer), **What's new** and **Skip this version**. Klemme15 also asks once whether to check by itself when it starts, at most once a day. It only reads a small version file from the Klemme15 website and sends nothing about you or your car; it never downloads or installs anything on its own.
