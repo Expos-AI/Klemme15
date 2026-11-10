@@ -61,7 +61,7 @@ public static class PurchaseCheck
             var safety = group.Key is "Safety" or "Chassis";
             items.Add(new(safety ? CheckLevel.Warn : CheckLevel.Ask,
                 $"{group.Count()} active fault{(group.Count() == 1 ? "" : "s")} in {group.Key.ToLowerInvariant()} modules",
-                string.Join("; ", group.Take(4).Select(x => $"{ShortName(x.Ecu)} {x.Fault.Code}: {x.Fault.DisplayDescription}")) +
+                string.Join("; ", group.Take(4).Select(x => $"{ShortName(x.Ecu)} {x.Fault.Code}: {x.Fault.DisplayDescription.TrimEnd('.', ' ')}")) +
                 (safety ? ". Airbag, brake and stability faults are safety items: have them fixed or priced before buying." : ". Ask the seller about them, or price the repair in.")));
         }
         if (active.Count == 0)
