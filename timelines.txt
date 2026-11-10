@@ -1,0 +1,95 @@
+What each clip shows from which second (the same in captioned/, labeled/ and clean/).
+
+01-quick-test  (15.3 s)  Every module, one button
+    0.2 s  The Garage, E90 335i picked
+    2.2 s  The car's page, before the test
+    4.0 s  Quick test running: the modules light up one by one
+    8.4 s  Done: every module's result
+   12.3 s  A module with a fault clicked: its fault shows
+  clicks at: 1.8, 3.8, 11.9 s
+
+02-plain-english  (12.0 s)  Codes in plain English
+    1.6 s  The Faults page
+    3.6 s  One fault card: what it means, how urgent
+    7.6 s  Troubleshoot: the checks, step by step
+  clicks at: 0.7, 7.3 s
+
+03-car-story  (7.4 s)  The car's own history
+    2.9 s  Every dash message the cluster has shown
+  clicks at: 0.7 s
+
+04-buying-check  (10.1 s)  Check before you buy
+    3.0 s  Buying this car? opens
+    4.4 s  The odometer reading is typed
+    5.0 s  The verdict and what it checked
+  clicks at: 0.7, 2.7, 4.1 s
+
+05-live-data  (14.9 s)  Live data, right on the car
+    2.6 s  Live values on the car drawing
+    8.8 s  The Live data page: values moving
+  clicks at: 0.7, 2.2, 6.9, 8.5 s
+
+06-tests  (19.7 s)  Tests that find the part
+    2.1 s  The idle and AC test picked
+    3.0 s  Test running: idle graph, AC off
+    3.9 s  The test says: "Let the engine idle with the air conditioning OFF. Don't touch the pedal."
+    7.7 s  The test says: "Now switch the air conditioning ON: coldest setting, fan on. Don't touch the pedal."
+    8.3 s  The test says: "Air conditioning on. Don't touch the pedal."
+    9.4 s  The test says: "Keep idling with the air conditioning ON. Don't touch the pedal."
+   13.7 s  The test says: "Done. You can switch the air conditioning back as you like it."
+   13.7 s  Test done
+   15.2 s  The verdict: what it found and where to look
+  clicks at: 0.7, 2.8 s
+
+07-ghost-hunter  (20.3 s)  Catches problems that come and go
+    1.5 s  The Ghost Hunter page: ready-made rules
+    3.9 s  Making a rule: engine speed above 2,000 rpm
+   10.0 s  Start watching clicked
+   11.5 s  Right now: what each rule is waiting for
+   15.8 s  Caught: the moment is saved
+  clicks at: 0.7, 8.2, 9.7 s
+
+08-battery-drain  (10.6 s)  Battery drain finder
+    2.9 s  Battery drain finder: clues from this car
+    6.6 s  85 mA typed: too much, and how long until it won't start
+    9.1 s  The hunt, step by step
+  clicks at: 0.7, 2.2, 6.2 s
+
+09-service-coding  (18.0 s)  Service resets and comfort coding
+    1.5 s  Service functions: the list
+    8.6 s  The Coding page
+   11.4 s  Footwell module's coding read: the comfort options
+  clicks at: 0.7, 7.8, 9.6, 11.2 s
+
+10-share  (11.0 s)  One file for the forum
+    2.5 s  Share snapshot opens
+    4.0 s  A note for the forum is typed
+  clicks at: 0.7, 2.2, 3.7 s
+
+11-older-cars  (15.4 s)  Older E-series too
+    0.2 s  The Garage
+    0.8 s  Every E-series family it knows
+    4.0 s  E46 picked: its models
+    5.9 s  E46 330i picked
+    7.8 s  The E46's page
+    9.3 s  Quick test on the E46
+   11.9 s  Done: the E46's result
+  clicks at: 3.8, 5.6, 7.5, 9.1 s
+
+12-step-by-step  (17.6 s)  Diagnosis that asks you questions
+    2.4 s  Vacuum leak hunter picked: what it needs and how long
+    6.0 s  The test says: "Let the engine idle. Don't touch the pedal."
+    6.4 s  The test says: "Now hold the engine at about 2,500 rpm with the pedal, steady."
+    7.3 s  The test says: "Answer the question below."
+    7.3 s  It asks: "Let it idle and lift the oil filler cap slowly. Is it hard to lift (sucked down), or do you hear a whistle or squeal near the cap or the vent valve on the cylinder head?"
+   11.8 s  Answer picked: "Hard to lift, or whistling"
+   11.8 s  The test says: "Done."
+   13.1 s  The verdict
+  clicks at: 1.0, 5.1, 11.5 s
+
+13-compare-healthy  (20.4 s)  Compare with healthy engines
+    3.9 s  Live data, recording
+    9.7 s  The recording as graphs, played back
+   15.0 s  A demo drive against the healthy baseline
+   15.4 s  The band is healthy engines; it says: "56 % of your readings sit inside the healthy range. Your total trim bank 1 reads above the healthy range around 750 rpm: 14.1 % where healthy engines read 0.5 %."
+  clicks at: 0.7, 2.1, 3.6, 8.1, 9.4, 10.4, 14.7 s
