@@ -208,7 +208,7 @@ public sealed class MainViewModel : ViewModelBase
 
     /// <summary>Shows the "newer version" banner for an update found elsewhere (the screenshot tool uses it).</summary>
     public void ShowAvailableUpdate(Klemme15.Data.AvailableUpdate update) =>
-        SetUpdate(update, $"Klemme15 {update.Tag} is available. You have {CurrentVersion.ToString(3)}.");
+        SetUpdate(update, $"Klemme15 {update.Tag} is available. You have v{CurrentVersion.ToString(3)}.");
 
     /// <summary>Raised once the first-launch notice is accepted, so the update question can appear.</summary>
     public void NoticeAccepted() => Raise(nameof(AskUpdateChecks));
@@ -228,9 +228,9 @@ public sealed class MainViewModel : ViewModelBase
             OnUi(() =>
             {
                 if (update is not null && (manual || update.Tag != _settings.SkippedUpdate))
-                    SetUpdate(update, $"Klemme15 {update.Tag} is available. You have {current}.");
+                    SetUpdate(update, $"Klemme15 {update.Tag} is available. You have v{current}.");
                 else
-                    SetUpdate(null, manual ? $"You have the latest version ({current})." : "");
+                    SetUpdate(null, manual ? $"You have the latest version (v{current})." : "");
             });
         }
         catch (Exception) when (!manual) { /* a quiet check on start never bothers anyone */ }
