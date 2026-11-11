@@ -14,15 +14,21 @@ using Klemme15.Core;
 
 namespace Klemme15.App.ViewModels;
 
-/// <summary>One moment in the car's warning history, for the timeline on the Faults page.</summary>
-public sealed class StoryItem(StoryEvent e)
+/// <summary>One moment in the car's history, for the timeline on the Faults page: dash warnings and the faults stored with them.</summary>
+public sealed class StoryItem(Incident incident)
 {
-    public StoryEvent Event { get; } = e;
-    public string When => Event.When;
-    public string Title => Event.Title;
-    public string Explanation => Event.Explanation;
-    public bool IsRed => Event.Severity == CcSeverity.Critical && Event.Kind != StoryKind.LowVoltage;
-    public bool IsBattery => Event.Kind is StoryKind.LowVoltage or StoryKind.BatteryWork;
+    public Incident Incident { get; } = incident;
+    public StoryEvent? Event => Incident.Event;
+    public string When => Incident.When;
+    public string Title => Incident.Title;
+    public string Explanation => Incident.Explanation;
+    public bool IsRed => Event is { Severity: CcSeverity.Critical } e && e.Kind != StoryKind.LowVoltage;
+    public bool IsBattery => Event?.Kind is StoryKind.LowVoltage or StoryKind.BatteryWork || (Event is null && Incident.Faults.All(f => f.Supply));
     public bool IsOther => !IsRed && !IsBattery;
-    public string Codes => string.Join("  ", Event.Messages.Select(m => m.Code)) + (Event.Times > Event.Messages.Count ? $"  ·  shown {Event.Times}×" : "");
+    public string Codes => Event is not { } e ? "" : string.Join("  ", e.Messages.Select(m => m.Code)) + (e.Times > e.Messages.Count ? $"  ·  shown {e.Times}×" : "");
+    public bool HasCodes => Codes.Length > 0;
+
+    /// <summary>The faults modules stored at this mileage.</summary>
+    public string Faults => Incident.Faults.Count == 0 ? "" : "Faults stored then:  " + Incident.FaultLine;
+    public bool HasFaults => Incident.Faults.Count > 0;
 }

@@ -627,8 +627,10 @@ internal static class Cli
                 Scan = scan,
             };
             var path = snapFile.EndsWith(SnapshotFile.Extension, StringComparison.OrdinalIgnoreCase) ? snapFile : snapFile + SnapshotFile.Extension;
-            File.WriteAllBytes(path, SnapshotFile.Write(snapshot));
+            var snapshotBytes = SnapshotFile.Write(snapshot);
+            File.WriteAllBytes(path, snapshotBytes);
             Console.WriteLine($"Snapshot saved to {path} (VIN removed). Anyone can open it in Klemme15's Garage, with 'klemme15 open {Path.GetFileName(path)}', or in a browser at https://expos-ai.github.io/Klemme15/viewer.html.");
+            Console.WriteLine($"Fingerprint: {SnapshotFile.Fingerprint(snapshotBytes)} (post it next to the file; it changes if the file is altered)");
         }
         return 0;
     }
@@ -658,6 +660,7 @@ internal static class Cli
         var m = snap.Manifest;
         Console.WriteLine($"Snapshot of {m.ModelName ?? m.Chassis ?? "a BMW"} from {m.Created:yyyy-MM-dd HH:mm} (Klemme15 {m.App})");
         if (m.Note is { } note) Console.WriteLine($"Owner's note: {note}");
+        Console.WriteLine($"Fingerprint: {snap.Fingerprint}");
         var scan = snap.Scan;
         Console.WriteLine($"{scan.RespondingEcus}/{scan.Ecus.Count} modules answered | {scan.TotalFaults} fault(s) | dash messages: {scan.ActiveCheckControl}" +
                           (scan.BatteryVoltage is { } v ? $" | battery {v:0.0} V" : ""));

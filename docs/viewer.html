@@ -171,9 +171,21 @@
       return Array.from(d, b => b.toString(16).padStart(2, "0")).join("");
     }
 
+    // The same fingerprint the app shows: the first 80 bits of the file's SHA-256, in Crockford base32.
+    async function fingerprint(buffer) {
+      const hash = new Uint8Array(await crypto.subtle.digest("SHA-256", buffer)), alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+      let out = "K15", bits = 0, value = 0, chars = 0;
+      for (let i = 0; i < 10; i++) {
+        value = ((value << 8) | hash[i]) & 0xFFFF; bits += 8;
+        while (bits >= 5) { if (chars++ % 4 === 0) out += "-"; out += alphabet[(value >> (bits - 5)) & 31]; bits -= 5; }
+      }
+      return out;
+    }
+
     async function open(file) {
       if (file.size > MAX_FILE) throw new Error("This file is larger than a snapshot can be.");
-      const files = await unzip(await file.arrayBuffer());
+      const buffer = await file.arrayBuffer();
+      const files = await unzip(buffer);
       const text = name => new TextDecoder().decode(files.get(name));
       if (!files.has("manifest.json") || !files.has("scan.json")) throw new Error("This isn't a Klemme15 snapshot.");
       const manifest = JSON.parse(text("manifest.json"));
@@ -187,7 +199,7 @@
       const listed = new Set(list(manifest.Sections).map(s => s.Name));
       for (const name of [...files.keys()]) if (name !== "manifest.json" && !listed.has(name)) files.delete(name);
       const tests = [...files.keys()].filter(k => k.startsWith("tests/")).sort().map(k => JSON.parse(text(k)));
-      return { manifest, scan: JSON.parse(text("scan.json")), tests, live: files.has("live.csv") ? text("live.csv") : "", hasLog: files.has("log.txt"),
+      return { fingerprint: await fingerprint(buffer), manifest, scan: JSON.parse(text("scan.json")), tests, live: files.has("live.csv") ? text("live.csv") : "", hasLog: files.has("log.txt"),
                coding: [...files.keys()].filter(k => k.startsWith("coding/")).length };
     }
 
@@ -236,6 +248,8 @@
       $("sub").textContent = "Snapshot" + (isNaN(when) ? "" : " saved " + when.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })) + (str(m.App) ? " with Klemme15 " + m.App : "") + ". Read-only.";
 
       if (str(m.Note)) { const n = el("div", "card note"); n.append(el("div", "meta", "The owner's note")); n.append(el("p", "", m.Note)); body.append(n); }
+      { const f = el("div", "card"); f.append(el("div", "meta", "Fingerprint of this file")); const code = el("p", "", ""); code.append(el("span", "code", snap.fingerprint)); f.append(code);
+        f.append(el("p", "hint", "If the person who sent the file also posted its fingerprint, compare the two. They match only if this is the same, unchanged file.")); body.append(f); }
       if (m.Trigger && str(m.Trigger.Title)) { const n = el("div", "card note"); n.append(el("div", "meta", "Saved by the Ghost Hunter")); n.append(el("p", "", m.Trigger.Title)); body.append(n); }
 
       const ecus = list(scan.Ecus), answered = ecus.filter(e => e.Status !== "NoResponse");

@@ -50,6 +50,21 @@ public class SnapshotTests
     };
 
     [Fact]
+    public async Task TheFingerprintIsTheSameForTheSameFileAndChangesWithOneByte()
+    {
+        var file = SnapshotFile.Write(Snapshot(await RealishScan()));
+        var fingerprint = SnapshotFile.Fingerprint(file);
+        Assert.Matches("^K15(-[0-9A-HJKMNP-TV-Z]{4}){4}$", fingerprint);
+        Assert.Equal(fingerprint, SnapshotFile.Fingerprint(file.ToArray()));
+        Assert.Equal(fingerprint, SnapshotFile.Read(file).Fingerprint);
+        var altered = file.ToArray();
+        altered[^1] ^= 1;
+        Assert.NotEqual(fingerprint, SnapshotFile.Fingerprint(altered));
+        // A known answer, so the app, the command line and the website's viewer can't drift apart.
+        Assert.Equal("K15-Q9W1-DFWF-077Y-MGA1", SnapshotFile.Fingerprint("abc"u8));
+    }
+
+    [Fact]
     public async Task RoundTripKeepsTheWholeCar()
     {
         var scan = await RealishScan();

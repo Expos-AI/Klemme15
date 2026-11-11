@@ -189,9 +189,13 @@ public sealed class FaultsViewModel : PageViewModel
     public bool HasStory => Story.Count > 0;
     public string StoryHeadline => _session.LastScan?.Story is { } s
         ? $"Your car's story · {s.Entries} warnings the instrument cluster remembers" + (s.LastKm is { } km ? $", up to ~{DisplayUnits.Distance(km)}" : "")
-        : "";
+        : Story.Count > 0 ? "Your car's story · when its faults were stored" : "";
+    /// <summary>Whether faults could be placed on the timeline, and why not when they couldn't.</summary>
+    public string StoryNote { get => _storyNote; private set { if (Set(ref _storyNote, value)) Raise(nameof(ShowStoryNote)); } }
+    public bool ShowStoryNote => _storyOpen && _storyNote.Length > 0;
+    private string _storyNote = "";
     private bool _storyOpen = true;
-    public bool StoryOpen { get => _storyOpen; set { if (Set(ref _storyOpen, value)) Raise(nameof(StoryToggleText)); } }
+    public bool StoryOpen { get => _storyOpen; set { if (Set(ref _storyOpen, value)) { Raise(nameof(StoryToggleText)); Raise(nameof(ShowStoryNote)); } } }
     public string StoryToggleText => _storyOpen ? "Hide" : "Show";
     public RelayCommand ToggleStoryCommand => new(() => StoryOpen = !StoryOpen);
 
@@ -315,7 +319,16 @@ public sealed class FaultsViewModel : PageViewModel
         RebuildTrends();
         Story.Clear();
         // Newest first: what happened most recently is what people ask about.
-        foreach (var ev in (_session.LastScan?.Story?.Events ?? []).Reverse()) Story.Add(new StoryItem(ev));
+        var timeline = _session.LastScan is { } scanned ? IncidentTimeline.Build(scanned) : null;
+        foreach (var incident in (timeline?.Incidents ?? []).Reverse()) Story.Add(new StoryItem(incident));
+        StoryNote = timeline switch
+        {
+            { FaultsWithMileage: > 0, FaultsWithoutMileage: 0 } => "Faults are placed by the mileage their module stored with them.",
+            { FaultsWithMileage: > 0 } t => $"Faults are placed by the mileage their module stored with them. {t.FaultsWithoutMileage} fault{(t.FaultsWithoutMileage == 1 ? "" : "s")} carry no mileage and aren't shown here.",
+            { FaultsWithoutMileage: > 0, Incidents.Count: > 0 } when _session.Backend is not IJobRunner && !_session.IsSnapshot && !_session.IsDemo =>
+                "Faults aren't on this timeline: the mileage a module stores with a fault is read in EDIABAS mode (your own BMW files).",
+            _ => "",
+        };
         foreach (var p in new[] { nameof(HasStory), nameof(StoryHeadline), nameof(IsEmpty), nameof(EmptyText), nameof(Headline), nameof(ActiveCount), nameof(StoredCount), nameof(Verdict),
                      nameof(FixNowCount), nameof(CheckCount), nameof(BackgroundCount), nameof(HasBackground), nameof(ShowFaultDataPrompt), nameof(FaultDataPrompt) })
             Raise(p);

@@ -395,6 +395,7 @@
           </DockPanel>
           <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding StoryOpen}"
                      Text="Every dash message your cluster has shown and still remembers, with the mileage, grouped into what happened. Newest first." />
+          <TextBlock Classes="muted small" TextWrapping="Wrap" Text="{Binding StoryNote}" IsVisible="{Binding ShowStoryNote}" />
           <ItemsControl ItemsSource="{Binding Story}" IsVisible="{Binding StoryOpen}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:StoryItem">
@@ -408,7 +409,8 @@
                   <StackPanel Grid.Column="2" Spacing="2">
                     <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap" />
                     <TextBlock Classes="muted small" Text="{Binding Explanation}" TextWrapping="Wrap" />
-                    <TextBlock Classes="mono muted small" Text="{Binding Codes}" TextWrapping="Wrap" />
+                    <TextBlock Classes="mono muted small" Text="{Binding Codes}" TextWrapping="Wrap" IsVisible="{Binding HasCodes}" />
+                    <TextBlock Classes="small" Text="{Binding Faults}" TextWrapping="Wrap" IsVisible="{Binding HasFaults}" />
                   </StackPanel>
                 </Grid>
               </DataTemplate>

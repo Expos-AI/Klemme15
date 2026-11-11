@@ -204,7 +204,7 @@ public sealed class SessionState : ViewModelBase
     public bool IsSnapshot => _snapshot is not null;
 
     public string SnapshotBanner => _snapshot is { } s
-        ? $"Viewing a snapshot from {s.Manifest.Created.LocalDateTime:d MMM yyyy HH:mm} · {s.Manifest.ModelName ?? s.Manifest.Chassis ?? "BMW"} · nothing is connected, nothing can be changed"
+        ? $"Viewing a snapshot from {s.Manifest.Created.LocalDateTime:d MMM yyyy HH:mm} · {s.Manifest.ModelName ?? s.Manifest.Chassis ?? "BMW"} · nothing is connected, nothing can be changed{(s.Fingerprint is { } fp ? $" · fingerprint {fp}" : "")}"
         : "";
 
     private bool _isWatching;

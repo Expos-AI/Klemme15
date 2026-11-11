@@ -30,6 +30,14 @@ In the **Garage**, press **Open a snapshot...** (or double-click a `.k15` file o
 
 Whoever you send a snapshot to doesn't need to install anything: they can open it at **[expos-ai.github.io/Klemme15/viewer.html](https://expos-ai.github.io/Klemme15/viewer.html)**. The page shows the owner's note, the modules, faults with their details, dash messages, the car's story, test results and the last minute of live data. The file is read on their own device and never uploaded, and the page checks every part against its checksum, like the app does. Health trends, graphs, live data replay and coding open in the app only.
 
+## Fingerprints: checking a file wasn't changed
+
+Every snapshot has a short fingerprint, for example `K15-41Y2-X1Q7-7N4N-KQ3E`. Klemme15 shows it when you save the snapshot; the app, `klemme15 open` and the website's viewer show it when someone opens the file.
+
+If you're selling a car or asking for help, post the fingerprint next to the file (in the listing, the forum post, the message). Whoever opens the file compares the two: they match only if it's the same file, unchanged. Changing a single byte gives a different fingerprint.
+
+What it does and doesn't show: it shows the file wasn't altered after it was saved. It can't show that the car was scanned honestly in the first place, or whose car it is. The fingerprint is the first 80 bits of the file's SHA-256, written in letters and digits that are hard to misread.
+
 ## Comparing two snapshots
 
 Take a snapshot before a repair and another after it, then press **Compare two snapshots...** in the Garage and pick the two files, earlier one first. Klemme15 shows:

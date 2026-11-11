@@ -113,6 +113,12 @@ public sealed record CarSnapshot
     public IReadOnlyList<SnapshotCoding> Coding { get; init; } = [];
     public string? TrafficLog { get; init; }
 
+    /// <summary>
+    /// The fingerprint of the file this snapshot was read from (see <see cref="SnapshotFile.Fingerprint"/>), or null for
+    /// one that hasn't been written yet.
+    /// </summary>
+    public string? Fingerprint { get; init; }
+
     public bool HasLive => LiveCsv.Length > 0;
 }
 
@@ -249,6 +255,7 @@ public static class SnapshotFile
                 Tests = tests,
                 Coding = coding,
                 TrafficLog = data.TryGetValue("log.txt", out var log) ? Encoding.UTF8.GetString(log) : null,
+                Fingerprint = Fingerprint(file),
             };
         }
     }
@@ -295,6 +302,33 @@ public static class SnapshotFile
     private static bool IsHex(string s) => s.Length % 2 == 0 && s.Length <= 16384 && s.All(Uri.IsHexDigit);
 
     private static byte[] Text(string s) => Encoding.UTF8.GetBytes(s);
+
+    /// <summary>
+    /// A short fingerprint of a .k15 file, like "K15-7QF2-M0XA-9D3K-H5TR": the first 80 bits of its SHA-256. Change one
+    /// byte of the file and the fingerprint changes. Whoever shares a snapshot can post its fingerprint (in a listing, a
+    /// forum post, a message); whoever opens the file sees the same fingerprint only if it's the same, unchanged file.
+    /// It shows a file wasn't altered after it was saved. It can't show the car was honestly scanned in the first place.
+    /// </summary>
+    public static string Fingerprint(ReadOnlySpan<byte> file)
+    {
+        const string alphabet = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";   // Crockford base32: no I, L, O or U to misread
+        Span<byte> hash = stackalloc byte[32];
+        SHA256.HashData(file, hash);
+        var sb = new StringBuilder("K15");
+        int bits = 0, value = 0, chars = 0;
+        for (var i = 0; i < 10; i++)
+        {
+            value = (value << 8) | hash[i];
+            bits += 8;
+            while (bits >= 5)
+            {
+                if (chars++ % 4 == 0) sb.Append('-');
+                sb.Append(alphabet[(value >> (bits - 5)) & 31]);
+                bits -= 5;
+            }
+        }
+        return sb.ToString();
+    }
 
     private static string Hash(byte[] data) => Convert.ToHexString(SHA256.HashData(data)).ToLowerInvariant();
 

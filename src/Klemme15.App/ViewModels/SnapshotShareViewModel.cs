@@ -80,6 +80,7 @@ public sealed class SnapshotShareViewModel : ViewModelBase
         var saved = await _dialogs.SaveBytesAsync("Save snapshot", name, "k15", "Klemme15 snapshot", bytes);
         if (saved is null) return;
         Status = $"Saved {saved} ({bytes.Length / 1024 + 1} KB). Attach it to your forum post or GitHub issue: anyone with Klemme15 can open it in the Garage and explore your car as it was, read-only." +
+                 $" Its fingerprint is {SnapshotFile.Fingerprint(bytes)}: post it next to the file, and whoever opens the file can see it's the same, unchanged one." +
                  (IncludeLog ? " The traffic log is scrubbed of the VIN, but a VIN split across two messages can slip through: skim it if that matters to you." : "");
     }
 }

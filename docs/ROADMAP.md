@@ -17,6 +17,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Polish for testers**: a real Mac app with its icon, first-launch steps for Windows and Mac, the fault database offered on the Faults page when codes only have a general meaning.
 - **Ready for testers**: cable check before connecting (FTDI or clone, latency, port in use), recovery when a job is cut off (a note on disk, the water pump test's pump switched off on reconnect, the computer kept awake), and the community baseline pipeline (share from the app, checked and built on GitHub).
 - **Battery**: the battery drain finder (the car's own clues, days until it won't start, the fuse-pull hunt).
+- **One timeline, and fingerprints**: faults placed on the car's story by the mileage stored with them (EDIABAS mode); a short fingerprint on every snapshot to show the file wasn't changed.
 - **Compare two snapshots**: faults gone, new, changed and unchanged, modules lost or replaced, coding differences; in the Garage and as `klemme15 diff`.
 - **Checkable promises**: tests for the privacy policy's host list, no analytics, no BMW files in the repository; an SBOM with every release; a guard against mislabelled releases.
 - **Garage mode**: a high-contrast theme for daylight, next to dark and light.
