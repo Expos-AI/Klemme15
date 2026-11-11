@@ -34,6 +34,20 @@ public sealed record WriteCheck(bool Allowed, string? Reason, double? Voltage, d
 /// </summary>
 public static class WriteGuard
 {
+    /// <summary>
+    /// Below this, Klemme15 writes nothing to any module: a 12 V battery this low is deeply discharged, and modules can
+    /// reset in the middle of a write. Klemme15's own rule of thumb, deliberately below any voltage a healthy car shows
+    /// with the ignition on.
+    /// </summary>
+    public const double DeadBatteryFloor = 10.5;
+
+    /// <summary>A reading outside this range isn't a car battery's voltage; it is treated as "couldn't be read".</summary>
+    public const double LowestPlausible = 6.0, HighestPlausible = 16.5;
+
+    /// <summary>The reading when it can be a 12 V system's voltage, otherwise null (a sensor fault, a damaged answer).</summary>
+    public static double? Plausible(double? voltage) =>
+        voltage is { } v && !double.IsNaN(v) && v >= LowestPlausible && v <= HighestPlausible ? v : null;
+
     /// <summary>The voltage floor for a write, or null when there is none.</summary>
     public static double? FloorFor(EcuDefinition target, EcuIdentity? identity, WriteKind kind, FrmAssessment? frm = null)
     {
@@ -52,10 +66,17 @@ public static class WriteGuard
     {
         var frm = FrmGuard.IsFootwellModule(target) ? FrmGuard.Assess(identity) : null;
         var floor = FloorFor(target, identity, kind, frm);
-        if (floor is not { } min) return new(true, null, voltage, null, frm);
+        var reported = voltage;
+        voltage = Plausible(voltage);
         var what = kind switch { WriteKind.ClearFaults => "clearing its faults", WriteKind.Coding => "coding it", _ => "this function" };
+        if (voltage < DeadBatteryFloor)
+            return new(false, $"Battery at {voltage:0.0} V. That is too low for a module to write reliably, so Klemme15 writes nothing below {DeadBatteryFloor:0.0} V. Charge the battery or connect a charger, then try again.",
+                voltage, Math.Max(floor ?? 0, DeadBatteryFloor), frm);
+        if (floor is not { } min) return new(true, null, voltage, null, frm);
         if (voltage is null)
         {
+            if (reported is not null && (kind == WriteKind.Coding || frm?.Fragile == true && kind == WriteKind.ServiceFunction))
+                return new(false, $"The car reported a battery voltage of {reported:0.0} V, which can't be right, and {target.Name} needs at least {min:0.0} V for {what}. Measure the battery with a meter, connect a charger, then try again.", null, min, frm);
             // Coding is never done blind. Clearing faults with an unknown voltage is allowed: the scan before it would have
             // shown a low battery, and it's the same small write every dealer tool does.
             return kind == WriteKind.Coding || frm?.Fragile == true && kind == WriteKind.ServiceFunction
@@ -74,8 +95,23 @@ public static class WriteGuard
     public static async Task<WriteCheck> CheckAsync(IDiagnosticBackend backend, EcuDefinition target, EcuIdentity? identity, WriteKind kind,
         EcuDefinition? engine, IMeasurementReader? measurements = null, CancellationToken ct = default)
     {
-        if (FloorFor(target, identity, kind) is null) return new(true, null, null, null, null);
-        var state = await ServiceRunner.ReadStateAsync(backend, engine, measurements, ct);
-        return Decide(target, identity, kind, state.Voltage);
+        // A write with its own floor (coding, a fragile footwell module) gets a fresh reading. The dead-battery floor
+        // alone accepts a reading up to a minute old, so clearing every module doesn't re-read the voltage each time.
+        var maxAge = FloorFor(target, identity, kind) is null ? TimeSpan.FromSeconds(60) : TimeSpan.FromSeconds(3);
+        return Decide(target, identity, kind, await VoltageAsync(backend, engine, measurements, maxAge, ct));
+    }
+
+    private sealed class Sample { public double? Voltage; public DateTime At; }
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<IDiagnosticBackend, Sample> Recent = [];
+
+    /// <summary>The battery voltage through the engine computer, read again when the last reading is older than <paramref name="maxAge"/>.</summary>
+    private static async Task<double?> VoltageAsync(IDiagnosticBackend backend, EcuDefinition? engine, IMeasurementReader? measurements, TimeSpan maxAge, CancellationToken ct)
+    {
+        var sample = Recent.GetOrCreateValue(backend);
+        lock (sample)
+            if (sample.Voltage is not null && DateTime.UtcNow - sample.At <= maxAge) return sample.Voltage;
+        var voltage = (await ServiceRunner.ReadStateAsync(backend, engine, measurements, ct)).Voltage;
+        lock (sample) { sample.Voltage = voltage; sample.At = DateTime.UtcNow; }
+        return voltage;
     }
 }

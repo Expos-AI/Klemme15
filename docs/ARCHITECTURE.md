@@ -47,4 +47,7 @@ Write a transport (TCP) and a channel (HSFZ/UDS), then either extend `NativeBack
 
 ## Testing without a car
 
+`FuzzTests.cs` treats the car as hostile: random and damaged frames for each parser, random payloads for each reply decoder, and a simulated car that answers every request with something wrong. Add a case there when you add a parser or a decoder.
+
+
 `VirtualCar` implements `ITransport` and answers like real ECUs, including K-line echo, fast init, DS2 and BMW-FAST. Every test and the app's demo mode use it. When you capture traffic from a real car, turn it into a test so regressions are caught.

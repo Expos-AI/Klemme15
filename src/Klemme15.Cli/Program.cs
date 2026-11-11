@@ -850,11 +850,14 @@ internal static class Cli
                 await MeasurementsFor(backend, db, vehicle, model, log, ct), ct);
         var ok = true;
         var checks = f.Checks;
-        if (!demo && FrmGuard.IsFootwellModule(ecu!))
+        if (!demo)
         {
-            var frmId = await backend.IdentifyAsync(ecu!, ct);
-            var frm = FrmGuard.Assess(frmId);
-            Console.WriteLine($"  {frm.Label}: {frm.Advice}");
+            var frmId = FrmGuard.IsFootwellModule(ecu!) ? await backend.IdentifyAsync(ecu!, ct) : null;
+            if (FrmGuard.IsFootwellModule(ecu!))
+            {
+                var frm = FrmGuard.Assess(frmId);
+                Console.WriteLine($"  {frm.Label}: {frm.Advice}");
+            }
             var guard = WriteGuard.Decide(ecu!, frmId, WriteKind.ServiceFunction, state.Voltage);
             if (!guard.Allowed) { Console.WriteLine($"Not run: {guard.Reason}"); return 1; }
             if (guard.Floor is { } floor && (checks.MinVoltage is null || checks.MinVoltage < floor)) checks = checks with { MinVoltage = floor };
@@ -946,9 +949,8 @@ internal static class Cli
 
     private static async Task<int> Clear(IDiagnosticBackend backend, EcuDefinition ecu, bool yes, CancellationToken ct, VehicleFamily? vehicle = null)
     {
-        if (WriteGuard.FloorFor(ecu, null, WriteKind.ClearFaults) is not null)
         {
-            var identity = await backend.IdentifyAsync(ecu, ct);
+            var identity = FrmGuard.IsFootwellModule(ecu) ? await backend.IdentifyAsync(ecu, ct) : null;
             var guard = await WriteGuard.CheckAsync(backend, ecu, identity, WriteKind.ClearFaults, vehicle?.Modules.FirstOrDefault(m => m.IsEngine), null, ct);
             if (!guard.Allowed) { Console.WriteLine($"Not cleared: {guard.Reason}"); return 1; }
         }

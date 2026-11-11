@@ -228,7 +228,8 @@ public static class ServiceRunner
                 rpm ??= await JobNumber(jobs, engine, "STATUS_MOTORDREHZAHL", ct);
             }
         }
-        return new VehicleState(voltage, rpm, speed, backend.IgnitionOn);
+        // A voltage that can't be a car battery's (a damaged answer, a sensor fault) counts as "couldn't be read".
+        return new VehicleState(WriteGuard.Plausible(voltage), rpm, speed, backend.IgnitionOn);
     }
 
     private static async Task<double?> JobNumber(IJobRunner jobs, EcuDefinition engine, string job, CancellationToken ct)

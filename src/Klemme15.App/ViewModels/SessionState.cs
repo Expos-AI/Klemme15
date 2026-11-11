@@ -369,6 +369,14 @@ public sealed class SessionState : ViewModelBase
         Model = model;
         IsDemo = settings.Demo;
         Backend = backend;
+        if (backend is IConnectionWatch watch)
+            watch.ConnectionLost += message => OnUiThread(async () =>
+            {
+                if (!ReferenceEquals(_backend, backend)) return;   // already disconnected, or another car by now
+                Log.Note("The cable stopped responding; disconnecting");
+                await DisconnectAsync();
+                Status = "The cable stopped responding, so Klemme15 disconnected. Check the plug at both ends, then connect again in the Garage.";
+            });
         // The engine computer's part number pins down its exact version (MSV70 vs MSV80 on an N52), which the
         // readings and guided tests need before any quick test has run.
         _engineIdentity = null;

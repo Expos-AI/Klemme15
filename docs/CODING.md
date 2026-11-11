@@ -111,7 +111,9 @@ A preset is only a list of existing options. It unlocks under the same rule as s
 
 ## Voltage
 
-Every coding write needs at least **12.5 V**. A footwell module that is an **FRM3**, or one Klemme15 can't identify, needs **13.0 V**, which in practice means a battery charger (not a jump pack). Klemme15 never codes without a voltage reading.
+Every coding write needs at least **12.5 V**. A footwell module that is an **FRM3**, or one Klemme15 can't identify, needs **13.0 V**, which in practice means a battery charger (not a jump pack). Klemme15 never codes without a voltage reading, reads it again right before it writes (after the backup), and treats a reading that can't be right (below 6 V or above 16.5 V) as no reading.
+
+Below **10.5 V** Klemme15 writes nothing to any module, including clearing faults and service functions. These limits are Klemme15's own rules of thumb.
 
 ## Help verify more modules
 

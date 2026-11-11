@@ -33,6 +33,9 @@ public sealed record NativeBackendOptions
     /// <summary>How long to wait for a module that may not be fitted. Short = fast scans.</summary>
     public TimeSpan ProbeTimeout { get; init; } = TimeSpan.FromMilliseconds(400);
 
+    /// <summary>How long to wait for a module that is fitted (null: each protocol's own default). Tests shorten it.</summary>
+    public TimeSpan? ResponseTimeout { get; init; }
+
     /// <summary>Refuse to connect when the cable reports ignition off (only for cables with a working DSR line).</summary>
     public bool RequireIgnition { get; init; }
 }
@@ -41,7 +44,7 @@ public sealed record NativeBackendOptions
 /// Talks to the car with Klemme15's own protocol implementation. Needs no BMW software or files.
 /// What it can decode is limited by the open database; EDIABAS mode covers the rest.
 /// </summary>
-public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe, IRawRequests, ICheckControlReader
+public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPresenceProbe, IRawRequests, ICheckControlReader, IConnectionWatch
 {
     private readonly ITransport _transport;
     private readonly NativeBackendOptions _options;
@@ -91,7 +94,16 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         _fast = new BmwFastChannel(transport);
         _ds2 = new Ds2Channel(transport);
         _obd = new KLineObdChannel(transport);
+        if (_options.ResponseTimeout is { } wait)
+        {
+            _fast.ResponseTimeout = wait;
+            _ds2.ResponseTimeout = wait;
+        }
     }
+
+    /// <summary>Raised once, off the bus thread, when the cable itself is gone (unplugged, port lost).</summary>
+    public event Action<string>? ConnectionLost;
+    private int _lostReported;
 
     public string Name => $"Klemme15 native ({(_options.Mode == CableMode.DCan ? "D-CAN" : "K-line")})";
 
@@ -518,10 +530,26 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
         {
             return await Task.Run(work, ct).ConfigureAwait(false);
         }
-        catch (Exception e) when (e is IOException or TimeoutException or UnauthorizedAccessException or InvalidOperationException)
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException || e is InvalidOperationException or TimeoutException && !TransportOpen())
+        {
+            // The cable is gone. Release the port so a reconnect can open it again, and tell the session once, so every
+            // page stops instead of each one finding out by itself.
+            _line = LineState.Closed;
+            try { _transport.Close(); } catch (Exception) { /* already gone */ }
+            var message = $"The cable stopped responding ({e.Message}). It may have been unplugged: check the plug at both ends, then connect again.";
+            if (Interlocked.Exchange(ref _lostReported, 1) == 0 && ConnectionLost is { } lost) _ = Task.Run(() => lost(message));
+            throw new DiagnosticException(message, e);
+        }
+        catch (TimeoutException e)
         {
             _line = LineState.Closed;
             throw new DiagnosticException($"Cable error: {e.Message}. Is the cable still plugged in?", e);
+        }
+        catch (Exception e) when (e is IndexOutOfRangeException or ArgumentException or FormatException or OverflowException or KeyNotFoundException or InvalidOperationException)
+        {
+            // The last line of defence against a damaged or unexpected answer: a clear message, never a crash.
+            _line = LineState.Closed;
+            throw new DiagnosticException($"Klemme15 couldn't read the module's answer: it was damaged or in a layout it doesn't know ({e.GetType().Name}). Try again; the traffic log (Log page) has the bytes.", e);
         }
         finally
         {
@@ -530,4 +558,9 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     }
 
     private Task OnBus(Func<bool> work, CancellationToken ct) => OnBus<bool>(work, ct);
+
+    private bool TransportOpen()
+    {
+        try { return _transport.IsOpen; } catch (Exception) { return false; }
+    }
 }

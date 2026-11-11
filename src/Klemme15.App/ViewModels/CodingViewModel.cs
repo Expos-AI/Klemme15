@@ -490,6 +490,7 @@ public sealed partial class CodingViewModel : PageViewModel
             if (!await GuardAsync()) return 0;
             _blocks = null;
             var before = await TakeBackupAsync("before restoring"); // so a wrong restore can be undone too
+            if (!await GuardAsync()) return 0;   // again, right before writing: reading the backup takes a while
             var cutOff = false;
             int written;
             using (_session.BeginOperation(new RunningOperation
@@ -625,6 +626,7 @@ public sealed partial class CodingViewModel : PageViewModel
             if (!await GuardAsync()) return 0;
             _blocks = null; // the safety backup is always a fresh read
             var backup = await TakeBackupAsync($"before: {p.Item.Title} {(p.On ? "on" : "off")}");
+            if (!await GuardAsync()) return 0;   // again, right before writing: reading the backup takes a while
             CodingResult result;
             // Journaled while it writes: if the cable or computer stops mid-write, Klemme15 says to restore this backup.
             var cutOff = false;

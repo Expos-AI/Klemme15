@@ -121,6 +121,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Quick codes** (experimental): LED bulb warnings off, digital speed, mirror folding and more, only where Klemme15 knows exactly where the option lives on your module: checked against your NCS Expert reading, learned by watching another coding tool, or from a map another owner of the identical module shared. Every write is backed up, read back and undone if anything is off ([walkthrough](docs/QUICK-CODES.md)).
 - **Retrofit checker**: notices replaced or added modules and explains what the job needs.
 - **Footwell module (FRM3) protection**: the module that can corrupt itself on a voltage dip is only written to at 13.0 V or more.
+- **Voltage rules for every write**: nothing is written to any module below 10.5 V, coding needs 12.5 V, and a reading that can't be right is never trusted.
 
 **Share and automate**
 - **Snapshots (.k15)**: your whole car in one file, opened read-only by whoever helps you, with the VIN removed ([how](docs/SNAPSHOTS.md)).

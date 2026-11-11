@@ -74,4 +74,46 @@ public class FrmGuardTests
         Assert.DoesNotContain(e60.Modules, m => FrmGuard.IsFootwellModule(m));
         Assert.Contains(db.FindVehicle("E9x")!.Modules, m => FrmGuard.IsFootwellModule(m));
     }
+
+    [Theory]
+    [InlineData(WriteKind.ClearFaults, 9.8)]
+    [InlineData(WriteKind.ServiceFunction, 10.2)]
+    [InlineData(WriteKind.Coding, 10.4)]
+    public void NothingIsWrittenToAnyModuleOnADeeplyDischargedBattery(WriteKind kind, double voltage)
+    {
+        var check = WriteGuard.Decide(Kombi, null, kind, voltage);
+        Assert.False(check.Allowed);
+        Assert.Contains("10.5 V", check.Reason);
+        Assert.Contains("charger", check.Reason);
+    }
+
+    [Theory]
+    [InlineData(0.0)]
+    [InlineData(3.2)]
+    [InlineData(25.5)]
+    [InlineData(655.35)]
+    [InlineData(-1.0)]
+    [InlineData(double.NaN)]
+    public void AVoltageThatCannotBeRightIsNeverTrusted(double reported)
+    {
+        Assert.Null(WriteGuard.Plausible(reported));
+        // Coding and fragile footwell modules are never written blind, so an impossible reading blocks them.
+        var coding = WriteGuard.Decide(Kombi, null, WriteKind.Coding, reported);
+        Assert.False(coding.Allowed);
+        Assert.Null(coding.Voltage);
+        Assert.False(WriteGuard.Decide(Frm, null, WriteKind.ServiceFunction, reported).Allowed);
+        // It is never read as "plenty of voltage" either.
+        Assert.False(WriteGuard.Decide(Frm, null, WriteKind.Coding, reported).Allowed);
+    }
+
+    [Fact]
+    public void NormalVoltagesStillPass()
+    {
+        Assert.Equal(12.4, WriteGuard.Plausible(12.4));
+        Assert.Equal(14.8, WriteGuard.Plausible(14.8));
+        Assert.True(WriteGuard.Decide(Kombi, null, WriteKind.ClearFaults, 11.2).Allowed);
+        Assert.True(WriteGuard.Decide(Kombi, null, WriteKind.ServiceFunction, 12.1).Allowed);
+        Assert.True(WriteGuard.Decide(Kombi, null, WriteKind.Coding, 13.8).Allowed);
+        Assert.True(WriteGuard.Decide(Kombi, null, WriteKind.ClearFaults, null).Allowed);
+    }
 }

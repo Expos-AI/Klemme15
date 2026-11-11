@@ -67,6 +67,13 @@ public interface IModuleDiscovery
     Task<IReadOnlyList<DiscoveredModule>> DiscoverAsync(IReadOnlyList<byte> addresses, IProgress<int>? progress = null, CancellationToken ct = default);
 }
 
+/// <summary>A connection that can tell when the cable itself has gone (unplugged, port lost).</summary>
+public interface IConnectionWatch
+{
+    /// <summary>Raised once, with a message for the owner. Not raised on the caller's thread.</summary>
+    event Action<string>? ConnectionLost;
+}
+
 /// <summary>Expert mode: run any job from an SGBD, like Tool32.</summary>
 public interface IJobRunner
 {

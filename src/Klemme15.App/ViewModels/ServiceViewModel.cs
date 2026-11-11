@@ -489,7 +489,7 @@ public sealed class ServiceViewModel : PageViewModel
         });
         try
         {
-            if (!_session.IsDemo && FrmGuard.IsFootwellModule(ecu))
+            if (!_session.IsDemo)
             {
                 var guard = await WriteGuard.CheckAsync(backend, ecu, IdentityOf(ecu), WriteKind.ServiceFunction,
                     _session.Vehicle?.Modules.FirstOrDefault(m => m.IsEngine), _session.Measurements, _cts.Token);
