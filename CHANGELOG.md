@@ -2,6 +2,10 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.30
+
+- **Every model visible on smaller screens.** In the Garage, the car families are now compact buttons instead of one full-width row each, with a heading over the model list. On a laptop-sized window the 13 families used to push the model list off the bottom of the screen, so some owners only saw the first model of their car (for example the E46 323i, not the M3).
+
 ## 0.99.29
 
 - **What's due for service.** On the Service page, **What's due for service?** reads the instrument cluster's own service list (engine oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check and more) and shows how much of each interval is left, most urgent first. It only reads. For cars with Condition Based Service (3 Series E90 family, 1 Series, 5 Series E60, X5 E70, X1, Z4 E89), in EDIABAS mode with your own BMW files; pending field validation.

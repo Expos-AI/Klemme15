@@ -50,15 +50,13 @@
           </StackPanel>
           <ItemsControl ItemsSource="{Binding Families}" IsVisible="{Binding NotSearching}">
             <ItemsControl.ItemsPanel>
-              <ItemsPanelTemplate><StackPanel Spacing="6" /></ItemsPanelTemplate>
+              <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:FamilyOption">
-                <Button Classes="segment" Classes.on="{Binding IsSelected}" Command="{Binding SelectCommand}" HorizontalAlignment="Stretch">
-                  <DockPanel>
-                    <TextBlock DockPanel.Dock="Right" Text="{Binding Years}" Classes="muted small" VerticalAlignment="Center" />
-                    <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="16" FontWeight="SemiBold" />
-                  </DockPanel>
+                <Button Classes="segment" Classes.on="{Binding IsSelected}" Command="{Binding SelectCommand}" Margin="0,0,6,6" Padding="12,6"
+                        ToolTip.Tip="{Binding Tip}">
+                  <TextBlock Text="{Binding ChipName}" FontFamily="{DynamicResource DisplayFont}" FontSize="16" FontWeight="SemiBold" />
                 </Button>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
@@ -71,6 +69,8 @@
           <RadioButton GroupName="units" Content="km, °C" IsChecked="{Binding MetricUnits}" />
           <RadioButton GroupName="units" Content="miles, °F" IsChecked="{Binding UsUnits}" />
         </StackPanel>
+        <TextBlock DockPanel.Dock="Top" Classes="muted small" FontWeight="SemiBold" Text="{Binding ModelsHeading}" TextWrapping="Wrap"
+                   Margin="0,0,0,6" IsVisible="{Binding NotSearching}" />
         <ListBox Classes="models" ItemsSource="{Binding Models}" SelectedItem="{Binding Model}" IsVisible="{Binding NotSearching}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="core:VehicleModel">

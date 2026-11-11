@@ -25,6 +25,10 @@ public sealed class FamilyOption(VehicleFamily family) : ViewModelBase
     public VehicleFamily Family { get; } = family;
     public string Name => Family.Id == "E9x" ? "E90 / E91 / E92 / E93" : Family.IsBeta ? Family.Id + " beta" : Family.Id;
     public string Years => Family.Years;
+
+    /// <summary>The short label on the family's chip; 13 full-width rows pushed the model list off small screens.</summary>
+    public string ChipName => Family.Id == "E9x" ? "E90–E93" : Family.IsBeta ? Family.Id + " beta" : Family.Id;
+    public string Tip => $"{Family.Name} · {Family.Years}";
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
 }
@@ -281,6 +285,7 @@ public sealed class GarageViewModel : PageViewModel
 
     public IReadOnlyList<FamilyOption> Families { get; }
     public IReadOnlyList<VehicleModel> Models => _family.Family.Models;
+    public string ModelsHeading => $"{_family.Family.Name}: pick your model ({Models.Count})";
     public ObservableCollection<MarkerViewModel> PreviewMarkers { get; } = [];
     public ObservableCollection<PortInfo> Ports { get; } = [];
 
@@ -512,6 +517,7 @@ public sealed class GarageViewModel : PageViewModel
         _family = option;
         _family.IsSelected = true;
         Raise(nameof(Models));
+        Raise(nameof(ModelsHeading));
         Raise(nameof(CableHint));
         Raise(nameof(StartCableStep));
         Raise(nameof(ConnectHelp));
