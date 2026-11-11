@@ -77,7 +77,7 @@
               <StackPanel Spacing="1">
                 <DockPanel>
                   <TextBlock DockPanel.Dock="Right" Text="{Binding Years}" Classes="muted small" VerticalAlignment="Center" />
-                  <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" />
+                  <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
                 </DockPanel>
                 <TextBlock Text="{Binding Engine}" Classes="muted small" TextWrapping="Wrap" />
               </StackPanel>

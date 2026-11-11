@@ -4,7 +4,7 @@ Every Klemme15 release, newest first. The downloads are on the [Releases page](h
 
 ## 0.99.30
 
-- **Every model visible on smaller screens.** In the Garage, the car families are now compact buttons instead of one full-width row each, with a heading over the model list. On a laptop-sized window the 13 families used to push the model list off the bottom of the screen, so some owners only saw the first model of their car (for example the E46 323i, not the M3).
+- **Every model visible on smaller screens.** In the Garage, the car families are now compact buttons instead of one full-width row each, with a heading over the model list. On a laptop-sized window the 13 families used to push the model list off the bottom of the screen, so some owners only saw the first model of their car (for example the E46 323i, not the M3). Long model names such as "335xi / 335i xDrive" now wrap instead of being cut off.
 
 ## 0.99.29
 
