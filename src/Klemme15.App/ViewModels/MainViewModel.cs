@@ -22,7 +22,7 @@ namespace Klemme15.App.ViewModels;
 public sealed class MainViewModel : ViewModelBase
 {
     private PageViewModel _currentPage;
-    private bool _isDark;
+    private string _theme;
 
     /// <param name="database">An already-loaded database (the splash loads it in the background); loaded here if omitted.</param>
     /// <param name="startup">What the splash already found (fault texts, BMW files, ports); null to look on the Garage page.</param>
@@ -101,8 +101,8 @@ public sealed class MainViewModel : ViewModelBase
         };
         Pages = [Garage, Vehicle, Faults, Readings, Tests, Live, Ghost, Service, Coding, Analyse, Expert, Log];
         _currentPage = Garage;
-        _isDark = settings.Theme != "Light";
-        ToggleThemeCommand = new RelayCommand(() => IsDark = !IsDark);
+        _theme = Services.AppThemes.Names.Contains(settings.Theme) ? settings.Theme : "Dark";
+        ToggleThemeCommand = new RelayCommand(() => Theme = Services.AppThemes.Next(_theme));
         AboutCommand = new RelayCommand(() => _ = dialogs.ShowAboutAsync(Version));
         SupportCommand = new RelayCommand(() => _ = dialogs.OpenUrlAsync(Services.Links.Support));
         PrivacyCommand = new RelayCommand(() => _ = ShowNotices is { } show ? show() : dialogs.OpenUrlAsync(Services.Links.Legal));
@@ -313,17 +313,29 @@ public sealed class MainViewModel : ViewModelBase
     public string SnapshotNote => Session.Snapshot?.Manifest.Note is { Length: > 0 } n ? $"The owner says: \u201c{n}\u201d" : "";
     public bool HasSnapshotNote => SnapshotNote.Length > 0;
 
-    public bool IsDark
+    /// <summary>"Dark", "Light" or "Garage" (high contrast, for daylight).</summary>
+    public string Theme
     {
-        get => _isDark;
+        get => _theme;
         set
         {
-            if (!Set(ref _isDark, value)) return;
+            if (!Services.AppThemes.Names.Contains(value) || !Set(ref _theme, value)) return;
             ApplyTheme();
-            Settings.Theme = value ? "Dark" : "Light";
+            Settings.Theme = value;
             Settings.Save();
+            Raise(nameof(IsDark));
+            Raise(nameof(ThemeTip));
         }
     }
+
+    public bool IsDark { get => _theme == "Dark"; set => Theme = value ? "Dark" : "Light"; }
+
+    public string ThemeTip => _theme switch
+    {
+        "Dark" => "Theme: dark. Click for light",
+        "Light" => "Theme: light. Click for Garage mode (high contrast, for daylight)",
+        _ => "Theme: Garage mode (high contrast). Click for dark",
+    };
 
     public RelayCommand ToggleThemeCommand { get; }
     public RelayCommand AboutCommand { get; }
@@ -338,7 +350,7 @@ public sealed class MainViewModel : ViewModelBase
     public void ApplyTheme()
     {
         if (Application.Current is { } app)
-            app.RequestedThemeVariant = _isDark ? ThemeVariant.Dark : ThemeVariant.Light;
+            app.RequestedThemeVariant = Services.AppThemes.Variant(_theme);
     }
 
     public string Version => $"Klemme15 {typeof(MainViewModel).Assembly.GetName().Version?.ToString(3)}";

@@ -2,6 +2,10 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.32
+
+- **Garage mode.** A third theme for working in daylight: black on white, heavy lines and larger small print, so the screen stays readable with the laptop on a fender or in the sun. The theme button at the bottom left now steps through dark, light and Garage mode.
+
 ## 0.99.31
 
 - **Stricter voltage rules for every write.** Klemme15 now refuses to write anything to any module (clearing faults, service functions, coding) when the battery is below 10.5 V, not only to the footwell module. A voltage reading that can't be right (0 V, 25 V, a damaged answer) is treated as unreadable instead of trusted, and coding re-checks the voltage right before it writes, after the backup has been read.

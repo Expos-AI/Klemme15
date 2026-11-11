@@ -63,7 +63,7 @@
               <Button Classes="quiet" Command="{Binding CheckUpdatesCommand}" ToolTip.Tip="Check for updates" Width="28" Height="28" Padding="0">
                 <PathIcon Data="{x:Static vm:Icons.Update}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
               </Button>
-              <Button Classes="quiet" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="Switch between dark and light" Width="28" Height="28" Padding="0">
+              <Button Classes="quiet" Command="{Binding ToggleThemeCommand}" ToolTip.Tip="{Binding ThemeTip}" Width="28" Height="28" Padding="0">
                 <PathIcon Data="{x:Static vm:Icons.Theme}" Width="14" Height="14" Foreground="{DynamicResource MutedBrush}" />
               </Button>
             </WrapPanel>

@@ -265,6 +265,14 @@ vm.CurrentPage = vm.Faults;
 Shot("13-faults-light");
 vm.CurrentPage = vm.Garage;
 Shot("14-garage-light");
+// Garage mode: high contrast for daylight.
+vm.Theme = "Garage";
+Shot("46-garage-mode");
+vm.CurrentPage = vm.Faults;
+Shot("47-garage-mode-faults");
+vm.CurrentPage = vm.Vehicle;
+Shot("48-garage-mode-vehicle");
+vm.CurrentPage = vm.Garage;
 vm.IsDark = true;
 vm.Garage.SelectModel("E46-330i");
 Connect();

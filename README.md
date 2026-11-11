@@ -105,6 +105,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Diagnostic chains**: a mechanic's reasoning, run step by step. The Vacuum leak hunter, the Charging system check and the Warm-up check (thermostat) are offered under matching faults; anyone can write one ([how](docs/CHAINS.md)).
 - **Multimeter and swap checks** under matching faults: connectors, grounds, coils, VANOS solenoids, the pump's power, oxygen sensor heaters.
 - **What's due for service**: the instrument cluster's own service list, most urgent first, read-only (cars with Condition Based Service, in EDIABAS mode; pending field validation).
+- **Garage mode**: a high-contrast theme (black on white, larger small print) for working in daylight, next to dark and light.
 - **Your units**: km and °C, or miles and °F, chosen in the Garage.
 - **Live data and Analyse**: record values to CSV, then scatter and replay the log with a healthy range drawn behind it ([baselines](docs/BASELINES.md)).
 
