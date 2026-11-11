@@ -30,6 +30,7 @@ internal static class Cli
           vehicles                      List supported vehicles and their modules
           scan                          Quick test: identify every module and read faults
           open <file.k15>               Show a snapshot someone shared (add --report or --forum to export it)
+          diff <before.k15> <after.k15> Compare two snapshots: faults gone, new and unchanged (add --report out.html)
           faults  --module <id>         Read one module's fault memory
           readings --module <id>        Read every status value a module offers (needs --ediabas, or --demo)
                    [--filter lambda] [--job STATUS_X]
@@ -220,6 +221,8 @@ internal static class Cli
                 return 0;
             case "open":
                 return OpenSnapshot(a);
+            case "diff":
+                return DiffSnapshots(a);
             case "test" when a.Positional.Count == 0:
                 foreach (var t in GuidedTests.All.Concat(db.Chains.Select(c => c.Info))) Console.WriteLine($"  {t.Id,-20} {t.Title}\n                       {t.Requirements}");
                 return 0;
@@ -631,6 +634,21 @@ internal static class Cli
     }
 
     /// <summary>Prints what a shared .k15 snapshot holds, and exports it as a report or forum post.</summary>
+    private static int DiffSnapshots(Args a)
+    {
+        if (a.Positional.Count < 2) throw new DiagnosticException("Usage: klemme15 diff <before.k15> <after.k15> [--report out.html]");
+        SnapshotComparison result;
+        try { result = SnapshotDiff.Compare(SnapshotFile.Read(File.ReadAllBytes(a.Positional[0])), SnapshotFile.Read(File.ReadAllBytes(a.Positional[1]))); }
+        catch (SnapshotException e) { Console.Error.WriteLine($"error: {e.Message}"); return 1; }
+        Console.Write(SnapshotDiff.ToText(result));
+        if (a.Get("report") is { } report)
+        {
+            File.WriteAllText(report, SnapshotDiff.ToHtml(result));
+            Console.WriteLine($"\nComparison saved to {report}");
+        }
+        return 0;
+    }
+
     private static int OpenSnapshot(Args a)
     {
         var file = a.Positional.ElementAtOrDefault(0) ?? throw new DiagnosticException("Usage: klemme15 open <file.k15>");

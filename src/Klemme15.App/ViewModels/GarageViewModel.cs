@@ -93,6 +93,7 @@ public sealed class GarageViewModel : PageViewModel
         // While a job is changing the car, switching cars or disconnecting would cut it off: these wait.
         OpenDemoCommand = new AsyncCommand(() => ConnectAsync(demo: true), () => !_busy && !_session.JobRunning && _model is not null, e => Error = Problems.Describe(e));
         OpenSnapshotCommand = new AsyncCommand(OpenSnapshotAsync, () => !_busy && !_session.JobRunning, e => Error = Problems.Describe(e));
+        CompareSnapshotsCommand = new AsyncCommand(CompareSnapshotsAsync, null, e => Error = Problems.Describe(e));
         ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && !_session.JobRunning && _model is not null && (_port is not null || UsesNetwork), e => Error = Problems.Describe(e));
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected && !_session.JobRunning);
@@ -452,6 +453,25 @@ public sealed class GarageViewModel : PageViewModel
 
     public AsyncCommand OpenDemoCommand { get; }
     public AsyncCommand OpenSnapshotCommand { get; }
+
+    /// <summary>Compares two snapshot files (before and after a repair, or two cars) and saves the result as a page.</summary>
+    public AsyncCommand CompareSnapshotsCommand { get; }
+    public string CompareResult { get => _compareResult; private set { if (Set(ref _compareResult, value)) Raise(nameof(HasCompareResult)); } }
+    public bool HasCompareResult => _compareResult.Length > 0;
+    private string _compareResult = "";
+
+    private async Task CompareSnapshotsAsync()
+    {
+        Error = null;
+        CompareResult = "";
+        if (await _dialogs.OpenBytesAsync("Compare: pick the first (earlier) snapshot", "Klemme15 snapshot", ["*.k15"]) is not { } first) return;
+        if (await _dialogs.OpenBytesAsync("Compare: pick the second (later) snapshot", "Klemme15 snapshot", ["*.k15"]) is not { } second) return;
+        Klemme15.Core.SnapshotComparison result;
+        try { result = Klemme15.Core.SnapshotDiff.Compare(Klemme15.Core.SnapshotFile.Read(first.Data), Klemme15.Core.SnapshotFile.Read(second.Data)); }
+        catch (Klemme15.Core.SnapshotException e) { Error = e.Message; return; }
+        CompareResult = $"{first.Name} compared with {second.Name}: {result.Headline}";
+        await _dialogs.SaveTextAsync("Save the comparison", $"klemme15-comparison-{DateTime.Now:yyyyMMdd-HHmm}.html", "html", Klemme15.Core.SnapshotDiff.ToHtml(result));
+    }
 
     private async Task OpenSnapshotAsync()
     {

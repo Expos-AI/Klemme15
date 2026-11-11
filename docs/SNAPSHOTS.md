@@ -30,6 +30,19 @@ In the **Garage**, press **Open a snapshot...** (or double-click a `.k15` file o
 
 Whoever you send a snapshot to doesn't need to install anything: they can open it at **[expos-ai.github.io/Klemme15/viewer.html](https://expos-ai.github.io/Klemme15/viewer.html)**. The page shows the owner's note, the modules, faults with their details, dash messages, the car's story, test results and the last minute of live data. The file is read on their own device and never uploaded, and the page checks every part against its checksum, like the app does. Health trends, graphs, live data replay and coding open in the app only.
 
+## Comparing two snapshots
+
+Take a snapshot before a repair and another after it, then press **Compare two snapshots...** in the Garage and pick the two files, earlier one first. Klemme15 shows:
+
+- faults that are **gone**, **new**, **changed** (stored before, active now) or **still there**, module by module
+- modules that stopped answering, started answering, or carry a different part number (replaced or reprogrammed)
+- dash messages that appeared or went away
+- whether coding differs, and by how many bytes, when both snapshots include coding
+
+A fault in a module that no longer answers is marked as such: a silent module isn't a fixed fault. Background entries (info and shadow memory) are left out. The comparison works on the two files alone, so no car needs to be connected, and it's saved as a page you can send along. It also works for two different cars of the same model, to see how yours differs from a healthy one.
+
+Command line: `klemme15 diff before.k15 after.k15 --report comparison.html`.
+
 ## Safety
 
 - Nothing can be written from a snapshot: clearing, coding, service functions and tests are all refused. A snapshot's coding can be looked at, never written to a car, so a snapshot can't be used to copy one car's coding onto another.

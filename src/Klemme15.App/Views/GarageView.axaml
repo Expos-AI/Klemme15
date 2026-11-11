@@ -203,10 +203,13 @@
             <Button Content="Connect to my car" Command="{Binding ShowCableCommand}" IsVisible="{Binding !ShowCable}" Margin="0,0,10,8" />
             <Button Content="Open a snapshot..." Command="{Binding OpenSnapshotCommand}" Margin="0,0,10,8"
                     ToolTip.Tip="Open a .k15 file someone shared and explore their car as it was, read-only" />
+            <Button Content="Compare two snapshots..." Command="{Binding CompareSnapshotsCommand}" Margin="0,0,10,8"
+                    ToolTip.Tip="Pick two .k15 files (before and after a repair, or two cars) and see which faults are gone, new or unchanged" />
             <Button Content="Disconnect" Command="{Binding DisconnectCommand}" IsVisible="{Binding IsConnected}" Margin="0,0,10,8" />
           </WrapPanel>
           <TextBlock Text="{Binding DemoSummary}" Classes="muted" TextWrapping="Wrap" />
           <TextBlock Text="{Binding ConnectedText}" Classes="lit" IsVisible="{Binding IsConnected}" TextWrapping="Wrap" />
+          <TextBlock Text="{Binding CompareResult}" IsVisible="{Binding HasCompareResult}" TextWrapping="Wrap" />
           <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
         </StackPanel>
 

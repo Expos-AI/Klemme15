@@ -19,6 +19,7 @@ klemme15 test fuel-trims --port COM3             # guided test with a verdict (k
 klemme15 serve --port rfc2217://192.168.4.1:2217 --mqtt 192.168.1.10   # headless, over Wi-Fi
 klemme15 scan --port COM3 --snapshot car.k15 --note "Rough idle when warm"   # a snapshot others can open
 klemme15 open car.k15 --report car.html          # read a snapshot someone shared
+klemme15 diff before.k15 after.k15              # what changed between two snapshots (add --report out.html)
 klemme15 coding --module FRM --port COM3 backup  # back up a module's coding (no BMW data needed)
 klemme15 discover --port COM3                    # look for modules the database doesn't list
 klemme15 scan --port COM3 --log traffic.txt      # save the raw cable traffic for a bug report

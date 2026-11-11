@@ -2,6 +2,10 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.34
+
+- **Compare two snapshots.** In the Garage, **Compare two snapshots...** takes two .k15 files (before and after a repair, last month and today, or your car and a healthy one) and shows which faults are gone, new, changed or still there, which modules stopped or started answering, whether a module was replaced, and whether coding differs. A module that went silent is never counted as a fixed fault. The result is saved as a page you can share. Command line: `klemme15 diff before.k15 after.k15`.
+
 ## 0.99.33
 
 - **Privacy promises checked on every change.** New automatic checks fail the build if Klemme15's code ever names a website that isn't listed in the privacy policy, includes an analytics or crash-reporting library, or sends data to a server. Another check confirms the project ships no BMW software or data files.
