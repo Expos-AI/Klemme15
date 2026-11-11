@@ -11,33 +11,54 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 using System.Diagnostics;
+using System.Buffers;
 using Klemme15.Protocols.Transport;
 
 namespace Klemme15.Protocols.Channels;
 
+/// <summary>Looks at everything received so far and says whether it holds what the caller waits for.</summary>
+internal delegate bool BufferCheck(ReadOnlySpan<byte> received);
+
 internal static class BusReader
 {
+    /// <summary>No real answer is this long; a cable that floods the line is cut off here.</summary>
+    public const int MaxBytes = 64 * 1024;
+
     /// <summary>
     /// Accumulate bytes until <paramref name="complete"/> says the buffer holds what we need,
     /// or the deadline passes. Polls in short slices so a slow ECU never stalls the caller.
+    /// Bytes are collected in one pooled buffer: nothing is copied or allocated per read, only the result at the end.
     /// </summary>
-    public static byte[] ReadUntil(ITransport transport, TimeSpan timeout, Func<byte[], bool> complete, CancellationToken ct = default)
+    public static byte[] ReadUntil(ITransport transport, TimeSpan timeout, BufferCheck complete, CancellationToken ct = default)
     {
         var sw = Stopwatch.StartNew();
-        var buffer = new List<byte>(128);
-        var chunk = new byte[512];
-        while (sw.Elapsed < timeout)
+        var buffer = ArrayPool<byte>.Shared.Rent(1024);
+        var count = 0;
+        try
         {
-            ct.ThrowIfCancellationRequested();
-            var slice = timeout - sw.Elapsed;
-            if (slice > TimeSpan.FromMilliseconds(25)) slice = TimeSpan.FromMilliseconds(25);
-            if (slice <= TimeSpan.Zero) break;
-            var n = transport.Read(chunk, slice);
-            if (n <= 0) continue;
-            for (var i = 0; i < n; i++) buffer.Add(chunk[i]);
-            var snapshot = buffer.ToArray();
-            if (complete(snapshot)) return snapshot;
+            while (sw.Elapsed < timeout && count < MaxBytes)
+            {
+                ct.ThrowIfCancellationRequested();
+                var slice = timeout - sw.Elapsed;
+                if (slice > TimeSpan.FromMilliseconds(25)) slice = TimeSpan.FromMilliseconds(25);
+                if (slice <= TimeSpan.Zero) break;
+                if (count == buffer.Length)
+                {
+                    var larger = ArrayPool<byte>.Shared.Rent(buffer.Length * 2);
+                    buffer.AsSpan(0, count).CopyTo(larger);
+                    ArrayPool<byte>.Shared.Return(buffer);
+                    buffer = larger;
+                }
+                var n = transport.Read(buffer.AsSpan(count), slice);
+                if (n <= 0) continue;
+                count += n;
+                if (complete(buffer.AsSpan(0, count))) break;
+            }
+            return buffer.AsSpan(0, count).ToArray();
         }
-        return buffer.ToArray();
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buffer);
+        }
     }
 }

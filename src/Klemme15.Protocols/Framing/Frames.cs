@@ -69,13 +69,47 @@ public sealed record KwpFrame(byte Target, byte Source, byte[] Data)
         return frames;
     }
 
+    /// <summary>
+    /// The data of the first valid frame from <paramref name="source"/> to <paramref name="target"/>, without building
+    /// a list of every frame: this runs each time more bytes arrive.
+    /// </summary>
+    public static bool TryFind(ReadOnlySpan<byte> buf, byte source, byte target, out byte[] data)
+    {
+        var i = 0;
+        while (i < buf.Length)
+        {
+            if (TryFrameAt(buf, i, out var header, out var dataLen, out var length))
+            {
+                if (buf[i + 1] == target && buf[i + 2] == source)
+                {
+                    data = buf.Slice(i + header, dataLen).ToArray();
+                    return true;
+                }
+                i += length;
+            }
+            else i++;
+        }
+        data = [];
+        return false;
+    }
+
     private static bool TryParseAt(ReadOnlySpan<byte> buf, int i, out KwpFrame frame, out int length)
     {
         frame = null!;
+        if (!TryFrameAt(buf, i, out var header, out var dataLen, out length)) return false;
+        frame = new KwpFrame(buf[i + 1], buf[i + 2], buf.Slice(i + header, dataLen).ToArray());
+        return true;
+    }
+
+    /// <summary>Whether a whole frame with a correct checksum starts at <paramref name="i"/>, and where its data is.</summary>
+    private static bool TryFrameAt(ReadOnlySpan<byte> buf, int i, out int header, out int dataLen, out int length)
+    {
+        header = 3;
+        dataLen = 0;
         length = 0;
         var fmt = buf[i];
         if ((fmt & 0x80) == 0 || i + 3 >= buf.Length) return false;
-        int dataLen = fmt & 0x3F, header = 3;
+        dataLen = fmt & 0x3F;
         if (dataLen == 0)
         {
             dataLen = buf[i + 3];
@@ -85,9 +119,7 @@ public sealed record KwpFrame(byte Target, byte Source, byte[] Data)
         length = header + dataLen + 1;
         if (i + length > buf.Length) return false;
         var span = buf.Slice(i, length);
-        if (Checksum.Sum(span[..^1]) != span[^1]) return false;
-        frame = new KwpFrame(span[1], span[2], span.Slice(header, dataLen).ToArray());
-        return true;
+        return Checksum.Sum(span[..^1]) == span[^1];
     }
 }
 

@@ -93,13 +93,8 @@ public sealed class BmwFastChannel(ITransport transport)
         return answers.Select(kv => (kv.Key, kv.Value)).ToList();
     }
 
-    private byte[]? FindResponse(ReadOnlySpan<byte> buf, byte ecu)
-    {
-        foreach (var f in KwpFrame.ParseAll(buf))
-            if (f.Source == ecu && f.Target == TesterAddress && f.Data.Length > 0)
-                return f.Data;
-        return null;
-    }
+    private byte[]? FindResponse(ReadOnlySpan<byte> buf, byte ecu) =>
+        KwpFrame.TryFind(buf, ecu, TesterAddress, out var data) ? data : null;
 
     internal static bool IsResponsePending(byte[] p) => p.Length >= 3 && p[0] == 0x7F && p[2] == 0x78;
 

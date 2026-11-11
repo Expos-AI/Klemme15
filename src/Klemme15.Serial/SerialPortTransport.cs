@@ -94,27 +94,37 @@ public sealed class SerialPortTransport(string portName) : ITransport
     public void SetRts(bool on) => _port.RtsEnable = on;
     public void DiscardInput() => _port.DiscardInBuffer();
 
+    // One request at a time uses the port (the backend serialises the bus), so these two buffers are reused for every
+    // write and read instead of allocating a new array each time.
+    private byte[] _tx = new byte[512];
+    private readonly byte[] _rx = new byte[8192];
+
     public void Write(ReadOnlySpan<byte> data)
     {
-        var buffer = data.ToArray();
-        _port.Write(buffer, 0, buffer.Length);
+        if (data.Length > _tx.Length) _tx = new byte[data.Length];
+        data.CopyTo(_tx);
+        _port.Write(_tx, 0, data.Length);
     }
 
     public int Read(Span<byte> buffer, TimeSpan timeout)
     {
-        var sw = Stopwatch.StartNew();
+        if (buffer.IsEmpty) return 0;
+        var start = Stopwatch.GetTimestamp();
         while (true)
         {
             var available = _port.BytesToRead;
             if (available > 0)
             {
-                var tmp = new byte[Math.Min(available, buffer.Length)];
-                var n = _port.Read(tmp, 0, tmp.Length);
-                tmp.AsSpan(0, n).CopyTo(buffer);
+                var n = _port.Read(_rx, 0, Math.Min(Math.Min(available, buffer.Length), _rx.Length));
+                _rx.AsSpan(0, n).CopyTo(buffer);
                 return n;
             }
-            if (sw.Elapsed >= timeout) return 0;
-            Thread.Sleep(1);
+            var waited = Stopwatch.GetElapsedTime(start);
+            if (waited >= timeout) return 0;
+            // Most answers arrive within a couple of milliseconds. Thread.Sleep(1) can take 15 ms on Windows, which would
+            // add that to every request, so wait the first 2 ms without sleeping and only then yield the processor.
+            if (waited.TotalMilliseconds < 2) Thread.SpinWait(40);
+            else Thread.Sleep(1);
         }
     }
 

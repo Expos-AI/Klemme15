@@ -322,18 +322,19 @@ foreach (var page in vm.Pages)
 }
 vm.CurrentPage = vm.Garage;
 Shot("m-garage");
-// The E46 in a small window: every model (down to the M3) must be reachable, not pushed off by the family list.
-var garageFamily = vm.Garage.Families.First(f => f.IsSelected);
-vm.Garage.Families.First(f => f.Family.Id == "E46").SelectCommand!.Execute(null);
-Pump(200);
-Shot("m-garage-e46");
-garageFamily.SelectCommand!.Execute(null);
 window.Width = 1280;
 vm.CurrentPage = vm.Vehicle;
 // A short window (a 1080p laptop at 150 % with the taskbar and title bar): the legend and the side panel must still fit.
 window.Height = 620;
 Shot("s-vehicle-short");
 window.Height = 720;
+
+// Last, because it changes the car: the E46 in a small window. Every model (down to the M3) must be reachable.
+window.Width = 1024; window.Height = 640;
+vm.CurrentPage = vm.Garage;
+vm.Garage.Families.First(f => f.Family.Id == "E46").SelectCommand!.Execute(null);
+Pump(200);
+Shot("m-garage-e46");
 
 File.WriteAllLines(Path.Combine(outDir, "ui-layout.txt"), layout.Distinct());
 problems.AddRange(layout.Distinct().Select(l => "[Layout] " + l));

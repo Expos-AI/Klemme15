@@ -90,7 +90,35 @@ public sealed class LiveViewModel : PageViewModel
     private void StartColumns()
     {
         _columns = Selected.ToList();
-        _recording?.AppendLine("time," + string.Join(",", _columns.Select(p => $"\"{p.Name} ({p.Parameter.Unit})\"")));
+        Row("time," + string.Join(",", _columns.Select(p => $"\"{p.Name} ({p.Parameter.Unit})\"")));
+    }
+
+    /// <summary>A copy of the recording on disk while it runs, so a crash or a flat laptop battery doesn't lose it.</summary>
+    private RecordingAutosave? _autosave;
+    private string? _recovered = RecordingAutosave.Leftovers(RecordingAutosave.DefaultFolder).FirstOrDefault();
+
+    private void Row(string line)
+    {
+        _recording?.AppendLine(line);
+        _autosave?.AppendLine(line);
+    }
+
+    /// <summary>A recording from a session that ended without saving it.</summary>
+    public bool HasRecovered => _recovered is not null;
+    public string RecoveredText => _recovered is { } file
+        ? $"A live data recording from {RecordingAutosave.When(file)} wasn't saved before Klemme15 closed. It's still here."
+        : "";
+    public RelayCommand OpenRecoveredCommand { get; }
+    public RelayCommand DiscardRecoveredCommand { get; }
+
+    private void ForgetRecovered(bool delete)
+    {
+        if (delete)
+            foreach (var file in RecordingAutosave.Leftovers(RecordingAutosave.DefaultFolder, _autosave?.Path))
+                try { File.Delete(file); } catch (Exception e) when (e is IOException or UnauthorizedAccessException) { }
+        _recovered = null;
+        Raise(nameof(HasRecovered));
+        Raise(nameof(RecoveredText));
     }
 
     /// <summary>Hands the current recording's CSV text to the Analyse page.</summary>
@@ -105,6 +133,8 @@ public sealed class LiveViewModel : PageViewModel
         RecordCommand = new RelayCommand(() =>
         {
             _recording = new StringBuilder();
+            try { _autosave = new RecordingAutosave(RecordingAutosave.DefaultFolder); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { _autosave = null; }   // record in memory only
             if (_running) StartColumns();
             Raise(nameof(IsRecording));
             RaiseCommands();
@@ -112,6 +142,13 @@ public sealed class LiveViewModel : PageViewModel
         SaveRecordingCommand = new AsyncCommand(SaveRecordingAsync, () => _recording is not null, e => Error = Problems.Describe(e));
         AnalyseCommand = new RelayCommand(() => { if (_recording is { } rec) AnalyseRecording?.Invoke(rec.ToString()); },
             () => _recording is not null && AnalyseRecording is not null);
+        OpenRecoveredCommand = new RelayCommand(() =>
+        {
+            if (_recovered is not { } file) return;
+            try { AnalyseRecording?.Invoke(File.ReadAllText(file)); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { Error = $"Couldn't open the recording: {e.Message}"; }
+        });
+        DiscardRecoveredCommand = new RelayCommand(() => ForgetRecovered(delete: true));
         _session.PropertyChanged += (_, e) =>
         {
             if (e.PropertyName == nameof(SessionState.Backend)) OnUi(LoadParameters);
@@ -216,16 +253,21 @@ public sealed class LiveViewModel : PageViewModel
                 selected = Selected.ToList();
                 if (selected.Count == 0) { await Task.Delay(200, _cts.Token); continue; }
                 var byId = selected.ToDictionary(p => p.Parameter.Id);
+                var tick = System.Diagnostics.Stopwatch.GetTimestamp();
                 var values = await backend.ReadLiveAsync(engine, selected.Select(p => p.Parameter).ToList(), _cts.Token);
                 foreach (var v in values)
                     if (byId.TryGetValue(v.Parameter.Id, out var vm)) vm.Update(v);
                 _session.LiveBuffer.Add(DateTimeOffset.Now, selected.ToDictionary(p => string.IsNullOrEmpty(p.Parameter.Unit) ? p.Name : $"{p.Name} ({p.Parameter.Unit})", p => p.Latest));
-                _recording?.AppendLine(DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "," +
-                    string.Join(",", _columns.Select(p => byId.ContainsKey(p.Parameter.Id) ? p.Latest?.ToString(CultureInfo.InvariantCulture) ?? "" : "")));
+                if (_recording is not null)
+                    Row(DateTime.Now.ToString("HH:mm:ss.fff", CultureInfo.InvariantCulture) + "," +
+                        string.Join(",", _columns.Select(p => byId.ContainsKey(p.Parameter.Id) ? p.Latest?.ToString(CultureInfo.InvariantCulture) ?? "" : "")));
                 frames++;
                 var seconds = (DateTime.UtcNow - started).TotalSeconds;
                 if (seconds > 0) Rate = $"{frames / seconds:0.0} updates/s";
-                await Task.Delay(50, _cts.Token);
+                // Pace to about 25 updates a second at most. A read that already took that long (many values, a slow
+                // module) goes straight on: the old fixed 50 ms pause on top of every read halved the rate for nothing.
+                var took = System.Diagnostics.Stopwatch.GetElapsedTime(tick).TotalMilliseconds;
+                await Task.Delay(TimeSpan.FromMilliseconds(Math.Clamp(40 - took, 5, 40)), _cts.Token);
             }
         }
         catch (OperationCanceledException) { }
@@ -244,6 +286,8 @@ public sealed class LiveViewModel : PageViewModel
         // Keep the recording until it's really saved: cancelling the dialog, or a save that fails, loses nothing.
         if (!await _dialogs.SaveTextAsync("Save live data recording", $"klemme15-live-{DateTime.Now:yyyyMMdd-HHmm}.csv", "csv", text)) return;
         _recording = null;
+        _autosave?.Discard();   // it's saved where the owner wants it; the safety copy isn't needed any more
+        _autosave = null;
         Raise(nameof(IsRecording));
         RaiseCommands();
     }

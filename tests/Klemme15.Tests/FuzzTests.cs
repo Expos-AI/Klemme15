@@ -96,6 +96,28 @@ public class FuzzTests
     }
 
     [Fact]
+    public void TheFastFrameSearchAgreesWithTheFullParser()
+    {
+        var r = new Random(12);
+        for (var i = 0; i < 20_000; i++)
+        {
+            // Noise with real frames mixed in, some to the tester and some not.
+            var parts = new List<byte>();
+            for (var k = r.Next(4); k >= 0; k--)
+            {
+                parts.AddRange(Bytes(r, 12));
+                var data = Bytes(r, 70);
+                if (data.Length > 0) parts.AddRange(KwpFrame.Build((byte)(r.Next(3) == 0 ? 0x40 : 0xF1), (byte)(r.Next(2) == 0 ? 0x12 : 0x60), data));
+            }
+            var buf = parts.ToArray();
+            var expected = KwpFrame.ParseAll(buf).FirstOrDefault(f => f.Source == 0x12 && f.Target == 0xF1)?.Data;
+            var found = KwpFrame.TryFind(buf, 0x12, 0xF1, out var actual);
+            Assert.Equal(expected is not null, found);
+            if (expected is not null) Assert.True(expected.SequenceEqual(actual));
+        }
+    }
+
+    [Fact]
     public void ReplyDecodersSurviveRandomPayloads()
     {
         var r = new Random(87);
