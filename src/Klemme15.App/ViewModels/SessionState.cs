@@ -377,13 +377,18 @@ public sealed class SessionState : ViewModelBase
                 await DisconnectAsync();
                 Status = "The cable stopped responding, so Klemme15 disconnected. Check the plug at both ends, then connect again in the Garage.";
             });
+        // The connection is up from here. What follows is optional and can be slow (in EDIABAS mode a module that
+        // doesn't answer takes seconds), so it must never leave the app looking half-connected.
+        Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
+        Status = settings.Demo ? $"{vehicle.Id} {model?.Name} demo car: nothing is sent to a real car".Replace("  ", " ")
+            : $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
         // The engine computer's part number pins down its exact version (MSV70 vs MSV80 on an N52), which the
         // readings and guided tests need before any quick test has run.
         _engineIdentity = null;
         if (!settings.Demo && vehicle.Modules.FirstOrDefault(m => m.IsEngine) is { } engine)
         {
             try { _engineIdentity = await backend.IdentifyAsync(engine, ct); }
-            catch (Exception e) when (e is DiagnosticException or TimeoutException) { }
+            catch (Exception e) when (e is DiagnosticException or TimeoutException or OperationCanceledException) { }
         }
         // A test that drove the water pump was cut off: send the switch-off again, once, and only to the same car model.
         if (!settings.Demo && _interrupted is { StopAction: "pump" } cut && cut.Car == $"{vehicle.Id} {model?.Name}".Trim()
@@ -399,9 +404,6 @@ public sealed class SessionState : ViewModelBase
             }
             catch (Exception e) when (e is DiagnosticException or TimeoutException or NotSupportedException or OperationCanceledException) { }
         }
-        Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
-        Status = settings.Demo ? $"{vehicle.Id} {model?.Name} demo car: nothing is sent to a real car".Replace("  ", " ")
-            : $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
     }
 
     public async Task DisconnectAsync()

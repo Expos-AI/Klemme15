@@ -649,6 +649,11 @@ public sealed class GarageViewModel : PageViewModel
             Error = e.Message;
             return;
         }
+        catch (OperationCanceledException)
+        {
+            Error = "Connecting took longer than 30 seconds, so Klemme15 stopped. Check the ignition and the cable, then try again.";
+            return;
+        }
         finally
         {
             _busy = false;

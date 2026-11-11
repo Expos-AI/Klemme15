@@ -348,7 +348,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0029"
+        "D_0029",
+        "D_DSC"
       ],
       "pos": [
         250,
@@ -368,7 +369,8 @@
       "protocol": "BmwFast",
       "category": "Safety",
       "sgbd": [
-        "D_0001"
+        "D_0001",
+        "D_SIM"
       ],
       "pos": [
         560,
@@ -388,7 +390,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0040"
+        "D_0040",
+        "D_CAS"
       ],
       "pos": [
         372,
@@ -406,7 +409,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0060"
+        "D_0060",
+        "D_KOMBI"
       ],
       "pos": [
         345,
@@ -424,7 +428,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0072"
+        "D_0072",
+        "D_KBM"
       ],
       "pos": [
         400,
@@ -443,7 +448,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0000"
+        "D_0000",
+        "D_ZGM"
       ],
       "pos": [
         395,
@@ -462,7 +468,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0078"
+        "D_0078",
+        "D_KLIMA"
       ],
       "pos": [
         338,
@@ -500,7 +507,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0017"
+        "D_0017",
+        "D_EKP"
       ],
       "pos": [
         596,
@@ -520,7 +528,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0064"
+        "D_0064",
+        "D_PDC"
       ],
       "pos": [
         880,
@@ -538,7 +547,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0063"
+        "D_0063",
+        "D_MMI"
       ],
       "pos": [
         338,
@@ -562,7 +572,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0056"
+        "D_0056",
+        "D_FZD"
       ],
       "pos": [
         470,
@@ -581,7 +592,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0016"
+        "D_0016",
+        "D_AFS"
       ],
       "optional": true,
       "pos": [
@@ -606,7 +618,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0019"
+        "D_0019",
+        "D_VGSG"
       ],
       "optional": true,
       "pos": [
@@ -631,7 +644,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0020"
+        "D_0020",
+        "D_RDC"
       ],
       "optional": true,
       "pos": [
@@ -657,7 +671,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0021"
+        "D_0021",
+        "D_ACC"
       ],
       "optional": true,
       "pos": [
@@ -682,7 +697,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0024"
+        "D_0024",
+        "D_CVM"
       ],
       "optional": true,
       "pos": [
@@ -715,7 +731,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0027"
+        "D_0027",
+        "D_PGS"
       ],
       "optional": true,
       "pos": [
@@ -740,7 +757,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0030"
+        "D_0030",
+        "D_EPS"
       ],
       "optional": true,
       "pos": [
@@ -782,7 +800,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0036"
+        "D_0036",
+        "D_TEL"
       ],
       "optional": true,
       "pos": [
@@ -811,7 +830,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0037"
+        "D_0037",
+        "D_AMP"
       ],
       "optional": true,
       "pos": [
@@ -861,7 +881,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0039"
+        "D_0039",
+        "D_EDC"
       ],
       "optional": true,
       "pos": [
@@ -924,7 +945,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003F"
+        "D_003F",
+        "D_ASK"
       ],
       "optional": true,
       "partOf": "E9x.CIC",
@@ -946,7 +968,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0041"
+        "D_0041",
+        "D_DWA"
       ],
       "optional": true,
       "pos": [
@@ -972,7 +995,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0044"
+        "D_0044",
+        "D_SHD"
       ],
       "optional": true,
       "pos": [
@@ -996,7 +1020,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0047"
+        "D_0047",
+        "D_ANTTU"
       ],
       "optional": true,
       "partOf": "E9x.CIC",
@@ -1017,7 +1042,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_004B"
+        "D_004B",
+        "D_VIDEO"
       ],
       "optional": true,
       "pos": [
@@ -1043,7 +1069,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0050"
+        "D_0050",
+        "D_SINE"
       ],
       "optional": true,
       "pos": [
@@ -1068,7 +1095,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0054"
+        "D_0054",
+        "D_RADIO"
       ],
       "optional": true,
       "pos": [
@@ -1114,7 +1142,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0062"
+        "D_0062",
+        "D_MOSTGW"
       ],
       "optional": true,
       "partOf": "E9x.CIC",
@@ -1136,7 +1165,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0067"
+        "D_0067",
+        "D_EC"
       ],
       "optional": true,
       "pos": [
@@ -1164,7 +1194,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006D"
+        "D_006D",
+        "D_FAS"
       ],
       "optional": true,
       "pos": [
@@ -1190,7 +1221,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006E"
+        "D_006E",
+        "D_BFS"
       ],
       "optional": true,
       "pos": [
@@ -1216,7 +1248,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0071"
+        "D_0071",
+        "D_AHM"
       ],
       "optional": true,
       "pos": [
@@ -1241,7 +1274,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0073"
+        "D_0073",
+        "D_CID"
       ],
       "optional": true,
       "pos": [
@@ -1290,7 +1324,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_00A0"
+        "D_00A0",
+        "D_CCC"
       ],
       "optional": true,
       "partOf": "E9x.CIC",
@@ -1531,7 +1566,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0000"
+        "D_0000",
+        "D_ZGM"
       ],
       "verified": false,
       "variants": [
@@ -1550,7 +1586,8 @@
       "protocol": "BmwFast",
       "category": "Safety",
       "sgbd": [
-        "D_0001"
+        "D_0001",
+        "D_SIM"
       ],
       "verified": false,
       "variants": [
@@ -1614,7 +1651,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0016"
+        "D_0016",
+        "D_AFS"
       ],
       "verified": false,
       "variants": [
@@ -1632,7 +1670,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0017"
+        "D_0017",
+        "D_EKP"
       ],
       "verified": false,
       "variants": [
@@ -1652,7 +1691,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0018"
+        "D_0018",
+        "D_EGS"
       ],
       "verified": false,
       "variants": [
@@ -1674,7 +1714,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0019"
+        "D_0019",
+        "D_VGSG"
       ],
       "verified": false,
       "variants": [
@@ -1692,7 +1733,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_001C"
+        "D_001C",
+        "D_LDM"
       ],
       "verified": false,
       "variants": [
@@ -1710,7 +1752,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0020"
+        "D_0020",
+        "D_RDC"
       ],
       "verified": false,
       "variants": [
@@ -1729,7 +1772,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0021"
+        "D_0021",
+        "D_ACC"
       ],
       "verified": false,
       "variants": [
@@ -1747,7 +1791,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0024"
+        "D_0024",
+        "D_CVM"
       ],
       "verified": false,
       "variants": [
@@ -1773,7 +1818,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0027"
+        "D_0027",
+        "D_PGS"
       ],
       "verified": false,
       "variants": [
@@ -1791,7 +1837,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0029"
+        "D_0029",
+        "D_DSC"
       ],
       "verified": false,
       "variants": [
@@ -1811,7 +1858,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0030"
+        "D_0030",
+        "D_EPS"
       ],
       "verified": false,
       "variants": [
@@ -1829,7 +1877,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0036"
+        "D_0036",
+        "D_TEL"
       ],
       "verified": false,
       "variants": [
@@ -1851,7 +1900,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0037"
+        "D_0037",
+        "D_AMP"
       ],
       "verified": false,
       "variants": [
@@ -1872,7 +1922,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0039"
+        "D_0039",
+        "D_EDC"
       ],
       "verified": false,
       "variants": [
@@ -1890,7 +1941,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003F"
+        "D_003F",
+        "D_ASK"
       ],
       "verified": false,
       "variants": [
@@ -1906,7 +1958,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0040"
+        "D_0040",
+        "D_CAS"
       ],
       "verified": false,
       "variants": [
@@ -1924,7 +1977,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0041"
+        "D_0041",
+        "D_DWA"
       ],
       "verified": false,
       "variants": [
@@ -1943,7 +1997,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0044"
+        "D_0044",
+        "D_SHD"
       ],
       "verified": false,
       "variants": [
@@ -1961,7 +2016,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0047"
+        "D_0047",
+        "D_ANTTU"
       ],
       "verified": false,
       "variants": [
@@ -1976,7 +2032,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_004B"
+        "D_004B",
+        "D_VIDEO"
       ],
       "verified": false,
       "variants": [
@@ -1995,7 +2052,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0050"
+        "D_0050",
+        "D_SINE"
       ],
       "verified": false,
       "variants": [
@@ -2013,7 +2071,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0054"
+        "D_0054",
+        "D_RADIO"
       ],
       "verified": false,
       "variants": [
@@ -2031,7 +2090,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0056"
+        "D_0056",
+        "D_FZD"
       ],
       "verified": false,
       "variants": [
@@ -2050,7 +2110,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0060"
+        "D_0060",
+        "D_KOMBI"
       ],
       "verified": false,
       "variants": [
@@ -2068,7 +2129,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0062"
+        "D_0062",
+        "D_MOSTGW"
       ],
       "verified": false,
       "variants": [
@@ -2084,7 +2146,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0063"
+        "D_0063",
+        "D_MMI"
       ],
       "verified": false,
       "variants": [
@@ -2108,7 +2171,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0064"
+        "D_0064",
+        "D_PDC"
       ],
       "verified": false,
       "variants": [
@@ -2126,7 +2190,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0067"
+        "D_0067",
+        "D_EC"
       ],
       "verified": false,
       "variants": [
@@ -2147,7 +2212,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006D"
+        "D_006D",
+        "D_FAS"
       ],
       "verified": false,
       "variants": [
@@ -2166,7 +2232,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006E"
+        "D_006E",
+        "D_BFS"
       ],
       "verified": false,
       "variants": [
@@ -2185,7 +2252,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0071"
+        "D_0071",
+        "D_AHM"
       ],
       "verified": false,
       "variants": [
@@ -2203,7 +2271,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0072"
+        "D_0072",
+        "D_KBM"
       ],
       "verified": false,
       "variants": [
@@ -2222,7 +2291,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0073"
+        "D_0073",
+        "D_CID"
       ],
       "verified": false,
       "variants": [
@@ -2242,7 +2312,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0078"
+        "D_0078",
+        "D_KLIMA"
       ],
       "verified": false,
       "variants": [
@@ -2264,7 +2335,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_00A0"
+        "D_00A0",
+        "D_CCC"
       ],
       "verified": false,
       "variants": [
@@ -2279,7 +2351,8 @@
       "protocol": "BmwFast",
       "category": "Safety",
       "sgbd": [
-        "D_0001"
+        "D_0001",
+        "D_SIM"
       ],
       "verified": false,
       "variants": [
@@ -2298,7 +2371,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0002"
+        "D_0002",
+        "D_SZL"
       ],
       "verified": false,
       "variants": [
@@ -2359,7 +2433,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0016"
+        "D_0016",
+        "D_AFS"
       ],
       "verified": false,
       "variants": [
@@ -2378,7 +2453,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0017"
+        "D_0017",
+        "D_EKP"
       ],
       "verified": false,
       "variants": [
@@ -2399,7 +2475,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0018"
+        "D_0018",
+        "D_EGS"
       ],
       "verified": false,
       "variants": [
@@ -2421,7 +2498,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0019"
+        "D_0019",
+        "D_VGSG"
       ],
       "verified": false,
       "variants": [
@@ -2439,7 +2517,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_001C"
+        "D_001C",
+        "D_LDM"
       ],
       "verified": false,
       "variants": [
@@ -2457,7 +2536,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0020"
+        "D_0020",
+        "D_RDC"
       ],
       "verified": false,
       "variants": [
@@ -2476,7 +2556,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0021"
+        "D_0021",
+        "D_ACC"
       ],
       "verified": false,
       "variants": [
@@ -2496,7 +2577,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0023"
+        "D_0023",
+        "D_ARS"
       ],
       "verified": false,
       "variants": [
@@ -2515,7 +2597,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0024"
+        "D_0024",
+        "D_CVM"
       ],
       "verified": false,
       "variants": [
@@ -2533,7 +2616,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0026"
+        "D_0026",
+        "D_RSE"
       ],
       "verified": false,
       "variants": [
@@ -2552,7 +2636,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0027"
+        "D_0027",
+        "D_PGS"
       ],
       "verified": false,
       "variants": [
@@ -2571,7 +2656,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0029"
+        "D_0029",
+        "D_DSC"
       ],
       "verified": false,
       "variants": [
@@ -2592,7 +2678,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0035"
+        "D_0035",
+        "D_SVS"
       ],
       "verified": false,
       "variants": [
@@ -2607,7 +2694,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0036"
+        "D_0036",
+        "D_TEL"
       ],
       "verified": false,
       "variants": [
@@ -2630,7 +2718,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0037"
+        "D_0037",
+        "D_AMP"
       ],
       "verified": false,
       "variants": [
@@ -2650,7 +2739,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0038"
+        "D_0038",
+        "D_EHC"
       ],
       "verified": false,
       "variants": [
@@ -2668,7 +2758,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0039"
+        "D_0039",
+        "D_EDC"
       ],
       "verified": false,
       "variants": [
@@ -2686,7 +2777,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003B"
+        "D_003B",
+        "D_NAV"
       ],
       "verified": false,
       "variants": [
@@ -2706,7 +2798,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003C"
+        "D_003C",
+        "D_CDC"
       ],
       "verified": false,
       "variants": [
@@ -2724,7 +2817,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003D"
+        "D_003D",
+        "D_HUD"
       ],
       "verified": false,
       "variants": [
@@ -2742,7 +2836,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003F"
+        "D_003F",
+        "D_ASK"
       ],
       "verified": false,
       "variants": [
@@ -2757,7 +2852,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0040"
+        "D_0040",
+        "D_CAS"
       ],
       "verified": false,
       "variants": [
@@ -2775,7 +2871,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0041"
+        "D_0041",
+        "D_DWA"
       ],
       "verified": false,
       "variants": [
@@ -2794,7 +2891,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0044"
+        "D_0044",
+        "D_SHD"
       ],
       "verified": false,
       "variants": [
@@ -2812,7 +2910,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0047"
+        "D_0047",
+        "D_ANTTU"
       ],
       "verified": false,
       "variants": [
@@ -2827,7 +2926,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0050"
+        "D_0050",
+        "D_SINE"
       ],
       "verified": false,
       "variants": [
@@ -2845,7 +2945,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0054"
+        "D_0054",
+        "D_RADIO"
       ],
       "verified": false,
       "variants": [
@@ -2863,7 +2964,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_005B"
+        "D_005B",
+        "D_DAB"
       ],
       "verified": false,
       "variants": [
@@ -2881,7 +2983,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_005E"
+        "D_005E",
+        "D_GWS"
       ],
       "verified": false,
       "variants": [
@@ -2900,7 +3003,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_005F"
+        "D_005F",
+        "D_FLA"
       ],
       "verified": false,
       "variants": [
@@ -2918,7 +3022,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0060"
+        "D_0060",
+        "D_KOMBI"
       ],
       "verified": false,
       "variants": [
@@ -2936,7 +3041,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0062"
+        "D_0062",
+        "D_MOSTGW"
       ],
       "verified": false,
       "variants": [
@@ -2952,7 +3058,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0063"
+        "D_0063",
+        "D_MMI"
       ],
       "verified": false,
       "variants": [
@@ -2974,7 +3081,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0064"
+        "D_0064",
+        "D_PDC"
       ],
       "verified": false,
       "variants": [
@@ -2993,7 +3101,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0067"
+        "D_0067",
+        "D_EC"
       ],
       "verified": false,
       "variants": [
@@ -3014,7 +3123,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_006B"
+        "D_006B",
+        "D_HKL"
       ],
       "verified": false,
       "variants": [
@@ -3032,7 +3142,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006D"
+        "D_006D",
+        "D_FAS"
       ],
       "verified": false,
       "variants": [
@@ -3051,7 +3162,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006E"
+        "D_006E",
+        "D_BFS"
       ],
       "verified": false,
       "variants": [
@@ -3070,7 +3182,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0070"
+        "D_0070",
+        "D_LM"
       ],
       "verified": false,
       "variants": [
@@ -3090,7 +3203,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0071"
+        "D_0071",
+        "D_AHM"
       ],
       "verified": false,
       "variants": [
@@ -3108,7 +3222,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0072"
+        "D_0072",
+        "D_KBM"
       ],
       "verified": false,
       "variants": [
@@ -3126,7 +3241,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0073"
+        "D_0073",
+        "D_CID"
       ],
       "verified": false,
       "variants": [
@@ -3145,7 +3261,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0078"
+        "D_0078",
+        "D_KLIMA"
       ],
       "verified": false,
       "variants": [
@@ -3164,7 +3281,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_007A"
+        "D_007A",
+        "D_SHZH"
       ],
       "verified": false,
       "variants": [
@@ -3182,7 +3300,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_00A0"
+        "D_00A0",
+        "D_CCC"
       ],
       "verified": false,
       "variants": [
@@ -3198,7 +3317,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0000"
+        "D_0000",
+        "D_ZGM"
       ],
       "verified": false,
       "variants": [
@@ -3216,7 +3336,8 @@
       "protocol": "BmwFast",
       "category": "Safety",
       "sgbd": [
-        "D_0001"
+        "D_0001",
+        "D_SIM"
       ],
       "verified": false,
       "variants": [
@@ -3234,7 +3355,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0006"
+        "D_0006",
+        "D_TRSVC"
       ],
       "verified": false,
       "variants": [
@@ -3252,7 +3374,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_000E"
+        "D_000E",
+        "D_SVT"
       ],
       "verified": false,
       "variants": [
@@ -3301,7 +3424,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0015"
+        "D_0015",
+        "D_LDM2"
       ],
       "verified": false,
       "variants": [
@@ -3319,7 +3443,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0016"
+        "D_0016",
+        "D_AFS"
       ],
       "verified": false,
       "variants": [
@@ -3338,7 +3463,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0017"
+        "D_0017",
+        "D_EKP"
       ],
       "verified": false,
       "variants": [
@@ -3357,7 +3483,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0018"
+        "D_0018",
+        "D_EGS"
       ],
       "verified": false,
       "variants": [
@@ -3378,7 +3505,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0019"
+        "D_0019",
+        "D_VGSG"
       ],
       "verified": false,
       "variants": [
@@ -3396,7 +3524,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_001C"
+        "D_001C",
+        "D_LDM"
       ],
       "verified": false,
       "variants": [
@@ -3414,7 +3543,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_001D"
+        "D_001D",
+        "D_TFE"
       ],
       "verified": false,
       "variants": [
@@ -3432,7 +3562,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0020"
+        "D_0020",
+        "D_RDC"
       ],
       "verified": false,
       "variants": [
@@ -3451,7 +3582,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0021"
+        "D_0021",
+        "D_ACC"
       ],
       "verified": false,
       "variants": [
@@ -3469,7 +3601,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0023"
+        "D_0023",
+        "D_ARS"
       ],
       "verified": false,
       "variants": [
@@ -3487,7 +3620,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0026"
+        "D_0026",
+        "D_RSE"
       ],
       "verified": false,
       "variants": [
@@ -3506,7 +3640,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0027"
+        "D_0027",
+        "D_PGS"
       ],
       "verified": false,
       "variants": [
@@ -3524,7 +3659,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0029"
+        "D_0029",
+        "D_DSC"
       ],
       "verified": false,
       "variants": [
@@ -3542,7 +3678,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_002A"
+        "D_002A",
+        "D_EMF"
       ],
       "verified": false,
       "variants": [
@@ -3560,7 +3697,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0030"
+        "D_0030",
+        "D_EPS"
       ],
       "verified": false,
       "variants": [
@@ -3578,7 +3716,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0036"
+        "D_0036",
+        "D_TEL"
       ],
       "verified": false,
       "variants": [
@@ -3599,7 +3738,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0037"
+        "D_0037",
+        "D_AMP"
       ],
       "verified": false,
       "variants": [
@@ -3619,7 +3759,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0038"
+        "D_0038",
+        "D_EHC"
       ],
       "verified": false,
       "variants": [
@@ -3637,7 +3778,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0039"
+        "D_0039",
+        "D_EDC"
       ],
       "verified": false,
       "variants": [
@@ -3655,7 +3797,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003B"
+        "D_003B",
+        "D_NAV"
       ],
       "verified": false,
       "variants": [
@@ -3670,7 +3813,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003C"
+        "D_003C",
+        "D_CDC"
       ],
       "verified": false,
       "variants": [
@@ -3688,7 +3832,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003D"
+        "D_003D",
+        "D_HUD"
       ],
       "verified": false,
       "variants": [
@@ -3706,7 +3851,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003F"
+        "D_003F",
+        "D_ASK"
       ],
       "verified": false,
       "variants": [
@@ -3722,7 +3868,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0040"
+        "D_0040",
+        "D_CAS"
       ],
       "verified": false,
       "variants": [
@@ -3740,7 +3887,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0047"
+        "D_0047",
+        "D_ANTTU"
       ],
       "verified": false,
       "variants": [
@@ -3755,7 +3903,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0048"
+        "D_0048",
+        "D_VSW"
       ],
       "verified": false,
       "variants": [
@@ -3773,7 +3922,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_004B"
+        "D_004B",
+        "D_VIDEO"
       ],
       "verified": false,
       "variants": [
@@ -3792,7 +3942,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0050"
+        "D_0050",
+        "D_SINE"
       ],
       "verified": false,
       "variants": [
@@ -3810,7 +3961,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0056"
+        "D_0056",
+        "D_FZD"
       ],
       "verified": false,
       "variants": [
@@ -3828,7 +3980,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_005D"
+        "D_005D",
+        "D_TLC"
       ],
       "verified": false,
       "variants": [
@@ -3846,7 +3999,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_005E"
+        "D_005E",
+        "D_GWS"
       ],
       "verified": false,
       "variants": [
@@ -3864,7 +4018,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_005F"
+        "D_005F",
+        "D_FLA"
       ],
       "verified": false,
       "variants": [
@@ -3883,7 +4038,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0060"
+        "D_0060",
+        "D_KOMBI"
       ],
       "verified": false,
       "variants": [
@@ -3901,7 +4057,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0062"
+        "D_0062",
+        "D_MOSTGW"
       ],
       "verified": false,
       "variants": [
@@ -3921,7 +4078,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0063"
+        "D_0063",
+        "D_MMI"
       ],
       "verified": false,
       "variants": [
@@ -3944,7 +4102,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0064"
+        "D_0064",
+        "D_PDC"
       ],
       "verified": false,
       "variants": [
@@ -3963,7 +4122,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0067"
+        "D_0067",
+        "D_EC"
       ],
       "verified": false,
       "variants": [
@@ -3981,7 +4141,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_006B"
+        "D_006B",
+        "D_HKL"
       ],
       "verified": false,
       "variants": [
@@ -3999,7 +4160,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006D"
+        "D_006D",
+        "D_FAS"
       ],
       "verified": false,
       "variants": [
@@ -4017,7 +4179,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006E"
+        "D_006E",
+        "D_BFS"
       ],
       "verified": false,
       "variants": [
@@ -4035,7 +4198,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0071"
+        "D_0071",
+        "D_AHM"
       ],
       "verified": false,
       "variants": [
@@ -4054,7 +4218,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0072"
+        "D_0072",
+        "D_KBM"
       ],
       "verified": false,
       "variants": [
@@ -4072,7 +4237,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0073"
+        "D_0073",
+        "D_CID"
       ],
       "verified": false,
       "variants": [
@@ -4091,7 +4257,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0077"
+        "D_0077",
+        "D_RFK"
       ],
       "verified": false,
       "variants": [
@@ -4109,7 +4276,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0078"
+        "D_0078",
+        "D_KLIMA"
       ],
       "verified": false,
       "variants": [
@@ -4127,7 +4295,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0079"
+        "D_0079",
+        "D_KLIMA2"
       ],
       "verified": false,
       "variants": [
@@ -4145,7 +4314,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_00A0"
+        "D_00A0",
+        "D_CCC"
       ],
       "verified": false,
       "variants": [
@@ -4163,7 +4333,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0000"
+        "D_0000",
+        "D_ZGM"
       ],
       "verified": false,
       "variants": [
@@ -4182,7 +4353,8 @@
       "protocol": "BmwFast",
       "category": "Safety",
       "sgbd": [
-        "D_0001"
+        "D_0001",
+        "D_SIM"
       ],
       "verified": false,
       "variants": [
@@ -4202,7 +4374,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0006"
+        "D_0006",
+        "D_TRSVC"
       ],
       "verified": false,
       "variants": [
@@ -4259,7 +4432,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0016"
+        "D_0016",
+        "D_AFS"
       ],
       "verified": false,
       "variants": [
@@ -4277,7 +4451,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0017"
+        "D_0017",
+        "D_EKP"
       ],
       "verified": false,
       "variants": [
@@ -4297,7 +4472,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0018"
+        "D_0018",
+        "D_EGS"
       ],
       "verified": false,
       "variants": [
@@ -4317,7 +4493,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0019"
+        "D_0019",
+        "D_VGSG"
       ],
       "verified": false,
       "variants": [
@@ -4335,7 +4512,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_001C"
+        "D_001C",
+        "D_LDM"
       ],
       "verified": false,
       "variants": [
@@ -4353,7 +4531,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0020"
+        "D_0020",
+        "D_RDC"
       ],
       "verified": false,
       "variants": [
@@ -4371,7 +4550,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0021"
+        "D_0021",
+        "D_ACC"
       ],
       "verified": false,
       "variants": [
@@ -4389,7 +4569,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0024"
+        "D_0024",
+        "D_CVM"
       ],
       "verified": false,
       "variants": [
@@ -4411,7 +4592,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0027"
+        "D_0027",
+        "D_PGS"
       ],
       "verified": false,
       "variants": [
@@ -4429,7 +4611,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0029"
+        "D_0029",
+        "D_DSC"
       ],
       "verified": false,
       "variants": [
@@ -4448,7 +4631,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_002A"
+        "D_002A",
+        "D_EMF"
       ],
       "verified": false,
       "variants": [
@@ -4466,7 +4650,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0030"
+        "D_0030",
+        "D_EPS"
       ],
       "verified": false,
       "variants": [
@@ -4484,7 +4669,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0036"
+        "D_0036",
+        "D_TEL"
       ],
       "verified": false,
       "variants": [
@@ -4506,7 +4692,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0037"
+        "D_0037",
+        "D_AMP"
       ],
       "verified": false,
       "variants": [
@@ -4527,7 +4714,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0039"
+        "D_0039",
+        "D_EDC"
       ],
       "verified": false,
       "variants": [
@@ -4545,7 +4733,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003F"
+        "D_003F",
+        "D_ASK"
       ],
       "verified": false,
       "variants": [
@@ -4561,7 +4750,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0040"
+        "D_0040",
+        "D_CAS"
       ],
       "verified": false,
       "variants": [
@@ -4579,7 +4769,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0041"
+        "D_0041",
+        "D_DWA"
       ],
       "verified": false,
       "variants": [
@@ -4598,7 +4789,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0044"
+        "D_0044",
+        "D_SHD"
       ],
       "verified": false,
       "variants": [
@@ -4616,7 +4808,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0047"
+        "D_0047",
+        "D_ANTTU"
       ],
       "verified": false,
       "variants": [
@@ -4631,7 +4824,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_004B"
+        "D_004B",
+        "D_VIDEO"
       ],
       "verified": false,
       "variants": [
@@ -4650,7 +4844,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0050"
+        "D_0050",
+        "D_SINE"
       ],
       "verified": false,
       "variants": [
@@ -4668,7 +4863,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0056"
+        "D_0056",
+        "D_FZD"
       ],
       "verified": false,
       "variants": [
@@ -4687,7 +4883,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_005E"
+        "D_005E",
+        "D_GWS"
       ],
       "verified": false,
       "variants": [
@@ -4707,7 +4904,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_005F"
+        "D_005F",
+        "D_FLA"
       ],
       "verified": false,
       "variants": [
@@ -4726,7 +4924,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0060"
+        "D_0060",
+        "D_KOMBI"
       ],
       "verified": false,
       "variants": [
@@ -4744,7 +4943,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0062"
+        "D_0062",
+        "D_MOSTGW"
       ],
       "verified": false,
       "variants": [
@@ -4759,7 +4959,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0063"
+        "D_0063",
+        "D_MMI"
       ],
       "verified": false,
       "variants": [
@@ -4783,7 +4984,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0064"
+        "D_0064",
+        "D_PDC"
       ],
       "verified": false,
       "variants": [
@@ -4801,7 +5003,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0067"
+        "D_0067",
+        "D_EC"
       ],
       "verified": false,
       "variants": [
@@ -4819,7 +5022,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006D"
+        "D_006D",
+        "D_FAS"
       ],
       "verified": false,
       "variants": [
@@ -4837,7 +5041,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006E"
+        "D_006E",
+        "D_BFS"
       ],
       "verified": false,
       "variants": [
@@ -4855,7 +5060,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0071"
+        "D_0071",
+        "D_AHM"
       ],
       "verified": false,
       "variants": [
@@ -4873,7 +5079,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0072"
+        "D_0072",
+        "D_KBM"
       ],
       "verified": false,
       "variants": [
@@ -4892,7 +5099,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0073"
+        "D_0073",
+        "D_CID"
       ],
       "verified": false,
       "variants": [
@@ -4911,7 +5119,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0078"
+        "D_0078",
+        "D_KLIMA"
       ],
       "verified": false,
       "variants": [
@@ -4931,7 +5140,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_00A0"
+        "D_00A0",
+        "D_CCC"
       ],
       "verified": false,
       "variants": [
@@ -5941,7 +6151,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0000"
+        "D_0000",
+        "D_ZGM"
       ],
       "verified": false,
       "variants": [
@@ -5960,7 +6171,8 @@
       "protocol": "BmwFast",
       "category": "Safety",
       "sgbd": [
-        "D_0001"
+        "D_0001",
+        "D_SIM"
       ],
       "verified": false,
       "variants": [
@@ -6025,7 +6237,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0016"
+        "D_0016",
+        "D_AFS"
       ],
       "verified": false,
       "variants": [
@@ -6043,7 +6256,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0017"
+        "D_0017",
+        "D_EKP"
       ],
       "verified": false,
       "variants": [
@@ -6063,7 +6277,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0018"
+        "D_0018",
+        "D_EGS"
       ],
       "verified": false,
       "variants": [
@@ -6085,7 +6300,8 @@
       "protocol": "BmwFast",
       "category": "Powertrain",
       "sgbd": [
-        "D_0019"
+        "D_0019",
+        "D_VGSG"
       ],
       "verified": false,
       "variants": [
@@ -6104,7 +6320,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_001C"
+        "D_001C",
+        "D_LDM"
       ],
       "verified": false,
       "variants": [
@@ -6122,7 +6339,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0020"
+        "D_0020",
+        "D_RDC"
       ],
       "verified": false,
       "variants": [
@@ -6141,7 +6359,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0021"
+        "D_0021",
+        "D_ACC"
       ],
       "verified": false,
       "variants": [
@@ -6159,7 +6378,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0024"
+        "D_0024",
+        "D_CVM"
       ],
       "verified": false,
       "variants": [
@@ -6185,7 +6405,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0027"
+        "D_0027",
+        "D_PGS"
       ],
       "verified": false,
       "variants": [
@@ -6203,7 +6424,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0029"
+        "D_0029",
+        "D_DSC"
       ],
       "verified": false,
       "variants": [
@@ -6223,7 +6445,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0030"
+        "D_0030",
+        "D_EPS"
       ],
       "verified": false,
       "variants": [
@@ -6241,7 +6464,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0036"
+        "D_0036",
+        "D_TEL"
       ],
       "verified": false,
       "variants": [
@@ -6263,7 +6487,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0037"
+        "D_0037",
+        "D_AMP"
       ],
       "verified": false,
       "variants": [
@@ -6284,7 +6509,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0039"
+        "D_0039",
+        "D_EDC"
       ],
       "verified": false,
       "variants": [
@@ -6302,7 +6528,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_003F"
+        "D_003F",
+        "D_ASK"
       ],
       "verified": false,
       "variants": [
@@ -6318,7 +6545,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0040"
+        "D_0040",
+        "D_CAS"
       ],
       "verified": false,
       "variants": [
@@ -6336,7 +6564,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0041"
+        "D_0041",
+        "D_DWA"
       ],
       "verified": false,
       "variants": [
@@ -6355,7 +6584,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0044"
+        "D_0044",
+        "D_SHD"
       ],
       "verified": false,
       "variants": [
@@ -6373,7 +6603,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0047"
+        "D_0047",
+        "D_ANTTU"
       ],
       "verified": false,
       "variants": [
@@ -6388,7 +6619,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_004B"
+        "D_004B",
+        "D_VIDEO"
       ],
       "verified": false,
       "variants": [
@@ -6407,7 +6639,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0050"
+        "D_0050",
+        "D_SINE"
       ],
       "verified": false,
       "variants": [
@@ -6425,7 +6658,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0054"
+        "D_0054",
+        "D_RADIO"
       ],
       "verified": false,
       "variants": [
@@ -6443,7 +6677,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0056"
+        "D_0056",
+        "D_FZD"
       ],
       "verified": false,
       "variants": [
@@ -6462,7 +6697,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0060"
+        "D_0060",
+        "D_KOMBI"
       ],
       "verified": false,
       "variants": [
@@ -6480,7 +6716,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0062"
+        "D_0062",
+        "D_MOSTGW"
       ],
       "verified": false,
       "variants": [
@@ -6496,7 +6733,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0063"
+        "D_0063",
+        "D_MMI"
       ],
       "verified": false,
       "variants": [
@@ -6520,7 +6758,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0064"
+        "D_0064",
+        "D_PDC"
       ],
       "verified": false,
       "variants": [
@@ -6538,7 +6777,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0067"
+        "D_0067",
+        "D_EC"
       ],
       "verified": false,
       "variants": [
@@ -6559,7 +6799,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006D"
+        "D_006D",
+        "D_FAS"
       ],
       "verified": false,
       "variants": [
@@ -6578,7 +6819,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_006E"
+        "D_006E",
+        "D_BFS"
       ],
       "verified": false,
       "variants": [
@@ -6597,7 +6839,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0071"
+        "D_0071",
+        "D_AHM"
       ],
       "verified": false,
       "variants": [
@@ -6615,7 +6858,8 @@
       "protocol": "BmwFast",
       "category": "Body",
       "sgbd": [
-        "D_0072"
+        "D_0072",
+        "D_KBM"
       ],
       "verified": false,
       "variants": [
@@ -6634,7 +6878,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_0073"
+        "D_0073",
+        "D_CID"
       ],
       "verified": false,
       "variants": [
@@ -6654,7 +6899,8 @@
       "protocol": "BmwFast",
       "category": "Comfort",
       "sgbd": [
-        "D_0078"
+        "D_0078",
+        "D_KLIMA"
       ],
       "verified": false,
       "variants": [
@@ -6677,7 +6923,8 @@
       "protocol": "BmwFast",
       "category": "Infotainment",
       "sgbd": [
-        "D_00A0"
+        "D_00A0",
+        "D_CCC"
       ],
       "verified": false,
       "variants": [

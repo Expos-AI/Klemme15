@@ -114,7 +114,11 @@ public sealed class VehicleViewModel : PageViewModel
             var faults = s.TotalFaults == 1 ? "1 fault" : $"{s.TotalFaults} faults";
             var battery = s.BatteryVoltage is { } v ? $" Battery {v:0.0} V." : "";
             var dash = s.ActiveCheckControl switch { 0 => "", 1 => " 1 dash message.", var n => $" {n} dash messages." };
-            return $"{s.RespondingEcus} of {s.Ecus.Count} modules answered in {s.Elapsed.TotalSeconds:0.0} s. {faults}.{dash}{battery}";
+            // In EDIABAS mode a slow cable setting shows up as modules that don't answer, not as an error.
+            var few = _session.Backend is IJobRunner && !_session.IsDemo && !_session.IsSnapshot && s.RespondingEcus < 4 && s.Ecus.Count > 8
+                ? " Very few modules answered. In EDIABAS mode that is often the cable's latency timer: set it to 1 ms (Garage, Check cable), then run the quick test again."
+                : "";
+            return $"{s.RespondingEcus} of {s.Ecus.Count} modules answered in {s.Elapsed.TotalSeconds:0.0} s. {faults}.{dash}{battery}{few}";
         }
     }
 

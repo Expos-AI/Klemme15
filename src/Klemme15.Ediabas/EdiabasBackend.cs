@@ -47,6 +47,24 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     private EdiabasNet? _ediabas;
     private CancellationToken _jobToken;
 
+    /// <summary>Group file name -> the file that answered for that module (its exact variant when known).</summary>
+    private readonly Dictionary<string, string> _aliases = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Files whose module didn't answer, and when. A job against one of them within <see cref="SilentFor"/> fails at
+    /// once instead of waiting six seconds on the bus again: after a failed identification every later job on that
+    /// file (job lists, voltage reads) would otherwise wait just as long.
+    /// </summary>
+    private readonly Dictionary<string, DateTime> _silent = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly TimeSpan SilentFor = TimeSpan.FromSeconds(45);
+
+    /// <summary>This car answered through a named group (D_MOTOR) after its address group (D_0012) stayed silent.</summary>
+    private bool _namedFirst;
+
+    /// <summary>"D_0012": a group file named after the module's address, as used on cars with D-CAN.</summary>
+    private static bool IsAddressGroup(string sgbd) =>
+        sgbd.Length == 6 && sgbd.StartsWith("D_00", StringComparison.OrdinalIgnoreCase) && sgbd.Skip(4).All(Uri.IsHexDigit);
+
     // EdiabasLib reads BMW's files in the Windows-1252 code page. Modern .NET doesn't include that code page until it
     // is registered, and without it EdiabasLib fails the moment it is first used ("The type initializer for
     // 'EdiabasLib.EdiabasNet' threw an exception"). This runs once, before the first EdiabasNet is created.
@@ -68,6 +86,9 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
             throw new DiagnosticException($"No .prg files in {options.EcuPath}. Point Klemme15 at the Ecu folder of your own EDIABAS install.");
 
         _ediabas?.Dispose();
+        _silent.Clear();
+        _namedFirst = false;
+        lock (_aliases) _aliases.Clear();
         EdiabasNet ediabas;
         try { ediabas = new EdiabasNet(); }
         catch (TypeInitializationException e)
@@ -106,15 +127,24 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
         var candidates = ecu.Sgbd.Where(SgbdExists).ToList();
         if (candidates.Count == 0)
             candidates.Add($"D_{ecu.Address:X4}");   // EDIABAS convention for E6x/E9x group files
+        // Once this car has shown it answers through the named groups and not the address ones, ask only the named
+        // group for every other module: waiting out a silent address group first costs seconds per module.
+        if (_namedFirst && candidates.Any(c => !IsAddressGroup(c))) candidates = candidates.Where(c => !IsAddressGroup(c)).ToList();
+        var addressGroupSilent = false;
         foreach (var sgbd in candidates)
         {
             try
             {
                 var sets = await RunJobAsync(sgbd, "IDENT", "", ct);
                 _resolved[ecu.Id] = sgbd;
+                if (addressGroupSilent && !IsAddressGroup(sgbd)) _namedFirst = true;
                 var all = Merge(sets);
                 // Run later jobs against the exact variant file, so EDIABAS doesn't re-identify every time.
                 if (Get(all, "VARIANTE") is { } variant && SgbdExists(variant)) _variants[ecu.Id] = variant;
+                // Whatever group name a caller uses for this module from now on means the file that answered.
+                lock (_aliases)
+                    foreach (var name in candidates.Append($"D_{ecu.Address:X4}"))
+                        _aliases[name] = _variants.TryGetValue(ecu.Id, out var exact) ? exact : sgbd;
                 return new EcuIdentity
                 {
                     Variant = Get(all, "VARIANTE"),
@@ -128,13 +158,11 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                     Raw = all,
                 };
             }
-            catch (DiagnosticException e) when (IsNoResponse(e.Message))
+            catch (DiagnosticException e)
             {
-                return null;
-            }
-            catch (DiagnosticException)
-            {
-                // wrong SGBD for this car: try the next candidate
+                if (IsAddressGroup(sgbd) && IsNoResponse(e.Message)) addressGroupSilent = true;
+                // No answer through this group file, or the wrong file for this car: try the next one. A 2006 E90
+                // answered through the named groups (D_MOTOR, D_LDM) while its address groups (D_0012) stayed silent.
             }
         }
         return null;
@@ -480,6 +508,9 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     {
             var ediabas = _ediabas ?? throw new DiagnosticException("Not connected");
             _jobToken = ct;
+            lock (_aliases) if (_aliases.TryGetValue(sgbd, out var answered)) sgbd = answered;
+            if (job != "IDENT" && _silent.TryGetValue(sgbd, out var since) && DateTime.UtcNow - since < SilentFor)
+                throw new DiagnosticException($"{sgbd} {job}: the module didn't answer a moment ago (EDIABAS_IFH_0009), so Klemme15 didn't ask again.");
             try
             {
                 options.Log?.Note($"Job {sgbd} {job} {arguments}".TrimEnd());
@@ -490,6 +521,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 ediabas.ExecuteJob(job);
 
                 // Set 0 holds system results (VARIANTE, JOBNAME, SAETZE); job results follow.
+                _silent.Remove(sgbd);
                 var sets = ediabas.ResultSets ?? [];
                 var converted = sets.Select((set, index) =>
                     (IReadOnlyDictionary<string, string>)set.ToDictionary(kv => kv.Key, kv => Format(kv.Value), StringComparer.OrdinalIgnoreCase)).ToList();
@@ -511,6 +543,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 ct.ThrowIfCancellationRequested();   // an aborted job is a cancellation, not an error
                 var text = EdiabasNet.GetExceptionText(e, false, false);
                 options.Log?.Note($"  -> {text}");
+                if (IsNoResponse(text)) _silent[sgbd] = DateTime.UtcNow;
                 throw new DiagnosticException($"{sgbd} {job}: {text}", e);
             }
     }
@@ -539,7 +572,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
         File.Exists(Path.Combine(options.EcuPath, name + ".prg")) || File.Exists(Path.Combine(options.EcuPath, name + ".grp"));
 
     private static bool IsNoResponse(string message) =>
-        message.Contains("IFH-0009", StringComparison.OrdinalIgnoreCase) ||
+        message.Contains("IFH-0009", StringComparison.OrdinalIgnoreCase) || message.Contains("IFH_0009", StringComparison.OrdinalIgnoreCase) ||
         message.Contains("NO RESPONSE", StringComparison.OrdinalIgnoreCase);
 
     private static Dictionary<string, string> Merge(IEnumerable<IReadOnlyDictionary<string, string>> sets)
