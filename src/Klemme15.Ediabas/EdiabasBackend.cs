@@ -47,6 +47,11 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     private EdiabasNet? _ediabas;
     private CancellationToken _jobToken;
 
+    // EdiabasLib reads BMW's files in the Windows-1252 code page. Modern .NET doesn't include that code page until it
+    // is registered, and without it EdiabasLib fails the moment it is first used ("The type initializer for
+    // 'EdiabasLib.EdiabasNet' threw an exception"). This runs once, before the first EdiabasNet is created.
+    static EdiabasBackend() => System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
+
     public string Name => $"EDIABAS ({options.ComPort}, {options.EcuPath})";
 
     public BackendCapabilities Capabilities =>
@@ -63,7 +68,14 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
             throw new DiagnosticException($"No .prg files in {options.EcuPath}. Point Klemme15 at the Ecu folder of your own EDIABAS install.");
 
         _ediabas?.Dispose();
-        var ediabas = new EdiabasNet();
+        EdiabasNet ediabas;
+        try { ediabas = new EdiabasNet(); }
+        catch (TypeInitializationException e)
+        {
+            // Say what actually went wrong inside EdiabasLib, not just that something did.
+            var cause = e.InnerException ?? e;
+            throw new DiagnosticException($"EDIABAS mode couldn't start ({cause.GetType().Name}: {cause.Message}). Please report this with the Log page's contents; Klemme15 still works without EDIABAS mode.", e);
+        }
         var iface = new EdInterfaceObd();
         ediabas.EdInterfaceClass = iface;
         iface.ComPort = options.ComPort;

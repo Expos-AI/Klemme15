@@ -2,6 +2,10 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.36
+
+- **EDIABAS mode starts again.** Connecting with your own BMW files failed straight away with "The type initializer for 'EdiabasLib.EdiabasNet' threw an exception". The library that runs BMW's module programs needs a Windows text encoding that Klemme15 didn't switch on. It does now, and every build is checked to make sure EDIABAS mode actually starts, not only that it compiles. If EDIABAS mode ever fails to start again, the message now says why.
+
 ## 0.99.35
 
 - **One timeline for warnings and faults.** "Your car's story" on the Faults page now also places the faults modules stored, by the mileage each module recorded with them. A dash warning and the faults from the same few kilometres appear as one event, and faults that share a mileage across several modules are grouped and explained (for example, one flat battery instead of five separate defects). The mileage stored with a fault is read in EDIABAS mode with your own BMW files; without it the story shows the dash warnings as before.

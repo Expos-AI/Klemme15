@@ -153,6 +153,20 @@ jobs:
           # Prove EDIABAS mode was compiled in, not silently skipped.
           ls src/Klemme15.App/bin/Release/net10.0/Klemme15.Ediabas.dll src/Klemme15.App/bin/Release/net10.0/EdiabasLib.dll
           ls src/Klemme15.Cli/bin/Release/net10.0/Klemme15.Ediabas.dll
+      - name: EDIABAS mode starts
+        # Compiling isn't enough: EdiabasLib once failed the moment it was first used (a missing code page), which only
+        # showed on a real connection. This starts EDIABAS mode against an empty folder and a port that isn't a cable.
+        # Reaching the car is expected to fail; failing to start EdiabasLib is not.
+        shell: bash
+        run: |
+          set -uo pipefail
+          mkdir -p "$RUNNER_TEMP/ecu" && : > "$RUNNER_TEMP/ecu/dummy.prg"
+          out=$(timeout 180 dotnet run --project src/Klemme15.Cli -c Release --no-build -- faults --vehicle E9x --module E9x.DME --port /dev/null --ediabas "$RUNNER_TEMP/ecu" 2>&1 || true)
+          echo "$out" | tail -15
+          if echo "$out" | grep -qiE "type initializer|TypeInitialization|couldn't start|No data is available for encoding"; then
+            echo "::error::EdiabasLib failed to start in EDIABAS mode"; exit 1
+          fi
+          echo "$out" | grep -q "EDIABAS" || { echo "::error::EDIABAS mode wasn't used by this run"; exit 1; }
 
   publish:
     name: Publish ${{ matrix.rid }}
