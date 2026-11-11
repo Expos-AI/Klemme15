@@ -1,16 +1,16 @@
 # yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.6.0.schema.json
 PackageIdentifier: Expos-AI.Klemme15
-PackageVersion: 0.99.31
+PackageVersion: 0.99.32
 InstallerType: zip
 NestedInstallerType: portable
 NestedInstallerFiles:
-  - RelativeFilePath: Klemme15-v0.99.31-win-x64\Klemme15.exe
+  - RelativeFilePath: Klemme15-v0.99.32-win-x64\Klemme15.exe
     PortableCommandAlias: klemme15-gui
-  - RelativeFilePath: Klemme15-v0.99.31-win-x64\cli\klemme15.exe
+  - RelativeFilePath: Klemme15-v0.99.32-win-x64\cli\klemme15.exe
     PortableCommandAlias: klemme15
 Installers:
   - Architecture: x64
-    InstallerUrl: https://github.com/Expos-AI/Klemme15/releases/download/v0.99.31/Klemme15-v0.99.31-win-x64.zip
-    InstallerSha256: D11421420FF3672B07A838CF47593BDA196799D413EF91BA11A805F27C5BEAA8
+    InstallerUrl: https://github.com/Expos-AI/Klemme15/releases/download/v0.99.32/Klemme15-v0.99.32-win-x64.zip
+    InstallerSha256: A14F40D031E9CD440323BAD54F0E867227B5D35C83D6811D75E662DDCB73868C
 ManifestType: installer
 ManifestVersion: 1.6.0
