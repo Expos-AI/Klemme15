@@ -1,13 +1,13 @@
 {
-    "version": "0.99.34",
+    "version": "0.99.35",
     "description": "Open-source BMW E-series diagnostics: scan modules, read and clear faults, live data, guided tests and service functions with a K+DCAN cable.",
     "homepage": "https://github.com/Expos-AI/Klemme15",
     "license": "GPL-3.0-or-later",
     "architecture": {
         "64bit": {
-            "url": "https://github.com/Expos-AI/Klemme15/releases/download/v0.99.34/Klemme15-v0.99.34-win-x64.zip",
-            "hash": "ce2b2a2cef5c7c90abef27defa7fa619b532177dc9dbb2695025d353a9388fff",
-            "extract_dir": "Klemme15-v0.99.34-win-x64"
+            "url": "https://github.com/Expos-AI/Klemme15/releases/download/v0.99.35/Klemme15-v0.99.35-win-x64.zip",
+            "hash": "4c8f3997c399b1de243f31589fbf4c38f4ebd2bc902cfef7edd5b3af710dce42",
+            "extract_dir": "Klemme15-v0.99.35-win-x64"
         }
     },
     "bin": [
