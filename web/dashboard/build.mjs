@@ -1,8 +1,8 @@
-// Builds the dashboard into src/Klemme15.Telemetry/wwwroot (committed, so building Klemme15 doesn't need Node).
+// Builds the dashboard into src/Klemme15.Dashboard/wwwroot (committed, so building Klemme15 doesn't need Node).
 import * as esbuild from "esbuild";
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 
-const out = new URL("../../src/Klemme15.Telemetry/wwwroot/", import.meta.url);
+const out = new URL("../../src/Klemme15.Dashboard/wwwroot/", import.meta.url);
 mkdirSync(out, { recursive: true });
 const options = {
   entryPoints: ["src/main.tsx"],

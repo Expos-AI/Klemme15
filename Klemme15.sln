@@ -13,7 +13,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Data", "src\Klemme
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Serial", "src\Klemme15.Serial\Klemme15.Serial.csproj", "{EE9DF714-43FC-443E-A7CB-A36D54E232D8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Telemetry", "src\Klemme15.Telemetry\Klemme15.Telemetry.csproj", "{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Dashboard", "src\Klemme15.Dashboard\Klemme15.Dashboard.csproj", "{573D94BE-FCA2-4C10-B3C1-15B358A31FDE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Klemme15.Ediabas", "src\Klemme15.Ediabas\Klemme15.Ediabas.csproj", "{13F5B0CF-8566-4606-81E9-762437CCBB4D}"
 EndProject

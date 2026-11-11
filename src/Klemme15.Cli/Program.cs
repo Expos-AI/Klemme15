@@ -42,7 +42,7 @@ internal static class Cli
                                         Choices as options: 'service service-reset --item oil', 'service cylinder-cutout --cyl 3'
                                         (checks the car, asks you to confirm each step; --yes skips the questions)
           live    [--pids rpm,coolant]  Stream live engine data (Ctrl+C to stop)
-          serve   [--http 8080]         Headless telemetry: live data as JSON over HTTP (and MQTT)
+          serve   [--http 8080]         Headless mode: live data as JSON over HTTP (and MQTT)
                   [--mqtt host[:port]]  for a Raspberry Pi, Grafana or a home dashboard
                   [--pids ...] [--interval 1] [--mqtt-topic klemme15] [--mqtt-user u --mqtt-pass p]
           coding --module <id> backup   Save a comfort module's coding to a file (no BMW data needed)
@@ -1051,7 +1051,7 @@ internal static class Cli
             mqttHost = parts[0];
             if (parts.Length > 1 && int.TryParse(parts[1], out var mp)) mqttPort = mp;
         }
-        var options = new Klemme15.Telemetry.TelemetryOptions(
+        var options = new Klemme15.Dashboard.DashboardOptions(
             HttpPort: int.TryParse(a.Get("http"), out var hp) ? hp : 8080,
             MqttHost: mqttHost, MqttPort: mqttPort,
             MqttTopic: a.Get("mqtt-topic") ?? "klemme15", MqttUser: a.Get("mqtt-user"), MqttPass: a.Get("mqtt-pass"),
@@ -1062,7 +1062,7 @@ internal static class Cli
         Console.WriteLine($"  Dashboard: open http://<this computer's address>:{options.HttpPort}/ on your phone (same Wi-Fi)");
         Console.WriteLine($"  JSON: http://localhost:{options.HttpPort}/live.json   faults: /faults   health: /health");
         if (mqttHost is not null) Console.WriteLine($"  MQTT: publishing to {mqttHost}:{mqttPort} under topic '{options.MqttTopic}/<value>'");
-        var server = new Klemme15.Telemetry.TelemetryServer(backend, engine, parameters, options, log, codes);
+        var server = new Klemme15.Dashboard.DashboardServer(backend, engine, parameters, options, log, codes);
         try { await server.RunAsync(ct); }
         catch (OperationCanceledException) { Console.WriteLine("Stopped."); }
         return 0;

@@ -9,7 +9,7 @@
   </ItemGroup>
   <ItemGroup>
     <!-- The phone dashboard (built from web/dashboard with 'npm run build'). -->
-    <EmbeddedResource Include="wwwroot/index.html" LogicalName="Klemme15.Telemetry.index.html" />
-    <EmbeddedResource Include="wwwroot/dashboard.js" LogicalName="Klemme15.Telemetry.dashboard.js" />
+    <EmbeddedResource Include="wwwroot/index.html" LogicalName="Klemme15.Dashboard.index.html" />
+    <EmbeddedResource Include="wwwroot/dashboard.js" LogicalName="Klemme15.Dashboard.dashboard.js" />
   </ItemGroup>
 </Project>

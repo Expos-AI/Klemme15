@@ -13,7 +13,7 @@ Klemme15 is split so that each layer can be tested without the one below it, and
 | `Klemme15.Ediabas` | Core, EdiabasLib | `EdiabasBackend`: runs the user's SGBDs. Windows only |
 | `Klemme15.EdiabasCore` | | EdiabasLib built for every OS, used by `Klemme15.Ediabas` |
 | `Klemme15.DataImport` | Core, Data | Optional import of the bmw-unified-db download (SQLite) |
-| `Klemme15.Telemetry` | Core | `klemme15 serve`: the phone dashboard web server and MQTT publisher |
+| `Klemme15.Dashboard` | Core | `klemme15 serve`: the phone dashboard web server and MQTT publisher |
 | `Klemme15.Cli` | all above | Command-line tool |
 | `Klemme15.App` | all above | Avalonia desktop app (MVVM) |
 | `src/Shared` | | `BackendFactory`, compiled into App and CLI |

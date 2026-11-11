@@ -16,18 +16,18 @@ using System.Text;
 using System.Text.Json;
 using Klemme15.Core;
 
-namespace Klemme15.Telemetry;
+namespace Klemme15.Dashboard;
 
-public sealed record TelemetryOptions(int HttpPort = 8080, string? MqttHost = null, int MqttPort = 1883,
+public sealed record DashboardOptions(int HttpPort = 8080, string? MqttHost = null, int MqttPort = 1883,
     string MqttTopic = "klemme15", string? MqttUser = null, string? MqttPass = null, double IntervalSeconds = 1, string? CarName = null);
 
 /// <summary>
-/// Headless telemetry: polls the car's live values on a timer and serves them as JSON over HTTP (for Grafana, a web
+/// Headless mode: polls the car's live values on a timer and serves them as JSON over HTTP (for Grafana, a web
 /// dashboard or a phone) and optionally publishes each value to an MQTT broker. Read-only; it never writes to the car.
 /// Meant to run on a Raspberry Pi left plugged into the OBD port: <c>klemme15 serve</c>.
 /// </summary>
-public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition engine, IReadOnlyList<LiveParameter> parameters,
-    TelemetryOptions options, TrafficLog? log = null, IFaultCodeDatabase? codes = null)
+public sealed class DashboardServer(IDiagnosticBackend backend, EcuDefinition engine, IReadOnlyList<LiveParameter> parameters,
+    DashboardOptions options, TrafficLog? log = null, IFaultCodeDatabase? codes = null)
 {
     private readonly object _gate = new();
     private IReadOnlyList<LiveValue> _latest = [];
@@ -41,7 +41,7 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
         if (mqtt is not null)
         {
             await mqtt.ConnectAsync(ct);
-            log?.Note($"Telemetry: connected to MQTT broker {options.MqttHost}:{options.MqttPort}");
+            log?.Note($"Dashboard: connected to MQTT broker {options.MqttHost}:{options.MqttPort}");
         }
         using var http = new HttpListener();
         http.Prefixes.Add($"http://+:{options.HttpPort}/");
@@ -52,7 +52,7 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
             http.Prefixes.Add($"http://localhost:{options.HttpPort}/");
             http.Start();
         }
-        log?.Note($"Telemetry: serving http://localhost:{options.HttpPort}/ (dashboard; endpoints: /live.json /faults /health /info /classic)");
+        log?.Note($"Dashboard: serving http://localhost:{options.HttpPort}/ (dashboard; endpoints: /live.json /faults /health /info /classic)");
 
         var serving = ServeHttpAsync(http, ct);
         var pinging = PingAsync(mqtt, ct);
@@ -173,7 +173,7 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
         lock (Assets)
         {
             if (Assets.TryGetValue(name, out var cached)) return cached;
-            using var stream = typeof(TelemetryServer).Assembly.GetManifestResourceStream($"Klemme15.Telemetry.{name}");
+            using var stream = typeof(DashboardServer).Assembly.GetManifestResourceStream($"Klemme15.Dashboard.{name}");
             string? text = null;
             if (stream is not null) { using var reader = new StreamReader(stream); text = reader.ReadToEnd(); }
             Assets[name] = text;
@@ -185,7 +185,7 @@ public sealed class TelemetryServer(IDiagnosticBackend backend, EcuDefinition en
     {
         car = options.CarName,
         interval = options.IntervalSeconds,
-        version = $"Klemme15 {typeof(TelemetryServer).Assembly.GetName().Version?.ToString(3)}",
+        version = $"Klemme15 {typeof(DashboardServer).Assembly.GetName().Version?.ToString(3)}",
         parameters = parameters.Select(p => new { id = p.Id, name = p.Name, unit = p.Unit }),
     });
 

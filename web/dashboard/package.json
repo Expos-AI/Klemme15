@@ -2,7 +2,7 @@
   "name": "klemme15-dashboard",
   "private": true,
   "version": "1.0.0",
-  "description": "Phone dashboard for 'klemme15 serve' (headless telemetry). The built files are embedded in Klemme15.Telemetry.",
+  "description": "Phone dashboard for 'klemme15 serve' (headless mode). The built files are embedded in Klemme15.Dashboard.",
   "license": "GPL-3.0-or-later",
   "scripts": {
     "build": "tsc -p . && node build.mjs",

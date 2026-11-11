@@ -13,7 +13,7 @@
 using System.Net.Sockets;
 using System.Text;
 
-namespace Klemme15.Telemetry;
+namespace Klemme15.Dashboard;
 
 /// <summary>
 /// A tiny MQTT 3.1.1 publisher (CONNECT, PUBLISH at QoS 0, PINGREQ), enough to push live values to a broker like

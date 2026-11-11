@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Klemme15.Telemetry;
+using Klemme15.Dashboard;
 using Xunit;
 
 namespace Klemme15.Tests;

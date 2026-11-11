@@ -108,8 +108,8 @@ jobs:
       - name: Committed build is up to date
         shell: bash
         run: |
-          git diff --stat --exit-code -- src/Klemme15.Telemetry/wwwroot || {
-            echo "::error::src/Klemme15.Telemetry/wwwroot is out of date: run 'npm run build' in web/dashboard and commit it."
+          git diff --stat --exit-code -- src/Klemme15.Dashboard/wwwroot || {
+            echo "::error::src/Klemme15.Dashboard/wwwroot is out of date: run 'npm run build' in web/dashboard and commit it."
             exit 1
           }
 
@@ -168,6 +168,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: The release version matches the code
+        # A release is built from the commit this run started on. If that commit's version isn't the one asked for
+        # (a newer change landed on main first, or a typo), stop before anything is published under the wrong name.
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="v$(sed -n 's:.*<Version>\(.*\)</Version>.*:\1:p' Directory.Build.props | head -1)"
+          notes="v$(sed -n 's:^\*\*New in \(.*\)\:\*\*.*:\1:p' .github/release-notes.md | head -1)"
+          echo "asked for $RELEASE_TAG, code is $code, release notes are for $notes"
+          if [ "${RELEASE_TAG%%-*}" != "$code" ] || [ "$code" != "$notes" ]; then
+            echo "::error::Release $RELEASE_TAG asked for, but this commit is $code with notes for $notes."
+            exit 1
+          fi
       - name: Fetch EdiabasLib
         shell: bash
         run: ./scripts/get-ediabaslib.sh
@@ -240,6 +253,14 @@ jobs:
         env:
           BUNDLE: ${{ steps.provenance.outputs.bundle-path }}
         run: cp "$BUNDLE" "dist/Klemme15-${RELEASE_TAG}.intoto.jsonl"
+      - name: Software bill of materials
+        # Every library Klemme15 is built from, in SPDX format, from GitHub's dependency graph. Optional: a release
+        # never fails because this list couldn't be fetched.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/dependency-graph/sbom" --jq .sbom > "dist/Klemme15-${RELEASE_TAG}.spdx.json" \
+            && [ -s "dist/Klemme15-${RELEASE_TAG}.spdx.json" ] || { echo "::warning::No SBOM for this release"; rm -f dist/*.spdx.json; }
       - name: Create release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -251,7 +272,8 @@ jobs:
           pre=()
           if [[ "$RELEASE_TAG" == v0.* || "$RELEASE_TAG" == *-* ]]; then pre=(--prerelease); fi
           ls -la dist
-          gh release create "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt dist/*.intoto.jsonl --target "$GITHUB_SHA" \
+          shopt -s nullglob
+          gh release create "$RELEASE_TAG" dist/*.zip dist/SHA256SUMS.txt dist/*.intoto.jsonl dist/*.spdx.json --target "$GITHUB_SHA" \
             --repo "$GITHUB_REPOSITORY" \
             --title "Klemme15 $RELEASE_TAG" \
             "${pre[@]}" \

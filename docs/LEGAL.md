@@ -48,6 +48,7 @@ Klemme15 is written from scratch and contains **no BMW software and no BMW data 
 
 - **Your own BMW files.** If you point Klemme15 at an ISTA, INPA, EDIABAS or NCS Expert installation, it reads those files on your computer and never copies or uploads them. Whether you have the right to use them is between you and BMW. Workshops can get BMW's software legally from BMW's aftersales portal.
 - **The fault database.** The optional download of BMW's fault texts and engine values comes from [bmw-unified-db](https://github.com/gediz/bmw-unified-db), an independent community project. That project describes this data as derived from BMW's own and copyrighted by BMW, published for interoperability and right to repair. Klemme15 doesn't include or host it: it fetches it from that project only when you ask, after showing you this notice once, and checks its checksum. Whether you may use it where you live, and on what terms, is your responsibility. Klemme15 works without it.
+- **Names and numbers.** To talk to a module, Klemme15 has to use that module's address and the names of its jobs and values. Those are facts about how the car works. Klemme15 lists only the ones it uses, looked up in public documentation and in bmw-unified-db, and it doesn't copy BMW's texts or tables. An automatic check confirms on every change that the repository contains no BMW program or data files.
 - **EdiabasLib.** EDIABAS mode uses [EdiabasLib](https://github.com/uholeschak/ediabaslib), an open-source re-implementation of EDIABAS, under its own licence.
 - **Fonts and libraries.** The Barlow fonts are used under the SIL Open Font License; the user interface is built with Avalonia (MIT licence). Each component keeps its own licence.
 
@@ -77,6 +78,7 @@ Klemme15 runs on your computer, with no account, no server and no analytics. It 
 Klemme15 is designed, written and maintained by Kindric Castro, an E90 owner. AI coding assistants help write parts of the code, the documentation and the research behind the data. To keep that honest:
 
 - The whole source is public on GitHub, so anyone can read exactly what it does.
+- Automatic checks fail the build if the code names a website the privacy policy doesn't list, includes an analytics library, or sends data to a server.
 - Every change is built and tested automatically on Windows, macOS and Linux before release, and releases come with checksums and signed build provenance.
 - Facts about cars (fault meanings, module jobs, value names) carry their sources, and anything that drives a part or writes to a module stays experimental until it has been validated on a vehicle.
 

@@ -191,7 +191,7 @@ function App() {
       <header className="row between">
         <div>
           <div className="brand">Klemme15 <span className="muted">Live</span></div>
-          <div className="muted small">{info.car ?? "Headless telemetry"}</div>
+          <div className="muted small">{info.car ?? "Headless mode"}</div>
         </div>
         <div className={`pill ${status.level}`}><span className="dot" />{status.text}</div>
       </header>

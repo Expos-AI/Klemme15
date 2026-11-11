@@ -1,4 +1,4 @@
-# Headless telemetry (Raspberry Pi, Grafana, MQTT)
+# Headless mode (Raspberry Pi, Grafana, MQTT)
 
 `klemme15 serve` connects to the car and publishes its live data, with no window. Leave a cheap Raspberry Pi (or any Linux box) plugged into the OBD port with a K+DCAN cable and read the car from your phone, a Grafana dashboard or a home server. It is **read-only**: it never writes to the car.
 
@@ -31,12 +31,12 @@ Choose the values with `--pids` (default: rpm, speed, coolant, iat, load, thrott
 
 ### The dashboard's source
 
-The dashboard is a small React app in `web/dashboard`. Its built files are committed in `src/Klemme15.Telemetry/wwwroot` and embedded in Klemme15, so building Klemme15 never needs Node. To change it:
+The dashboard is a small React app in `web/dashboard`. Its built files are committed in `src/Klemme15.Dashboard/wwwroot` and embedded in Klemme15, so building Klemme15 never needs Node. To change it:
 
 ```bash
 cd web/dashboard
 npm ci
-npm run build   # type-checks, then writes src/Klemme15.Telemetry/wwwroot/
+npm run build   # type-checks, then writes src/Klemme15.Dashboard/wwwroot/
 ```
 
 CI rebuilds it and fails if the committed files are out of date.
@@ -62,7 +62,7 @@ A systemd service keeps it running:
 
 ```ini
 [Unit]
-Description=Klemme15 telemetry
+Description=Klemme15 live data
 After=network.target
 
 [Service]

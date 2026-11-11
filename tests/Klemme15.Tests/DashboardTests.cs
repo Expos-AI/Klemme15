@@ -10,7 +10,7 @@
 //
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-using Klemme15.Telemetry;
+using Klemme15.Dashboard;
 using Xunit;
 
 namespace Klemme15.Tests;
@@ -20,10 +20,10 @@ public class DashboardTests
     [Fact]
     public void The_phone_dashboard_is_built_and_embedded()
     {
-        var html = TelemetryServer.Asset("index.html");
+        var html = DashboardServer.Asset("index.html");
         Assert.NotNull(html);
         Assert.Contains("/dashboard.js", html!);
-        var js = TelemetryServer.Asset("dashboard.js");
+        var js = DashboardServer.Asset("dashboard.js");
         Assert.NotNull(js);
         Assert.True(js!.Length > 20_000, "the React bundle looks too small: run 'npm run build' in web/dashboard");
         // It only reads: no endpoint in it changes anything on the car.
