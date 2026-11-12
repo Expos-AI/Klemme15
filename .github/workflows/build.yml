@@ -73,7 +73,10 @@ jobs:
         shell: bash
         run: |
           set -eo pipefail
-          dotnet run --project tools/Klemme15.Screenshots -c Release -- "$RUNNER_TEMP/shots" 2>&1 | tee shots.log || {
+          # The headless renderer has now and then ended the run without an error. One retry tells that apart from
+          # a real failure, which fails both times.
+          render() { dotnet run --project tools/Klemme15.Screenshots -c Release -- "$RUNNER_TEMP/shots" 2>&1 | tee shots.log; }
+          render || { echo "::warning::The screenshot run ended early; trying once more"; rm -rf "$RUNNER_TEMP/shots"; render; } || {
             grep -E "(error|warning) [A-Z]+[0-9]+|Exception|   at " shots.log | head -40 | sed 's/^/::error::/'
             exit 1
           }

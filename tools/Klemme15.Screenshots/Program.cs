@@ -330,12 +330,18 @@ foreach (var page in vm.Pages)
 }
 vm.CurrentPage = vm.Garage;
 Shot("m-garage");
+// Let each size change settle before the next one: changing width, page and height back to back has ended the
+// run without an error now and then.
 window.Width = 1280;
+Pump(200);
 vm.CurrentPage = vm.Vehicle;
+Pump(200);
 // A short window (a 1080p laptop at 150 % with the taskbar and title bar): the legend and the side panel must still fit.
 window.Height = 620;
+Pump(200);
 Shot("s-vehicle-short");
 window.Height = 720;
+Pump(200);
 
 // Last, because it changes the car: the E46 in a small window. Every model (down to the M3) must be reachable.
 window.Width = 1024; window.Height = 640;
