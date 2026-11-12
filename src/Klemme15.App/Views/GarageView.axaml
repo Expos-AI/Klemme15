@@ -187,11 +187,11 @@
         <!-- Specs -->
         <Grid ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto">
           <TextBlock Classes="muted small" Text="Drive" />
-          <TextBlock Grid.Row="1" Text="{Binding Drive}" FontWeight="Medium" />
+          <TextBlock Grid.Row="1" Text="{Binding Drive}" FontWeight="Medium" TextWrapping="Wrap" Margin="0,0,16,0" />
           <TextBlock Grid.Column="1" Classes="muted small" Text="Body styles" />
           <TextBlock Grid.Column="1" Grid.Row="1" Text="{Binding Body}" FontWeight="Medium" TextWrapping="Wrap" Margin="0,0,16,0" />
           <TextBlock Grid.Column="2" Classes="muted small" Text="Model years" />
-          <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding Years}" FontWeight="Medium" />
+          <TextBlock Grid.Column="2" Grid.Row="1" Text="{Binding Years}" FontWeight="Medium" TextWrapping="Wrap" />
         </Grid>
 
         <Border Classes="divider" />
