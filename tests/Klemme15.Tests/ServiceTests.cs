@@ -239,13 +239,44 @@ public class ServiceTests
         var e9x = f.Implementations.Single(i => i.Variants.Contains("komb87"));
         var e46 = f.Implementations.Single(i => i.Variants.Contains("kombi46"));
         var oil = new Dictionary<string, string> { ["item"] = "oil" };
-        Assert.Equal("Oel;100;31", ServiceRunner.Fill(e9x.Steps[0].Args, e9x, oil));
+        var fluid = new Dictionary<string, string> { ["item"] = "brake-fluid" };
+        Assert.Equal("Brfl;100;31", ServiceRunner.Fill(e9x.Steps[0].Args, e9x, fluid));
         Assert.Equal("Oel_Reset", ServiceRunner.Fill(e46.Steps[0].Args, e46, oil));
 
-        // Brake pads exist on the E9x cluster only; the E46 cluster has inspections instead.
-        Assert.Null(ServiceRunner.ValidateInputs(f, e9x, new Dictionary<string, string> { ["item"] = "brakes-front" }));
-        Assert.NotNull(ServiceRunner.ValidateInputs(f, e46, new Dictionary<string, string> { ["item"] = "brakes-front" }));
+        // The E9x cluster keeps brake fluid but not the oil service (the engine computer does); the E46 cluster keeps
+        // the oil service and inspections but has no brake fluid item.
+        Assert.Null(ServiceRunner.ValidateInputs(f, e9x, fluid));
+        Assert.NotNull(ServiceRunner.ValidateInputs(f, e9x, oil));
+        Assert.NotNull(ServiceRunner.ValidateInputs(f, e46, fluid));
         Assert.NotNull(ServiceRunner.ValidateInputs(f, e9x, new Dictionary<string, string>()));
+    }
+
+    /// <summary>
+    /// Each Condition Based Service item is reset in the module that keeps it (the reset job's own description says
+    /// which): a 2006 E90's cluster refused the oil and brake pad resets and accepted brake fluid, spark plugs and the
+    /// vehicle check.
+    /// </summary>
+    [Fact]
+    public void Service_items_are_reset_in_the_module_that_keeps_them()
+    {
+        var oil = Fn("oil-service-reset");
+        Assert.Equal("DME", oil.Module);
+        Assert.Contains(oil.Implementations, i => i.Variants.Contains("msv70") && i.Steps[0] is { Job: "CBS_RESET", Args: "Oel;100;31" });
+
+        var pads = Fn("brake-pad-service-reset");
+        Assert.Equal("DSC", pads.Module);
+        var dsc = pads.Implementations.Single(i => i.Variants.Contains("dsc_87"));
+        Assert.Equal("Br_v;100;31", ServiceRunner.Fill(dsc.Steps[0].Args, dsc, new Dictionary<string, string> { ["axle"] = "front" }));
+        Assert.Equal("Br_h;100;31", ServiceRunner.Fill(dsc.Steps[0].Args, dsc, new Dictionary<string, string> { ["axle"] = "rear" }));
+
+        var filter = Fn("microfilter-service-reset");
+        Assert.Equal("IHKA", filter.Module);
+        Assert.Contains(filter.Implementations, i => i.Variants.Contains("ihka87") && i.Steps[0].Args == "Filt;100;31");
+
+        // The cluster's own function no longer offers what the cluster doesn't keep.
+        var cluster = Fn("service-reset").Implementations.Single(i => i.Variants.Contains("komb87"));
+        foreach (var item in new[] { "Oel", "Br_v", "Br_h", "Filt" }) Assert.False(cluster.Map!["item"].Values.Contains(item), item);
+        Assert.False(Fn("oil-service-reset").Verified || pads.Verified || filter.Verified);
     }
 
     [Fact]

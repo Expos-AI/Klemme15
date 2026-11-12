@@ -9,12 +9,15 @@
     "KOMBI",
     "IKE"
    ],
-   "summary": "Resets one service item in the instrument cluster (oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check, coolant) after you did the work, like the cluster's own reset menu.",
-   "when": "After an oil change, new brake pads, a brake fluid change or another service item.",
+   "summary": "Resets one service item the instrument cluster keeps (brake fluid, spark plugs, vehicle check, coolant) after you did the work, like the cluster's own reset menu. On cars with Condition Based Service, engine oil, brake pads and the microfilter are kept by other modules and have their own reset functions; on the E46 the cluster keeps the oil service and the inspections.",
+   "when": "After a brake fluid change, new spark plugs, a vehicle check or a coolant change (E46: after an oil service or inspection).",
    "risk": "low",
    "verified": false,
+   "confirmedOn": [
+    "KOMB87 instrument cluster, E90 325i, November 2026, EDIABAS mode: brake fluid, spark plugs and vehicle check reset and read back at 100 %."
+   ],
    "before": [
-    "Do the work first. For brake pads, also fit the new wear sensor: with the old, worn sensor the reminder comes straight back."
+    "Do the work first."
    ],
    "after": [
     "Check the cluster: the item should show its full interval again."
@@ -32,23 +35,11 @@
      "choices": [
       {
        "value": "oil",
-       "label": "Engine oil service"
-      },
-      {
-       "value": "brakes-front",
-       "label": "Front brake pads"
-      },
-      {
-       "value": "brakes-rear",
-       "label": "Rear brake pads"
+       "label": "Engine oil service (older cars)"
       },
       {
        "value": "brake-fluid",
        "label": "Brake fluid"
-      },
-      {
-       "value": "microfilter",
-       "label": "Cabin microfilter"
       },
       {
        "value": "spark-plugs",
@@ -93,11 +84,7 @@
      ],
      "map": {
       "item": {
-       "oil": "Oel",
-       "brakes-front": "Br_v",
-       "brakes-rear": "Br_h",
        "brake-fluid": "Brfl",
-       "microfilter": "Filt",
        "spark-plugs": "ZKrz",
        "vehicle-check": "Sic",
        "coolant": "Kfl"
@@ -126,6 +113,199 @@
    ]
   },
   {
+   "id": "oil-service-reset",
+   "title": "Reset the engine oil service",
+   "category": "Service and maintenance",
+   "module": [
+    "DME"
+   ],
+   "summary": "Resets the engine oil service after an oil change. On cars with Condition Based Service the engine computer keeps this item, not the instrument cluster.",
+   "when": "After an oil and filter change.",
+   "risk": "low",
+   "verified": false,
+   "before": [
+    "Change the oil and filter first, and check the level."
+   ],
+   "after": [
+    "Check the cluster's service menu: engine oil should show its full interval again."
+   ],
+   "checks": {
+    "ignition": true,
+    "engineOff": true,
+    "minVoltage": 12.5
+   },
+   "implementations": [
+    {
+     "variants": [
+      "06msd80",
+      "06msv80",
+      "d60_pm",
+      "d60m47a0",
+      "d60m57a0",
+      "d60m57d0",
+      "d62m57a0",
+      "d62m57b0",
+      "d62vt71b",
+      "d70n47a0",
+      "d70n47b0",
+      "d71n47a0",
+      "d71n47b0",
+      "d71n47c0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
+      "d72n47b0",
+      "d73n47a0",
+      "d73n57b0",
+      "d73n57c0",
+      "d73n57d0",
+      "me17n45",
+      "me9n45",
+      "mev17n46",
+      "mev9n46l",
+      "mevd174k",
+      "mevd176k",
+      "mevd17kw",
+      "msd80",
+      "msd80n43",
+      "msd85",
+      "msd85y",
+      "mss70",
+      "msv70",
+      "msv80",
+      "msv80_alt",
+      "n62_tue",
+      "n62_tue2"
+     ],
+     "steps": [
+      {
+       "job": "CBS_RESET",
+       "args": "Oel;100;31",
+       "show": true
+      },
+      {
+       "job": "CBS_DATEN_LESEN",
+       "args": "",
+       "show": true
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "brake-pad-service-reset",
+   "title": "Reset the brake pad service",
+   "category": "Service and maintenance",
+   "module": [
+    "DSC"
+   ],
+   "summary": "Resets the front or rear brake pad service after new pads. On cars with Condition Based Service the stability control keeps these items, not the instrument cluster.",
+   "when": "After fitting new brake pads on that axle.",
+   "risk": "low",
+   "verified": false,
+   "before": [
+    "Fit the new pads and a new wear sensor first: with the old, worn sensor the reminder comes straight back."
+   ],
+   "after": [
+    "Check the cluster's service menu: the brake pads should show their full interval again."
+   ],
+   "checks": {
+    "ignition": true,
+    "engineOff": true,
+    "minVoltage": 12.5
+   },
+   "inputs": [
+    {
+     "id": "axle",
+     "label": "Axle",
+     "type": "choice",
+     "choices": [
+      {
+       "value": "front",
+       "label": "Front brake pads"
+      },
+      {
+       "value": "rear",
+       "label": "Rear brake pads"
+      }
+     ]
+    }
+   ],
+   "implementations": [
+    {
+     "variants": [
+      "dsc_87",
+      "dxc_70",
+      "dxc_90"
+     ],
+     "steps": [
+      {
+       "job": "CBS_RESET",
+       "args": "{axle};100;31",
+       "show": true
+      },
+      {
+       "job": "CBS_DATEN_LESEN",
+       "args": "",
+       "show": true
+      }
+     ],
+     "map": {
+      "axle": {
+       "front": "Br_v",
+       "rear": "Br_h"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": "microfilter-service-reset",
+   "title": "Reset the cabin microfilter service",
+   "category": "Service and maintenance",
+   "module": [
+    "IHKA"
+   ],
+   "summary": "Resets the cabin microfilter service after a new filter. On cars with Condition Based Service the climate control keeps this item, not the instrument cluster.",
+   "when": "After fitting a new cabin microfilter.",
+   "risk": "low",
+   "verified": false,
+   "before": [
+    "Fit the new microfilter first."
+   ],
+   "after": [
+    "Check the cluster's service menu: the microfilter should show its full interval again."
+   ],
+   "checks": {
+    "ignition": true,
+    "engineOff": true,
+    "minVoltage": 12.5
+   },
+   "implementations": [
+    {
+     "variants": [
+      "ihka70",
+      "ihka87",
+      "ihka87_2",
+      "ihkr90",
+      "ihr_87"
+     ],
+     "steps": [
+      {
+       "job": "CBS_RESET",
+       "args": "Filt;100;31",
+       "show": true
+      },
+      {
+       "job": "CBS_DATEN_LESEN",
+       "args": "",
+       "show": true
+      }
+     ]
+    }
+   ]
+  },
+  {
    "id": "battery-registration",
    "title": "Register a new battery",
    "category": "Service and maintenance",
@@ -136,7 +316,9 @@
    "when": "After fitting a new battery of the same type and capacity as the old one.",
    "risk": "low",
    "verified": false,
-  "confirmedOn": ["MSV70 engine computer (N52), E90 325i, October 2026: the engine computer accepted the registration."],
+   "confirmedOn": [
+    "MSV70 engine computer (N52), E90 325i, October 2026: the engine computer accepted the registration."
+   ],
    "before": [
     "The new battery must match the old one's type (AGM or standard) and capacity. A different type or capacity also needs the car's coding changed, which Klemme15 doesn't do."
    ],
@@ -192,12 +374,20 @@
     },
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "d50m57a0",
       "d50m57c0",
       "d50m57d0",
       "d50m57e0",
       "d60_pm",
+      "d62vm02a m57tüs 11-03",
       "d62vt71b",
+      "d71n47b0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
+      "d73n47a0",
       "edme82",
       "me9n62",
       "me9n62_2",
@@ -207,6 +397,9 @@
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
+      "msv80_alt",
+      "msv90",
       "n62_tue",
       "n62_tue2"
      ],
@@ -326,6 +519,8 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "me17n45",
       "me9n45",
       "me9n62",
@@ -340,8 +535,11 @@
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
       "msv70",
       "msv80",
+      "msv80_alt",
+      "msv90",
       "n62_tue",
       "n62_tue2"
      ],
@@ -357,10 +555,12 @@
       "bms43ds0",
       "bms46ds0",
       "bms46ds1",
+      "bmss501",
       "dm5212l5",
       "dm5212l6",
       "dm5212r5",
       "dm5212r6",
+      "dm524ds0",
       "dm528ds0",
       "dm528ds3",
       "ms410ds0",
@@ -671,6 +871,7 @@
     {
      "variants": [
       "ms450ds0",
+      "mss70",
       "msv70"
      ],
      "steps": [
@@ -700,11 +901,15 @@
     },
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "msd80",
       "msd80n43",
       "msd85",
       "msd85y",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -854,6 +1059,8 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "me9k_ng4",
       "me9n45",
       "me9n62",
@@ -873,8 +1080,11 @@
       "msd85",
       "msd85y",
       "mss60",
+      "mss70",
       "msv70",
       "msv80",
+      "msv80_alt",
+      "msv90",
       "n62_tue",
       "n62_tue2"
      ],
@@ -921,6 +1131,8 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "me9n45",
       "me9n62",
       "me9n62_2",
@@ -933,8 +1145,11 @@
       "ms_s65_2",
       "ms_s65_3",
       "mss60",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -964,6 +1179,7 @@
       "dm5212r3",
       "dm5212r5",
       "dm5212r6",
+      "dm524ds0",
       "me9e65_6",
       "me9k_ng4",
       "ms411ds1",
@@ -1021,6 +1237,8 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "ms450ds0",
       "ms_s65",
       "ms_s65_2",
@@ -1028,7 +1246,9 @@
       "msd80",
       "msd85",
       "msd85y",
-      "msv70"
+      "mss70",
+      "msv70",
+      "msv90"
      ],
      "steps": [
       {
@@ -1052,7 +1272,8 @@
     },
     {
      "variants": [
-      "msv80"
+      "msv80",
+      "msv80_alt"
      ],
      "steps": [
       {
@@ -1210,13 +1431,18 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "me17n45",
       "msd80",
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -1306,6 +1532,7 @@
      "variants": [
       "d40m57a1",
       "d50m47a",
+      "d50m47a0",
       "d50m47b1",
       "d50m57a0",
       "d50m57a1",
@@ -1314,20 +1541,28 @@
       "d50m57d0",
       "d50m57e0",
       "d50m57e1",
+      "d50v451b",
       "d50vq02a",
       "d50vq05a",
+      "d50vu01a",
       "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vm02a m57tüs 11-03",
       "d62vt71b",
       "d70n47a0",
       "d70n47b0",
       "d71n47a0",
+      "d71n47b0",
       "d71n47c0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
       "d72n47b0",
+      "d73n47a0",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0",
@@ -1524,6 +1759,7 @@
     },
     {
      "variants": [
+      "dde30ds0",
       "dde40kw0",
       "ms420ds0",
       "ms420ds1"
@@ -1568,12 +1804,17 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "msd80",
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -1714,12 +1955,17 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "msd80",
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -1768,8 +2014,13 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -1911,13 +2162,18 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "me17n45",
       "msd80",
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -1964,10 +2220,14 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "msd80",
       "msd80n43",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -2090,12 +2350,17 @@
    "implementations": [
     {
      "variants": [
+      "06msd80",
+      "06msv80",
       "msd80",
       "msd80n43",
       "msd85",
       "msd85y",
+      "mss70",
       "msv70",
-      "msv80"
+      "msv80",
+      "msv80_alt",
+      "msv90"
      ],
      "steps": [
       {
@@ -2327,7 +2592,9 @@
      "variants": [
       "d70n47a0",
       "d70n47b0",
-      "d71n47c0"
+      "d71n47b0",
+      "d71n47c0",
+      "d71n47d0"
      ],
      "steps": [
       {
@@ -2347,6 +2614,8 @@
     },
     {
      "variants": [
+      "d71v0r1a",
+      "d71v0r2a",
       "d73n57b0",
       "d73n57c0"
      ],
@@ -2370,7 +2639,8 @@
     },
     {
      "variants": [
-      "d72n47b0"
+      "d72n47b0",
+      "d73n47a0"
      ],
      "steps": [
       {
@@ -2458,8 +2728,13 @@
      "variants": [
       "d70n47a0",
       "d70n47b0",
+      "d71n47b0",
       "d71n47c0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
       "d72n47b0",
+      "d73n47a0",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0"
@@ -2548,6 +2823,7 @@
     },
     {
      "variants": [
+      "d50m47a0",
       "d50m47b1",
       "d50m57b1",
       "d50m57d0",
@@ -2559,7 +2835,13 @@
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
-      "d62vt71b"
+      "d62vm02a m57tüs 11-03",
+      "d62vt71b",
+      "d71n47b0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
+      "d73n47a0"
      ],
      "steps": [
       {
@@ -2615,6 +2897,7 @@
     {
      "variants": [
       "d50m47a",
+      "d50m47a0",
       "d50m47b1",
       "d50m57a0",
       "d50m57a1",
@@ -2623,20 +2906,28 @@
       "d50m57d0",
       "d50m57e0",
       "d50m57e1",
+      "d50v451b",
       "d50vq02a",
       "d50vq05a",
+      "d50vu01a",
       "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vm02a m57tüs 11-03",
       "d62vt71b",
       "d70n47a0",
       "d70n47b0",
       "d71n47a0",
+      "d71n47b0",
       "d71n47c0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
       "d72n47b0",
+      "d73n47a0",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0",
@@ -2722,13 +3013,17 @@
     {
      "variants": [
       "d50m47a",
+      "d50m47a0",
       "d50m47b1",
       "d60m47a0",
       "d70n47a0",
       "d70n47b0",
       "d71n47a0",
+      "d71n47b0",
       "d71n47c0",
+      "d71n47d0",
       "d72n47b0",
+      "d73n47a0",
       "dde50k47"
      ],
      "steps": [
@@ -2760,14 +3055,19 @@
       "d50m57d0",
       "d50m57e0",
       "d50m57e1",
+      "d50v451b",
       "d50vq02a",
       "d50vq05a",
+      "d50vu01a",
       "d60_pm",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vm02a m57tüs 11-03",
       "d62vt71b",
+      "d71v0r1a",
+      "d71v0r2a",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0"
@@ -2825,6 +3125,7 @@
      "variants": [
       "d62vt71b",
       "d72n47b0",
+      "d73n47a0",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0"
@@ -2853,7 +3154,11 @@
      "variants": [
       "d70n47a0",
       "d70n47b0",
-      "d71n47c0"
+      "d71n47b0",
+      "d71n47c0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a"
      ],
      "steps": [
       {
@@ -2874,6 +3179,7 @@
      "variants": [
       "d40m57a1",
       "d50m47a",
+      "d50m47a0",
       "d50m47b1",
       "d50m57a0",
       "d50m57a1",
@@ -2882,14 +3188,17 @@
       "d50m57d0",
       "d50m57e0",
       "d50m57e1",
+      "d50v451b",
       "d50vq02a",
       "d50vq05a",
+      "d50vu01a",
       "d60_pm",
       "d60m47a0",
       "d60m57a0",
       "d60m57d0",
       "d62m57a0",
       "d62m57b0",
+      "d62vm02a m57tüs 11-03",
       "d71n47a0",
       "dde50k47"
      ],
@@ -2926,6 +3235,7 @@
     {
      "variants": [
       "d72n47b0",
+      "d73n47a0",
       "d73n57c0",
       "d73n57d0"
      ],
@@ -2969,6 +3279,7 @@
     {
      "variants": [
       "d72n47b0",
+      "d73n47a0",
       "d73n57d0"
      ],
      "steps": [
@@ -3010,8 +3321,13 @@
       "d62vt71b",
       "d70n47a0",
       "d70n47b0",
+      "d71n47b0",
       "d71n47c0",
+      "d71n47d0",
+      "d71v0r1a",
+      "d71v0r2a",
       "d72n47b0",
+      "d73n47a0",
       "d73n57b0",
       "d73n57c0",
       "d73n57d0",
@@ -3058,6 +3374,7 @@
    "implementations": [
     {
      "variants": [
+      "dsc_85",
       "dsc_87",
       "dxc_70",
       "dxc_90"
@@ -3076,6 +3393,9 @@
     },
     {
      "variants": [
+      "dsc_81",
+      "dsc_87_bbv",
+      "dsc_87_ef73",
       "dsc_mk60"
      ],
      "steps": [
@@ -3129,6 +3449,7 @@
    "implementations": [
     {
      "variants": [
+      "dsc_85",
       "dsc_87"
      ],
      "steps": [
@@ -3140,6 +3461,9 @@
     },
     {
      "variants": [
+      "dsc_81",
+      "dsc_87_bbv",
+      "dsc_87_ef73",
       "dsc_e46",
       "dsc_mk60"
      ],
@@ -3181,6 +3505,7 @@
    "implementations": [
     {
      "variants": [
+      "dsc_85",
       "dsc_87"
      ],
      "steps": [
@@ -3192,6 +3517,9 @@
     },
     {
      "variants": [
+      "dsc_81",
+      "dsc_87_bbv",
+      "dsc_87_ef73",
       "dsc_mk60"
      ],
      "steps": [
@@ -3243,6 +3571,7 @@
    "implementations": [
     {
      "variants": [
+      "dsc_85",
       "dsc_87"
      ],
      "steps": [
@@ -3257,6 +3586,7 @@
       "dsc_60pp",
       "dxc8_p",
       "dxc_70",
+      "dxc_83",
       "dxc_90"
      ],
      "steps": [
@@ -3344,6 +3674,7 @@
    "implementations": [
     {
      "variants": [
+      "dsc_85",
       "dsc_87"
      ],
      "steps": [
@@ -3363,7 +3694,11 @@
     },
     {
      "variants": [
+      "absmk20",
       "ascmk20",
+      "dsc_81",
+      "dsc_87_bbv",
+      "dsc_87_ef73",
       "dsc_e46",
       "dsc_mk60"
      ],
@@ -3387,6 +3722,7 @@
       "dxc8",
       "dxc8_p",
       "dxc_70",
+      "dxc_83",
       "dxc_90"
      ],
      "steps": [
@@ -3436,7 +3772,11 @@
    "implementations": [
     {
      "variants": [
+      "dsc_81",
+      "dsc_85",
       "dsc_87",
+      "dsc_87_bbv",
+      "dsc_87_ef73",
       "dsc_mk60"
      ],
      "steps": [
@@ -3493,6 +3833,7 @@
       "dxc8",
       "dxc8_p",
       "dxc_70",
+      "dxc_83",
       "dxc_90"
      ],
      "steps": [
@@ -3680,6 +4021,7 @@
       "ags922",
       "gs20",
       "gs832",
+      "gs832_m",
       "gs836",
       "gs851",
       "gs855",
@@ -3958,6 +4300,7 @@
       "dxc8",
       "dxc8_p",
       "dxc_70",
+      "dxc_83",
       "dxc_90"
      ],
      "steps": [
@@ -4130,6 +4473,7 @@
       "ihka60_2",
       "ihka70",
       "ihka87",
+      "ihka87_2",
       "ihka89",
       "ihkr89",
       "ihkr90",
@@ -4148,7 +4492,10 @@
      "variants": [
       "ihka46",
       "ihka46_2",
-      "ihka46_3"
+      "ihka46_3",
+      "ihka83",
+      "ihka85",
+      "ihks85"
      ],
      "steps": [
       {
@@ -4300,10 +4647,14 @@
     },
     {
      "variants": [
+      "kombi36",
+      "kombi361",
+      "kombi36c",
       "kombi39",
       "kombi39c",
       "kombi46",
-      "kombi46r"
+      "kombi46r",
+      "kombi85"
      ],
      "steps": [
       {
@@ -4518,6 +4869,7 @@
       "ihka60_2",
       "ihka70",
       "ihka87",
+      "ihka87_2",
       "ihka89",
       "ihkr89",
       "ihkr90",

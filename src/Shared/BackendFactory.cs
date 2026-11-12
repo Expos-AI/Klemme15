@@ -64,6 +64,14 @@ public static class BackendFactory
                 EcuPath = settings.EdiabasPath,
                 ComPort = settings.Port ?? throw new DiagnosticException("Choose the cable's port"),
                 VinSgbds = engine?.Sgbd ?? [],
+                // One native broadcast first, so EDIABAS doesn't wait several seconds on each module the car doesn't have.
+                PresenceProbe = mode == CableMode.DCan ? async ct =>
+                {
+                    await using var native = new NativeBackend(new LoggingTransport(new SerialPortTransport(settings.Port!), log),
+                        new NativeBackendOptions { Mode = CableMode.DCan, ProbeTimeout = TimeSpan.FromMilliseconds(300) });
+                    await native.ConnectAsync(ct);
+                    return await native.ProbePresentAsync(ct);
+                } : null,
                 LiveFavorites = settings.LiveFavorites,
                 Log = log,
             });

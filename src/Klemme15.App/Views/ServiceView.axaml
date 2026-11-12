@@ -53,7 +53,7 @@
       <StackPanel DockPanel.Dock="Top" Spacing="10" Margin="0,0,0,14">
         <TextBlock Classes="title" Text="Service" />
         <Button Content="What's due for service?" Command="{Binding DueCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
-                ToolTip.Tip="Reads the service list from the instrument cluster. Read-only: nothing is changed." />
+                ToolTip.Tip="Reads the service list from the instrument cluster and the modules that keep the other items. Read-only: nothing is changed." />
         <TextBox Text="{Binding Filter}" Watermark="Search (oil, brakes, window, injector...)" />
         <DockPanel>
           <CheckBox DockPanel.Dock="Right" Content="Only my car" IsChecked="{Binding OnlyMine}" IsVisible="{Binding !NotConnected}" />
@@ -105,7 +105,7 @@
           <Button DockPanel.Dock="Right" Content="Close" Command="{Binding CloseDueCommand}" VerticalAlignment="Top" Margin="12,0,0,0" />
           <StackPanel Spacing="4">
             <TextBlock Classes="section" Text="What's due for service" TextWrapping="Wrap" />
-            <TextBlock Classes="muted small" Text="Module: instrument cluster. Read-only." />
+            <TextBlock Classes="muted small" Text="Modules: instrument cluster, engine, stability control, climate control. Read-only." />
           </StackPanel>
         </DockPanel>
         <TextBlock Text="{Binding DueHeadline}" TextWrapping="Wrap" FontWeight="SemiBold" />

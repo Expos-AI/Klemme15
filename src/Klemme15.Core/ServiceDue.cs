@@ -89,6 +89,30 @@ public static class ServiceDue
         ["AU"] = "Statutory emissions inspection",
     };
 
+    /// <summary>
+    /// The item numbers the modules report (the cluster's own item table). A 2006 E90's cluster reports the number and
+    /// the long German name, not the short one, so items are recognised by number first.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<int, string> KeysByNumber = new Dictionary<int, string>
+    {
+        [0x01] = "Oel", [0x02] = "Br_v", [0x03] = "Brfl", [0x04] = "Filt", [0x06] = "Br_h", [0x07] = "CSF", [0x08] = "Batt", [0x09] = "VTG",
+        [0x10] = "ZKrz", [0x11] = "Sic", [0x12] = "Kfl", [0x14] = "Ueb", [0x16] = "DAD", [0x20] = "TUV", [0x21] = "AU",
+    };
+
+    /// <summary>
+    /// Germany's statutory inspections (TUV, AU). Every cluster carries them, with placeholder dates on cars sold
+    /// elsewhere, so they are left off the list of what's due.
+    /// </summary>
+    public static bool IsStatutory(string key) => key.Equals("TUV", StringComparison.OrdinalIgnoreCase) || key.Equals("AU", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Who keeps which items. The cluster's own job documents it: the cluster keeps brake fluid, spark plugs, the
+    /// vehicle check and coolant; engine oil is kept by the engine computer, the brake pads by the stability control
+    /// and the microfilter by the climate control. Each is read with the same job from its own module.
+    /// </summary>
+    public static bool KeepsServiceItems(EcuDefinition ecu) =>
+        IsCluster(ecu) || ecu.IsEngine || ecu.Id.EndsWith(".DSC", StringComparison.Ordinal) || ecu.Id.EndsWith(".IHKA", StringComparison.Ordinal);
+
     public static bool IsCluster(EcuDefinition ecu) => ecu.Id.EndsWith(".KOMBI", StringComparison.Ordinal);
 
     /// <summary>Runs the cluster's read job and returns its items. Throws what the backend throws when the job isn't there.</summary>
@@ -96,6 +120,26 @@ public static class ServiceDue
     {
         if (JobPolicy.Refusal(sgbd, Job) is { } refusal) throw new DiagnosticException(refusal);
         return Parse(await jobs.RunJobAsync(sgbd, Job, "", ct));
+    }
+
+    /// <summary>
+    /// The whole car's list: the cluster's items plus the ones other modules keep (oil, brake pads, microfilter). A
+    /// module that doesn't have the job, or doesn't answer, is simply left out. Read-only.
+    /// </summary>
+    public static async Task<IReadOnlyList<ServiceDueItem>> ReadAllAsync(IJobRunner jobs, IEnumerable<(EcuDefinition Ecu, string Sgbd)> modules, CancellationToken ct = default)
+    {
+        var sets = new List<IReadOnlyDictionary<string, string>>();
+        foreach (var (_, sgbd) in modules)
+        {
+            ct.ThrowIfCancellationRequested();
+            try
+            {
+                if (JobPolicy.Refusal(sgbd, Job) is null) sets.AddRange(await jobs.RunJobAsync(sgbd, Job, "", ct));
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception e) when (e is DiagnosticException or TimeoutException) { /* this module keeps no service items */ }
+        }
+        return Parse(sets);
     }
 
     /// <summary>
@@ -116,15 +160,22 @@ public static class ServiceDue
                 }
                 return null;
             }
-            var key = Get("ID_FN_*_MESS_TEXT")?.Trim();
-            if (string.IsNullOrEmpty(key) || items.Any(i => i.Key.Equals(key, StringComparison.OrdinalIgnoreCase))) continue;
+            // The number is the reliable name: the text is the short code on some clusters and a German phrase on others.
+            var text = Get("ID_FN_*_MESS_TEXT")?.Trim();
+            var key = Int(Get("ID_FN_*_MESS_WERT")) is { } number && KeysByNumber.TryGetValue(number, out var known) ? known : text;
+            if (string.IsNullOrEmpty(key) || IsStatutory(key) || items.Any(i => i.Key.Equals(key, StringComparison.OrdinalIgnoreCase))) continue;
             var month = Int(Get("ZIEL_MM_WERT"));
             var year = Int(Get("ZIEL_YY_WERT"));
             if (year is >= 0 and < 100) year += 2000;
             var dated = month is >= 1 and <= 12 && year is >= 2000 and <= 2099;
+            // What's left: 0x8000 (-32768) means "not kept for this item". The unit is a number: 0 is percent, 1 is
+            // distance in steps of 10 km (BMW's own description of the job: "1hex -> km*10").
+            var remaining = Long(Get("RMMI_*_WERT"));
+            var unit = Int(Get("ST_UN_*_WERT"));
+            var km = remaining is { } r && r != -32768 && r != 32768 && unit == 1 ? r * 10 : (long?)null;
             items.Add(new(key, Names.TryGetValue(key, out var name) ? name : key,
                 Int(Get("AVAI_*_WERT")) is { } p and >= -100 and <= 100 ? p : null,
-                Long(Get("RMMI_*_WERT")), Get("ST_UN_*_TEXT")?.Trim() ?? "", Int(Get("COU_RSTG_*_MESS_WERT")) is { } n and >= 0 and < 255 ? n : null,
+                km, km is null ? "" : "km", Int(Get("COU_RSTG_*_MESS_WERT")) is { } n and >= 0 and < 255 ? n : null,
                 dated ? month : null, dated ? year : null));
         }
         return items.OrderBy(i => i.Level switch { ServiceDueLevel.Due => 0, ServiceDueLevel.Soon => 1, ServiceDueLevel.Ok => 2, _ => 3 }).ThenBy(i => i.Percent ?? 0).ToList();

@@ -18,7 +18,7 @@
 
 **Free, open-source, offline diagnostics for older BMWs.** Read every module's faults and dash warnings and find out what they mean, track your car's health, test a part before you buy it, run service functions, and back up or code comfort modules. You need a K+DCAN cable and a Windows, macOS or Linux computer. No account, no subscription, nothing sent anywhere.
 
-> **Status: beta.** Validated on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration. Everything else is developed from published research on each module and verified against simulated vehicles, with field validation in progress. Functions that drive a part or write to a module, battery registration included, remain behind the **experimental** switch until validated. [Become a tester](docs/BETA.md).
+> **Status: beta.** Validated on a 2006 E90 325i over D-CAN: module identification, faults read and cleared (Shadow / Info memory included), dash message history, live data, the fuel trim test and battery registration; and in EDIABAS mode (your own BMW files): the quick test with BMW's own fault texts and the mileage stored with each fault, and the brake fluid, spark plug and vehicle check service resets. Everything else is developed from published research on each module and verified against simulated vehicles, with field validation in progress. Functions that drive a part or write to a module, battery registration included, remain behind the **experimental** switch until validated. [Become a tester](docs/BETA.md).
 
 | Faults, health and the car's story | Component tests with live graphs |
 |---|---|
@@ -104,7 +104,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Start from a symptom**: pick what the car does (won't start, rough idle, overheating, battery goes flat, warning lights and more) and get what your car already reports about it, then what to do in order.
 - **Diagnostic chains**: a mechanic's reasoning, run step by step. The Vacuum leak hunter, the Charging system check and the Warm-up check (thermostat) are offered under matching faults; anyone can write one ([how](docs/CHAINS.md)).
 - **Multimeter and swap checks** under matching faults: connectors, grounds, coils, VANOS solenoids, the pump's power, oxygen sensor heaters.
-- **What's due for service**: the instrument cluster's own service list, most urgent first, read-only (cars with Condition Based Service, in EDIABAS mode; pending field validation).
+- **What's due for service**: the car's service list read from the modules that keep it (cluster, engine, brakes, climate), most urgent first, read-only (cars with Condition Based Service, in EDIABAS mode; the cluster's part is validated on an E90).
 - **Garage mode**: a high-contrast theme (black on white, larger small print) for working in daylight, next to dark and light.
 - **Your units**: km and °C, or miles and °F, chosen in the Garage.
 - **Live data and Analyse**: record values to CSV, then scatter and replay the log with a healthy range drawn behind it ([baselines](docs/BASELINES.md)).
@@ -115,7 +115,7 @@ No car nearby? Pick any model and press **Open demo car**.
 - **Health over time**: each quick test leaves a small record on your computer, so a battery resting lower each week, fuel trims creeping lean or a fault that keeps coming back show up early.
 
 **Do the job yourself** (experimental)
-- **75 functions**: service reminder reset, battery registration, the steering lock counter reset for early E90s with a key slot, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration (on most engine computers) and Valvetronic learning (N52 engines only) run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
+- **78 functions**: service reminder reset, battery registration, the steering lock counter reset for early E90s with a key slot, adaptation resets, Valvetronic and DISA learning, cylinder cut-out, DSC and gearbox functions and more. Battery registration (on most engine computers) and Valvetronic learning (N52 engines only) run without BMW files; the rest run BMW's own procedures from your files (EDIABAS mode, Windows). Each checks the car first and asks you to confirm every requirement ([list](docs/SERVICE-FUNCTIONS.md), [how they're kept safe](docs/SERVICE.md)).
 
 **Code comfort options**
 - **Back up, compare and restore** a comfort module's coding on D-CAN cars, without BMW files. Restoring writes to the module, so it's experimental.

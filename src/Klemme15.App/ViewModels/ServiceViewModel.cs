@@ -255,8 +255,15 @@ public sealed class ServiceViewModel : PageViewModel
             try
             {
                 using var bus = _session.ClaimBus("Reading what's due for service");
-                var sgbd = _session.Readings?.VariantOf(cluster) ?? cluster.Sgbd.FirstOrDefault() ?? $"D_{cluster.Address:X4}";
-                items = await ServiceDue.ReadAsync(jobs, sgbd);
+                // The cluster keeps some items; the engine computer (oil), stability control (brake pads) and climate
+                // control (microfilter) keep the rest. Ask each one that answered the quick test.
+                var answered = _session.LastScan?.Ecus.Where(e => e.Status is EcuScanStatus.Ok or EcuScanStatus.Faults).Select(e => e.Ecu.Id).ToHashSet();
+                var keepers = _session.Vehicle!.Modules.Where(ServiceDue.KeepsServiceItems)
+                    .Where(m => answered is null || answered.Contains(m.Id) || ServiceDue.IsCluster(m))
+                    .OrderByDescending(ServiceDue.IsCluster)
+                    .Select(m => (m, _session.Readings?.VariantOf(m) ?? m.Sgbd.FirstOrDefault() ?? $"D_{m.Address:X4}"));
+                items = await ServiceDue.ReadAllAsync(jobs, keepers);
+                if (items.Count == 0) throw new DiagnosticException("No module reported a service item.");
             }
             catch (Exception e) when (e is not OperationCanceledException)
             {
@@ -279,7 +286,7 @@ public sealed class ServiceViewModel : PageViewModel
         foreach (var i in items) DueItems.Add(new ServiceDueRowViewModel(i));
         DueHeadline = ServiceDue.Headline(items);
         DueStatus = _session.IsDemo ? "Demo car: the figures are made up."
-            : "Read from the instrument cluster; nothing was changed. This reading is pending field validation: compare it with the service menu on the cluster, and reset an item with the service functions on the left after the work is done.";
+            : "Read from the instrument cluster and the modules that keep the other items (engine oil, brake pads, microfilter); nothing was changed. Compare it with the service menu on the cluster, and reset an item with the service functions on the left after the work is done.";
     }
 
     private static IReadOnlyList<ServiceDueItem> DemoDue() => ServiceDue.Parse(
@@ -290,7 +297,7 @@ public sealed class ServiceViewModel : PageViewModel
 
     private static Dictionary<string, string> DemoItem(string key, int percent, long remaining, string unit, int resets, int month = 0, int year = 0) => new()
     {
-        ["ID_FN_CBS_MESS_TEXT"] = key, ["AVAI_CBS_WERT"] = $"{percent}", ["RMMI_CBS_WERT"] = $"{remaining}", ["ST_UN_CBS_TEXT"] = unit,
+        ["ID_FN_CBS_MESS_TEXT"] = key, ["AVAI_CBS_WERT"] = $"{percent}", ["RMMI_CBS_WERT"] = $"{(unit == "km" ? remaining / 10 : -32768)}", ["ST_UN_CBS_WERT"] = "1",
         ["COU_RSTG_CBS_MESS_WERT"] = $"{resets}", ["ZIEL_MM_WERT"] = $"{month}", ["ZIEL_YY_WERT"] = $"{year}",
     };
 

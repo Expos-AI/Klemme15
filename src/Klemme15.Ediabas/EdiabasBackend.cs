@@ -24,6 +24,13 @@ public sealed record EdiabasOptions
     /// <summary>Cable port, e.g. "COM3".</summary>
     public required string ComPort { get; init; }
 
+    /// <summary>
+    /// Asks the car, before EdiabasLib takes the cable, which module addresses are fitted (one broadcast, a second
+    /// or two). The quick test then asks only those modules: a module that isn't there costs EDIABAS about four
+    /// seconds of waiting, and a car has thirty of them. Null, or a failed probe, means every module is asked.
+    /// </summary>
+    public Func<CancellationToken, Task<IReadOnlySet<byte>?>>? PresenceProbe { get; init; }
+
     /// <summary>SGBDs to ask for the VIN (usually the engine's), tried in order.</summary>
     public IReadOnlyList<string> VinSgbds { get; init; } = [];
 
@@ -78,7 +85,37 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
 
     public bool? IgnitionOn => null;
 
-    public Task ConnectAsync(CancellationToken ct = default) => Locked(() =>
+    /// <summary>The module addresses the car says are fitted, when the probe found a believable number of them.</summary>
+    private IReadOnlySet<byte>? _present;
+
+    public async Task ConnectAsync(CancellationToken ct = default)
+    {
+        _present = null;
+        if (options.PresenceProbe is { } probe && Directory.Exists(options.EcuPath))
+        {
+            try
+            {
+                var found = await probe(ct).ConfigureAwait(false);
+                // Fewer than four answers isn't a believable car: don't let a weak probe hide modules.
+                if (found is { Count: >= 4 })
+                {
+                    _present = found;
+                    options.Log?.Note($"{found.Count} modules answered the broadcast ({string.Join(" ", found.Order().Select(a => a.ToString("X2")))}); EDIABAS will ask only those");
+                }
+                else options.Log?.Note("The broadcast didn't show which modules are fitted; EDIABAS will ask every module");
+            }
+            catch (OperationCanceledException) { throw; }
+            catch (Exception e)
+            {
+                options.Log?.Note($"Couldn't check which modules are fitted ({e.Message}); EDIABAS will ask every module");
+            }
+            // Give the operating system a moment to release the port before EdiabasLib opens it.
+            await Task.Delay(250, ct).ConfigureAwait(false);
+        }
+        await ConnectEdiabasAsync(ct).ConfigureAwait(false);
+    }
+
+    private Task ConnectEdiabasAsync(CancellationToken ct) => Locked(() =>
     {
         if (!Directory.Exists(options.EcuPath))
             throw new DiagnosticException($"SGBD folder not found: {options.EcuPath}");
@@ -124,6 +161,8 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
 
     public async Task<EcuIdentity?> IdentifyAsync(EcuDefinition ecu, CancellationToken ct = default)
     {
+        // The car already said this address isn't fitted. The engine is always asked: everything else depends on it.
+        if (_present is { } present && !present.Contains(ecu.Address) && !ecu.IsEngine) return null;
         var candidates = ecu.Sgbd.Where(SgbdExists).ToList();
         if (candidates.Count == 0)
             candidates.Add($"D_{ecu.Address:X4}");   // EDIABAS convention for E6x/E9x group files
@@ -195,8 +234,26 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
                 }
                 catch (DiagnosticException) { /* shadow memory is a bonus */ }
             }
-            return faults;
+            return Collapse(faults);
         }, ct);
+
+    /// <summary>
+    /// Some modules list the same background entry many times over (a cruise control module reported one overvoltage
+    /// entry ten times, identical down to the mileage). Identical info and shadow entries are shown once, with a count.
+    /// Real faults are never merged.
+    /// </summary>
+    internal static IReadOnlyList<Fault> Collapse(IReadOnlyList<Fault> faults)
+    {
+        var result = new List<Fault>();
+        foreach (var group in faults.GroupBy(f => !f.IsInfo && !f.IsShadow ? Guid.NewGuid().ToString()
+                     : $"{f.IsShadow}|{f.Code}|{string.Join(";", f.Details.OrderBy(kv => kv.Key, StringComparer.Ordinal).Select(kv => $"{kv.Key}={kv.Value}"))}"))
+        {
+            var first = group.First();
+            var count = group.Count();
+            result.Add(count == 1 ? first : first with { Details = new Dictionary<string, string>(first.Details) { ["Identical entries"] = count.ToString(CultureInfo.InvariantCulture) } });
+        }
+        return result;
+    }
 
     private const int MaxDetailReads = 25;
 
@@ -252,7 +309,7 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
     private static Dictionary<string, string> DetailsFrom(Dictionary<string, string> r)
     {
         var d = new Dictionary<string, string>();
-        static bool Useful(string? v) => !string.IsNullOrWhiteSpace(v) && v.Trim() is not "--" and not "-" and not "0xFFFF";
+        static bool Useful(string? v) => !string.IsNullOrWhiteSpace(v) && v.Trim() is not "--" and not "-" and not "0xFFFF" and not "-1";   // -1: the module doesn't keep this figure
         void Add(string label, string? value, string? unit = null)
         {
             if (Useful(value)) d[label] = unit is null ? value!.Trim() : $"{value!.Trim()} {unit}";
@@ -293,7 +350,11 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
             var sgbd = SgbdFor(cluster);
             try { _ediabas?.ResolveSgbdFile(sgbd); }
             catch (Exception) { return null; }
-            if (!JobExists("STATUS_CHECKCONTROL_LESEN")) return null;
+            if (!JobExists("STATUS_CHECKCONTROL_LESEN"))
+            {
+                options.Log?.Note($"{sgbd} has no STATUS_CHECKCONTROL_LESEN job in these BMW files, so the dash messages can't be read in EDIABAS mode");
+                return null;
+            }
 
             var sets = RunJobCore(sgbd, "STATUS_CHECKCONTROL_LESEN", "", ct);
             var all = Merge(sets);

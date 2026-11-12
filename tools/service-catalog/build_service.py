@@ -83,28 +83,66 @@ def timed(job, args, sig, seconds, say, off=None, off_args=""):
 
 # ============================================================================ Service and maintenance
 
+# Who keeps which Condition Based Service item is documented in the job itself: the cluster keeps brake fluid, spark
+# plugs, the vehicle check and coolant ("Kombi-Umfaenge"); engine oil, brake pads and the microfilter are "externe
+# Umfaenge", kept by the engine computer, the stability control and the climate control. A 2006 E90's cluster refused
+# oil and brake pads and reset brake fluid, spark plugs and the vehicle check, which is what the job says.
+CBS_SIG = ["CBS_KENNUNG", "CBS_VERFUEGBARKEIT", "CBS_ANZAHL_SERVICE", "CBS_ZIEL_MONAT", "CBS_ZIEL_JAHR", "RMM_CBS_WERT", "ST_UN_CBS_RSTG",
+           "FRC_INTM_WAY_CBS_MESS", "FRC_INTM_T_CBS_MESS", "Res_Byte"]
 SERVICE_ITEMS = [
-    ("oil", "Engine oil service"), ("brakes-front", "Front brake pads"), ("brakes-rear", "Rear brake pads"),
-    ("brake-fluid", "Brake fluid"), ("microfilter", "Cabin microfilter"), ("spark-plugs", "Spark plugs"),
+    ("oil", "Engine oil service (older cars)"),
+    ("brake-fluid", "Brake fluid"), ("spark-plugs", "Spark plugs"),
     ("vehicle-check", "Vehicle check"), ("coolant", "Coolant"),
     ("inspection-distance", "Inspection by distance (older cars)"), ("inspection-time", "Inspection by time (older cars)"),
 ]
 F("service-reset", "Reset a service reminder", "Service and maintenance", ["KOMBI", "IKE"],
-  "Resets one service item in the instrument cluster (oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check, coolant) after you did the work, like the cluster's own reset menu.",
-  "After an oil change, new brake pads, a brake fluid change or another service item.",
+  "Resets one service item the instrument cluster keeps (brake fluid, spark plugs, vehicle check, coolant) after you did the work, like the cluster's own reset menu. On cars with Condition Based Service, engine oil, brake pads and the microfilter are kept by other modules and have their own reset functions; on the E46 the cluster keeps the oil service and the inspections.",
+  "After a brake fluid change, new spark plugs, a vehicle check or a coolant change (E46: after an oil service or inspection).",
   "low",
-  [R("CBS_RESET", "{item};100;31",
-     sig=["CBS_KENNUNG", "CBS_VERFUEGBARKEIT", "CBS_ANZAHL_SERVICE", "CBS_ZIEL_MONAT", "CBS_ZIEL_JAHR", "RMM_CBS_WERT", "ST_UN_CBS_RSTG",
-          "FRC_INTM_WAY_CBS_MESS", "FRC_INTM_T_CBS_MESS", "Res_Byte"],
+  [R("CBS_RESET", "{item};100;31", sig=CBS_SIG,
      show=True, then=[S("CBS_DATEN_LESEN", show=True)],
-     map={"item": {"oil": "Oel", "brakes-front": "Br_v", "brakes-rear": "Br_h", "brake-fluid": "Brfl", "microfilter": "Filt",
-                   "spark-plugs": "ZKrz", "vehicle-check": "Sic", "coolant": "Kfl"}}),
+     map={"item": {"brake-fluid": "Brfl", "spark-plugs": "ZKrz", "vehicle-check": "Sic", "coolant": "Kfl"}}),
    R("SIA_RESET", "{item}", sig=["ARG1"],
      map={"item": {"oil": "Oel_Reset", "inspection-distance": "Weg_Reset", "inspection-time": "Zeit_Reset"}})],
-  before=["Do the work first. For brake pads, also fit the new wear sensor: with the old, worn sensor the reminder comes straight back."],
+  before=["Do the work first."],
   after=["Check the cluster: the item should show its full interval again."],
   checks=checks(**ENGINE_OFF),
   inputs=[choice("item", "Service item", SERVICE_ITEMS)])
+
+F("oil-service-reset", "Reset the engine oil service", "Service and maintenance", ["DME"],
+  "Resets the engine oil service after an oil change. On cars with Condition Based Service the engine computer keeps this item, not the instrument cluster.",
+  "After an oil and filter change.",
+  "low",
+  [R("CBS_RESET", "Oel;100;31", sig=CBS_SIG, show=True, then=[S("CBS_DATEN_LESEN", show=True)])],
+  before=["Change the oil and filter first, and check the level."],
+  after=["Check the cluster's service menu: engine oil should show its full interval again."],
+  checks=checks(**ENGINE_OFF))
+
+F("brake-pad-service-reset", "Reset the brake pad service", "Service and maintenance", ["DSC"],
+  "Resets the front or rear brake pad service after new pads. On cars with Condition Based Service the stability control keeps these items, not the instrument cluster.",
+  "After fitting new brake pads on that axle.",
+  "low",
+  [R("CBS_RESET", "{axle};100;31", sig=CBS_SIG, show=True, then=[S("CBS_DATEN_LESEN", show=True)],
+     map={"axle": {"front": "Br_v", "rear": "Br_h"}})],
+  before=["Fit the new pads and a new wear sensor first: with the old, worn sensor the reminder comes straight back."],
+  after=["Check the cluster's service menu: the brake pads should show their full interval again."],
+  checks=checks(**ENGINE_OFF),
+  inputs=[choice("axle", "Axle", [("front", "Front brake pads"), ("rear", "Rear brake pads")])])
+
+F("microfilter-service-reset", "Reset the cabin microfilter service", "Service and maintenance", ["IHKA"],
+  "Resets the cabin microfilter service after a new filter. On cars with Condition Based Service the climate control keeps this item, not the instrument cluster.",
+  "After fitting a new cabin microfilter.",
+  "low",
+  [R("CBS_RESET", "Filt;100;31", sig=CBS_SIG, show=True, then=[S("CBS_DATEN_LESEN", show=True)])],
+  before=["Fit the new microfilter first."],
+  after=["Check the cluster's service menu: the microfilter should show its full interval again."],
+  checks=checks(**ENGINE_OFF))
+
+# What has been validated on a vehicle, shown with the function. Kept here so regenerating never loses it.
+CONFIRMED = {
+    "battery-registration": ["MSV70 engine computer (N52), E90 325i, October 2026: the engine computer accepted the registration."],
+    "service-reset": ["KOMB87 instrument cluster, E90 325i, November 2026, EDIABAS mode: brake fluid, spark plugs and vehicle check reset and read back at 100 %."],
+}
 
 F("battery-registration", "Register a new battery", "Service and maintenance", ["DME"],
   "Tells the engine computer a new battery was fitted, so it stops charging as if the old, worn battery were still there.",
@@ -825,6 +863,7 @@ def build():
             inputs.append(inp)
         entry = {k: f[k] for k in ("id", "title", "category", "module", "summary", "when", "risk")}
         entry["verified"] = False
+        if f["id"] in CONFIRMED: entry["confirmedOn"] = CONFIRMED[f["id"]]
         if f["duration"]: entry["duration"] = f["duration"]
         if f["caution"]: entry["caution"] = f["caution"]
         entry["before"], entry["after"] = f["before"], f["after"]
@@ -862,7 +901,7 @@ def write_docs(out):
     lines = ["# Service functions: full list", "",
              "Generated from `src/Klemme15.Data/db/service.json` by `tools/service-catalog/build_service.py`. "
              "See [SERVICE.md](SERVICE.md) for how they run and how they are kept safe.", "",
-             "All functions are **experimental** until confirmed on a real car. Except where noted, they run BMW's own procedure "
+             "All functions are **experimental** until validated on a vehicle. Except where noted, they run BMW's own procedure "
              "and need your BMW files (EDIABAS mode).", ""]
     for cat in dict.fromkeys(e["category"] for e in out):
         lines += [f"## {cat}", "", "| Function | Module | When to use it | Module versions |", "|---|---|---|---|"]

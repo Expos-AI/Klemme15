@@ -491,7 +491,8 @@
       "protocol": "BmwFast",
       "category": "Chassis",
       "sgbd": [
-        "D_0002"
+        "D_0002",
+        "D_SZL"
       ],
       "pos": [
         418,
