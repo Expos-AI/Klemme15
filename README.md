@@ -14,6 +14,9 @@
   <a href="https://paypal.me/KindricC"><img alt="Support with PayPal" src="https://img.shields.io/badge/support-PayPal-0070BA?logo=paypal&logoColor=white"></a>
 </p>
 
+<p align="center"><b><a href="https://expos-ai.github.io/Klemme15/#download">⬇ Download Klemme15 (Windows, Mac, Linux)</a></b><br>
+<sub>The download page picks the right file for your computer. All versions are also on the <a href="https://github.com/Expos-AI/Klemme15/releases">Releases page</a>.</sub></p>
+
 *Named after terminal 15 (Klemme 15), the ignition-on line every BMW diagnosis starts with.*
 
 **Free, open-source, offline diagnostics for older BMWs.** Read every module's faults and dash warnings and find out what they mean, track your car's health, test a part before you buy it, run service functions, and back up or code comfort modules. You need a K+DCAN cable and a Windows, macOS or Linux computer. No account, no subscription, nothing sent anywhere.
