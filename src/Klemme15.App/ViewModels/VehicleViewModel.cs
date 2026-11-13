@@ -238,6 +238,10 @@ public sealed class VehicleViewModel : PageViewModel
     }
 
     public bool HasFrmNotice => !string.IsNullOrEmpty(_frmNotice);
+
+    /// <summary>One line above the car; the full rules are one click away. Writes still show the full warning where they happen.</summary>
+    public string FrmShort { get => _frmShort; private set => Set(ref _frmShort, value); }
+    private string _frmShort = "";
     public bool FrmFragile => HasFrmNotice && _frmFragile;
     public bool FrmSafe => HasFrmNotice && !_frmFragile;
 
@@ -248,6 +252,9 @@ public sealed class VehicleViewModel : PageViewModel
         var a = FrmGuard.Assess(frm.Identity);
         // Only a confirmed FRM3 gets the loud banner; an unidentified one still gets the strict rules, said calmly.
         _frmFragile = a.Generation == FrmGeneration.Frm3;
+        FrmShort = _frmFragile
+            ? $"{a.Label}: extra voltage rules apply before Klemme15 writes to it."
+            : $"{a.Label}{(frm.Identity!.PartNumber is { } p ? $", part {p}" : "")}: strict voltage rules apply before writes.";
         FrmNotice = $"{a.Label}{(frm.Identity!.PartNumber is { } pn ? $", part {pn}" : "")}: {a.Advice}";
     }
 

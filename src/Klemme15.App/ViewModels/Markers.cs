@@ -273,8 +273,45 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     /// <summary>Troubleshooting guide for this fault, if there is one.</summary>
     public GuideViewModel? Guide { get => _guide; set { _guide = value; Raise(nameof(HasGuide)); } }
     public bool HasGuide => _guide is not null;
-    public bool GuideOpen { get => _guideOpen; set { Set(ref _guideOpen, value); Raise(nameof(GuideButtonText)); } }
+    public bool GuideOpen { get => _guideOpen; set { Set(ref _guideOpen, value); Raise(nameof(GuideButtonText)); if (value) Expanded = true; } }
     public string GuideButtonText => _guideOpen ? "Hide steps" : "Troubleshoot";
+
+    // ------------------------------------------------------------------ one line until opened
+
+    private bool _expanded;
+
+    /// <summary>
+    /// The card shows one line (code, state, meaning, verdict) until opened; then the tip, where to look, the stored
+    /// details, sources and actions. Nothing is left out, it's just not all on screen at once.
+    /// </summary>
+    public bool Expanded
+    {
+        get => _expanded;
+        set { if (Set(ref _expanded, value)) { Raise(nameof(Collapsed)); Raise(nameof(ExpandText)); Raise(nameof(DescriptionLines)); } }
+    }
+    public bool Collapsed => !_expanded;
+    public string ExpandText => _expanded ? "Less" : "More";
+    public RelayCommand ToggleExpandCommand => _toggleExpand ??= new RelayCommand(() => Expanded = !Expanded);
+    private RelayCommand? _toggleExpand;
+
+    /// <summary>Two lines while closed, all of it when open.</summary>
+    public int DescriptionLines => _expanded ? 0 : 2;
+
+    /// <summary>How many extra things open up, so a closed card says there's more ("tip, where to look, 3 sources").</summary>
+    public string MoreHint
+    {
+        get
+        {
+            var parts = new List<string>();
+            if (HasTip) parts.Add("tip");
+            parts.Add("where to look");
+            if (HasGuide) parts.Add("troubleshooting steps");
+            if (HasCheck) parts.Add("how to check it");
+            if (HasDetails) parts.Add("stored details");
+            if (HasSourceLinks) parts.Add(SourceLinks.Count == 1 ? "1 source" : $"{SourceLinks.Count} sources");
+            return string.Join(", ", parts);
+        }
+    }
     public RelayCommand ToggleGuideCommand => _toggle ??= new RelayCommand(() => GuideOpen = !GuideOpen);
     private RelayCommand? _toggle;
 
@@ -290,7 +327,7 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
     /// <summary>A multimeter check for the part this fault is about, if there is one.</summary>
     public GuideViewModel? Check { get => _check; set { _check = value; Raise(nameof(HasCheck)); } }
     public bool HasCheck => _check is not null;
-    public bool CheckOpen { get => _checkOpen; set { Set(ref _checkOpen, value); Raise(nameof(CheckButtonText)); } }
+    public bool CheckOpen { get => _checkOpen; set { Set(ref _checkOpen, value); Raise(nameof(CheckButtonText)); if (value) Expanded = true; } }
     public string CheckButtonText => _checkOpen ? "Hide check" : "How to check it";
     public RelayCommand ToggleCheckCommand => _toggleCheck ??= new RelayCommand(() => CheckOpen = !CheckOpen);
     private RelayCommand? _toggleCheck;

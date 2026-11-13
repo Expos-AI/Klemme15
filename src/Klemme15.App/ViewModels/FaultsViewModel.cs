@@ -243,6 +243,18 @@ public sealed class FaultsViewModel : PageViewModel
     public GuideActions? GuideActions { get; set; }
 
     private bool _showBackground;
+    private bool _showAllDetails;
+
+    /// <summary>Open every fault card at once (tips, where to look, stored details, sources).</summary>
+    public bool ShowAllDetails
+    {
+        get => _showAllDetails;
+        set
+        {
+            if (!Set(ref _showAllDetails, value)) return;
+            foreach (var g in Groups) foreach (var f in g.Faults) f.Expanded = value;
+        }
+    }
 
     /// <summary>Show info/shadow memory and typical leftovers of battery work too.</summary>
     public bool ShowBackground { get => _showBackground; set { if (Set(ref _showBackground, value)) Rebuild(); } }
@@ -310,6 +322,7 @@ public sealed class FaultsViewModel : PageViewModel
                     Cleared = OnModuleCleared,
                 };
                 if (_clearNote is { } note && note.EcuId == ecu.Id && note.Scan == scan.Started) group.Message = note.Text;
+                foreach (var item in group.Faults) item.Expanded = _showAllDetails;
                 if (group.Faults.Count > 0) Groups.Add(group);
             }
         Causes.Clear();

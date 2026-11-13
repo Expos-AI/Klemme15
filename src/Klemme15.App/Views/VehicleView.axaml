@@ -34,10 +34,9 @@
                 <TextBlock Classes="muted small" Text="{Binding ModuleName}" VerticalAlignment="Center" />
               </StackPanel>
             </DockPanel>
-            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
-            <TextBlock Classes="small" TextWrapping="Wrap" IsVisible="{Binding HasTip}" Text="{Binding Tip}" />
+            <!-- The side panel is a summary next to the drawing: the tip and sources are on the Faults page -->
+            <TextBlock Text="{Binding Description}" TextWrapping="Wrap" MaxLines="2" TextTrimming="CharacterEllipsis" />
             <TextBlock Classes="muted small" Text="{Binding Where}" TextWrapping="Wrap" />
-            <TextBlock Classes="muted small" FontStyle="Italic" Text="{Binding ProvenanceAlone}" IsVisible="{Binding HasProvenance}" TextWrapping="Wrap" />
           </StackPanel>
         </Grid>
       </Button>
@@ -62,8 +61,8 @@
         <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" Spacing="10">
           <Button Classes="primary" Content="Run quick test" Command="{Binding RunCommand}" />
           <Button Content="Stop" Command="{Binding CancelCommand}" IsVisible="{Binding IsScanning}" />
-          <Button Classes="quiet" Content="Clear all faults" Command="{Binding AskClearAllCommand}" IsVisible="{Binding NotConfirmClearAll}" />
-          <Button Classes="quiet" Content="Find other modules" Command="{Binding DiscoverCommand}"
+          <Button Content="Clear all faults" Command="{Binding AskClearAllCommand}" IsVisible="{Binding NotConfirmClearAll}" />
+          <Button Content="Find other modules" Command="{Binding DiscoverCommand}"
                   ToolTip.Tip="Asks every address the database doesn't list (read-only). Takes about a minute." />
         </StackPanel>
         <StackPanel Margin="18,0,0,0" VerticalAlignment="Center" Spacing="5">
@@ -92,11 +91,33 @@
       <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,10" IsVisible="{Binding HasWarning}">
         <TextBlock Text="{Binding Warning}" TextWrapping="Wrap" />
       </Border>
-      <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,10" IsVisible="{Binding FrmFragile}">
-        <TextBlock Text="{Binding FrmNotice}" TextWrapping="Wrap" FontWeight="SemiBold" />
+      <Border Classes="panel" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" Padding="14,8" IsVisible="{Binding FrmFragile}">
+        <StackPanel Spacing="4">
+          <DockPanel>
+            <ToggleButton DockPanel.Dock="Right" Classes="help" x:Name="helpFrmFragile" VerticalAlignment="Center" Margin="12,0,0,0">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="Details" />
+                <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </ToggleButton>
+            <TextBlock Text="{Binding FrmShort}" TextWrapping="Wrap" FontWeight="SemiBold" VerticalAlignment="Center" />
+          </DockPanel>
+          <TextBlock Text="{Binding FrmNotice}" TextWrapping="Wrap" IsVisible="{Binding #helpFrmFragile.IsChecked}" />
+        </StackPanel>
       </Border>
-      <Border Classes="panel" Padding="14,10" IsVisible="{Binding FrmSafe}">
-        <TextBlock Classes="muted" Text="{Binding FrmNotice}" TextWrapping="Wrap" />
+      <Border Classes="panel" Padding="14,8" IsVisible="{Binding FrmSafe}">
+        <StackPanel Spacing="4">
+          <DockPanel>
+            <ToggleButton DockPanel.Dock="Right" Classes="help" x:Name="helpFrmSafe" VerticalAlignment="Center" Margin="12,0,0,0">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="Details" />
+                <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </ToggleButton>
+            <TextBlock Classes="muted" Text="{Binding FrmShort}" TextWrapping="Wrap" VerticalAlignment="Center" />
+          </DockPanel>
+          <TextBlock Classes="muted" Text="{Binding FrmNotice}" TextWrapping="Wrap" IsVisible="{Binding #helpFrmSafe.IsChecked}" />
+        </StackPanel>
       </Border>
       <Border Classes="panel" Padding="14,10" IsVisible="{Binding ConfirmClearAll}">
         <DockPanel>
@@ -213,12 +234,17 @@
                         <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" Margin="10,2,0,0" VerticalAlignment="Top">
                           <TextBlock Classes="code muted small" Text="{Binding Code}" />
                           <TextBlock Classes="muted small" Text="{Binding StateText}" />
+                          <ToggleButton Classes="help" x:Name="ccMore" IsVisible="{Binding HasMore}" Padding="2,0" ToolTip.Tip="What it means and what to do">
+                            <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                          </ToggleButton>
                         </StackPanel>
                       </Grid>
-                      <TextBlock Classes="muted small" Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}" Margin="17,0,0,0" />
-                      <TextBlock Classes="muted small" Text="{Binding Hint}" TextWrapping="Wrap" IsVisible="{Binding HasHint}" Margin="17,0,0,0" />
-                      <TextBlock Classes="muted small" Text="{Binding ModuleText}" TextWrapping="Wrap" IsVisible="{Binding HasModule}" Margin="17,0,0,0" />
-                      <TextBlock Classes="muted small" Text="{Binding Official}" TextWrapping="Wrap" IsVisible="{Binding HasOfficial}" Margin="17,0,0,0" />
+                      <StackPanel Spacing="2" IsVisible="{Binding #ccMore.IsChecked}">
+                        <TextBlock Classes="muted small" Text="{Binding Description}" TextWrapping="Wrap" IsVisible="{Binding HasDescription}" Margin="17,0,0,0" />
+                        <TextBlock Classes="muted small" Text="{Binding Hint}" TextWrapping="Wrap" IsVisible="{Binding HasHint}" Margin="17,0,0,0" />
+                        <TextBlock Classes="muted small" Text="{Binding ModuleText}" TextWrapping="Wrap" IsVisible="{Binding HasModule}" Margin="17,0,0,0" />
+                        <TextBlock Classes="muted small" Text="{Binding Official}" TextWrapping="Wrap" IsVisible="{Binding HasOfficial}" Margin="17,0,0,0" />
+                      </StackPanel>
                     </StackPanel>
                   </DataTemplate>
                 </ItemsControl.ItemTemplate>

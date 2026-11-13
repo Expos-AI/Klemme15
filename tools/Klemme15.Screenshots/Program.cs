@@ -75,6 +75,15 @@ var stopping = vm.Vehicle.Topology.StopAndWaitAsync();
 WaitUntil(() => stopping.IsCompleted);
 vm.CurrentPage = vm.Faults;
 Shot("07-faults");
+// One fault opened: the tip, where to look, actions and the technical record.
+if (vm.Faults.Groups.SelectMany(g => g.Faults).FirstOrDefault(f => f.HasTip) is { } opened)
+{
+    opened.Expanded = true;
+    Pump(150);
+    Shot("49-faults-open");
+    opened.Expanded = false;
+}
+else problems.Add("49-faults-open: no fault with a tip on the demo car");
 // The battery drain finder on the demo car: its clues, a parked current and the hunt.
 vm.Faults.Drain!.IsOpen = true;
 vm.Faults.Drain.Milliamps = "85";
@@ -107,6 +116,7 @@ if (vm.Faults.Groups.SelectMany(g => g.Faults).FirstOrDefault(f => f.HasGuide) i
     guided.GuideOpen = true;
     Shot("17-faults-guide");
     guided.GuideOpen = false;
+    guided.Expanded = false;
 }
 else problems.Add("17-faults-guide: no fault on the demo car has a guide");
 vm.CurrentPage = vm.Readings;

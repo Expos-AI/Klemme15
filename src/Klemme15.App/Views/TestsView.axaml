@@ -55,8 +55,15 @@
         </ItemsControl.ItemTemplate>
       </ItemsControl>
       <TextBlock Classes="title" Text="Tests" FontSize="18" Margin="0,14,0,0" />
-      <TextBlock Classes="muted small" TextWrapping="Wrap"
-                 Text="Klemme15 measures the engine while it tells you what to do, then explains what the numbers mean. Only tests marked &quot;drives a part&quot; switch anything on." />
+      <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Only tests marked &quot;drives a part&quot; switch anything on." />
+      <ToggleButton Classes="help" x:Name="helpTests1" HorizontalAlignment="Left">
+        <StackPanel Orientation="Horizontal" Spacing="6">
+          <TextBlock Text="How tests work" />
+          <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+        </StackPanel>
+      </ToggleButton>
+      <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding #helpTests1.IsChecked}"
+                 Text="Klemme15 measures the engine while it tells you what to do, then explains what the numbers mean." />
       <ItemsControl ItemsSource="{Binding Tests}">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:GuidedTestViewModel">

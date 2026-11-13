@@ -404,6 +404,69 @@
     </Style>
 
     <!-- fault rows -->
+    <!-- "How this works": explanations are one click away instead of always on screen -->
+    <Style Selector="ToggleButton.help">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0,2" />
+      <Setter Property="MinHeight" Value="0" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Foreground" Value="{DynamicResource LitBrush}" />
+      <Setter Property="FontSize" Value="{DynamicResource SmallTextSize}" />
+      <Setter Property="FontWeight" Value="Medium" />
+    </Style>
+    <Style Selector="ToggleButton.help:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.help:checked /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource LitBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.help:checked:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="ToggleButton.help:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="Transparent" />
+    </Style>
+    <Style Selector="ToggleButton.help:checked Path.chevron">
+      <Setter Property="RenderTransform" Value="rotate(180deg)" />
+    </Style>
+
+    <!-- A fault card's clickable header: looks like part of the card, not like a button -->
+    <Style Selector="Button.cardhead">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="Padding" Value="0" />
+      <Setter Property="CornerRadius" Value="0,6,6,0" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="Button.cardhead:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource RaisedBrush}" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="Foreground" Value="{DynamicResource InkBrush}" />
+    </Style>
+    <Style Selector="Path.chevron">
+      <Setter Property="Stroke" Value="{DynamicResource LitBrush}" />
+      <Setter Property="StrokeThickness" Value="1.6" />
+      <Setter Property="Width" Value="10" />
+      <Setter Property="Height" Value="6" />
+      <Setter Property="Stretch" Value="Uniform" />
+    </Style>
+    <Style Selector="Path.chevron.open">
+      <Setter Property="RenderTransform" Value="rotate(180deg)" />
+    </Style>
+    <!-- Codes, raw bytes and sources: present, but visibly secondary -->
+    <Style Selector="Border.techblock">
+      <Setter Property="BorderBrush" Value="{DynamicResource LineBrush}" />
+      <Setter Property="BorderThickness" Value="0,1,0,0" />
+      <Setter Property="Padding" Value="0,8,0,0" />
+    </Style>
+
     <Style Selector="Border.faultbar">
       <Setter Property="Width" Value="4" />
       <Setter Property="CornerRadius" Value="2" />

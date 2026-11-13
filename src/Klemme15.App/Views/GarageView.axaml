@@ -74,12 +74,11 @@
         <ListBox Classes="models" ItemsSource="{Binding Models}" SelectedItem="{Binding Model}" IsVisible="{Binding NotSearching}">
           <ListBox.ItemTemplate>
             <DataTemplate x:DataType="core:VehicleModel">
+              <!-- Name on its own line, so a long model name or year range never squeezes the other -->
               <StackPanel Spacing="1">
-                <DockPanel>
-                  <TextBlock DockPanel.Dock="Right" Text="{Binding Years}" Classes="muted small" VerticalAlignment="Center" />
-                  <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
-                </DockPanel>
+                <TextBlock Text="{Binding Name}" FontFamily="{DynamicResource DisplayFont}" FontSize="22" FontWeight="SemiBold" TextWrapping="Wrap" />
                 <TextBlock Text="{Binding Engine}" Classes="muted small" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding Years}" Classes="muted small" TextWrapping="Wrap" />
               </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>
@@ -151,8 +150,16 @@
             <Button DockPanel.Dock="Right" Classes="primary" Content="{Binding DownloadButtonText}" Command="{Binding DownloadFaultDataCommand}" VerticalAlignment="Center" />
             <StackPanel Spacing="2" Margin="0,0,16,0">
               <TextBlock Text="Get BMW's own meaning for every fault code" FontWeight="SemiBold" TextWrapping="Wrap" />
-              <TextBlock Classes="muted small" TextWrapping="Wrap"
-                         Text="Optional: a one-time download from the independent project bmw-unified-db (third-party data derived from BMW's; you'll see what that means before anything downloads), or use your own ISTA/INPA files." />
+              <StackPanel Spacing="4">
+                <ToggleButton Classes="help" x:Name="helpGarage1" HorizontalAlignment="Left">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="What is this?" />
+                    <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock IsVisible="{Binding #helpGarage1.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                           Text="Optional: a one-time download from the independent project bmw-unified-db (third-party data derived from BMW's; you'll see what that means before anything downloads), or use your own ISTA/INPA files." />
+              </StackPanel>
               <TextBlock Classes="lit small" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
             </StackPanel>
           </DockPanel>
@@ -227,8 +234,16 @@
               <Button Margin="0,0,8,8" Content="Use my BMW files (ISTA / INPA)" Command="{Binding ChooseEcuFolderCommand}" />
             </WrapPanel>
             <TextBlock Classes="lit" Text="{Binding DownloadText}" IsVisible="{Binding IsDownloading}" />
-            <TextBlock Classes="muted small" TextWrapping="Wrap"
-                       Text="The download is bmw-unified-db, a free community project on GitHub (not part of Klemme15). Its fault texts are derived from BMW's diagnostic data, which BMW owns; that project publishes them for right-to-repair. Klemme15 checks the file's checksum and keeps only the modules for your car family." />
+            <StackPanel Spacing="4">
+              <ToggleButton Classes="help" x:Name="helpGarage2" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="About this download" />
+                  <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                </StackPanel>
+              </ToggleButton>
+              <TextBlock IsVisible="{Binding #helpGarage2.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                         Text="The download is bmw-unified-db, a free community project on GitHub (not part of Klemme15). Its fault texts are derived from BMW's diagnostic data, which BMW owns; that project publishes them for right-to-repair. Klemme15 checks the file's checksum and keeps only the modules for your car family." />
+            </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="14">
               <Button Classes="quiet" Content="{Binding FaultDataProject}" Command="{Binding OpenFaultDataPageCommand}" />
               <Button Classes="quiet" Content="Data sources and licences" Command="{Binding OpenFaultDataLicenseCommand}" />

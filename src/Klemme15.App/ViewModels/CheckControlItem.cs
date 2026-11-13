@@ -34,4 +34,7 @@ public sealed class CheckControlItem(CheckControlMessage message)
     public bool HasModule => ModuleText is not null;
     public string? Official => Message.OfficialText is { } t && t != Message.Title ? $"BMW: {t}" : null;
     public bool HasOfficial => Official is not null;
+
+    /// <summary>The explanation, tip and module open on request, so the list stays one line per message.</summary>
+    public bool HasMore => HasDescription || HasHint || HasModule || HasOfficial;
 }

@@ -88,8 +88,16 @@
       <Border Classes="panel" Padding="18,14" IsVisible="{Binding Drain.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
         <StackPanel Spacing="10" DataContext="{Binding Drain}" x:DataType="vm:DrainFinderViewModel">
           <TextBlock Classes="section" FontSize="16" Text="Battery drain finder" />
-          <TextBlock Classes="muted small" TextWrapping="Wrap"
-                     Text="For a battery that goes flat when the car sits. First what the car itself recorded, then what your parked current means, then a step-by-step hunt for the circuit with a multimeter. Read-only." />
+          <StackPanel Spacing="4">
+            <ToggleButton Classes="help" x:Name="helpFaults1" HorizontalAlignment="Left">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="How the drain finder works" />
+                <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </ToggleButton>
+            <TextBlock IsVisible="{Binding #helpFaults1.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                       Text="For a battery that goes flat when the car sits. First what the car itself recorded, then what your parked current means, then a step-by-step hunt for the circuit with a multimeter. Read-only." />
+          </StackPanel>
           <TextBlock Classes="small" FontWeight="SemiBold" Text="{Binding CluesHeadline}" TextWrapping="Wrap" />
           <ItemsControl ItemsSource="{Binding Clues}" IsVisible="{Binding HasClues}">
             <ItemsControl.ItemTemplate>
@@ -156,8 +164,16 @@
       <Border Classes="panel" Padding="18,14" IsVisible="{Binding Purchase.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
         <StackPanel Spacing="8" DataContext="{Binding Purchase}" x:DataType="vm:PurchaseCheckViewModel">
           <TextBlock Classes="section" FontSize="16" Text="{Binding Headline}" TextWrapping="Wrap" />
-          <TextBlock Classes="muted small" TextWrapping="Wrap"
-                     Text="Looking at a used car? Type the odometer reading from the dash, then read the mileage the modules remember: the engine computer keeps its own count, so a wound-back cluster shows up. Klemme15 also looks for safety faults and signs of freshly cleared codes. Read-only: mileage is never changed." />
+          <StackPanel Spacing="4">
+            <ToggleButton Classes="help" x:Name="helpFaults2" HorizontalAlignment="Left">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="How the buying check works" />
+                <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </ToggleButton>
+            <TextBlock IsVisible="{Binding #helpFaults2.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                       Text="Looking at a used car? Type the odometer reading from the dash, then read the mileage the modules remember: the engine computer keeps its own count, so a wound-back cluster shows up. Klemme15 also looks for safety faults and signs of freshly cleared codes. Read-only: mileage is never changed." />
+          </StackPanel>
           <WrapPanel>
             <TextBox Watermark="Odometer reading" Text="{Binding Odometer}" Width="170" Margin="0,0,10,8" />
             <CheckBox Content="Miles" IsChecked="{Binding Miles}" VerticalAlignment="Center" Margin="0,0,14,8" />
@@ -215,8 +231,16 @@
       <Border Classes="panel" Padding="18,14" IsVisible="{Binding Share.IsOpen}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1" MaxWidth="980" HorizontalAlignment="Left">
         <StackPanel Spacing="8" DataContext="{Binding Share}" x:DataType="vm:SnapshotShareViewModel">
           <TextBlock Classes="section" FontSize="16" Text="Share a snapshot of your car" />
-          <TextBlock Classes="muted small" TextWrapping="Wrap"
-                     Text="Saves the whole car as it is now in one .k15 file. Attach it to your E90Post, Reddit or GitHub post: anyone with Klemme15 opens it in the Garage and explores your car as if they were plugged in, read-only. Klemme15 uploads nothing itself." />
+          <StackPanel Spacing="4">
+            <ToggleButton Classes="help" x:Name="helpFaults3" HorizontalAlignment="Left">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="What a snapshot is" />
+                <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </ToggleButton>
+            <TextBlock IsVisible="{Binding #helpFaults3.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                       Text="Saves the whole car as it is now in one .k15 file. Attach it to your E90Post, Reddit or GitHub post: anyone with Klemme15 opens it in the Garage and explores your car as if they were plugged in, read-only. Klemme15 uploads nothing itself." />
+          </StackPanel>
           <TextBox Watermark="What's wrong, and what have you tried? (shown to whoever opens it)" Text="{Binding Note}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="60" />
           <TextBlock Classes="small" Text="{Binding Contents}" TextWrapping="Wrap" />
           <CheckBox IsChecked="{Binding IncludeLive}"><TextBlock Text="{Binding LiveText}" TextWrapping="Wrap" /></CheckBox>
@@ -231,8 +255,12 @@
       </Border>
       <TextBlock Text="{Binding Headline}" Classes="muted" FontSize="16" />
       <DockPanel>
-        <CheckBox DockPanel.Dock="Right" Content="Show background entries" IsChecked="{Binding ShowBackground}" IsVisible="{Binding HasBackground}"
-                  ToolTip.Tip="Info and shadow memory, and faults typically left behind by battery work" />
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Spacing="18">
+          <CheckBox Content="Open all" IsChecked="{Binding ShowAllDetails}"
+                    ToolTip.Tip="Show every fault's tip, where to look, stored details and sources" />
+          <CheckBox Content="Show background entries" IsChecked="{Binding ShowBackground}" IsVisible="{Binding HasBackground}"
+                    ToolTip.Tip="Info and shadow memory, and faults typically left behind by battery work" />
+        </StackPanel>
         <TextBlock Text="{Binding Verdict}" TextWrapping="Wrap" VerticalAlignment="Center" />
       </DockPanel>
       <TextBlock Classes="error" Text="{Binding Error}" IsVisible="{Binding HasError}" />
@@ -293,64 +321,87 @@
               <ItemsControl ItemsSource="{Binding Faults}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:FaultItemViewModel">
-                    <Border Classes="panel" Padding="0" Margin="0,0,0,8">
-                      <Grid ColumnDefinitions="4,110,*,Auto">
+                    <!-- One line until opened: code, state, meaning, verdict. Everything else is one click away. -->
+                    <Border Classes="panel" Padding="0" Margin="0,0,0,6">
+                      <Grid ColumnDefinitions="4,*">
                         <Border Classes="faultbar" Classes.active="{Binding IsActive}" CornerRadius="6,0,0,6" />
-                        <StackPanel Grid.Column="1" Margin="18,14,8,14" Spacing="6">
-                          <SelectableTextBlock Classes="code" Text="{Binding Code}" />
-                          <Border Classes="statechip" Classes.active="{Binding IsActive}" HorizontalAlignment="Left">
-                            <TextBlock Text="{Binding StateText}" />
-                          </Border>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2" Margin="8,14,12,14" Spacing="6">
-                          <SelectableTextBlock Text="{Binding Description}" TextWrapping="Wrap" FontSize="15" />
-                          <TextBlock TextWrapping="Wrap" Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}">
-                            <Run Text="{Binding VerdictLabel}" FontWeight="Bold" /><Run Text=": " /><Run Text="{Binding VerdictAdvice}" />
-                          </TextBlock>
-                          <SelectableTextBlock Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
-                          <SelectableTextBlock Classes="muted small" Text="{Binding OfficialLine}" TextWrapping="Wrap" IsVisible="{Binding HasOfficialLine}" />
-                          <TextBlock Classes="muted small" Text="{Binding VariantLine}" TextWrapping="Wrap" IsVisible="{Binding HasVariantLine}" />
-                          <SelectableTextBlock Classes="muted small" Text="{Binding AlternativesText}" TextWrapping="Wrap" IsVisible="{Binding HasAlternatives}" />
-                          <!-- Troubleshooting guide -->
-                          <Border IsVisible="{Binding GuideOpen}" Padding="14,12" Margin="0,6,0,0" CornerRadius="6"
-                                  Background="{DynamicResource LitSoftBrush}">
-                            <ContentControl Content="{Binding Guide}" />
-                          </Border>
-                          <!-- Multimeter check -->
-                          <Border IsVisible="{Binding CheckOpen}" Padding="14,12" Margin="0,6,0,0" CornerRadius="6"
-                                  Background="{DynamicResource LitSoftBrush}">
-                            <ContentControl Content="{Binding Check}" />
-                          </Border>
-                          <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Classes="muted small" Text="Check here:" />
-                            <TextBlock Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
+                        <StackPanel Grid.Column="1">
+                          <Button Classes="cardhead" Command="{Binding ToggleExpandCommand}" ToolTip.Tip="Open or close this fault">
+                            <Grid ColumnDefinitions="106,*,Auto">
+                              <StackPanel Margin="16,11,6,11" Spacing="5">
+                                <TextBlock Classes="code" Text="{Binding Code}" />
+                                <Border Classes="statechip" Classes.active="{Binding IsActive}" HorizontalAlignment="Left">
+                                  <TextBlock Text="{Binding StateText}" />
+                                </Border>
+                              </StackPanel>
+                              <StackPanel Grid.Column="1" Margin="6,11,10,11" Spacing="4" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" MaxLines="{Binding DescriptionLines}" TextTrimming="CharacterEllipsis" FontSize="15" FontWeight="Normal" />
+                                <WrapPanel>
+                                  <TextBlock Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}"
+                                             Text="{Binding VerdictLabel}" FontWeight="SemiBold" Margin="0,0,10,0" />
+                                  <TextBlock Classes="muted small" Text="{Binding MoreHint}" IsVisible="{Binding Collapsed}" TextTrimming="CharacterEllipsis" FontWeight="Normal" />
+                                </WrapPanel>
+                              </StackPanel>
+                              <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center" Margin="0,0,14,0">
+                                <TextBlock Classes="small" Text="{Binding ExpandText}" Foreground="{DynamicResource LitBrush}" VerticalAlignment="Center" />
+                                <Path Classes="chevron" Classes.open="{Binding Expanded}" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                              </StackPanel>
+                            </Grid>
+                          </Button>
+
+                          <!-- Opened: what to do, where to look, what the module stored, where the meaning comes from -->
+                          <StackPanel IsVisible="{Binding Expanded}" Margin="112,0,16,14" Spacing="8">
+                            <TextBlock TextWrapping="Wrap" Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}">
+                              <Run Text="{Binding VerdictLabel}" FontWeight="Bold" /><Run Text=": " /><Run Text="{Binding VerdictAdvice}" />
+                            </TextBlock>
+                            <SelectableTextBlock Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
+                            <Grid ColumnDefinitions="Auto,*">
+                              <TextBlock Classes="muted small" Text="Check here" Margin="0,0,10,0" />
+                              <TextBlock Grid.Column="1" Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
+                            </Grid>
+                            <!-- Troubleshooting guide -->
+                            <Border IsVisible="{Binding GuideOpen}" Padding="14,12" CornerRadius="6" Background="{DynamicResource LitSoftBrush}">
+                              <ContentControl Content="{Binding Guide}" />
+                            </Border>
+                            <!-- Multimeter check -->
+                            <Border IsVisible="{Binding CheckOpen}" Padding="14,12" CornerRadius="6" Background="{DynamicResource LitSoftBrush}">
+                              <ContentControl Content="{Binding Check}" />
+                            </Border>
+                            <WrapPanel>
+                              <Button Content="Show on car" Command="{Binding ShowCommand}" IsVisible="{Binding CanShowOnCar}" Margin="0,0,8,6" />
+                              <Button Content="{Binding GuideButtonText}" Command="{Binding ToggleGuideCommand}" IsVisible="{Binding HasGuide}" Margin="0,0,8,6"
+                                      ToolTip.Tip="Step-by-step checks for this kind of fault" />
+                              <Button Content="{Binding ChainButtonText}" Command="{Binding RunChainCommand}" IsVisible="{Binding HasChain}" Margin="0,0,8,6"
+                                      ToolTip.Tip="{Binding ChainTitle}" />
+                              <Button Content="{Binding CheckButtonText}" Command="{Binding ToggleCheckCommand}" IsVisible="{Binding HasCheck}" Margin="0,0,8,6"
+                                      ToolTip.Tip="Test the part with a multimeter or a swap before buying it" />
+                              <Button Content="Find this part" Command="{Binding FindPartCommand}" IsVisible="{Binding CanFindPart}" Margin="0,0,8,6"
+                                      ToolTip.Tip="{Binding FindPartTip}" />
+                            </WrapPanel>
+                            <!-- The technical record, in one quiet block -->
+                            <Border Classes="techblock">
+                              <StackPanel Spacing="4">
+                                <SelectableTextBlock Classes="muted small" Text="{Binding OfficialLine}" TextWrapping="Wrap" IsVisible="{Binding HasOfficialLine}" />
+                                <TextBlock Classes="muted small" Text="{Binding VariantLine}" TextWrapping="Wrap" IsVisible="{Binding HasVariantLine}" />
+                                <SelectableTextBlock Classes="muted small" Text="{Binding AlternativesText}" TextWrapping="Wrap" IsVisible="{Binding HasAlternatives}" />
+                                <SelectableTextBlock Classes="muted small mono" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
+                                <WrapPanel>
+                                  <TextBlock Classes="muted small" FontStyle="Italic" Text="{Binding Provenance}" IsVisible="{Binding HasProvenance}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                  <Button Classes="quiet" Content="Translate" Command="{Binding TranslateCommand}" IsVisible="{Binding CanTranslate}" ToolTip.Tip="Open BMW's German text in Google Translate" FontSize="12" Padding="4,0" />
+                                  <ItemsControl ItemsSource="{Binding SourceLinks}" IsVisible="{Binding HasSourceLinks}">
+                                    <ItemsControl.ItemsPanel>
+                                      <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    <ItemsControl.ItemTemplate>
+                                      <DataTemplate x:DataType="vm:SourceLink">
+                                        <Button Classes="quiet" Content="{Binding Label}" Command="{Binding OpenCommand}" ToolTip.Tip="{Binding Url}" FontSize="12" Padding="4,0" />
+                                      </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                  </ItemsControl>
+                                </WrapPanel>
+                              </StackPanel>
+                            </Border>
                           </StackPanel>
-                          <TextBlock Classes="muted small" Text="{Binding Details}" TextWrapping="Wrap" IsVisible="{Binding HasDetails}" />
-                          <WrapPanel>
-                            <TextBlock Classes="muted small" FontStyle="Italic" Text="{Binding Provenance}" IsVisible="{Binding HasProvenance}" VerticalAlignment="Center" Margin="0,0,8,0" />
-                            <Button Classes="quiet" Content="Translate" Command="{Binding TranslateCommand}" IsVisible="{Binding CanTranslate}" ToolTip.Tip="Open BMW's German text in Google Translate" FontSize="12" Padding="4,0" />
-                            <ItemsControl ItemsSource="{Binding SourceLinks}" IsVisible="{Binding HasSourceLinks}">
-                              <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate>
-                              </ItemsControl.ItemsPanel>
-                              <ItemsControl.ItemTemplate>
-                                <DataTemplate x:DataType="vm:SourceLink">
-                                  <Button Classes="quiet" Content="{Binding Label}" Command="{Binding OpenCommand}" ToolTip.Tip="{Binding Url}" FontSize="12" Padding="4,0" />
-                                </DataTemplate>
-                              </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                          </WrapPanel>
-                        </StackPanel>
-                        <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="0,0,14,0" Spacing="4">
-                          <Button Classes="quiet" Content="Show on car" Command="{Binding ShowCommand}" IsVisible="{Binding CanShowOnCar}" HorizontalAlignment="Right" />
-                          <Button Classes="quiet" Content="{Binding GuideButtonText}" Command="{Binding ToggleGuideCommand}" IsVisible="{Binding HasGuide}" HorizontalAlignment="Right"
-                                  ToolTip.Tip="Step-by-step checks for this kind of fault" />
-                          <Button Classes="quiet" Content="{Binding ChainButtonText}" Command="{Binding RunChainCommand}" IsVisible="{Binding HasChain}" HorizontalAlignment="Right"
-                                  ToolTip.Tip="{Binding ChainTitle}" />
-                          <Button Classes="quiet" Content="{Binding CheckButtonText}" Command="{Binding ToggleCheckCommand}" IsVisible="{Binding HasCheck}" HorizontalAlignment="Right"
-                                  ToolTip.Tip="Test the part with a multimeter or a swap before buying it" />
-                          <Button Classes="quiet" Content="Find this part" Command="{Binding FindPartCommand}" IsVisible="{Binding CanFindPart}" HorizontalAlignment="Right"
-                                  ToolTip.Tip="{Binding FindPartTip}" />
                         </StackPanel>
                       </Grid>
                     </Border>
@@ -393,8 +444,16 @@
             <Button DockPanel.Dock="Right" Classes="quiet" Content="{Binding StoryToggleText}" Command="{Binding ToggleStoryCommand}" VerticalAlignment="Center" />
             <TextBlock Classes="section" Text="{Binding StoryHeadline}" TextWrapping="Wrap" VerticalAlignment="Center" />
           </DockPanel>
-          <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding StoryOpen}"
-                     Text="Every dash message your cluster has shown and still remembers, with the mileage, grouped into what happened. Newest first." />
+          <StackPanel Spacing="4" IsVisible="{Binding StoryOpen}">
+            <ToggleButton Classes="help" x:Name="helpFaults4" HorizontalAlignment="Left">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <TextBlock Text="What this is" />
+                <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+              </StackPanel>
+            </ToggleButton>
+            <TextBlock IsVisible="{Binding #helpFaults4.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                       Text="Every dash message your cluster has shown and still remembers, with the mileage, grouped into what happened. Newest first." />
+          </StackPanel>
           <TextBlock Classes="muted small" TextWrapping="Wrap" Text="{Binding StoryNote}" IsVisible="{Binding ShowStoryNote}" />
           <ItemsControl ItemsSource="{Binding Story}" IsVisible="{Binding StoryOpen}">
             <ItemsControl.ItemTemplate>

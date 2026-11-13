@@ -40,8 +40,16 @@
   <Grid ColumnDefinitions="300,*" Margin="36,26,36,0">
     <StackPanel Grid.Column="0" Margin="0,0,24,0" Spacing="10">
       <TextBlock Classes="title" Text="Coding" />
-      <TextBlock Classes="muted small" TextWrapping="Wrap"
-                 Text="Back up a module's coding before any coding tool touches it, put it back in one click, and switch popular comfort options. The key module (CAS), engine and safety modules are never coded." />
+      <StackPanel Spacing="4">
+        <ToggleButton Classes="help" x:Name="helpCoding1" HorizontalAlignment="Left">
+          <StackPanel Orientation="Horizontal" Spacing="6">
+            <TextBlock Text="What this page does" />
+            <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+          </StackPanel>
+        </ToggleButton>
+        <TextBlock IsVisible="{Binding #helpCoding1.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                   Text="Back up a module's coding before any coding tool touches it, put it back in one click, and switch popular comfort options. The key module (CAS), engine and safety modules are never coded." />
+      </StackPanel>
       <ItemsControl ItemsSource="{Binding Modules}">
         <ItemsControl.ItemTemplate>
           <DataTemplate x:DataType="vm:CodingModuleItem">
@@ -94,8 +102,16 @@
                 <Button Content="Share this map" Command="{Binding ShareCommand}" Margin="0,0,8,6"
                         ToolTip.Tip="Opens a pre-filled GitHub issue with this module's map, so the next owner of this module gets quick codes with no setup" />
               </WrapPanel>
-              <TextBlock Classes="muted small" TextWrapping="Wrap" IsVisible="{Binding ShowSetup}"
-                         Text="Klemme15 doesn't include BMW's software or coding data. If you don't have NCS Expert, teach Klemme15 below with any coding tool you already use. Workshops can get BMW's own software legally from BMW's aftersales portal." />
+              <StackPanel Spacing="4" IsVisible="{Binding ShowSetup}">
+                <ToggleButton Classes="help" x:Name="helpCoding2" HorizontalAlignment="Left">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="No NCS Expert?" />
+                    <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock IsVisible="{Binding #helpCoding2.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                           Text="Klemme15 doesn't include BMW's software or coding data. If you don't have NCS Expert, teach Klemme15 below with any coding tool you already use. Workshops can get BMW's own software legally from BMW's aftersales portal." />
+              </StackPanel>
               <Button Classes="quiet" Content="BMW aftersales portal (official)" Command="{Binding OpenBmwCommand}" HorizontalAlignment="Left" IsVisible="{Binding ShowSetup}" />
             </StackPanel>
           </Border>
@@ -104,8 +120,16 @@
           <Border Classes="panel" Padding="18,14">
             <StackPanel Spacing="10">
               <TextBlock FontWeight="SemiBold" Text="1. Back up" />
-              <TextBlock Classes="muted small" TextWrapping="Wrap"
-                         Text="Reads every coding block the module has and saves it on this computer. Works on any car, with no BMW data. Klemme15 also saves one automatically before every change it makes." />
+              <StackPanel Spacing="4">
+                <ToggleButton Classes="help" x:Name="helpCoding3" HorizontalAlignment="Left">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="What a backup does" />
+                    <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock IsVisible="{Binding #helpCoding3.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                           Text="Reads every coding block the module has and saves it on this computer. Works on any car, with no BMW data. Klemme15 also saves one automatically before every change it makes." />
+              </StackPanel>
               <StackPanel Orientation="Horizontal" Spacing="10">
                 <Button Classes="primary" Content="Back up now" Command="{Binding BackupCommand}" />
                 <Button Content="Read coding" Command="{Binding ReadCommand}" />
@@ -140,8 +164,16 @@
                 <Button Content="Choose NCS data folder..." Command="{Binding ChooseNcsCommand}" />
                 <Button Content="Verify with NCS Expert's trace file..." Command="{Binding VerifyCommand}" />
               </StackPanel>
-              <TextBlock Classes="muted small" TextWrapping="Wrap"
-                         Text="Writing unlocks only after verification: read this module once with NCS Expert, then pick the FSW_PSW.TRC it saved. Klemme15 must decode every setting exactly as NCS Expert did." />
+              <StackPanel Spacing="4">
+                <ToggleButton Classes="help" x:Name="helpCoding4" HorizontalAlignment="Left">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="Why verification?" />
+                    <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock IsVisible="{Binding #helpCoding4.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                           Text="Writing unlocks only after verification: read this module once with NCS Expert, then pick the FSW_PSW.TRC it saved. Klemme15 must decode every setting exactly as NCS Expert did." />
+              </StackPanel>
               <TextBlock Text="{Binding Verification}" TextWrapping="Wrap" />
               <Button Content="Export this map to contribute..." Command="{Binding ExportCommand}" HorizontalAlignment="Left" />
               <Border Classes="panel" Background="{DynamicResource LitSoftBrush}" Padding="12,8" IsVisible="{Binding HasShared}">
@@ -197,8 +229,16 @@
           <Border Classes="panel" Padding="18,14" IsVisible="{Binding CanLearn}">
             <StackPanel Spacing="8">
               <TextBlock FontWeight="SemiBold" Text="Teach Klemme15 from another coding tool" />
-              <TextBlock Classes="muted small" TextWrapping="Wrap"
-                         Text="Already use BimmerCode, NCS Expert or another tool? Klemme15 reads the module, you change one option with your tool, Klemme15 reads again and learns exactly which bits that option is on your module. From then on it works here, offline, with backup and read-back, and you can share it." />
+              <StackPanel Spacing="4">
+                <ToggleButton Classes="help" x:Name="helpCoding5" HorizontalAlignment="Left">
+                  <StackPanel Orientation="Horizontal" Spacing="6">
+                    <TextBlock Text="How teaching works" />
+                    <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                  </StackPanel>
+                </ToggleButton>
+                <TextBlock IsVisible="{Binding #helpCoding5.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                           Text="Already use BimmerCode, NCS Expert or another tool? Klemme15 reads the module, you change one option with your tool, Klemme15 reads again and learns exactly which bits that option is on your module. From then on it works here, offline, with backup and read-back, and you can share it." />
+              </StackPanel>
               <WrapPanel>
                 <ComboBox ItemsSource="{Binding LearnOptions}" SelectedItem="{Binding LearnOption}" PlaceholderText="Which option will you change?" MinWidth="300" MaxWidth="520" Margin="0,0,12,6">
                   <ComboBox.ItemTemplate>
@@ -280,8 +320,16 @@
         <Border Classes="panel" Padding="18,14" Margin="0,8,0,0">
           <StackPanel Spacing="10">
             <TextBlock Classes="section" FontSize="16" Text="Retrofit checker" />
-            <TextBlock Classes="muted small" TextWrapping="Wrap"
-                       Text="Swapped in a used module or fitted parts from another car? Klemme15 notices replaced and added modules, tells you what that kind of job usually needs, and checks the car afterwards. It never writes the vehicle order (that lives in the key module), flashes modules or touches mileage: for those steps it names the tool that does them." />
+            <StackPanel Spacing="4">
+              <ToggleButton Classes="help" x:Name="helpCoding6" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="What the retrofit checker does" />
+                  <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                </StackPanel>
+              </ToggleButton>
+              <TextBlock IsVisible="{Binding #helpCoding6.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                         Text="Swapped in a used module or fitted parts from another car? Klemme15 notices replaced and added modules, tells you what that kind of job usually needs, and checks the car afterwards. It never writes the vehicle order (that lives in the key module), flashes modules or touches mileage: for those steps it names the tool that does them." />
+            </StackPanel>
             <ItemsControl ItemsSource="{Binding RetrofitFindings}" IsVisible="{Binding HasRetrofitFindings}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:RetrofitFindingItem">
@@ -351,8 +399,16 @@
         <Border Classes="panel" Padding="18,14" Margin="0,8,0,0">
           <StackPanel Spacing="10">
             <TextBlock Classes="section" FontSize="16" Text="{Binding LibraryHeadline}" TextWrapping="Wrap" />
-            <TextBlock Classes="muted small" TextWrapping="Wrap"
-                       Text="A coding map says exactly which bits an option is on one module (part number and coding index), so quick codes work without NCS Expert. Maps come with Klemme15, from the community, or from your own car. Klemme15 never guesses: a map is only used on the exact module it was made on, always with a backup and read-back." />
+            <StackPanel Spacing="4">
+              <ToggleButton Classes="help" x:Name="helpCoding7" HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <TextBlock Text="What a coding map is" />
+                  <Path Classes="chevron" Data="M0,0 L5,5 L10,0" VerticalAlignment="Center" />
+                </StackPanel>
+              </ToggleButton>
+              <TextBlock IsVisible="{Binding #helpCoding7.IsChecked}" Classes="muted small" TextWrapping="Wrap"
+                         Text="A coding map says exactly which bits an option is on one module (part number and coding index), so quick codes work without NCS Expert. Maps come with Klemme15, from the community, or from your own car. Klemme15 never guesses: a map is only used on the exact module it was made on, always with a backup and read-back." />
+            </StackPanel>
             <StackPanel Orientation="Horizontal" Spacing="8">
               <Button Content="Get the latest community maps" Command="{Binding DownloadMapsCommand}"
                       ToolTip.Tip="Downloads the shared maps from the project page. Nothing about your car is sent." />
