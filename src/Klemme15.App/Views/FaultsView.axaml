@@ -351,9 +351,9 @@
 
                           <!-- Opened: what to do, where to look, what the module stored, where the meaning comes from -->
                           <StackPanel IsVisible="{Binding Expanded}" Margin="112,0,16,14" Spacing="8">
-                            <TextBlock TextWrapping="Wrap" Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}">
-                              <Run Text="{Binding VerdictLabel}" FontWeight="Bold" /><Run Text=": " /><Run Text="{Binding VerdictAdvice}" />
-                            </TextBlock>
+                            <!-- The verdict's label is already in the header; here only what to do about it -->
+                            <TextBlock TextWrapping="Wrap" Classes="small" Classes.red="{Binding FixNow}" Classes.amber="{Binding CheckIt}" Classes.muted="{Binding IsBackground}"
+                                       Text="{Binding VerdictAdvice}" />
                             <SelectableTextBlock Text="{Binding Tip}" TextWrapping="Wrap" IsVisible="{Binding HasTip}" />
                             <Grid ColumnDefinitions="Auto,*">
                               <TextBlock Classes="muted small" Text="Check here" Margin="0,0,10,0" />
