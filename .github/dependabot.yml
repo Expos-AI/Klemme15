@@ -13,9 +13,6 @@ updates:
       # Avalonia 12 changes APIs the app uses: it's a planned migration, not a routine bump.
       - dependency-name: "Avalonia*"
         update-types: ["version-update:semver-major"]
-      # Microsoft.Data.Sqlite is built against SQLitePCLRaw 2.x; move to 3.x when it does. 2.1.12+ has the patched SQLite.
-      - dependency-name: "SQLitePCLRaw*"
-        update-types: ["version-update:semver-major"]
     groups:
       # Minor and patch bumps arrive together; major versions get their own pull request to review.
       nuget-minor-and-patch:
@@ -37,16 +34,6 @@ updates:
         patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
       npm-minor-and-patch:
         update-types: ["minor", "patch"]
-
-  - package-ecosystem: github-actions
-    directory: "/"
-    schedule:
-      interval: weekly
-      day: monday
-    labels: ["dependencies"]
-    groups:
-      actions:
-        patterns: ["*"]
 
   # The GitHub Actions the workflows use (checkout, setup-dotnet, CodeQL, Scorecard...), including the ones pinned
   # to a commit: Dependabot updates the pin and its version comment together.
