@@ -217,6 +217,9 @@ public sealed class K15Log
 
     public const int MaxRecordBytes = 1 << 20;
 
+    /// <summary>The most a recording may unpack to. An hour of continuous traffic is a few tens of megabytes.</summary>
+    public const long MaxTotalBytes = 256L << 20;
+
     public static K15Log Read(byte[] file) => Read(new MemoryStream(file, writable: false));
 
     public static K15Log Read(Stream file)
@@ -234,7 +237,7 @@ public sealed class K15Log
         var exchanges = new List<Exchange>();
         var request = new List<byte>();
         var replies = new List<(long, byte[])>();
-        long now = 0, requestAt = 0, silence = 0;
+        long now = 0, requestAt = 0, silence = 0, total = 0;
         var lastKind = LogKind.Note;
         var open = false;
         var complete = false;
@@ -261,6 +264,8 @@ public sealed class K15Log
                 if (buffered.ReadAtLeast(data, data.Length, throwOnEndOfStream: false) < data.Length) { damaged = true; break; }
                 if ((LogKind)kind == LogKind.End) { complete = true; break; }
                 now += (long)delta;
+                // A file built to unpack into far more than any session holds is cut off here, not loaded into memory.
+                if ((total += data.Length + 8) > MaxTotalBytes) { damaged = true; break; }
                 switch ((LogKind)kind)
                 {
                     case LogKind.Tx:

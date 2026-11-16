@@ -2,6 +2,11 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.43
+
+- **Recordings are private files, and the docs now say so everywhere.** A session recording contains the VIN, so the README, the website and the recordings guide now say to send one privately and never attach it to a public issue or post. SECURITY.md and CONTRIBUTING.md cover recordings and reading maps, and the website lists reading maps and sustained drift.
+- **A limit on recordings from other people.** A recording file that unpacks to more than 256 MB is cut off at that point and not loaded into memory.
+
 ## 0.99.42
 
 - **Record a session, play it back without the car.** Tick **Record my sessions** in the Garage (or add `--record file.k15log` on the command line) and Klemme15 saves everything it asks and everything the car answers, with the timing. **Play back a recording...** then opens that file as if the car were connected: the quick test, faults, module details and readings show what the car said that day, and nothing is sent anywhere. It is the most useful thing to attach to a bug report. A recording contains the VIN, so share it only with people you trust. Validated with the demo cars; pending field validation on a real car, and not in EDIABAS mode yet. [How it works](docs/RECORDINGS.md).

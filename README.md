@@ -129,7 +129,7 @@ No car nearby? Pick any model and press **Open demo car**.
 
 **Share and automate**
 - **Snapshots (.k15)**: your whole car in one file, opened read-only by whoever helps you, with the VIN removed ([how](docs/SNAPSHOTS.md)).
-- **Session recordings (.k15log)**: record everything Klemme15 asks and the car answers, and play it back later without the car; the best attachment for a bug report ([how](docs/RECORDINGS.md); pending field validation).
+- **Session recordings (.k15log)**: record everything Klemme15 asks and the car answers, and play it back later without the car. It shows a helper exactly what the car answered; it contains the VIN, so send it privately, never in a public post ([how](docs/RECORDINGS.md); pending field validation).
 - **Community reading maps**: small JSON files, worked out on real cars, that let Klemme15 show a module's values without BMW files; read requests only ([how](docs/READING-MAPS.md); pending field validation).
 - **Snapshot fingerprints**: a short code that shows a shared snapshot file wasn't changed after it was saved.
 - **Compare two snapshots**: before and after a repair, see which faults are gone, new or still there, and which modules changed.

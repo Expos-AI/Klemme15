@@ -30,7 +30,8 @@ Please give us a reasonable time to release a fix (90 days at most, usually much
 Report privately anything that could:
 
 - make Klemme15 **write to a car** in a way it shouldn't: a write without a backup, a coding change outside the option's bits, a service function running when its checks failed, or anything reaching the key module (CAS) or the immobiliser;
-- run code or read files through a file someone sends you: a `.k15` snapshot, a coding map, a baseline, a chain, a CSV;
+- run code or read files through a file someone sends you: a `.k15` snapshot, a `.k15log` session recording, a coding map, a reading map, a baseline, a chain, a CSV;
+- make a **reading map** send anything other than a read request to a module;
 - leak your VIN or personal data, or make Klemme15 connect anywhere you didn't ask it to;
 - tamper with the release downloads, the Scoop install recipe or the build pipeline;
 - expose the headless mode's dashboard or MQTT data beyond the network you pointed it at.
@@ -62,7 +63,9 @@ Only download Klemme15 from [the GitHub releases page](https://github.com/Expos-
 
 - No network access except what you ask for (see [PRIVACY.md](PRIVACY.md)).
 - No flashing, no key or immobiliser functions, no coding of the key, engine, gearbox, brake or airbag modules. These rules are enforced where every BMW job runs (`JobPolicy`), so they also hold for jobs typed on the Expert page or the command line, and tests fail if a mileage job that could write is ever added.
-- Files from other people (snapshots, maps, baselines, chains) are size-limited, checked and validated before anything is shown or used.
+- Files from other people (snapshots, session recordings, maps, baselines, chains) are size-limited, checked and validated before anything is shown or used.
+- A community reading map can only name a read request (`21`, `22` or `1A`). Any other request is refused when the file is loaded, and a test holds that line (`ReadingMapsTests`).
+- Playing back a session recording sends nothing to a car and adds nothing to a car's history. A recording contains the VIN of the car it was made on: treat one like the document it is.
 - CodeQL scans the code on every push and pull request; Dependabot watches NuGet, npm and GitHub Actions dependencies and raises pull requests for security fixes; every workflow action is pinned to an exact commit, and Dependabot moves the pins forward.
 - The car is untrusted input too. The code that reads the K-line and D-CAN is tested with randomized, damaged and truncated answers (`tests/Klemme15.Tests/FuzzTests.cs`: the three frame parsers, the reply decoders, and a simulated car that answers every request wrongly). A damaged answer ends in a clear message, never a crash or a read past the end of a buffer. The random numbers are seeded, so a failure can be repeated.
 - Workflows run with read-only permissions unless a job needs more.

@@ -6,7 +6,7 @@ Status: validated with the demo cars. **Pending field validation** on a real car
 
 ## What it's for
 
-- **Bug reports.** Instead of describing what happened, send the recording. Whoever helps you opens it and sees the same answers Klemme15 saw, in the same order and with the same timing.
+- **Bug reports.** Instead of describing what happened, send the recording privately to whoever is helping you. They open it and see the same answers Klemme15 saw, in the same order and with the same timing. Don't attach one to a public GitHub issue or forum post: it contains your VIN (see [Privacy](#privacy)).
 - **Looking again later.** Record at the car, then go through the faults, module details and readings at a desk.
 - **Working out values.** A recording is the raw material for a [community reading map](READING-MAPS.md).
 
@@ -39,6 +39,8 @@ How playback answers:
 **A recording contains your VIN** and your modules' serial and part numbers, because the car sends them in its answers. Unlike a [snapshot](SNAPSHOTS.md), it can't be cleaned without changing the data it exists to preserve. Share a recording only with people you trust; for a public forum post, share a snapshot instead.
 
 Recordings stay on your computer. Klemme15 never sends them anywhere.
+
+A recording someone sends you is checked before it's played: a file that isn't a recording, is damaged, or unpacks to more than 256 MB is refused or cut off there.
 
 ## The file
 

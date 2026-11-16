@@ -460,6 +460,7 @@
           <ul class="ticks">
               <li><b>Ghost Hunter.</b> Say what you're chasing in plain words (an intermittent misfire, a voltage dip, a lean idle, a chug at idle, running rich, overheating, a charging dropout, a stall) and drive. When it happens, Klemme15 saves a snapshot with the minute before and the minute after, and for a misfire it names the rough cylinder. A <i>Right now</i> list shows what each watch is waiting for, like a warm engine or the car moving. Nothing to tap while driving.</li>
               <li><b>Known good baselines.</b> The healthy range drawn behind your log, lined up by engine speed, with a line saying where your engine leaves it. Make one from your own car when it runs well, or share it with one button: a check on GitHub builds your engine's community baseline. An N52 physics model ships, clearly labelled as not measured.</li>
+              <li><b>Sustained drift.</b> With a baseline chosen, Klemme15 also says whether a value stayed outside the healthy range and from what point in the log. A measure of distance from the baseline, not a failure forecast.</li>
               <li><b>Live values on the car.</b> Coolant, battery voltage, oil and intake temperature on the top view of the car, where each one happens, amber or red when out of range.</li>
           </ul>
         </div>
@@ -482,7 +483,8 @@
               <li><b>Snapshots (.k15).</b> Modules, faults, dash messages, health trends, your test graphs and, if you include it, the last minute of live data, in one file, opened read-only with your note on top. VIN removed. No Klemme15 on the other end? <a href="viewer.html">Open a snapshot in the browser</a>.</li>
               <li><b>Fingerprints.</b> Every snapshot has a short fingerprint. Post it next to the file and the buyer or helper can see the file wasn't changed.</li>
               <li><b>Compare two snapshots.</b> Before and after a repair: which faults are gone, which are new, and which are still there.</li>
-              <li><b>Session recordings (.k15log).</b> Record everything Klemme15 asks and the car answers, then play it back later without the car. Pending field validation.</li>
+              <li><b>Session recordings (.k15log).</b> Record everything Klemme15 asks and the car answers, then play it back later without the car. It contains the VIN, so share it privately. Pending field validation.</li>
+              <li><b>Community reading maps.</b> Small files, worked out on real cars, that let Klemme15 show a module's values without BMW files. Read requests only. Pending field validation.</li>
               <li><b>Forum post.</b> One click copies a short summary with the VIN removed, ready for E90Post, Reddit or Bimmerforums.</li>
               <li><b>Reports.</b> HTML, Markdown or JSON.</li>
               <li><b>Phone dashboard.</b> Leave a small Linux computer on the OBD port and watch gauges and faults on your phone. A Raspberry Pi needs a build from source for now.</li>
