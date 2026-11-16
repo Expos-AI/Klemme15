@@ -158,6 +158,9 @@ public sealed class AppSettings
     public string? EcuFolder { get; set; }
     public bool TrustDsr { get; set; }
 
+    /// <summary>Record every session with a real car to a .k15log file, for playing back later.</summary>
+    public bool RecordSessions { get; set; }
+
     /// <summary>Lets service functions that haven't been confirmed on a real car run. Off by default.</summary>
     public bool ExperimentalService { get; set; }
 

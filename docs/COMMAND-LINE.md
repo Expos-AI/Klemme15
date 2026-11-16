@@ -21,6 +21,11 @@ klemme15 scan --port COM3 --snapshot car.k15 --note "Rough idle when warm"   # a
 klemme15 open car.k15 --report car.html          # read a snapshot someone shared
 klemme15 diff before.k15 after.k15              # what changed between two snapshots (add --report out.html)
 klemme15 coding --module FRM --port COM3 backup  # back up a module's coding (no BMW data needed)
+klemme15 scan --port COM3 --record drive.k15log  # record the whole session (it contains the VIN)
+klemme15 scan --replay drive.k15log              # play it back later, without the car
+klemme15 recording drive.k15log --text           # what a recording holds, request by request
+klemme15 decode --map my-map.json --recording drive.k15log   # apply a community reading map to a recording
+klemme15 mapped --map my-map.json --module DME --port COM3   # read values with a map (read-only)
 klemme15 discover --port COM3                    # look for modules the database doesn't list
 klemme15 scan --port COM3 --log traffic.txt      # save the raw cable traffic for a bug report
 ```
@@ -40,5 +45,7 @@ Two folder options, both pointing at the `Ecu` folder of your EDIABAS, INPA or I
 - `--ediabas <folder>` runs BMW's jobs from those files (EDIABAS mode, Windows): every module's readings, service functions, and `klemme15 job D_0012 IDENT --ediabas C:\EDIABAS\Ecu --port COM3` for any job, except the ones Klemme15 never runs (flashing, keys and the immobiliser, mileage changes, key module writes).
 - `klemme15 mileage --odometer 152000 --miles --ediabas C:\EDIABAS\Ecu --port COM3` reads the mileage every module remembers and compares it with the odometer. It exits with 1 when the figures don't add up. Without `--ediabas` it uses the fault and dash message records, plus the engine computer's count where Klemme15's own engine tables list it.
 - `--ecu <folder>` only reads BMW's fault texts from those files, on any system.
+
+Session recordings are explained in [RECORDINGS.md](RECORDINGS.md), and reading maps in [READING-MAPS.md](READING-MAPS.md).
 
 For running Klemme15 unattended with a phone dashboard and MQTT, see [HEADLESS.md](HEADLESS.md).

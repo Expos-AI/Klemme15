@@ -89,11 +89,13 @@ public sealed class GarageViewModel : PageViewModel
         _useEdiabas = settings.UseEdiabas && EdiabasAvailable;
         _ediabasPath = settings.EdiabasPath;
         _trustDsr = settings.TrustDsr;
+        _recordSessions = settings.RecordSessions;
 
         // While a job is changing the car, switching cars or disconnecting would cut it off: these wait.
         OpenDemoCommand = new AsyncCommand(() => ConnectAsync(demo: true), () => !_busy && !_session.JobRunning && _model is not null, e => Error = Problems.Describe(e));
         OpenSnapshotCommand = new AsyncCommand(OpenSnapshotAsync, () => !_busy && !_session.JobRunning, e => Error = Problems.Describe(e));
         CompareSnapshotsCommand = new AsyncCommand(CompareSnapshotsAsync, null, e => Error = Problems.Describe(e));
+        PlayRecordingCommand = new AsyncCommand(PlayRecordingAsync, () => !_busy && !_session.JobRunning, e => Error = Problems.Describe(e));
         ConnectCarCommand = new AsyncCommand(() => ConnectAsync(demo: false), () => !_busy && !_session.JobRunning && _model is not null && (_port is not null || UsesNetwork), e => Error = Problems.Describe(e));
         ShowCableCommand = new RelayCommand(() => ShowCable = true);
         DisconnectCommand = new AsyncCommand(_session.DisconnectAsync, () => _session.IsConnected && !_session.JobRunning);
@@ -111,7 +113,7 @@ public sealed class GarageViewModel : PageViewModel
         {
             if (e.PropertyName is nameof(SessionState.JobRunning))
             {
-                foreach (var c in new[] { OpenDemoCommand, OpenSnapshotCommand, ConnectCarCommand, DisconnectCommand }) c.RaiseCanExecuteChanged();
+                foreach (var c in new[] { OpenDemoCommand, OpenSnapshotCommand, PlayRecordingCommand, ConnectCarCommand, DisconnectCommand }) c.RaiseCanExecuteChanged();
                 return;
             }
             if (e.PropertyName is not nameof(SessionState.Backend)) return;
@@ -386,6 +388,62 @@ public sealed class GarageViewModel : PageViewModel
     public bool UseEdiabas { get => _useEdiabas; set => Set(ref _useEdiabas, value); }
     public string? EdiabasPath { get => _ediabasPath; set => Set(ref _ediabasPath, value); }
     public bool TrustDsr { get => _trustDsr; set => Set(ref _trustDsr, value); }
+
+    private bool _recordSessions;
+    /// <summary>Record sessions with a real car, to play back later without it.</summary>
+    public bool RecordSessions
+    {
+        get => _recordSessions;
+        set { if (Set(ref _recordSessions, value)) { _settings.RecordSessions = value; _settings.Save(); } }
+    }
+
+    /// <summary>Where session recordings are kept, and how many: the oldest are removed past this.</summary>
+    public static string SessionRecordingsFolder => Path.Combine(Klemme15.Core.RecordingAutosave.DefaultFolder, "sessions");
+    public const int KeptSessionRecordings = 20;
+
+    private string _recordingNote = "";
+    public string RecordingNote { get => _recordingNote; private set { if (Set(ref _recordingNote, value)) Raise(nameof(HasRecordingNote)); } }
+    public bool HasRecordingNote => _recordingNote.Length > 0;
+
+    public AsyncCommand PlayRecordingCommand { get; private set; } = null!;
+
+    /// <summary>Opens a session recording and plays it back as if the car were connected. Nothing is sent anywhere.</summary>
+    private async Task PlayRecordingAsync()
+    {
+        Error = null;
+        if (await _dialogs.OpenBytesAsync("Play back a session recording", "Klemme15 session recording", ["*.k15log"]) is not { } file) return;
+        Klemme15.Protocols.Recording.K15Log recording;
+        try { recording = Klemme15.Protocols.Recording.K15Log.Read(file.Data); }
+        catch (DiagnosticException e) { Error = e.Message; return; }
+        if (recording.Exchanges.Count == 0) { Error = "That recording is empty: it was stopped before anything was read from the car."; return; }
+        if (recording.Info.Model is { } id) SelectModel(id);
+        if (_family is null || _model is null || !_family.Family.Id.Equals(recording.Info.Vehicle, StringComparison.OrdinalIgnoreCase))
+        {
+            Error = $"That recording is from a {recording.Info.Vehicle}, which this version of Klemme15 doesn't know. Update Klemme15 to play it.";
+            return;
+        }
+        var settings = new ConnectionSettings { VehicleId = _family.Family.Id, ModelId = _model.Id, Replay = recording };
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        try { await _session.ConnectAsync(settings, _family.Family, _model, cts.Token); }
+        catch (DiagnosticException e) { Error = e.Message; return; }
+        catch (OperationCanceledException) { Error = "The recording didn't get as far as connecting to the car, so there is nothing to play back."; return; }
+        RecordingNote = $"Playing {file.Name}: {recording.Duration:h\\:mm\\:ss} recorded on {recording.Info.Started:d MMM yyyy}."
+                        + (recording.Complete ? "" : " The file stops early (the recording wasn't closed); everything before that plays.");
+        _onConnected();
+    }
+
+    /// <summary>The file for a new session recording, after removing the oldest ones past the limit. Null when the folder can't be used.</summary>
+    private static string? NewSessionRecording()
+    {
+        try
+        {
+            Directory.CreateDirectory(SessionRecordingsFolder);
+            foreach (var old in new DirectoryInfo(SessionRecordingsFolder).GetFiles("*.k15log").OrderByDescending(f => f.LastWriteTimeUtc).Skip(KeptSessionRecordings - 1))
+                old.Delete();
+            return Path.Combine(SessionRecordingsFolder, $"session-{DateTime.Now:yyyyMMdd-HHmmss}.k15log");
+        }
+        catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return null; }
+    }
     public bool IsConnected => _session.IsConnected;
     public string ConnectedText => _session.IsConnected ? $"Connected: {_session.Status}" : "";
 
@@ -637,6 +695,7 @@ public sealed class GarageViewModel : PageViewModel
             Demo = demo,
             EdiabasPath = !demo && _useEdiabas ? _ediabasPath : null,
             TrustDsr = _trustDsr,
+            RecordTo = !demo && _recordSessions && !_useEdiabas ? NewSessionRecording() : null,
             LiveFavorites = _settings.LiveFavorites.Select(f => f.ToParameter()).ToList(),
         };
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
@@ -669,6 +728,9 @@ public sealed class GarageViewModel : PageViewModel
         _settings.EdiabasPath = _ediabasPath;
         _settings.TrustDsr = _trustDsr;
         _settings.Save();
+        RecordingNote = settings.RecordTo is { } recordingFile
+            ? $"Recording this session to {Path.GetFileName(recordingFile)} in {SessionRecordingsFolder}. It holds what the car answers, which includes the VIN: share it only with people you trust."
+            : _recordSessions && !demo && _useEdiabas ? "Sessions aren't recorded in EDIABAS mode yet." : "";
         _onConnected();
     }
 }

@@ -212,8 +212,11 @@
                     ToolTip.Tip="Open a .k15 file someone shared and explore their car as it was, read-only" />
             <Button Content="Compare two snapshots..." Command="{Binding CompareSnapshotsCommand}" Margin="0,0,10,8"
                     ToolTip.Tip="Pick two .k15 files (before and after a repair, or two cars) and see which faults are gone, new or unchanged" />
+            <Button Content="Play back a recording..." Command="{Binding PlayRecordingCommand}" Margin="0,0,10,8"
+                    ToolTip.Tip="Open a .k15log session recording and go through it as if the car were connected. Nothing is sent anywhere" />
             <Button Content="Disconnect" Command="{Binding DisconnectCommand}" IsVisible="{Binding IsConnected}" Margin="0,0,10,8" />
           </WrapPanel>
+          <TextBlock Classes="muted small" TextWrapping="Wrap" Text="{Binding RecordingNote}" IsVisible="{Binding HasRecordingNote}" />
           <TextBlock Text="{Binding DemoSummary}" Classes="muted" TextWrapping="Wrap" />
           <TextBlock Text="{Binding ConnectedText}" Classes="lit" IsVisible="{Binding IsConnected}" TextWrapping="Wrap" />
           <TextBlock Text="{Binding CompareResult}" IsVisible="{Binding HasCompareResult}" TextWrapping="Wrap" />
@@ -297,6 +300,8 @@
               <TextBlock Classes="muted small" Text="{Binding NetworkHint}" TextWrapping="Wrap" />
             </StackPanel>
             <CheckBox IsChecked="{Binding TrustDsr}" Content="My cable reports ignition (stop me if the key is off)" />
+            <CheckBox IsChecked="{Binding RecordSessions}" Content="Record my sessions, to play back later without the car"
+                      ToolTip.Tip="Saves everything Klemme15 asks and the car answers to a .k15log file on this computer (the newest 20 are kept). It includes the VIN, so share a recording only with people you trust. Not in EDIABAS mode yet." />
             <CheckBox IsChecked="{Binding UseEdiabas}" IsEnabled="{Binding EdiabasAvailable}" Content="Use my own BMW files (EDIABAS mode): every module's faults, readings and service functions"
                       ToolTip.Tip="Runs the BMW files you already have from an ISTA, INPA or EDIABAS install on this computer. Windows only." />
             <StackPanel Orientation="Horizontal" Spacing="8" IsVisible="{Binding UseEdiabas}">

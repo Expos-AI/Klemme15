@@ -7,7 +7,7 @@ Klemme15 is split so that each layer can be tested without the one below it, and
 | Project | Depends on | Purpose |
 |---|---|---|
 | `Klemme15.Core` | nothing | Models (`EcuDefinition`, `Fault`, `EcuScanResult`...), `IDiagnosticBackend`, `VehicleScanner`, `ReportWriter`, `TrafficLog` |
-| `Klemme15.Protocols` | Core | Framing (KWP2000/BMW-FAST, DS2, ISO 9141-2), channels, OBD-II PIDs, `NativeBackend`, `VirtualCar` simulator |
+| `Klemme15.Protocols` | Core | Framing (KWP2000/BMW-FAST, DS2, ISO 9141-2), channels, OBD-II PIDs, `NativeBackend`, `VirtualCar` simulator, session recording and playback (`Recording`: the `.k15log` format, a recording transport and a replay transport) |
 | `Klemme15.Data` | Core | The open database (embedded JSON) plus per-user overrides |
 | `Klemme15.Serial` | Protocols | `SerialPortTransport` for the real K+DCAN cable, port discovery |
 | `Klemme15.Ediabas` | Core, EdiabasLib | `EdiabasBackend`: runs the user's SGBDs. Windows only |

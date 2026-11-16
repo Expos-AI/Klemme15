@@ -70,6 +70,11 @@ internal static class Cli
           guides [id]                   List the how-to guides, or print one (where modules are, wiring, battery drain...)
           code <module> <code>          Look up what a code means, e.g. 'code E9x.DSC 5E1A --model 325i'
           sgbd <file.prg> [TABLE]       List the tables in one of your BMW files, or print one
+          recording <file.k15log>       Show what a session recording holds (add --text for every request and reply)
+          decode --map <map.json> --recording <file.k15log>
+                                        Apply a community reading map to a recording (or to one reply: --reply <hex>)
+          mapped --map <map.json> --module <id>
+                                        Read a module's values with a community reading map (read-only; pending field validation)
 
         Options
           --vehicle <id>     E46, E39, E53, E38, E85, E83 beta, E36 beta (K-line) or E9x, E8x, E60, E70, E84, E89 (D-CAN); default E9x
@@ -85,12 +90,100 @@ internal static class Cli
           --note "<text>"    With --snapshot: what's wrong, shown to whoever opens it
           --csv <file>       Log live data to CSV
           --log <file>       Save the raw cable traffic (attach this to bug reports)
+          --record <file>    Record the whole session to a .k15log file, to play back later without the car
+          --replay <file>    Play a .k15log recording back instead of using a cable (nothing is sent anywhere)
+          --speed <n>        With --replay: play n times faster (default 1, the original timing)
 
         Examples
           klemme15 scan --vehicle E9x --port COM3 --report scan.html
           klemme15 live --vehicle E46 --port /dev/ttyUSB0 --pids rpm,coolant,stft1,ltft1
           klemme15 scan --demo --vehicle E9x --model 335i
         """;
+
+    /// <summary>klemme15 recording FILE.k15log [--text]: what a session recording holds.</summary>
+    private static int ShowRecording(Args a)
+    {
+        if (a.Positional.Count == 0) { Console.Error.WriteLine("usage: klemme15 recording <file.k15log> [--text]"); return 2; }
+        Klemme15.Protocols.Recording.K15Log log;
+        try { log = Klemme15.Protocols.Recording.K15Log.Read(File.ReadAllBytes(a.Positional[0])); }
+        catch (Exception e) when (e is DiagnosticException or IOException or UnauthorizedAccessException) { Console.Error.WriteLine($"error: {e.Message}"); return 1; }
+        Console.WriteLine($"Vehicle:   {log.Info.Vehicle} {log.Info.Model}".TrimEnd());
+        Console.WriteLine($"Cable:     {log.Info.Cable}");
+        Console.WriteLine($"Recorded:  {log.Info.Started:yyyy-MM-dd HH:mm} with Klemme15 {log.Info.App}");
+        Console.WriteLine($"Length:    {log.Duration:h\\:mm\\:ss}, {log.Exchanges.Count} requests, {log.Exchanges.Count(e => e.Replies.Count == 0)} without a reply");
+        if (!log.Complete) Console.WriteLine("Note:      the file stops mid-record (the recording wasn't closed). Everything before that is here.");
+        Console.WriteLine("A recording holds what the car's modules answered, which includes the VIN. Share it only with people you trust.");
+        if (a.Has("text")) Console.Write(log.ToText());
+        return 0;
+    }
+
+    private static IReadOnlyList<ReadingMap>? LoadMaps(Args a)
+    {
+        if (a.Get("map") is not { } file) { Console.Error.WriteLine("Pass the map file: --map <map.json>"); return null; }
+        try { return ReadingMaps.Load(File.ReadAllText(file)); }
+        catch (Exception e) when (e is DiagnosticException or IOException or UnauthorizedAccessException) { Console.Error.WriteLine($"error: {e.Message}"); return null; }
+    }
+
+    /// <summary>klemme15 decode --map M.json (--reply HEX | --recording FILE.k15log): applies a reading map without a car.</summary>
+    private static int Decode(Args a)
+    {
+        if (LoadMaps(a) is not { } maps) return 2;
+        if (a.Get("reply") is { } hex)
+        {
+            byte[] reply;
+            try { reply = Convert.FromHexString(hex.Replace(" ", "").Replace("-", "")); }
+            catch (FormatException) { Console.Error.WriteLine("--reply isn't valid hex."); return 2; }
+            var found = 0;
+            foreach (var map in maps)
+                foreach (var v in ReadingMaps.Decode(map, reply)) { Console.WriteLine($"{map.Module,-10} {ReadingMaps.Format(v)}"); found++; }
+            if (found == 0) Console.WriteLine("No map in that file describes this reply.");
+            return found > 0 ? 0 : 1;
+        }
+        if (a.Get("recording") is not { } file) { Console.Error.WriteLine("Pass what to decode: --recording <file.k15log> or --reply <hex>"); return 2; }
+        Klemme15.Protocols.Recording.K15Log log;
+        try { log = Klemme15.Protocols.Recording.K15Log.Read(File.ReadAllBytes(file)); }
+        catch (Exception e) when (e is DiagnosticException or IOException or UnauthorizedAccessException) { Console.Error.WriteLine($"error: {e.Message}"); return 1; }
+        var lines = 0;
+        foreach (var exchange in log.Exchanges)
+        {
+            var asked = Klemme15.Protocols.Framing.KwpFrame.ParseAll(exchange.Request);
+            if (asked.Count == 0) continue;
+            var answers = Klemme15.Protocols.Framing.KwpFrame.ParseAll(exchange.Replies.SelectMany(r => r.Data).ToArray());
+            foreach (var map in maps.Where(m => asked[0].Data.AsSpan().SequenceEqual(m.RequestBytes)))
+                foreach (var answer in answers.Where(f => f.Source == asked[0].Target))
+                    foreach (var v in ReadingMaps.Decode(map, answer.Data))
+                    {
+                        Console.WriteLine($"{TimeSpan.FromMicroseconds(exchange.AtMicros):hh\\:mm\\:ss\\.fff}  {map.Module,-10} {ReadingMaps.Format(v)}");
+                        lines++;
+                    }
+        }
+        if (lines == 0) Console.WriteLine("The recording has no reply these maps describe.");
+        return lines > 0 ? 0 : 1;
+    }
+
+    /// <summary>klemme15 mapped --map M.json --module ID: reads a module's values with a community map. Read requests only.</summary>
+    private static async Task<int> Mapped(IDiagnosticBackend backend, EcuDefinition ecu, Args a, CancellationToken ct)
+    {
+        if (LoadMaps(a) is not { } maps) return 2;
+        if (backend is not IRawRequests raw) { Console.Error.WriteLine("Reading maps need Klemme15's own connection (not --ediabas)."); return 2; }
+        var identity = await backend.IdentifyAsync(ecu, ct);
+        var mine = maps.Where(m => m.Module.Equals(ecu.Id, StringComparison.OrdinalIgnoreCase)
+                                   || (identity?.Variant is { } variant && m.Module.Equals(variant, StringComparison.OrdinalIgnoreCase))).ToList();
+        if (mine.Count == 0)
+        {
+            Console.Error.WriteLine($"No map in that file is for {ecu.Id}{(identity?.Variant is { } v ? $" ({v})" : "")}. It has: {string.Join(", ", maps.Select(m => m.Module).Distinct())}");
+            return 1;
+        }
+        Console.WriteLine("Community map: these values are only as good as the map. Pending field validation.");
+        foreach (var map in mine)
+        {
+            var reply = await raw.RequestAsync(ecu, map.RequestBytes, ct);
+            var values = reply is null ? [] : ReadingMaps.Decode(map, reply);
+            if (values.Count == 0) { Console.WriteLine($"  {map.Request}: {(reply is null ? "no reply" : "the module answered " + Convert.ToHexString(reply) + ", which isn't what the map describes")}"); continue; }
+            foreach (var value in values) Console.WriteLine($"  {ReadingMaps.Format(value)}");
+        }
+        return 0;
+    }
 
     /// <summary>klemme15 sgbd FILE.prg [TABLE]: lists the tables in a local EDIABAS file, or prints one as TSV.</summary>
     private static int DumpSgbd(Args a)
@@ -245,6 +338,10 @@ internal static class Cli
                 return 0;
             case "sgbd":
                 return DumpSgbd(a);
+            case "recording":
+                return ShowRecording(a);
+            case "decode":
+                return Decode(a);
             case "guides":
                 if (a.Positional.FirstOrDefault() is not { } gid)
                 {
@@ -270,7 +367,14 @@ internal static class Cli
         if (a.Command is "scan" or "faults" or "code") Console.Error.WriteLine(official.Summary);
         if (a.Command == "code") return LookupCode(db, a);
 
-        var vehicle = db.FindVehicle(a.Get("vehicle") ?? "E9x");
+        Klemme15.Protocols.Recording.K15Log? replay = null;
+        if (a.Get("replay") is { } replayFile)
+        {
+            try { replay = Klemme15.Protocols.Recording.K15Log.Read(File.ReadAllBytes(replayFile)); }
+            catch (Exception e) when (e is DiagnosticException or IOException or UnauthorizedAccessException) { Console.Error.WriteLine($"error: {e.Message}"); return 1; }
+            Console.Error.WriteLine($"Playing back a recording of {replay.Duration:h\\:mm\\:ss} ({replay.Exchanges.Count} requests). Nothing is sent to a car.");
+        }
+        var vehicle = db.FindVehicle(a.Get("vehicle") ?? (replay?.Info.Vehicle is { Length: > 0 } recorded ? recorded : "E9x"));
         if (vehicle is null)
         {
             Console.Error.WriteLine($"Unknown vehicle. Known: {string.Join(", ", db.Vehicles.Select(v => v.Id))}");
@@ -278,7 +382,7 @@ internal static class Cli
         }
         if (vehicle.Note is { } note && !a.Has("demo")) Console.Error.WriteLine($"Beta: {note}");
 
-        var model = a.Get("model") is { } wanted
+        var model = (a.Get("model") ?? replay?.Info.Model) is { } wanted
             ? vehicle.Models.FirstOrDefault(m => m.Name.Equals(wanted, StringComparison.OrdinalIgnoreCase) || m.Id.Equals(wanted, StringComparison.OrdinalIgnoreCase))
             : vehicle.Models.FirstOrDefault(m => m.Name == "325i") ?? vehicle.Models.FirstOrDefault();
         if (a.Get("model") is { } asked && model is null)
@@ -292,12 +396,15 @@ internal static class Cli
         {
             VehicleId = vehicle.Id,
             ModelId = model?.Id,
-            Port = a.Get("port") ?? (a.Has("demo") ? null : PortDiscovery.List().FirstOrDefault(p => p.LikelyKDCan)?.Name),
+            Port = a.Get("port") ?? (a.Has("demo") || replay is not null ? null : PortDiscovery.List().FirstOrDefault(p => p.LikelyKDCan)?.Name),
             Demo = a.Has("demo"),
             EdiabasPath = a.Get("ediabas"),
             TrustDsr = a.Has("trust-dsr"),
+            RecordTo = replay is null ? a.Get("record") : null,
+            Replay = replay,
+            ReplaySpeed = double.TryParse(a.Get("speed"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var speed) && speed > 0 ? speed : 1,
         };
-        if (!settings.Demo && settings.Port is null)
+        if (!settings.Demo && settings.Replay is null && settings.Port is null)
         {
             Console.Error.WriteLine("No cable found. Pass --port (see 'klemme15 ports') or try --demo.");
             return 2;
@@ -328,6 +435,7 @@ internal static class Cli
                 "discover" => await Discover(backend, vehicle, cts.Token),
                 "mileage" => await Mileage(backend, codes, vehicle, model, settings.Demo ? null : backend as IModuleReadings, a, cts.Token),
                 "coding" => await Coding(backend, db, vehicle, settings.Demo, log, a, cts.Token),
+                "mapped" => await Mapped(backend, Module(vehicle, a), a, cts.Token),
                 "jobs" => await Jobs(backend, a, cts.Token),
                 "job" => await Job(backend, a, cts.Token),
                 _ => Unknown(a.Command),
@@ -1150,7 +1258,7 @@ internal sealed class Args
     public string? Command { get; private set; }
     public List<string> Positional { get; } = [];
 
-    private static readonly HashSet<string> Flags = new(StringComparer.OrdinalIgnoreCase) { "demo", "yes", "trust-dsr", "experimental", "forum" };
+    private static readonly HashSet<string> Flags = new(StringComparer.OrdinalIgnoreCase) { "demo", "yes", "trust-dsr", "experimental", "forum", "text" };
 
     public static Args Parse(string[] argv)
     {

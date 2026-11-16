@@ -105,7 +105,9 @@ public sealed partial class AnalyseViewModel
         {
             if (_baseline?.Curve is not { } curve) return "";
             if (!OnBaselineAxes(curve)) return "Switch the scatter back to the baseline's axes to see the healthy range.";
-            return BaselineAligner.Compare(_log, curve)?.Summary ?? "This log doesn't have the values this baseline needs.";
+            if (BaselineAligner.Compare(_log, curve) is not { } compared) return "This log doesn't have the values this baseline needs.";
+            // Share inside the band says how often; drift says whether it stayed out, and from when.
+            return compared.Samples > 0 && BaselineDrift.Run(_log, curve) is { } drift ? $"{compared.Summary} {drift.Summary}" : compared.Summary;
         }
     }
 

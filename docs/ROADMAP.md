@@ -22,6 +22,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Compare two snapshots**: faults gone, new, changed and unchanged, modules lost or replaced, coding differences; in the Garage and as `klemme15 diff`.
 - **Checkable promises**: tests for the privacy policy's host list, no analytics, no BMW files in the repository; an SBOM with every release; a guard against mislabelled releases.
 - **Garage mode**: a high-contrast theme for daylight, next to dark and light.
+- **Session recordings, reading maps, drift**: record a whole session and play it back without the car (`.k15log`); community reading maps that decode a module's replies, read requests only; sustained drift from a baseline on the Analyse page. Recordings and maps are pending field validation.
 - **Speed and recordings**: pooled buffers and incremental parsing in the cable code, no fixed pause in live data, and recordings kept on disk while they run.
 - **Hardening**: a dead-battery floor and plausibility check for every write, a voltage re-check before coding writes, one clean teardown when the cable is pulled, and randomized tests against damaged answers.
 - **Service due and a browser viewer**: the cluster's service list read on the Service page (EDIABAS mode, pending field validation); snapshots open in a browser on the website.
@@ -45,6 +46,8 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - Validate the water pump tests, VANOS test and more service functions from field reports.
 - Deeper E46, E39 and E53 support without BMW files: every module's DS2 fault memory and BMW's own engine values (VANOS, cylinder roughness), once they can be validated on vehicles. Health history and the OBD-based tests already work.
 - The first community coding maps, checks and chains in the library, and the first real baselines (three or more healthy cars per engine, starting with the N52).
+- Session recordings in EDIABAS mode, and the first community reading maps.
+- Drift on live data while you drive, and the electric water pump's requested and actual speed against your own car's baseline, once the value names are validated on vehicles. A failure forecast needs logs from parts that later failed; until those exist Klemme15 reports drift, not a prediction.
 - Wheel speeds on the car drawing, from the stability control module, once the value names are validated on vehicles.
 - More chains: thermostat, misfire triage, boost leaks on the N54/N55.
 

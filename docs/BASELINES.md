@@ -10,6 +10,14 @@ A baseline is the healthy range of one value across the engine's operating range
 
 Outside the band is a clue, not a verdict. It tells you where to look; the guided tests, chains and multimeter checks tell you what's wrong.
 
+## Sustained drift
+
+Next to "how much of your log sits inside the band", Klemme15 says whether a value **stayed** outside it, and from when: *"Sustained drift: your total trim bank 1 stayed above the healthy range from 1:00 into the log."*
+
+It works like a running total. Each reading outside the band adds to it, by how far outside it is; each reading inside drains it. A single odd reading (a gear change, a sensor glitch) is capped and drains away. When the total passes a fixed line, the drift counts as sustained. A drift score of 1.0 is that line.
+
+This is a measure of how far your car is from the baseline you chose, nothing more. It is **not a forecast**: Klemme15 doesn't say when a part will fail or how likely that is, because that would need logs from many cars whose parts later failed, and those don't exist yet. With the physics model as the baseline, it only catches large problems.
+
 ## Why by engine speed, not by time
 
 Two drives never line up in time: a baseline drawn against time would compare a red light with a motorway. What compares fairly is behaviour **at the same operating point**. So every reading in your log is placed by its engine speed, grouped into 250 rpm steps, and compared with the healthy range at that step. When you were, and how long you spent there, drops out.

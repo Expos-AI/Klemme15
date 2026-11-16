@@ -186,6 +186,19 @@ public static class BaselineAligner
         return new(bins, share, offset, counted, Summarise(curve, bins, share, offset));
     }
 
+    /// <summary>Every sample the curve counts, in recorded order, with the healthy range at its operating point.</summary>
+    public static IEnumerable<(int Index, double Y, BaselinePoint Healthy)> Walk(DataLog log, BaselineCurve curve)
+    {
+        var cache = new Dictionary<string, LogChannel?>();
+        var filter = FilterFor(log, curve.Filter);
+        for (var i = 0; i < log.Count; i++)
+        {
+            if (BaselineSignals.At(log, curve.X, i, cache) is not { } x || BaselineSignals.At(log, curve.Y, i, cache) is not { } y) continue;
+            if (filter is not null && !filter.IsTrue(Vars(log, i, cache))) continue;
+            if (Nearest(curve, x) is { } r) yield return (i, y, r);
+        }
+    }
+
     /// <summary>Groups samples into bins on the X axis and takes percentiles of Y in each (used to build baselines too).</summary>
     public static IReadOnlyList<BaselinePoint> Bin(DataLog log, string xId, string yId, string? filterText, double binWidth, int minSamples)
     {

@@ -13,6 +13,7 @@
 using Klemme15.Core;
 using Klemme15.Data;
 using Klemme15.Protocols;
+using Klemme15.Protocols.Recording;
 using Klemme15.Protocols.Simulation;
 using Klemme15.Protocols.Transport;
 using Klemme15.Serial;
@@ -39,6 +40,15 @@ public sealed record ConnectionSettings
     public bool TrustDsr { get; init; }
 
     public IReadOnlyList<LiveParameter> LiveFavorites { get; init; } = [];
+
+    /// <summary>Record this session to this file (.k15log), for playing back later. Not available in EDIABAS mode.</summary>
+    public string? RecordTo { get; init; }
+
+    /// <summary>Play this recording back instead of talking to a car. Nothing is sent anywhere.</summary>
+    public K15Log? Replay { get; init; }
+
+    /// <summary>Playback speed for <see cref="Replay"/>: 1 is the speed of the original session.</summary>
+    public double ReplaySpeed { get; init; } = 1;
 }
 
 public static class BackendFactory
@@ -49,12 +59,23 @@ public static class BackendFactory
     public const bool EdiabasAvailable = false;
 #endif
 
+    private static string AppVersion => typeof(BackendFactory).Assembly.GetName().Version?.ToString(3) ?? "";
+
     public static IDiagnosticBackend Create(ConnectionSettings settings, VehicleFamily vehicle, TrafficLog log, VehicleModel? model = null)
     {
         var mode = vehicle.Cable.Equals("KLine", StringComparison.OrdinalIgnoreCase) ? CableMode.KLine : CableMode.DCan;
 
+        if (settings.Replay is { } recording)
+            return new NativeBackend(new LoggingTransport(new ReplayTransport(recording, settings.ReplaySpeed), log), new NativeBackendOptions
+            {
+                Mode = mode,
+                ProbeTimeout = TimeSpan.FromMilliseconds(300),
+            });
+
         if (!string.IsNullOrWhiteSpace(settings.EdiabasPath) && !settings.Demo)
         {
+            if (settings.RecordTo is not null)
+                throw new DiagnosticException("Recording a session isn't available in EDIABAS mode yet. Untick 'Use my own BMW files (EDIABAS mode)' to record.");
             if (NetworkTransport.IsNetworkAddress(settings.Port))
                 throw new DiagnosticException("EDIABAS mode needs a USB cable for now. Untick 'Use my own BMW files (EDIABAS mode)' to use a Wi-Fi cable.");
 #if EDIABAS
@@ -90,6 +111,22 @@ public static class BackendFactory
                 {
                     TrustDsrForIgnition = settings.TrustDsr,
                 };
+
+        if (settings.RecordTo is { } file)
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(file))!);
+                var info = new K15LogInfo(AppVersion, vehicle.Id, model?.Id, mode == CableMode.KLine ? "KLine" : "DCan", DateTimeOffset.Now);
+                transport = new RecordingTransport(transport, new K15LogRecorder(File.Create(file), info));
+                log.Note($"Recording this session to {Path.GetFileName(file)}");
+            }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException)
+            {
+                transport.Dispose();
+                throw new DiagnosticException($"Klemme15 couldn't start the recording ({e.Message}). Choose another place for it, or connect without recording.");
+            }
+        }
 
         return new NativeBackend(new LoggingTransport(transport, log), new NativeBackendOptions
         {

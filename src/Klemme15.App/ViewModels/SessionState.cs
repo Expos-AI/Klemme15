@@ -54,7 +54,7 @@ public sealed class SessionState : ViewModelBase
     /// <summary>Starts a job that changes the car: written to disk, and the computer kept awake, until it's ended.</summary>
     public IDisposable BeginOperation(RunningOperation op)
     {
-        if (!_isDemo) Journal.Begin(op);
+        if (!_isDemo && !IsReplay) Journal.Begin(op);
         OnUiThread(() => { _jobs++; Raise(nameof(JobRunning)); });
         var done = new Release(() => OnUiThread(() => { _jobs = Math.Max(0, _jobs - 1); Raise(nameof(JobRunning)); }));
         return new Both(new Both(Klemme15.App.Services.SleepGuard.Hold(op.Title), ClaimBus(op.Title)), done);
@@ -129,7 +129,7 @@ public sealed class SessionState : ViewModelBase
     /// <summary>Saves a snapshot of a finished quick test on a real car. Demo cars and scans without a VIN are skipped.</summary>
     public HealthSnapshot? RecordHealth(VehicleScanResult scan, IReadOnlyDictionary<string, double> engine)
     {
-        if (_isDemo || IsSnapshot || HealthSnapshot.From(scan, _model?.Id, _model?.Name, engine) is not { } snapshot) return null;
+        if (_isDemo || IsReplay || IsSnapshot || HealthSnapshot.From(scan, _model?.Id, _model?.Name, engine) is not { } snapshot) return null;
         try { History.Add(snapshot); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return null; }
         HistoryChanged?.Invoke();
@@ -161,7 +161,7 @@ public sealed class SessionState : ViewModelBase
             TestResults.Add(new SnapshotTest(test.Id, test.Title, DateTimeOffset.Now, report));
             if (TestResults.Count > 40) TestResults.RemoveAt(0);
         }
-        if (_isDemo || _lastScan is null || HealthSnapshot.CarKeyFor(_lastScan) is not { } key) return false;
+        if (_isDemo || IsReplay || _lastScan is null || HealthSnapshot.CarKeyFor(_lastScan) is not { } key) return false;
         try { History.AddTest(key, TestRecord.From(test, report, DateTimeOffset.Now)); }
         catch (Exception e) when (e is IOException or UnauthorizedAccessException) { return false; }
         PublishScan(WithHealth(_lastScan));
@@ -196,6 +196,10 @@ public sealed class SessionState : ViewModelBase
     public VehicleModel? Model { get => _model; private set => Set(ref _model, value); }
     public bool IsConnected => _backend is not null;
     public bool IsDemo { get => _isDemo; private set => Set(ref _isDemo, value); }
+
+    private bool _isReplay;
+    /// <summary>A session recording is being played back: the answers are a real car's, but nothing is sent anywhere and nothing is added to the car's history.</summary>
+    public bool IsReplay { get => _isReplay; private set => Set(ref _isReplay, value); }
 
     private CarSnapshot? _snapshot;
 
@@ -368,6 +372,7 @@ public sealed class SessionState : ViewModelBase
         Vehicle = vehicle;
         Model = model;
         IsDemo = settings.Demo;
+        IsReplay = settings.Replay is not null;
         Backend = backend;
         if (backend is IConnectionWatch watch)
             watch.ConnectionLost += message => OnUiThread(async () =>
@@ -379,8 +384,9 @@ public sealed class SessionState : ViewModelBase
             });
         // The connection is up from here. What follows is optional and can be slow (in EDIABAS mode a module that
         // doesn't answer takes seconds), so it must never leave the app looking half-connected.
-        Connection = settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
-        Status = settings.Demo ? $"{vehicle.Id} {model?.Name} demo car: nothing is sent to a real car".Replace("  ", " ")
+        Connection = settings.Replay is not null ? "Recording (playback)" : settings.Demo ? "Demo car" : Klemme15.Protocols.Transport.NetworkTransport.IsNetworkAddress(settings.Port) ? $"Network cable {settings.Port![(settings.Port!.IndexOf("://") + 3)..]}" : $"Cable on {settings.Port}";
+        Status = settings.Replay is { } played ? $"Playing back a {vehicle.Id} {model?.Name} recording from {played.Info.Started:d MMM yyyy}: nothing is sent to a car. Pages that weren't used while recording have nothing to show.".Replace("  ", " ")
+            : settings.Demo ? $"{vehicle.Id} {model?.Name} demo car: nothing is sent to a real car".Replace("  ", " ")
             : $"{vehicle.Id} {model?.Name} via {backend.Name}".Replace("  ", " ");
         // The engine computer's part number pins down its exact version (MSV70 vs MSV80 on an N52), which the
         // readings and guided tests need before any quick test has run.
@@ -391,7 +397,7 @@ public sealed class SessionState : ViewModelBase
             catch (Exception e) when (e is DiagnosticException or TimeoutException or OperationCanceledException) { }
         }
         // A test that drove the water pump was cut off: send the switch-off again, once, and only to the same car model.
-        if (!settings.Demo && _interrupted is { StopAction: "pump" } cut && cut.Car == $"{vehicle.Id} {model?.Name}".Trim()
+        if (!settings.Demo && settings.Replay is null && _interrupted is { StopAction: "pump" } cut && cut.Car == $"{vehicle.Id} {model?.Name}".Trim()
             && vehicle.Modules.FirstOrDefault(m => m.IsEngine) is { } eng && Klemme15.App.Services.JobPumpActuator.For(this, eng) is { } pump)
         {
             try
@@ -409,7 +415,8 @@ public sealed class SessionState : ViewModelBase
     public async Task DisconnectAsync()
     {
         var b = _backend;
-        var wasCar = b is not null && !IsDemo && !IsSnapshot;
+        var wasCar = b is not null && !IsDemo && !IsReplay && !IsSnapshot;
+        IsReplay = false;
         Snapshot = null;
         LiveBuffer.Clear();
         TestResults.Clear();

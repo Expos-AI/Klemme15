@@ -79,6 +79,10 @@ Generic codes are standardised; improve the wording or add a `hint` with practic
 "P0171": { "text": "System too lean, bank 1", "hint": "Common causes on M54/N52: ..." }
 ```
 
+## Reading maps
+
+A reading map says where values sit in a module's reply, so Klemme15 can show them without BMW files. Maps may only use read requests, every value needs a note on how you worked it out on a car, and nothing may be copied from BMW software or files. The format, the tools and the rules are in [READING-MAPS.md](READING-MAPS.md).
+
 ## DS2 fault decoders
 
 For E46-era modules the native backend can identify modules but cannot yet decode their fault memory. Each module family uses its own record layout. If you can capture a module's fault-memory response together with what the fault actually is (for example by causing a known fault and clearing it afterwards), open an issue with the traffic log: that is enough to write a decoder.
