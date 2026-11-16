@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Text.Json;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Headless;
 using Avalonia.Media;
 using Avalonia.Platform;
@@ -189,6 +190,10 @@ void CarStory()
 {
     EnsureDemo();
     Go(vm.Faults);
+    vm.Faults.StoryOpen = true;
+    // The explanation sits behind the panel's "What this is" link since 0.99.40; open it so the scene shows it.
+    if (reel.Find<ToggleButton>(t => t.Name == "helpFaults4") is { } help) help.IsChecked = true;
+    reel.Run(150);
     var story = reel.Card(reel.Text("Every dash message your cluster has shown"));
     reel.ScrollTo(story, 1400, top: 120);
     reel.Focus(story, width: 0.75);
