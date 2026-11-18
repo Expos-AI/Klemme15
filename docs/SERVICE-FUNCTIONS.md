@@ -81,7 +81,7 @@ All functions are **experimental** until validated on a vehicle. Except where no
 | SMG: learn the clutch touch point | EGS | After a clutch replacement, SMG pump or actuator work, or when take-off is jerky. | 2 |
 | SMG: learn the gear positions | EGS | After SMG actuator or gearbox work. | 2 |
 | SMG: bleed the clutch hydraulics | EGS | After replacing the clutch slave cylinder, the hydraulic lines or the SMG pump. | 2 |
-| xDrive transfer case: reset and relearn | VGSG | After replacing the transfer case actuator motor, the transfer case or its fluid, or with xDrive clutch faults. | 2 |
+| xDrive transfer case: reset and relearn | VGSG | After replacing the transfer case actuator motor, the transfer case or its fluid, or with xDrive clutch faults. | 3 |
 | xDrive transfer case: reset wear counters | VGSG | Only after fitting a new transfer case or new transfer case clutch. | 2 |
 | xDrive transfer case clutch test | DSC | xDrive faults, binding in tight turns, or after transfer case work. | 6 |
 

@@ -193,7 +193,7 @@ public static class ServiceRunner
         if (canRunJobs && impl.Job is not null) return new(true, $"Runs BMW's own procedure for {variant.ToUpperInvariant()} from your BMW files.", impl, ServiceMode.Ediabas, v);
         if (canSendRaw && impl.NativeSequence.Count > 0) return new(true, "Runs without BMW files (Klemme15 sends the documented request itself).", impl, ServiceMode.Native, v);
         return new(false, impl.Job is not null
-            ? "Needs your BMW files: connect with \"Use my own BMW files (EDIABAS mode)\" ticked (Windows)."
+            ? "This one is BMW's own procedure, which only exists in BMW's files, so it needs EDIABAS mode: tick \"Use my own BMW files (EDIABAS mode)\" in the Garage and connect again (Windows)."
             : "Not available with this connection.");
     }
 
@@ -404,7 +404,7 @@ public static class ServiceRunner
                     var reply = await raw.RequestAsync(ecu, step.Send, ct) ?? throw new DiagnosticException("No reply from the module.");
                     details.Add($"Sent {Convert.ToHexString(step.Send)}, reply {Convert.ToHexString(reply)}");
                     if (reply.Length >= 3 && reply[0] == 0x7F)
-                        throw new DiagnosticException($"The module refused ({NegativeResponse(reply[2])}).");
+                        throw new RefusedException(ModuleRefusals.FromCode(reply[2]), $"The module refused ({NegativeResponse(reply[2])}).");
                     if (step.Expect is { } expect && !reply.AsSpan().StartsWith(expect))
                         throw new DiagnosticException("The module's reply wasn't the expected confirmation.");
                     if (step.Show && reply.Length > step.Send.Length)
@@ -427,7 +427,12 @@ public static class ServiceRunner
         catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException)
         {
             log?.Note($"  -> failed: {e.Message}");
-            return new(false, e.Message, details, ServiceOutcome.IsCutOff(e));
+            var kind = e is RefusedException refused ? refused.Kind : ModuleRefusals.Classify(e.Message);
+            var message = ModuleRefusals.Explain(kind, ecu.Name) is { } plain ? $"{plain} (The module's answer: {e.Message})" : e.Message;
+            // When the car's state is the likely reason, show what the module has stored: it is often the answer.
+            if (ModuleRefusals.StateRelated(kind) && !ct.IsCancellationRequested)
+                details.AddRange(await StoredFaultsAsync(backend, ecu, log));
+            return new(false, message, details, ServiceOutcome.IsCutOff(e));
         }
         finally
         {
@@ -461,8 +466,34 @@ public static class ServiceRunner
         }
     }
 
+    private sealed class RefusedException(RefusalKind kind, string message) : DiagnosticException(message)
+    {
+        public RefusalKind Kind { get; } = kind;
+    }
+
+    /// <summary>The module's stored faults as lines for the result, or a line saying it couldn't be read. Never throws.</summary>
+    private static async Task<IReadOnlyList<string>> StoredFaultsAsync(IDiagnosticBackend backend, EcuDefinition ecu, TrafficLog? log)
+    {
+        try
+        {
+            using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+            var faults = (await backend.ReadFaultsAsync(ecu, cts.Token)).Where(f => !f.IsInfo).ToList();
+            log?.Note($"  -> {ecu.Name} has {faults.Count} stored fault(s)");
+            if (faults.Count == 0) return [$"The {ecu.Name} has no faults stored, so check the conditions under 'Before you start'."];
+            var lines = new List<string> { $"Faults stored in the {ecu.Name} (deal with these first; the Faults page explains them):" };
+            lines.AddRange(faults.Take(8).Select(f => $"  {f.Code}{(f.State == FaultState.Present ? " (active)" : "")}{(f.Description is { Length: > 0 } d ? ": " + d : "")}"));
+            if (faults.Count > 8) lines.Add($"  ...and {faults.Count - 8} more on the Faults page.");
+            return lines;
+        }
+        catch (Exception e) when (e is DiagnosticException or NotSupportedException or TimeoutException or OperationCanceledException)
+        {
+            return [$"Klemme15 couldn't read the {ecu.Name}'s faults ({e.Message}). Run the quick test and look at this module on the Faults page."];
+        }
+    }
+
     private static string NegativeResponse(byte code) => code switch
     {
+        0x10 => "general reject",
         0x11 => "service not supported",
         0x12 => "not supported in this form",
         0x22 => "conditions not correct (check ignition, engine, voltage)",

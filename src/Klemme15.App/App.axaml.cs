@@ -124,6 +124,12 @@ public partial class App : Application
         // No error may close the app: commands and the UI thread report to a banner instead.
         AsyncCommand.DefaultError = main.ShowProblem;
         Dispatcher.UIThread.UnhandledException += (_, e) => { e.Handled = true; main.ShowProblem(e.Exception); };
+        // Klemme15 closed because of an error last time: say where the details are, once.
+        if (Klemme15.Core.CrashReport.Unseen(Klemme15.Core.CrashReport.DefaultFolder) is { } crash)
+        {
+            Klemme15.Core.CrashReport.MarkSeen(crash);
+            main.ShowNotice($"Klemme15 closed unexpectedly last time. What went wrong is saved in {crash}. Please attach that file to a bug report on GitHub: it holds the error, not your car's data.");
+        }
         main.ApplyTheme();
         main.ShowNotices = () => new NoticesWindow().ShowDialog(window);
         window.DataContext = main;

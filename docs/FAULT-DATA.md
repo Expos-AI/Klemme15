@@ -63,6 +63,8 @@ or `--ecu <folder>` on the command line). On macOS or Linux, copy the `Ecu` fold
 Klemme15 at it. The reader (`SgbdFile.cs`) only reads the `FORTTEXTE`/`IORTTEXTE` tables of the variant your module
 uses. It never writes to, uploads or decrypts anything. `klemme15 sgbd <file.prg>` lists what a file contains.
 
+In EDIABAS mode, a module whose file isn't in your folder is reported as *"Your BMW files folder has no file for this module"*, not as a module that didn't answer. If the engine doesn't answer either, the quick test says so and suggests running it without EDIABAS mode: Klemme15's own connection doesn't need the files, and EDIABAS mode is only needed for the functions that are BMW's own procedures. Folders copied from somewhere else are often incomplete; use the complete `Ecu` folder from your own BMW software.
+
 ## What we deliberately do not do
 
 - We do not commit BMW's text, tables or files to this repository.

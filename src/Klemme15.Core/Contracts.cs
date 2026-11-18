@@ -196,7 +196,7 @@ public interface IPresenceProbe
 }
 
 /// <summary>Raised when the diagnostic link fails in a way the user must fix (cable, ignition, port).</summary>
-public sealed class DiagnosticException(string message, Exception? inner = null) : Exception(message, inner);
+public class DiagnosticException(string message, Exception? inner = null) : Exception(message, inner);
 
 /// <summary>Raw traffic log so every session can be inspected and attached to bug reports.</summary>
 public sealed class TrafficLog

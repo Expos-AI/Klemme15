@@ -4,7 +4,7 @@ Klemme15 runs on your computer. It has no account, no server and no analytics, a
 
 ## What stays on your computer
 
-Everything Klemme15 reads from your car stays on your computer. Reports, recordings, traffic logs and snapshots are only written when you save them, to a place you choose. The one exception is a safety copy of a live data recording, kept in Klemme15's own folder while you record so a crash can't lose it; it is deleted when you save or delete the recording.
+Everything Klemme15 reads from your car stays on your computer. Reports, live data recordings, traffic logs and snapshots are only written when you save them, to a place you choose. The exceptions are a safety copy of a live data recording, kept in Klemme15's own folder while you record so a crash can't lose it (deleted when you save or delete the recording), session recordings, only if you tick **Record my sessions**, and a crash report if Klemme15 closes because of an error. All of them are listed below.
 
 Klemme15 also keeps these files by itself, in a `Klemme15` folder in your user's application data (`%APPDATA%\Klemme15` on Windows, `~/.config/Klemme15` on macOS and Linux). None of them is ever uploaded, and you can delete any of them at any time.
 
@@ -18,6 +18,7 @@ Klemme15 also keeps these files by itself, in a `Klemme15` folder in your user's
 | `baselines/` | Baselines you made or added: curves of values across engine speed, no VIN | When you make or add one |
 | `recordings/` | A safety copy of the live data recording you are making (values only, no VIN). Deleted when you save or delete the recording; one left behind by a crash is offered back on the Live data page | While you record live data |
 | `recordings/sessions/` | Session recordings (`.k15log`): everything Klemme15 asked and the car answered. **They contain the VIN** and module serial numbers, because the car sends them. The newest 20 are kept. Never sent anywhere | Only while **Record my sessions** is ticked in the Garage (off by default) |
+| `crash-*.txt` | Only when Klemme15 closes because of an error it couldn't catch: the error, where in Klemme15 it happened, the version and the operating system. No car data. The next start tells you where it is, so you can attach it to a bug report; the newest five are kept. Never sent anywhere | Only after such an error |
 | `running-job.json` | The job that's changing the car right now (job, module, model, time; no VIN), so Klemme15 can tell you what to do if it's cut off. Deleted when the job ends | While a job runs |
 | `db/` | Community coding maps you downloaded | When you press **Get the latest community maps** |
 | `bmw-unified-db/` | The optional BMW fault texts and engine readings you downloaded | When you download them |

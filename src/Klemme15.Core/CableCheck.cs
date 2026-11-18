@@ -102,6 +102,23 @@ public static class CableCheck
     }
 
     /// <summary>Why a car that should answer didn't, for the quick test's "no module answered" message.</summary>
+    /// <summary>How EDIABAS mode's error starts for a module whose BMW file isn't in the user's folder.</summary>
+    public const string EdiabasNoFile = "Your BMW files folder has no file for this module";
+
+    /// <summary>
+    /// After a quick test in EDIABAS mode that reached the car only partly (the engine didn't answer). Null when the
+    /// result looks normal. <paramref name="missingFiles"/> counts modules whose BMW file isn't in the user's folder.
+    /// </summary>
+    public static string? EdiabasPartialHelp(int answered, bool engineAnswered, int missingFiles)
+    {
+        if (engineAnswered) return missingFiles > 0
+            ? $"Your BMW files folder has no file for {missingFiles} of this car's modules, so EDIABAS mode can't ask them. Copy the complete Ecu folder from your BMW software, or switch EDIABAS mode off for the quick test."
+            : null;
+        var reached = answered == 0 ? "no module" : answered == 1 ? "only one module" : $"only {answered} modules";
+        var files = missingFiles > 0 ? $" Your BMW files folder has no file for {missingFiles} of them, so the folder may be incomplete or from other BMW software." : "";
+        return $"EDIABAS mode reached {reached}, and not the engine.{files} Klemme15's own connection doesn't need BMW files: untick 'Use my own BMW files (EDIABAS mode)' in the Garage and run the quick test again. Switch EDIABAS mode on only for a function that needs it, and send us the traffic log (Log page) so we can see why.";
+    }
+
     public static string NoAnswerHelp(bool dcan) => dcan
         ? "No module answered. Check that the cable switch is on D-CAN, the ignition is on (key position 2), and the cable passes its check in the Garage. Some cheap cables have pins 7 and 8 permanently bridged: they work on K-line cars (E46 era) but not on D-CAN cars like the E90 family. If moving the switch changes nothing, the cable is the likely cause."
         : "No module answered. Check that the cable switch is on K-line, the ignition is on (key position 2), and the cable passes its check in the Garage. On E46-era cars the cable needs pins 7 and 8 connected, which is what the K-line position of the switch does.";

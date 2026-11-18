@@ -159,13 +159,42 @@ public sealed class EdiabasBackend(EdiabasOptions options) : IDiagnosticBackend,
         return null;
     }
 
+    /// <summary>The start of the message for a module whose BMW file isn't in the user's folder (the quick test counts these).</summary>
+    public const string NoFileMessage = CableCheck.EdiabasNoFile;
+
     public async Task<EcuIdentity?> IdentifyAsync(EcuDefinition ecu, CancellationToken ct = default)
+    {
+        var identity = await IdentifyOnceAsync(ecu, ct).ConfigureAwait(false);
+        // The engine must answer: every car has one. When it doesn't while a shortcut is in use (the broadcast's list,
+        // or asking named groups only), the shortcut may be wrong for this car: drop them and ask once more.
+        if (identity is null && ecu.IsEngine && (_present is not null || _namedFirst))
+        {
+            options.Log?.Note("The engine didn't answer; asking again without the shortcuts (every module, every group file)");
+            _present = null;
+            _namedFirst = false;
+            _silent.Clear();
+            identity = await IdentifyOnceAsync(ecu, ct).ConfigureAwait(false);
+        }
+        return identity;
+    }
+
+    private async Task<EcuIdentity?> IdentifyOnceAsync(EcuDefinition ecu, CancellationToken ct)
     {
         // The car already said this address isn't fitted. The engine is always asked: everything else depends on it.
         if (_present is { } present && !present.Contains(ecu.Address) && !ecu.IsEngine) return null;
         var candidates = ecu.Sgbd.Where(SgbdExists).ToList();
-        if (candidates.Count == 0)
+        if (candidates.Count == 0 && SgbdExists($"D_{ecu.Address:X4}"))
             candidates.Add($"D_{ecu.Address:X4}");   // EDIABAS convention for E6x/E9x group files
+        // Without a file EDIABAS can't ask the module at all. For the engine, and for modules whose named group file
+        // every complete BMW install has, say so instead of reporting a module that "didn't answer". Modules listed
+        // only by address may simply not exist on this car's software, so they stay a quiet "no answer".
+        if (candidates.Count == 0 && !ecu.IsEngine && !ecu.Sgbd.Any(n => !IsAddressGroup(n))) return null;
+        if (candidates.Count == 0)
+        {
+            var looked = string.Join(", ", ecu.Sgbd.Append($"D_{ecu.Address:X4}").Distinct());
+            options.Log?.Note($"{ecu.Name}: no BMW file for it in {options.EcuPath} (looked for {looked})");
+            throw new DiagnosticException($"{NoFileMessage} (looked for {looked}). Copy the complete Ecu folder from your BMW software, or switch EDIABAS mode off for the quick test.");
+        }
         // Once this car has shown it answers through the named groups and not the address ones, ask only the named
         // group for every other module: waiting out a silent address group first costs seconds per module.
         if (_namedFirst && candidates.Any(c => !IsAddressGroup(c))) candidates = candidates.Where(c => !IsAddressGroup(c)).ToList();

@@ -210,6 +210,41 @@ public class ServiceTests
         Assert.Contains("conditions not correct", outcome.Message);
     }
 
+    private static readonly EcuDefinition Vgsg = new() { Id = "E9x.VGSG", Name = "Transfer case control (VGSG)", Address = 0x19, Protocol = BusProtocol.BmwFast };
+
+    [Theory]
+    [InlineData("ERROR_ECU_GENERAL_REJECT", "refused it without giving a reason")]
+    [InlineData("ERROR_ECU_CONDITIONS_NOT_CORRECT_OR_REQUEST_SEQUENCE_ERROR", "isn't in the state this job needs")]
+    public async Task A_refused_bmw_job_is_explained_and_shows_the_modules_faults(string error, string explained)
+    {
+        // What a real E90 328xi's transfer case answered to the relearn, twice (November 2026).
+        var f = Fn("transfer-case-relearn");
+        var plan = ServiceRunner.Availability(f, Vgsg, "VGSG90", true, canRunJobs: true, canSendRaw: false);
+        Assert.True(plan.Available, plan.Reason);
+        var car = new FakeCar(_ => null)
+        {
+            FailJob = "STEUERN_FUNKTIONSPRUEFUNG", FailWith = error,
+            StoredFaults = [new Fault { EcuId = Vgsg.Id, Code = "5A12", Source = FaultSource.Bmw, State = FaultState.Present, Description = "Example fault" }],
+        };
+        var outcome = await ServiceRunner.RunAsync(f, plan, car, Vgsg);
+        Assert.False(outcome.Success);
+        Assert.Contains(explained, outcome.Message);
+        Assert.Contains(error, outcome.Message);   // the module's own answer stays, for whoever helps
+        Assert.Contains(outcome.Details, d => d.Contains("5A12 (active): Example fault"));
+
+        var clean = await ServiceRunner.RunAsync(f, plan, new FakeCar(_ => null) { FailJob = "STEUERN_FUNKTIONSPRUEFUNG", FailWith = error }, Vgsg);
+        Assert.Contains(clean.Details, d => d.Contains("no faults stored"));
+    }
+
+    [Fact]
+    public void A_function_that_needs_bmw_files_says_why()
+    {
+        var plan = ServiceRunner.Availability(Fn("transfer-case-relearn"), Vgsg, "VGSG90", true, canRunJobs: false, canSendRaw: true);
+        Assert.False(plan.Available);
+        Assert.Contains("only exists in BMW's files", plan.Reason);
+        Assert.Contains("EDIABAS mode", plan.Reason);
+    }
+
     [Fact]
     public async Task Runs_bmw_job_then_reads_the_result()
     {
@@ -357,7 +392,8 @@ public class ServiceTests
         public Task ConnectAsync(CancellationToken ct = default) => Task.CompletedTask;
         public Task<string?> ReadVinAsync(CancellationToken ct = default) => Task.FromResult<string?>(null);
         public Task<EcuIdentity?> IdentifyAsync(EcuDefinition ecu, CancellationToken ct = default) => Task.FromResult<EcuIdentity?>(new EcuIdentity());
-        public Task<IReadOnlyList<Fault>> ReadFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<Fault>>([]);
+        public IReadOnlyList<Fault> StoredFaults { get; init; } = [];
+        public Task<IReadOnlyList<Fault>> ReadFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) => Task.FromResult(StoredFaults);
         public Task ClearFaultsAsync(EcuDefinition ecu, CancellationToken ct = default) => Task.CompletedTask;
 
         public IReadOnlyList<LiveParameter> GetLiveParameters(EcuDefinition ecu) =>
@@ -375,13 +411,14 @@ public class ServiceTests
         public Task<IReadOnlyList<string>> ListJobsAsync(string sgbd, CancellationToken ct = default) => Task.FromResult<IReadOnlyList<string>>([]);
 
         public string? FailJob { get; init; }
+        public string FailWith { get; init; } = "ERROR_ECU_CONDITIONS_NOT_CORRECT";
         public Action<string>? OnJob { get; init; }
 
         public Task<IReadOnlyList<IReadOnlyDictionary<string, string>>> RunJobAsync(string sgbd, string job, string arguments, CancellationToken ct = default)
         {
             Jobs.Add($"{sgbd}/{job}/{arguments}");
             OnJob?.Invoke(job);
-            if (job == FailJob) throw new DiagnosticException($"{sgbd} {job}: ERROR_ECU_CONDITIONS_NOT_CORRECT");
+            if (job == FailJob) throw new DiagnosticException($"{sgbd} {job}: {FailWith}");
             IReadOnlyDictionary<string, string> set = new Dictionary<string, string> { ["JOB_STATUS"] = "OKAY", ["STAT_ERGEBNIS_ABGLEICH_ROUTINE_TEXT"] = "Abgleich erfolgreich" };
             return Task.FromResult<IReadOnlyList<IReadOnlyDictionary<string, string>>>([set]);
         }

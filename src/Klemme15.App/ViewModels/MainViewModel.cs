@@ -303,6 +303,9 @@ public sealed class MainViewModel : ViewModelBase
     private RelayCommand? _dismissProblem;
     public RelayCommand DismissProblemCommand => _dismissProblem ??= new(() => Problem = null);
 
+    /// <summary>Shows a message in the problem banner (dismissable), for things to tell the user that aren't errors now.</summary>
+    public void ShowNotice(string text) => OnUi(() => Problem = text);
+
     public void ShowProblem(Exception e)
     {
         try { Session.Log.Note($"Error: {e}"); } catch (Exception) { }

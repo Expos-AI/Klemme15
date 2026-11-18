@@ -467,6 +467,13 @@ public sealed class ServiceViewModel : PageViewModel
             Status = Checks.Any(c => c.Failed) ? "Fix the items marked NO, then check again."
                 : Checks.Any(c => c.Unknown) ? "Confirm the items Klemme15 couldn't measure, tick the boxes, then run."
                 : "All checks passed. Tick the boxes, then run.";
+            // A module with faults stored often refuses jobs (some faults put it in a fallback mode): say so up front.
+            if (ModuleOf(item.Function) is { } module
+                && _session.LastScan?.Ecus.FirstOrDefault(r => r.Ecu.Id == module.Id) is { } last
+                && last.Faults.Count(f => !f.IsInfo) is var stored and > 0)
+                Status += $" Note: the {module.Name} had {stored} fault{(stored == 1 ? "" : "s")} stored at the last quick test"
+                          + $" ({string.Join(", ", last.Faults.Where(f => !f.IsInfo).Take(4).Select(f => f.Code))}{(stored > 4 ? ", ..." : "")})."
+                          + " A module can refuse to run this until they're dealt with: look at them on the Faults page first.";
         }
         catch (Exception e)
         {

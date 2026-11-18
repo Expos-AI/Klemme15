@@ -456,7 +456,12 @@ public sealed class VehicleViewModel : PageViewModel
             Progress = 100;
             ProgressText = scan.Cancelled ? "Quick test stopped." : "";
             var final = scan with { BatteryVoltage = battery };
-            if (!scan.Cancelled && !_session.IsDemo && scan.RespondingEcus == 0)
+            if (!scan.Cancelled && !_session.IsDemo && backend is IJobRunner
+                && CableCheck.EdiabasPartialHelp(scan.RespondingEcus,
+                       scan.Ecus.Any(r => r.Ecu.IsEngine && r.Status is EcuScanStatus.Ok or EcuScanStatus.Faults),
+                       scan.Ecus.Count(r => r.Error?.StartsWith(CableCheck.EdiabasNoFile, StringComparison.Ordinal) == true)) is { } partial)
+                Warning = partial;
+            else if (!scan.Cancelled && !_session.IsDemo && scan.RespondingEcus == 0)
                 Warning = CableCheck.NoAnswerHelp(dcan: vehicle.Cable != "KLine");
             _session.RecordHealth(final, _engineReadings);
             _session.PublishScan(_session.WithHealth(final));

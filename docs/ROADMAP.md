@@ -22,6 +22,7 @@ What's done, what's next, and what Klemme15 will never do. The [release notes](h
 - **Compare two snapshots**: faults gone, new, changed and unchanged, modules lost or replaced, coding differences; in the Garage and as `klemme15 diff`.
 - **Checkable promises**: tests for the privacy policy's host list, no analytics, no BMW files in the repository; an SBOM with every release; a guard against mislabelled releases.
 - **Garage mode**: a high-contrast theme for daylight, next to dark and light.
+- **Plain answers when a module says no**: refused service functions explained with the module's stored faults; EDIABAS mode says when a BMW file is missing or only part of the car answered; a crash report if the app ever closes on an error.
 - **Session recordings, reading maps, drift**: record a whole session and play it back without the car (`.k15log`); community reading maps that decode a module's replies, read requests only; sustained drift from a baseline on the Analyse page. Recordings and maps are pending field validation.
 - **Speed and recordings**: pooled buffers and incremental parsing in the cable code, no fixed pause in live data, and recordings kept on disk while they run.
 - **Hardening**: a dead-battery floor and plausibility check for every write, a voltage re-check before coding writes, one clean teardown when the cable is pulled, and randomized tests against damaged answers.

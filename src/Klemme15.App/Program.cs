@@ -18,8 +18,24 @@ namespace Klemme15.App;
 internal static class Program
 {
     [STAThread]
-    public static void Main(string[] args) =>
-        BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+        // Errors the UI thread doesn't catch go to a banner (App). One on another thread ends the process: write it
+        // down first, so the next start can offer it for a bug report instead of the app just vanishing.
+        var version = typeof(Program).Assembly.GetName().Version?.ToString(3) ?? "";
+        AppDomain.CurrentDomain.UnhandledException += (_, e) =>
+        {
+            if (e.ExceptionObject is Exception ex) Klemme15.Core.CrashReport.Write(ex, Klemme15.Core.CrashReport.DefaultFolder, version, "a background task");
+        };
+        // A task nobody waited for: note it, but don't let it end the session.
+        TaskScheduler.UnobservedTaskException += (_, e) => e.SetObserved();
+        try { BuildAvaloniaApp().StartWithClassicDesktopLifetime(args); }
+        catch (Exception e)
+        {
+            Klemme15.Core.CrashReport.Write(e, Klemme15.Core.CrashReport.DefaultFolder, version, "the window");
+            throw;
+        }
+    }
 
     // Also used by the visual designer.
     public static AppBuilder BuildAvaloniaApp() =>

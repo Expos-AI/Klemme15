@@ -669,9 +669,15 @@ F("transfer-case-relearn", "xDrive transfer case: reset and relearn", GB, ["VGSG
   "Deletes the transfer case clutch calibration and runs the function test, so the actuator relearns the clutch.",
   "After replacing the transfer case actuator motor, the transfer case or its fluid, or with xDrive clutch faults.",
   "medium",
-  [R("STEUERN_FUNKTIONSPRUEFUNG", wait=15, say="Relearning the clutch")],
-  before=["Car stationary on level ground, ignition on, engine off."],
-  after=["Clear the transfer case and DSC fault memories and test drive."],
+  [R("STEUERN_FUNKTIONSPRUEFUNG", wait=15, say="Relearning the clutch"),
+   # The X1's transfer case (LMV_84) has the same job with an optional MODE argument: left out, it deletes the
+   # calibration and restarts the module first, like the others (BMW's description of the argument).
+   R("STEUERN_FUNKTIONSPRUEFUNG", sig=["MODE"], only=["lmv_84"], wait=15, say="Relearning the clutch")],
+  before=["Car stationary on level ground, ignition on, engine off.",
+          "Read the transfer case's faults first (Faults page). The module refuses this job while it's in its fallback mode, which some faults put it in, and it needs to hear the rest of the car (it checks the car isn't moving).",
+          "BMW's job deletes the clutch calibration first, restarts the module, then runs the test. If the module refuses partway, the calibration may already be gone: find out why it refused before you try again, rather than running it over and over."],
+  after=["Clear the transfer case and DSC fault memories and test drive.",
+         "If the xDrive or DSC warning stays on, run this again once the reason it refused is fixed: the clutch needs a successful relearn."],
   checks=checks(engineOff=True, stationary=True, minVoltage=12.0))
 
 F("transfer-case-wear-reset", "xDrive transfer case: reset wear counters", GB, ["VGSG"],

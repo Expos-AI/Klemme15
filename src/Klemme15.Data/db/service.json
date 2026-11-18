@@ -4197,10 +4197,13 @@
    "risk": "medium",
    "verified": false,
    "before": [
-    "Car stationary on level ground, ignition on, engine off."
+    "Car stationary on level ground, ignition on, engine off.",
+    "Read the transfer case's faults first (Faults page). The module refuses this job while it's in its fallback mode, which some faults put it in, and it needs to hear the rest of the car (it checks the car isn't moving).",
+    "BMW's job deletes the clutch calibration first, restarts the module, then runs the test. If the module refuses partway, the calibration may already be gone: find out why it refused before you try again, rather than running it over and over."
    ],
    "after": [
-    "Clear the transfer case and DSC fault memories and test drive."
+    "Clear the transfer case and DSC fault memories and test drive.",
+    "If the xDrive or DSC warning stays on, run this again once the reason it refused is fixed: the clutch needs a successful relearn."
    ],
    "checks": {
     "ignition": true,
@@ -4213,6 +4216,19 @@
      "variants": [
       "vgsg70",
       "vgsg90"
+     ],
+     "steps": [
+      {
+       "job": "STEUERN_FUNKTIONSPRUEFUNG",
+       "args": "",
+       "wait": 15,
+       "say": "Relearning the clutch"
+      }
+     ]
+    },
+    {
+     "variants": [
+      "lmv_84"
      ],
      "steps": [
       {

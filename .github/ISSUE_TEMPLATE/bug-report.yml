@@ -29,5 +29,5 @@ body:
   - type: textarea
     id: files
     attributes:
-      label: Snapshot or traffic log
-      description: Drag a .zip with the .k15 snapshot or the traffic log here.
+      label: Snapshot, traffic log or crash report
+      description: Drag a .zip with the .k15 snapshot or the traffic log here. If Klemme15 closed by itself, it tells you on the next start where its crash report (crash-....txt) is; attach that too. Don't attach a .k15log session recording here (it contains your VIN).
