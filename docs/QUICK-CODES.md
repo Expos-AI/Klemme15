@@ -18,17 +18,17 @@ Open **Coding**, pick the module and press **Read coding**. If someone has share
 
 NCS Expert is part of BMW's Standard Tools. Klemme15 doesn't include it or link to copies of it; BMW licenses its software through its [aftersales portal](https://aos.bmwgroup.com/) (in the US, [bmwtechinfo.com](https://www.bmwtechinfo.com/)).
 
-1. **Klemme15 finds it by itself.** It looks in `C:\NCSEXPER` (and `C:\EC-APPS\NCSEXPER`). The checklist on the Coding page shows *"Find your NCS Expert data: Found"*. If it's somewhere else, press **Choose NCS data folder...** and pick the `DATEN` folder.
-2. **In Klemme15:** connect, run the quick test, open **Coding**, pick the module (e.g. Footwell module) and press **Read coding**.
-3. **In NCS Expert, read the module once.** This step only reads, it doesn't change anything. Close Klemme15's connection first, or use the same cable after Klemme15 has disconnected.
+1. Klemme15 finds it by itself. It looks in `C:\NCSEXPER` (and `C:\EC-APPS\NCSEXPER`). The checklist on the Coding page shows *"Find your NCS Expert data: Found"*. If it's somewhere else, press **Choose NCS data folder...** and pick the `DATEN` folder.
+2. In Klemme15: connect, run the quick test, open **Coding**, pick the module (e.g. Footwell module) and press **Read coding**.
+3. In NCS Expert, read the module once. This step only reads, it doesn't change anything. Close Klemme15's connection first, or use the same cable after Klemme15 has disconnected.
    - File → Load profile → **Expert mode**.
-   - **F1** VIN/ZCS/FA → **F3** ZCS/FA f. ECU → pick the chassis (**E89** covers the E8x and E9x 1 and 3 Series; E60 and E70 have their own) → pick **CAS** to read the car's order → **F6** Back.
-   - **F4** Process ECU → pick the module (e.g. **FRM**) → **F2** Change job → **CODIERDATEN_LESEN** → **F3** Execute job.
+   - F1 VIN/ZCS/FA → **F3** ZCS/FA f. ECU → pick the chassis (**E89** covers the E8x and E9x 1 and 3 Series; E60 and E70 have their own) → pick **CAS** to read the car's order → **F6** Back.
+   - F4 Process ECU → pick the module (e.g. **FRM**) → **F2** Change job → **CODIERDATEN_LESEN** → **F3** Execute job.
    - NCS Expert saves the reading as `C:\NCSEXPER\WORK\FSW_PSW.TRC`.
    - Don't run SG_CODIEREN or any other job here. You only need the reading.
-4. **Back in Klemme15:** reconnect, press **Verify with NCS Expert's latest reading**. Klemme15 decodes every setting itself and compares it with NCS Expert's reading. They must match exactly, or writing stays locked.
-5. **Quick codes unlock.** Press **Apply all** on a preset. Klemme15 backs up, writes only those bits, reads everything back, and puts the original back automatically if anything is off. Switch the ignition off and on again afterwards.
-6. **Share it.** Press **Share this map**. A pre-filled GitHub issue opens in your browser. Press Submit, and the next owner of that module gets quick codes with no setup.
+4. Back in Klemme15: reconnect, press **Verify with NCS Expert's latest reading**. Klemme15 decodes every setting itself and compares it with NCS Expert's reading. They must match exactly, or writing stays locked.
+5. Quick codes unlock. Press **Apply all** on a preset. Klemme15 backs up, writes only those bits, reads everything back, and puts the original back automatically if anything is off. Switch the ignition off and on again afterwards.
+6. Share it. Press **Share this map**. A pre-filled GitHub issue opens in your browser. Press Submit, and the next owner of that module gets quick codes with no setup.
 
 ## Route 3: you use another coding tool (BimmerCode or similar)
 

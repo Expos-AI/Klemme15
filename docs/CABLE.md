@@ -6,8 +6,8 @@ Most "it won't connect" problems are the cable or its settings, not the car or t
 
 A **K+DCAN USB cable with a K-line / D-CAN switch and an FTDI chip**, the kind sold for INPA and NCS Expert.
 
-- **The switch matters.** K-line for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36; D-CAN for the E90 family and newer. On K-line cars the cable has to connect OBD pins 7 and 8, and on D-CAN cars it mustn't, which is what the switch does. Cheap cables without a switch often have pins 7 and 8 bridged permanently: they work on K-line cars and not on D-CAN cars.
-- **FTDI is what Klemme15 is tested with.** Cables with other chips (CH340, PL2303, CP210x) can work on K-line cars, but their timing is less dependable.
+- The switch matters. K-line for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36; D-CAN for the E90 family and newer. On K-line cars the cable has to connect OBD pins 7 and 8, and on D-CAN cars it mustn't, which is what the switch does. Cheap cables without a switch often have pins 7 and 8 bridged permanently: they work on K-line cars and not on D-CAN cars.
+- FTDI is what Klemme15 is tested with. Cables with other chips (CH340, PL2303, CP210x) can work on K-line cars, but their timing is less dependable.
 - Used for every real-car test so far: the [AntiBreak K+DCAN cable with switch](https://www.amazon.com/dp/B079KC43WG). Klemme15 isn't affiliated with any seller.
 
 ## Check cable
@@ -27,9 +27,9 @@ A clone can only be suspected from these signs, never proven. The latency can be
 
 ## Finding the port
 
-- **Windows:** the cable shows up as a COM port (COM3, COM4…). Windows installs the FTDI driver by itself the first time you plug it in.
-- **Mac:** it shows up as `/dev/cu.usbserial-…`, with Apple's built-in driver. Klemme15 lists only the `cu.` name: the matching `tty.` one waits for a signal the cable never sends, so it would hang.
-- **Linux:** it shows up as `/dev/ttyUSB0`. If Klemme15 says Linux won't let it open the port, add yourself to the serial port group (`sudo usermod -aG dialout $USER` on Ubuntu, Debian and Fedora; `uucp` on Arch), then log out and back in.
+- Windows: the cable shows up as a COM port (COM3, COM4…). Windows installs the FTDI driver by itself the first time you plug it in.
+- Mac: it shows up as `/dev/cu.usbserial-…`, with Apple's built-in driver. Klemme15 lists only the `cu.` name: the matching `tty.` one waits for a signal the cable never sends, so it would hang.
+- Linux: it shows up as `/dev/ttyUSB0`. If Klemme15 says Linux won't let it open the port, add yourself to the serial port group (`sudo usermod -aG dialout $USER` on Ubuntu, Debian and Fedora; `uucp` on Arch), then log out and back in.
 
 If another program has the port open (INPA, ISTA, NCS Expert, a terminal), close it first: only one program can use the cable at a time.
 
@@ -43,12 +43,12 @@ If another program has the port open (INPA, ISTA, NCS Expert, a terminal), close
 
 ## No module answers
 
-1. **Switch position:** K-line for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36; D-CAN for the E90 family and newer. Unplug, move the switch, plug back in.
-2. **Ignition:** key position 2 (or Start once without the brake on push-button cars), engine off.
-3. **The right port:** the cable's port, not a Bluetooth or built-in one. Press **Refresh** after plugging in.
-4. **Battery:** below about 12 V many modules don't answer reliably. Put a charger on.
-5. **Pins 7 and 8:** on a D-CAN car, if moving the switch changes nothing, the cable may have them bridged permanently. Try another cable.
-6. **Still nothing:** save the traffic log (Log page) and [open an issue](https://github.com/Expos-AI/Klemme15/issues/new/choose).
+1. Switch position: K-line for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36; D-CAN for the E90 family and newer. Unplug, move the switch, plug back in.
+2. Ignition: key position 2 (or Start once without the brake on push-button cars), engine off.
+3. The right port: the cable's port, not a Bluetooth or built-in one. Press **Refresh** after plugging in.
+4. Battery: below about 12 V many modules don't answer reliably. Put a charger on.
+5. Pins 7 and 8: on a D-CAN car, if moving the switch changes nothing, the cable may have them bridged permanently. Try another cable.
+6. Still nothing: save the traffic log (Log page) and [open an issue](https://github.com/Expos-AI/Klemme15/issues/new/choose).
 
 ## Wi-Fi cables
 

@@ -2,9 +2,9 @@
 
 Klemme15's Coding page (and `klemme15 coding` on the command line) does three things, in increasing order of risk:
 
-1. **Back up, compare and restore** a module's coding. This works on D-CAN cars (the E90 family and newer) over Klemme15's own connection, with no BMW data. E46-era cars use the older DS2 protocol, which coding doesn't support yet.
-2. **Show every setting by name**, using the NCS Expert data you already have. This only reads.
-3. **Switch a short list of comfort options**. This is experimental, and writing unlocks only after the checks below pass.
+1. Back up, compare and restore a module's coding. This works on D-CAN cars (the E90 family and newer) over Klemme15's own connection, with no BMW data. E46-era cars use the older DS2 protocol, which coding doesn't support yet.
+2. Show every setting by name, using the NCS Expert data you already have. This only reads.
+3. Switch a short list of comfort options. This is experimental, and writing unlocks only after the checks below pass.
 
 ## What can be coded
 
@@ -12,8 +12,8 @@ Only comfort and lighting modules can be coded: the footwell module (FRM), the i
 
 Some modules are never coded:
 
-- **The key module (CAS) and immobiliser (EWS).** Comfort closing with the remote, auto-lock and key behaviour live there, next to the immobiliser data. Klemme15 leaves them alone.
-- **Engine, gearbox, brakes, steering and airbag modules.** This includes the steering column switches (SZL), which carry the steering angle sensor that DSC uses.
+- The key module (CAS) and immobiliser (EWS). Comfort closing with the remote, auto-lock and key behaviour live there, next to the immobiliser data. Klemme15 leaves them alone.
+- Engine, gearbox, brakes, steering and airbag modules. This includes the steering column switches (SZL), which carry the steering angle sensor that DSC uses.
 
 Klemme15 also never touches the vehicle order, the VIN or the coding change index. It only reads and writes coding blocks 0x3000-0x3EFF.
 
@@ -67,12 +67,12 @@ If you load a different module file, the verification is dropped.
 
 Once a module is verified, the options become switchable (with experimental functions on). Each change follows these steps:
 
-1. **Voltage check.** It reads the battery voltage and refuses below the floor.
-2. **Backup.** It saves a fresh backup.
-3. **Plan the change.** It works out the new bytes, and refuses if anything outside the chosen settings' own bits would change.
-4. **Write.** It writes block by block, reading each one back.
-5. **Re-check.** It re-reads and decodes the whole module. The changed settings must read as requested, and every other setting must read exactly as before.
-6. **Undo if needed.** If anything is off (a refusal, a read-back difference, an unexpected value), it writes the original blocks back automatically and reports it.
+1. Voltage check. It reads the battery voltage and refuses below the floor.
+2. Backup. It saves a fresh backup.
+3. Plan the change. It works out the new bytes, and refuses if anything outside the chosen settings' own bits would change.
+4. Write. It writes block by block, reading each one back.
+5. Re-check. It re-reads and decodes the whole module. The changed settings must read as requested, and every other setting must read exactly as before.
+6. Undo if needed. If anything is off (a refusal, a read-back difference, an unexpected value), it writes the original blocks back automatically and reports it.
 
 Afterwards, switch the ignition off, wait 10 seconds and switch it on again. Klemme15 deliberately does not reset the module, because a reset is when a weak FRM3 shows its damage.
 
@@ -104,8 +104,8 @@ klemme15 coding --module FRM set led-turn-signals on --ncs C:\NCSEXPER\DATEN --t
 
 A preset switches several comfort options in **one write**: one backup, one write of only those settings' bits, one full read-back, and the original put back automatically if anything is off.
 
-- **LED conversion: all bulb warnings off** (footwell module): indicators, brake lights, number plate lights, parking lights / angel eyes and fog lights. Low beams and xenons aren't touched.
-- **Cluster extras** (instrument cluster): digital speed, instant consumption, and dials always lit.
+- LED conversion: all bulb warnings off (footwell module): indicators, brake lights, number plate lights, parking lights / angel eyes and fog lights. Low beams and xenons aren't touched.
+- Cluster extras (instrument cluster): digital speed, instant consumption, and dials always lit.
 
 A preset is only a list of existing options. It unlocks under the same rule as single options: Klemme15 must know exactly where each setting lives in *your* module, either from your NCS Expert data verified against NCS Expert's own reading, or from a community-verified map for your exact part number and coding index. It never writes fixed byte positions, because footwell modules differ between versions and a wrong bit can switch off lights or worse. Two options that would want different values for the same bits are refused before anything is written.
 

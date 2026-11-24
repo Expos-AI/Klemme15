@@ -8,9 +8,9 @@ klemme15 serve --port /dev/ttyUSB0 --vehicle E9x --model 335i
 
 ## Before you leave it plugged in
 
-- **The dashboard has no password.** Anyone on the same network can open it: use it only on a network you trust.
-- **Reading keeps the car awake.** While `serve` polls, the car's modules stay awake and draw current. Stop it (or unplug) when the car is parked, or the battery will run flat.
-- **MQTT passwords**: `--mqtt-pass` is part of the command line, which other users of the same computer can see in the process list. Give Klemme15 its own broker account that can only publish to its topic, and run it on a computer only you use.
+- The dashboard has no password. Anyone on the same network can open it: use it only on a network you trust.
+- Reading keeps the car awake. While `serve` polls, the car's modules stay awake and draw current. Stop it (or unplug) when the car is parked, or the battery will run flat.
+- MQTT passwords: `--mqtt-pass` is part of the command line, which other users of the same computer can see in the process list. Give Klemme15 its own broker account that can only publish to its topic, and run it on a computer only you use.
 - The phone dashboard needs iOS 14.5 or newer, or any current Android browser.
 
 ## HTTP

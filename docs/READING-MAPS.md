@@ -6,9 +6,9 @@ Status: the decoder is tested; reading a car with a map is **pending field valid
 
 ## Rules
 
-1. **Maps describe reads, nothing else.** Klemme15 refuses a map whose request isn't one of three read requests (`21`, `22`, `1A`). A map can't write to a module, drive a part, clear faults or reset anything.
-2. **Work it out on a car.** Change something you can measure another way (engine speed, a switch, a temperature), record it, and see which bytes follow. Every value needs an `observed` note saying how you established it. Never copy offsets, names or scaling from BMW software or files: a map made that way isn't yours to share, and it won't be accepted.
-3. **Say which car.** `confirmedOn` names the chassis, engine and year you saw it on. Other module versions may differ.
+1. Maps describe reads, nothing else. Klemme15 refuses a map whose request isn't one of three read requests (`21`, `22`, `1A`). A map can't write to a module, drive a part, clear faults or reset anything.
+2. Work it out on a car. Change something you can measure another way (engine speed, a switch, a temperature), record it, and see which bytes follow. Every value needs an `observed` note saying how you established it. Never copy offsets, names or scaling from BMW software or files: a map made that way isn't yours to share, and it won't be accepted.
+3. Say which car. `confirmedOn` names the chassis, engine and year you saw it on. Other module versions may differ.
 
 ## Making one
 

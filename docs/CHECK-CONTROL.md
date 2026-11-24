@@ -16,10 +16,10 @@ Reading these is read-only. Nothing is written to the car.
 
 **Reply layouts.** These were validated on an E90 (KOMBI, CAS3, MSV70):
 
-- **`$21 09`** answers `61 09` followed by 2 bytes per ID, high byte first, with no count byte. A count byte first is accepted too; Klemme15 tells the two apart by length.
-- **`$21 0F`** answers `61 0F` followed by 4 bytes per entry: the ID, then the mileage in 8 km steps, oldest first. The same message can appear many times.
-- **`$22 2000`** on the CAS answers `62 20 00`, a count byte, then 3 bytes per entry (code, status).
-- **MSV70 engine computer** declines `$22 2000` (`7F 22 12`), which is expected and ignored.
+- `$21 09` answers `61 09` followed by 2 bytes per ID, high byte first, with no count byte. A count byte first is accepted too; Klemme15 tells the two apart by length.
+- `$21 0F` answers `61 0F` followed by 4 bytes per entry: the ID, then the mileage in 8 km steps, oldest first. The same message can appear many times.
+- `$22 2000` on the CAS answers `62 20 00`, a count byte, then 3 bytes per entry (code, status).
+- MSV70 engine computer declines `$22 2000` (`7F 22 12`), which is expected and ignored.
 
 Replies that don't fit these layouts are dropped rather than guessed at. The raw bytes are always kept in the traffic log.
 
@@ -29,10 +29,10 @@ Replies that don't fit these layouts are dropped rather than guessed at. The raw
 
 The history (`$21 0F`) is turned into a timeline on the Faults page and in reports. Klemme15 groups warnings logged at the same mileage (the cluster stores mileage in 8 km steps), then recognises a few patterns:
 
-- **Battery ran low:** several unrelated systems at the same instant (DSC, brake assist, hill start, tyre monitor), or a battery message. That's one voltage dip, not separate faults.
-- **Flat tyre:** a puncture warning repeating over a short distance is one event, shown with how many times it was logged.
-- **Battery disconnected:** "set the clock" means the power had been off.
-- **Key battery low**, service due, lights out, and engine and brake messages each get their own label.
+- Battery ran low: several unrelated systems at the same instant (DSC, brake assist, hill start, tyre monitor), or a battery message. That's one voltage dip, not separate faults.
+- Flat tyre: a puncture warning repeating over a short distance is one event, shown with how many times it was logged.
+- Battery disconnected: "set the clock" means the power had been off.
+- Key battery low, service due, lights out, and engine and brake messages each get their own label.
 
 The explanations are deliberately "most likely". On a real E90, the cluster's history was mostly lost when the battery went completely flat, so the story is richest on a car whose battery has never died.
 
@@ -40,13 +40,13 @@ The explanations are deliberately "most likely". On a real E90, the cluster's hi
 
 `src/Klemme15.Data/db/check-control.json` holds Klemme15's own list: 396 IDs from 1 to 999, written in our own words from the public community lists, with the sources, a severity and the module that usually raises it. The public lists turn out to be copies of one list, so a meaning BMW's own table also confirms (checked locally, never shipped) is marked `high`; where the two differ, BMW's numbering wins and the entry says so (for example, 123 and 133 are the *left* rear light). IDs that appear in no public list, such as 34 and 77, still show by number, with BMW's wording if you have your BMW files.
 
-- **Confidence:**
+- Confidence:
   - `high`: the ID and its meaning agree across community lists and a local cross-check of BMW's cluster text table.
   - `medium`: from community lists only.
-- **Severity** follows the colour of the triangle:
+- Severity follows the colour of the triangle:
   - `Critical`: red, stop safely.
   - `Warning` and `Advisory`: yellow.
-- **Scope:** the IDs are for E8x, E9x, E6x and E7x clusters. Other models can number them differently.
+- Scope: the IDs are for E8x, E9x, E6x and E7x clusters. Other models can number them differently.
 
 BMW's own message texts are **never shipped**. If you point Klemme15 at your own ISTA, INPA or EDIABAS files, it reads the cluster's text table (`CCM_TEXT_TABELLE`, found in some cluster files) on your machine and shows BMW's wording next to Klemme15's.
 

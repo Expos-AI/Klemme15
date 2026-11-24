@@ -30,24 +30,24 @@ On a 2006 E90 325i the cluster reset brake fluid, spark plugs and the vehicle ch
 
 ## How a function runs
 
-1. **Availability.** Klemme15 finds the module the function talks to and its version (the name the module reports in EDIABAS mode, otherwise the most likely version from its part number and engine). A function is offered only for versions it lists.
-2. **Checks.** Klemme15 reads the battery voltage, engine speed and road speed, plus the ignition state where the cable reports it. Anything it can't measure, you confirm by hand. Failed checks block the function.
-3. **Confirmations.** Each function lists things only you can check ("the wheels point straight ahead"). Each one must be ticked.
-4. **Choices.** Some functions ask which item (oil, brake pads...), which cylinder, which brake circuit, or for an injector's printed code. Only the choices your module version supports are offered.
-5. **Run.** The function runs once:
-   - **With your BMW files** (EDIABAS mode): Klemme15 runs BMW's own jobs for your module version from your files, step by step, waits where a part has to run or a module has to learn, and reads back the result where BMW provides one.
-   - **Timed tests always end cleanly.** Where a part is switched on by Klemme15 (fan, pump, valve, a cylinder cut-out), the function either uses BMW's built-in timeout or runs BMW's stop job afterwards, including when a step fails or you press Stop.
-   - **Without BMW files**: only where the exact request is documented for those module versions (currently battery registration on most, not all, E90-family engine modules, KWP2000 StartRoutineByLocalIdentifier `31 30 00 10 00` with positive reply `71 30`, and Valvetronic end-stop learning on the N52's MSV70 and MSV80 engine modules only, as listed in [SERVICE-FUNCTIONS.md](SERVICE-FUNCTIONS.md)).
-6. **Result.** You see the module's answer. Every request and reply is in the traffic log.
+1. Availability. Klemme15 finds the module the function talks to and its version (the name the module reports in EDIABAS mode, otherwise the most likely version from its part number and engine). A function is offered only for versions it lists.
+2. Checks. Klemme15 reads the battery voltage, engine speed and road speed, plus the ignition state where the cable reports it. Anything it can't measure, you confirm by hand. Failed checks block the function.
+3. Confirmations. Each function lists things only you can check ("the wheels point straight ahead"). Each one must be ticked.
+4. Choices. Some functions ask which item (oil, brake pads...), which cylinder, which brake circuit, or for an injector's printed code. Only the choices your module version supports are offered.
+5. Run. The function runs once:
+   - With your BMW files (EDIABAS mode): Klemme15 runs BMW's own jobs for your module version from your files, step by step, waits where a part has to run or a module has to learn, and reads back the result where BMW provides one.
+   - Timed tests always end cleanly. Where a part is switched on by Klemme15 (fan, pump, valve, a cylinder cut-out), the function either uses BMW's built-in timeout or runs BMW's stop job afterwards, including when a step fails or you press Stop.
+   - Without BMW files: only where the exact request is documented for those module versions (currently battery registration on most, not all, E90-family engine modules, KWP2000 StartRoutineByLocalIdentifier `31 30 00 10 00` with positive reply `71 30`, and Valvetronic end-stop learning on the N52's MSV70 and MSV80 engine modules only, as listed in [SERVICE-FUNCTIONS.md](SERVICE-FUNCTIONS.md)).
+6. Result. You see the module's answer. Every request and reply is in the traffic log.
 
 ### When a module says no
 
 A module that won't run a job answers with a short code. Klemme15 says what it means in plain words, keeps the module's own answer underneath for whoever helps you, and, when the car's state is the likely reason, reads that module's stored faults and lists them under the result:
 
-- **Refused without a reason** (`GENERAL_REJECT`) or **conditions not correct** (`CONDITIONS_NOT_CORRECT`): the car isn't in the state the job needs (ignition, engine, speed, gear), or the module is in its fallback mode because of a fault. Go through *Before you start* again and deal with the listed faults before you retry. Running it over and over doesn't help.
-- **Not supported**: the module's software doesn't offer the request in this form; retrying won't change that.
-- **Busy**: wait a few seconds and try once more.
-- **Wants to be unlocked**: Klemme15 doesn't unlock modules, so the job can't run here.
+- Refused without a reason (`GENERAL_REJECT`) or **conditions not correct** (`CONDITIONS_NOT_CORRECT`): the car isn't in the state the job needs (ignition, engine, speed, gear), or the module is in its fallback mode because of a fault. Go through *Before you start* again and deal with the listed faults before you retry. Running it over and over doesn't help.
+- Not supported: the module's software doesn't offer the request in this form; retrying won't change that.
+- Busy: wait a few seconds and try once more.
+- Wants to be unlocked: Klemme15 doesn't unlock modules, so the job can't run here.
 
 When you press **Check the car** and the module had faults stored at the last quick test, Klemme15 says so before you run anything.
 

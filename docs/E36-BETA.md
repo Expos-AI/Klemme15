@@ -15,8 +15,8 @@ Thank you for helping bring Klemme15 to the E36. E36 support is in development a
 - A **1996 to 1999 E36** (sedan, coupe, convertible, 318ti or M3) with the OBD-II port under the dashboard, on the driver's side.
 - A **K+DCAN cable** (the USB cable BMW owners use with INPA). A cheap Bluetooth or Wi-Fi OBD reader won't work.
 - A Windows, Mac or Linux laptop.
-- **Optional:** a 20-pin round adapter for the plug under the bonnet, if you have one (step 7).
-- **Optional:** INPA/EDIABAS already installed on a Windows laptop (step 9).
+- Optional: a 20-pin round adapter for the plug under the bonnet, if you have one (step 7).
+- Optional: INPA/EDIABAS already installed on a Windows laptop (step 9).
 
 ## Before you start
 
@@ -40,9 +40,9 @@ Write down or screenshot what you see at each step. "It said X" is more useful t
 **5. Find other modules.** Still on the **Vehicle** page, press **Find other modules**. It asks every other address on the K-line, which takes a few minutes. **Screenshot the result**: the addresses and part numbers it lists tell us exactly where your car's modules are.
 
 **6. Engine.** With the **engine running** and warm (coolant above 70 °C):
-   - **Faults** page: note the engine fault codes it shows, and whether they match what your car has (a check engine light, a code you read elsewhere).
-   - **Live data**: pick rpm, coolant temperature, short-term and long-term fuel trims, and record a minute or two. Do the values look right? Does rpm match the tachometer?
-   - **Tests** → **Fuel trim test**: follow it to the end. Note the verdict.
+   - Faults page: note the engine fault codes it shows, and whether they match what your car has (a check engine light, a code you read elsewhere).
+   - Live data: pick rpm, coolant temperature, short-term and long-term fuel trims, and record a minute or two. Do the values look right? Does rpm match the tachometer?
+   - Tests → **Fuel trim test**: follow it to the end. Note the verdict.
 
 **7. The round plug under the bonnet (optional).** If you have a 20-pin adapter: ignition off, unplug the cable from the OBD-II port, plug the adapter into the round connector under the bonnet, ignition on, then repeat steps 3 to 5. Some E36 modules may only answer there. Note which answered this time.
 

@@ -18,15 +18,15 @@ Klemme15 combines four sources, and tells you on every fault which one it used.
 
 ## How a code is described
 
-1. **Find the module version.** In order of trust:
+1. Find the module version. In order of trust:
    - EDIABAS mode: the module names its own variant (e.g. `MSV70`).
    - The module's BMW part number, matched against the part numbers bmw-unified-db lists for each variant.
    - Engine computers: the engine code of the car you picked (N52 → `MSV70`; N54 → `MSD80`).
    - Otherwise the most common variant for that car, marked *"most likely"*, with the meanings on the other
      variants listed under the fault so nothing is hidden.
-2. **Pick the headline text.** BMW's own English → Klemme15's researched meaning → BMW's German run through
+2. Pick the headline text. BMW's own English → Klemme15's researched meaning → BMW's German run through
    Klemme15's glossary (`db/glossary-de-en.txt`, marked *approximate*) → BMW's German as is (with a Translate button).
-3. **Always attach** BMW's original wording, the module version, our tip on what to check, and source links.
+3. Always attach BMW's original wording, the module version, our tip on what to check, and source links.
 
 You can try this without a car:
 
@@ -74,8 +74,8 @@ In EDIABAS mode, a module whose file isn't in your folder is reported as *"Your 
 
 ## Help make it better
 
-- **Real-car reports:** a quick test report plus the traffic log (Log page → **Save log...**) lets us confirm
+- Real-car reports: a quick test report plus the traffic log (Log page → **Save log...**) lets us confirm
   module versions and part numbers.
-- **Fixes that worked:** add the code, symptoms and what fixed it to `bmw-codes.json` in your own words with a source
+- Fixes that worked: add the code, symptoms and what fixed it to `bmw-codes.json` in your own words with a source
   (see [CONTRIBUTING-DATA.md](CONTRIBUTING-DATA.md)). Owners' tips show alongside BMW's text.
-- **Glossary:** if a translated text reads badly, add the German word or compound to `db/glossary-de-en.txt`.
+- Glossary: if a translated text reads badly, add the German word or compound to `db/glossary-de-en.txt`.

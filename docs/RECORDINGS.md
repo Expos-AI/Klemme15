@@ -6,9 +6,9 @@ Status: validated with the demo cars. **Pending field validation** on a real car
 
 ## What it's for
 
-- **Bug reports.** Instead of describing what happened, send the recording privately to whoever is helping you. They open it and see the same answers Klemme15 saw, in the same order and with the same timing. Don't attach one to a public GitHub issue or forum post: it contains your VIN (see [Privacy](#privacy)).
-- **Looking again later.** Record at the car, then go through the faults, module details and readings at a desk.
-- **Working out values.** A recording is the raw material for a [community reading map](READING-MAPS.md).
+- Bug reports. Instead of describing what happened, send the recording privately to whoever is helping you. They open it and see the same answers Klemme15 saw, in the same order and with the same timing. Don't attach one to a public GitHub issue or forum post: it contains your VIN (see [Privacy](#privacy)).
+- Looking again later. Record at the car, then go through the faults, module details and readings at a desk.
+- Working out values. A recording is the raw material for a [community reading map](READING-MAPS.md).
 
 ## What it is not
 
@@ -16,8 +16,8 @@ It is not a recording of the car's internal networks. A K+DCAN cable on the diag
 
 ## Recording
 
-- **In the app:** in the Garage, under the cable settings, tick **Record my sessions, to play back later without the car**. Every connection to a real car is then saved in `recordings/sessions` under Klemme15's data folder. The newest 20 are kept.
-- **Command line:** add `--record drive.k15log` to any command that talks to the car.
+- In the app: in the Garage, under the cable settings, tick **Record my sessions, to play back later without the car**. Every connection to a real car is then saved in `recordings/sessions` under Klemme15's data folder. The newest 20 are kept.
+- Command line: add `--record drive.k15log` to any command that talks to the car.
 
 Recording isn't available in EDIABAS mode yet.
 
@@ -25,8 +25,8 @@ Recording doesn't slow the car's answers down: the cable code only copies each p
 
 ## Playing back
 
-- **In the app:** in the Garage, **Play back a recording...** and pick the file. The header says "Recording (playback)".
-- **Command line:** `klemme15 scan --replay drive.k15log`, or any other command with `--replay`. `klemme15 recording drive.k15log` shows what a file holds, and `--text` lists every request and reply.
+- In the app: in the Garage, **Play back a recording...** and pick the file. The header says "Recording (playback)".
+- Command line: `klemme15 scan --replay drive.k15log`, or any other command with `--replay`. `klemme15 recording drive.k15log` shows what a file holds, and `--text` lists every request and reply.
 
 How playback answers:
 

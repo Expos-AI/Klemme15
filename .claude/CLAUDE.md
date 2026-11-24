@@ -11,6 +11,10 @@ Update everything a visitor or user reads, in the same push, so the project alwa
 - The full checklist is in [docs/RELEASING.md](../docs/RELEASING.md). The docs tests check versions, counts and links; the rest is on you.
 - Write for owners: what they can do now, in plain words. No claims that aren't true or confirmed.
 
+## How it writes and looks
+
+Klemme15 must never look or read like generated content. The rules are in [docs/RELEASING.md](../docs/RELEASING.md#how-klemme15-writes): plain sentences, no bold lead-ins on every bullet, no middle-dot strings, no all-caps labels, no hype words; in the app and on the website, 3 px corners, no pills, glows or gradients, and notes as a coloured rule instead of a coloured box.
+
 ## Lines never crossed
 
 - Stay 100 % legal. No flashing, no bootloader access, no immobiliser, key or ISN work, no CAS coding, never change mileage.

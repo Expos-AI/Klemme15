@@ -11,12 +11,12 @@ Field validation on owners' cars is the most valuable contribution right now. Th
 
 ## Share what you know
 
-- **Coding maps**: after verifying or learning an option on the Coding page, press **Share this map**. It opens a pre-filled issue, so owners of the identical module can use it too.
-- **Checks and connector notes**: how you tested a part or where you found a connector: [share a check](https://github.com/Expos-AI/Klemme15/issues/new?template=pin-note.yml).
-- **A healthy baseline**: car running well? On the Analyse page, **Share as a healthy baseline** prepares a log of a warm drive and opens the form; a workflow checks it and builds your engine's baseline ([how](docs/BASELINES.md#share-yours)).
-- **Reading maps**: worked out on your own car where a module keeps a value? A small JSON map lets Klemme15 show it without BMW files ([how](docs/READING-MAPS.md)). Read requests only, and never copied from BMW software or files.
-- **Dash messages**: if Klemme15 shows a dash message as unknown, tell us the text your dash showed.
-- **Fault meanings**: see [docs/CONTRIBUTING-DATA.md](docs/CONTRIBUTING-DATA.md). Never paste text from BMW software or documents.
+- Coding maps: after verifying or learning an option on the Coding page, press **Share this map**. It opens a pre-filled issue, so owners of the identical module can use it too.
+- Checks and connector notes: how you tested a part or where you found a connector: [share a check](https://github.com/Expos-AI/Klemme15/issues/new?template=pin-note.yml).
+- A healthy baseline: car running well? On the Analyse page, **Share as a healthy baseline** prepares a log of a warm drive and opens the form; a workflow checks it and builds your engine's baseline ([how](docs/BASELINES.md#share-yours)).
+- Reading maps: worked out on your own car where a module keeps a value? A small JSON map lets Klemme15 show it without BMW files ([how](docs/READING-MAPS.md)). Read requests only, and never copied from BMW software or files.
+- Dash messages: if Klemme15 shows a dash message as unknown, tell us the text your dash showed.
+- Fault meanings: see [docs/CONTRIBUTING-DATA.md](docs/CONTRIBUTING-DATA.md). Never paste text from BMW software or documents.
 
 ## Code
 

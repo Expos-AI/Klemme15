@@ -4,14 +4,14 @@ Klemme15 talks to the computers in your car. Most of what it does only reads, bu
 
 ## In short
 
-- **Klemme15 is free and comes with no warranty.** You use it at your own risk, and you're responsible for your car.
-- **Work safely:** parked, handbrake on, a battery charger for anything that writes, and never operate the laptop while driving.
-- **Functions marked experimental** are pending field validation. They're off until you switch them on.
-- **Klemme15 never** flashes modules, touches keys or the immobiliser, or changes mileage.
-- **No BMW software is included.** If you use your own BMW files, having the right to use them is up to you.
-- **Fault meanings are research, not a verdict.** Brakes, airbags and steering belong with a qualified mechanic.
-- **Nothing about your car leaves your computer** unless you choose to share it.
-- **Klemme15 isn't affiliated with BMW AG.** It's an independent project by one owner, built with help from AI coding tools, and its whole source is public.
+- Klemme15 is free and comes with no warranty. You use it at your own risk, and you're responsible for your car.
+- Work safely: parked, handbrake on, a battery charger for anything that writes, and never operate the laptop while driving.
+- Functions marked experimental are pending field validation. They're off until you switch them on.
+- Klemme15 never flashes modules, touches keys or the immobiliser, or changes mileage.
+- No BMW software is included. If you use your own BMW files, having the right to use them is up to you.
+- Fault meanings are research, not a verdict. Brakes, airbags and steering belong with a qualified mechanic.
+- Nothing about your car leaves your computer unless you choose to share it.
+- Klemme15 isn't affiliated with BMW AG. It's an independent project by one owner, built with help from AI coding tools, and its whole source is public.
 
 ## No warranty: you use it at your own risk
 
@@ -23,12 +23,12 @@ This page doesn't take away any right the licence gives you, and it doesn't add 
 
 ## Working on a car safely
 
-- **Park safely.** Level ground, automatic in P or manual in neutral, handbrake on. For tests that run the engine, keep hands, hair, clothes and cables away from the fan and belts, and run the engine only outside or with good ventilation, never in a closed garage.
-- **Keep the voltage up for anything that writes.** Coding, restoring coding, clearing faults and most service functions write to a module. A voltage dip during a write can leave a module that doesn't work. Use a proper battery charger or power supply (not a jump pack) for those, and don't unplug the cable, close the laptop or switch off the ignition until Klemme15 says it's done. Klemme15 checks the voltage first and refuses below its limits (nothing is written to any module below 10.5 V; coding needs 12.5 V, the FRM3 footwell module 13.0 V), but it can't see a battery that's about to give up.
-- **The footwell module (FRM3)** on E-series cars is known to corrupt itself if the voltage drops while it writes. Klemme15 applies stricter voltage rules to it, and to any footwell module it can't identify.
-- **Never operate the laptop while driving.** For the Ghost Hunter and live recordings, start them while parked, put the laptop somewhere it can't slide or fly around, and stop when you've parked again. Better still, have a passenger handle it. Obey the traffic laws: no test is worth an accident.
-- **Airbags, brakes and steering are safety systems.** Reading their faults is fine. Repairing them is a job for someone trained: an airbag can fire during work on its wiring, and mistakes on brakes or steering can kill.
-- **Functions that switch a part on** (pumps, fans, valves, the water pump sweep) run it briefly and switch it off again. If something sounds or smells wrong, press Stop and switch the ignition off.
+- Park safely. Level ground, automatic in P or manual in neutral, handbrake on. For tests that run the engine, keep hands, hair, clothes and cables away from the fan and belts, and run the engine only outside or with good ventilation, never in a closed garage.
+- Keep the voltage up for anything that writes. Coding, restoring coding, clearing faults and most service functions write to a module. A voltage dip during a write can leave a module that doesn't work. Use a proper battery charger or power supply (not a jump pack) for those, and don't unplug the cable, close the laptop or switch off the ignition until Klemme15 says it's done. Klemme15 checks the voltage first and refuses below its limits (nothing is written to any module below 10.5 V; coding needs 12.5 V, the FRM3 footwell module 13.0 V), but it can't see a battery that's about to give up.
+- The footwell module (FRM3) on E-series cars is known to corrupt itself if the voltage drops while it writes. Klemme15 applies stricter voltage rules to it, and to any footwell module it can't identify.
+- Never operate the laptop while driving. For the Ghost Hunter and live recordings, start them while parked, put the laptop somewhere it can't slide or fly around, and stop when you've parked again. Better still, have a passenger handle it. Obey the traffic laws: no test is worth an accident.
+- Airbags, brakes and steering are safety systems. Reading their faults is fine. Repairing them is a job for someone trained: an airbag can fire during work on its wiring, and mistakes on brakes or steering can kill.
+- Functions that switch a part on (pumps, fans, valves, the water pump sweep) run it briefly and switch it off again. If something sounds or smells wrong, press Stop and switch the ignition off.
 
 ## Experimental functions
 
@@ -36,30 +36,30 @@ A function is **experimental** until it has been validated on a vehicle with Kle
 
 ## What Klemme15 never does
 
-- **No flashing:** it never rewrites a module's software.
-- **No immobiliser or key work:** keys, the immobiliser and its secret key (ISN) are never read or changed. The one write to the key module (CAS) is clearing the steering lock's event counters, a documented service job.
-- **No mileage changes:** recorded mileage is read, never written. The used-car mileage check reads the figures the modules remember (the engine computer's and cluster's own counts, and the mileage each module was last programmed at) with read-only jobs, and compares them; a professional rollback that also resets those modules can still pass it.
-- **Typed-in jobs are checked too.** The Expert page and the command line run jobs from your own BMW files, and Klemme15 refuses any that would flash a module, read or change keys or the immobiliser, change mileage, or write to the key module (apart from clearing the steering lock's counters).
-- **No help defeating emissions or safety equipment.** Keeping your car legal and roadworthy where you drive it is your responsibility. Coding presets change comfort, cluster and lighting settings (such as the bulb warnings after an LED conversion); they don't touch the engine, emissions, airbag, brake or stability systems. Make sure any lights you fit are legal where you drive, and that they work: with the bulb warning off, the car won't tell you when one fails.
+- No flashing: it never rewrites a module's software.
+- No immobiliser or key work: keys, the immobiliser and its secret key (ISN) are never read or changed. The one write to the key module (CAS) is clearing the steering lock's event counters, a documented service job.
+- No mileage changes: recorded mileage is read, never written. The used-car mileage check reads the figures the modules remember (the engine computer's and cluster's own counts, and the mileage each module was last programmed at) with read-only jobs, and compares them; a professional rollback that also resets those modules can still pass it.
+- Typed-in jobs are checked too. The Expert page and the command line run jobs from your own BMW files, and Klemme15 refuses any that would flash a module, read or change keys or the immobiliser, change mileage, or write to the key module (apart from clearing the steering lock's counters).
+- No help defeating emissions or safety equipment. Keeping your car legal and roadworthy where you drive it is your responsibility. Coding presets change comfort, cluster and lighting settings (such as the bulb warnings after an LED conversion); they don't touch the engine, emissions, airbag, brake or stability systems. Make sure any lights you fit are legal where you drive, and that they work: with the bulb warning off, the car won't tell you when one fails.
 
 ## Copyright and BMW's software
 
 Klemme15 is written from scratch and contains **no BMW software and no BMW data files**. It doesn't decrypt or unpack BMW's programs, and it doesn't link to unofficial copies of them.
 
-- **Your own BMW files.** If you point Klemme15 at an ISTA, INPA, EDIABAS or NCS Expert installation, it reads those files on your computer and never copies or uploads them. Whether you have the right to use them is between you and BMW. Workshops can get BMW's software legally from BMW's aftersales portal.
-- **The fault database.** The optional download of BMW's fault texts and engine values comes from [bmw-unified-db](https://github.com/gediz/bmw-unified-db), an independent community project. That project describes this data as derived from BMW's own and copyrighted by BMW, published for interoperability and right to repair. Klemme15 doesn't include or host it: it fetches it from that project only when you ask, after showing you this notice once, and checks its checksum. Whether you may use it where you live, and on what terms, is your responsibility. Klemme15 works without it.
-- **Names and numbers.** To talk to a module, Klemme15 has to use that module's address and the names of its jobs and values. Those are facts about how the car works. Klemme15 lists only the ones it uses, looked up in public documentation and in bmw-unified-db, and it doesn't copy BMW's texts or tables. An automatic check confirms on every change that the repository contains no BMW program or data files.
-- **EdiabasLib.** EDIABAS mode uses [EdiabasLib](https://github.com/uholeschak/ediabaslib), an open-source re-implementation of EDIABAS, under its own licence.
-- **Fonts and libraries.** The Barlow fonts are used under the SIL Open Font License; the user interface is built with Avalonia (MIT licence). Each component keeps its own licence.
+- Your own BMW files. If you point Klemme15 at an ISTA, INPA, EDIABAS or NCS Expert installation, it reads those files on your computer and never copies or uploads them. Whether you have the right to use them is between you and BMW. Workshops can get BMW's software legally from BMW's aftersales portal.
+- The fault database. The optional download of BMW's fault texts and engine values comes from [bmw-unified-db](https://github.com/gediz/bmw-unified-db), an independent community project. That project describes this data as derived from BMW's own and copyrighted by BMW, published for interoperability and right to repair. Klemme15 doesn't include or host it: it fetches it from that project only when you ask, after showing you this notice once, and checks its checksum. Whether you may use it where you live, and on what terms, is your responsibility. Klemme15 works without it.
+- Names and numbers. To talk to a module, Klemme15 has to use that module's address and the names of its jobs and values. Those are facts about how the car works. Klemme15 lists only the ones it uses, looked up in public documentation and in bmw-unified-db, and it doesn't copy BMW's texts or tables. An automatic check confirms on every change that the repository contains no BMW program or data files.
+- EdiabasLib. EDIABAS mode uses [EdiabasLib](https://github.com/uholeschak/ediabaslib), an open-source re-implementation of EDIABAS, under its own licence.
+- Fonts and libraries. The Barlow fonts are used under the SIL Open Font License; the user interface is built with Avalonia (MIT licence). Each component keeps its own licence.
 
 ## The law, briefly
 
 This is a plain summary of the rules Klemme15 is built around, for the United States, as of late 2026. It isn't legal advice, laws differ between countries and states, and they change: check the rules where you live.
 
-- **Repair and diagnosis.** The U.S. Copyright Office's exemption under section 1201 of the DMCA, renewed in [October 2024](https://www.federalregister.gov/documents/2024/10/28/2024-24563/exemption-to-prohibition-on-circumvention-of-copyright-protection-systems-for-access-control), lets vehicle owners, and people acting for them, get around access controls on a vehicle's software to diagnose, repair or lawfully modify it. Klemme15 doesn't need that exemption for what it does: it talks to the car over its documented diagnostic protocols, and it never decrypts or unlocks BMW's programs.
-- **Emissions.** The Clean Air Act forbids removing or disabling a vehicle's emissions controls, and the EPA still enforces it ([EPA tampering policy](https://www.epa.gov/enforcement/epa-tampering-policy-epa-enforcement-policy-vehicle-and-engine-tampering-and)). Klemme15 has no function that disables, deletes or hides emissions equipment.
-- **Mileage.** Federal law makes it illegal to change a vehicle's recorded mileage ([49 U.S.C. § 32703](https://www.law.cornell.edu/uscode/text/49/32703)). Klemme15 only reads mileage.
-- **Trademarks.** Naming BMW, ISTA or INPA to say what Klemme15 works with is allowed as long as it's accurate and doesn't suggest BMW endorses it ([nominative fair use](https://www.inta.org/fact-sheets/fair-use-of-trademarks-intended-for-a-non-legal-audience/)). That's why Klemme15 uses BMW's names only in plain text, never its logos, and says everywhere that it isn't affiliated with BMW.
+- Repair and diagnosis. The U.S. Copyright Office's exemption under section 1201 of the DMCA, renewed in [October 2024](https://www.federalregister.gov/documents/2024/10/28/2024-24563/exemption-to-prohibition-on-circumvention-of-copyright-protection-systems-for-access-control), lets vehicle owners, and people acting for them, get around access controls on a vehicle's software to diagnose, repair or lawfully modify it. Klemme15 doesn't need that exemption for what it does: it talks to the car over its documented diagnostic protocols, and it never decrypts or unlocks BMW's programs.
+- Emissions. The Clean Air Act forbids removing or disabling a vehicle's emissions controls, and the EPA still enforces it ([EPA tampering policy](https://www.epa.gov/enforcement/epa-tampering-policy-epa-enforcement-policy-vehicle-and-engine-tampering-and)). Klemme15 has no function that disables, deletes or hides emissions equipment.
+- Mileage. Federal law makes it illegal to change a vehicle's recorded mileage ([49 U.S.C. § 32703](https://www.law.cornell.edu/uscode/text/49/32703)). Klemme15 only reads mileage.
+- Trademarks. Naming BMW, ISTA or INPA to say what Klemme15 works with is allowed as long as it's accurate and doesn't suggest BMW endorses it ([nominative fair use](https://www.inta.org/fact-sheets/fair-use-of-trademarks-intended-for-a-non-legal-audience/)). That's why Klemme15 uses BMW's names only in plain text, never its logos, and says everywhere that it isn't affiliated with BMW.
 
 ## Trademarks
 
