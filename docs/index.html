@@ -673,31 +673,36 @@
         .catch(function () {});
     })();
 
-    // The one moment of motion: the key turns, terminal 15 goes live, the modules wake and Klemme15 is ready.
-    // Played once when the diagram is on screen; with reduced motion it simply shows the result. Click to replay.
+    // The one moment of motion, on a loop: the key turns, terminal 15 goes live, the modules wake and Klemme15 is
+    // ready; a few seconds later the key goes off and it starts again. It only runs while the diagram is on screen,
+    // and with reduced motion it simply shows the result.
     (function () {
       var d = document.getElementById("diagram");
       if (!d) return;
       var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      var lamps = d.querySelectorAll(".lamp");
-      var turn = function () {
-        d.classList.remove("on"); d.classList.add("off");
-        lamps.forEach(function (l) { l.style.transitionDelay = "0s"; });
-        requestAnimationFrame(function () { requestAnimationFrame(function () {
-          d.classList.remove("off");
-          setTimeout(function () {
-            lamps.forEach(function (l, i) { l.style.transitionDelay = (0.25 + i * 0.09) + "s"; });
-            d.classList.add("on");
-          }, 600);
-        }); });
-      };
       if (still) { d.classList.remove("off"); d.classList.add("on"); return; }
-      var played = false;
-      var go = function () { if (!played) { played = true; setTimeout(turn, 350); } };
+      var lamps = d.querySelectorAll(".lamp");
+      var timers = [], visible = false;
+      var later = function (fn, ms) { timers.push(setTimeout(fn, ms)); };
+      var stop = function () { timers.forEach(clearTimeout); timers = []; };
+      var cycle = function () {
+        // Key off: everything goes dark at once.
+        lamps.forEach(function (l) { l.style.transitionDelay = "0s"; });
+        d.classList.remove("on"); d.classList.add("off");
+        // Key on: the switch closes, then the wire, the modules one by one, and Ready.
+        later(function () { d.classList.remove("off"); }, 1200);
+        later(function () {
+          lamps.forEach(function (l, i) { l.style.transitionDelay = (0.25 + i * 0.09) + "s"; });
+          d.classList.add("on");
+        }, 1800);
+        later(cycle, 6500);
+      };
+      var start = function () { if (!visible) { visible = true; cycle(); } };
+      var pause = function () { visible = false; stop(); };
       if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (e, o) { if (e[0].isIntersecting) { o.disconnect(); go(); } }, { threshold: 0.5 }).observe(d);
-      } else go();
-      d.addEventListener("click", function () { if (played) turn(); });
+        new IntersectionObserver(function (e) { e[0].isIntersecting ? start() : pause(); }, { threshold: 0.4 }).observe(d);
+      } else start();
+      document.addEventListener("visibilitychange", function () { if (document.hidden) pause(); });
     })();
 
     // Clips play while they're on screen and pause when they leave; with reduced motion they wait for a click.
