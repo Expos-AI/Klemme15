@@ -76,28 +76,37 @@
     .hero h1 { max-width: 15ch; }
     .hero .lede { margin-top: 22px; }
     .hero .diagram { margin-top: 56px; }
-    .diagram { margin: 44px 0 8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 22px 0 14px; }
+    .diagram { margin: 44px 0 8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 34px 0 18px; }
+    .diagram .wide { max-width: 1100px; margin: 0 auto; }
     .diagram svg { width: 100%; height: auto; }
     .diagram .tall { display: none; max-width: 360px; }
     @media (max-width: 700px) { .diagram .wide { display: none; } .diagram .tall { display: block; } }
     .diagram figcaption { font-size: 15px; color: var(--ink-soft); max-width: 72ch; margin-top: 10px; }
-    .diagram .line { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-    .diagram .wire15 { fill: none; stroke: var(--rule); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; transition: stroke .5s ease; }
+    .diagram .line { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; }
+    .diagram .wire15 { fill: none; stroke: var(--rule); stroke-width: 5; transition: stroke .5s ease; }
     .diagram .box { fill: var(--paper); stroke: var(--ink); stroke-width: 2.4; }
-    .diagram .lamp { fill: var(--paper); stroke: var(--ink); stroke-width: 2.4; transition: fill .3s ease; }
-    .diagram text { font-family: var(--wide); fill: var(--ink); }
-    .diagram .t { font-size: 15px; }
-    .diagram .term { font-size: 26px; font-weight: 800; font-stretch: 125%; }
-    .diagram .term15 { fill: var(--wire15); }
+    .diagram .lamp { fill: var(--paper); stroke: var(--ink); stroke-width: 2; transition: fill .3s ease; }
+    .diagram text { font-family: var(--wide); font-stretch: 100%; fill: var(--ink); }
+    .diagram .t { font-size: 16px; font-weight: 600; }
+    .diagram .t.soft { font-weight: 400; fill: var(--ink-soft); }
+    .diagram .tag { fill: var(--paper); stroke-width: 2; }
+    .diagram .tag30 { stroke: var(--wire30); }
+    .diagram .tag15 { stroke: var(--rule); transition: stroke .5s ease; }
+    .diagram.on .tag15 { stroke: var(--wire15); }
+    .diagram .tagt { font-size: 16px; font-weight: 700; }
     .diagram .term30 { fill: var(--wire30); }
-    .diagram .lever { transform-box: fill-box; transform-origin: 0% 50%; transition: transform .6s cubic-bezier(.3, .8, .3, 1); }
-    .diagram.off .lever { transform: rotate(-24deg); }
-    .diagram .lever-down { transform-origin: 50% 0%; }
-    .diagram.off .lever-down { transform: rotate(24deg); }
+    .diagram .term15 { fill: var(--ink-soft); transition: fill .5s ease; }
+    .diagram.on .term15 { fill: var(--wire15); }
+    .diagram .lever { transform-box: view-box; transform-origin: 304px 80px; transition: transform .6s cubic-bezier(.3, .8, .3, 1); }
+    .diagram.off .lever { transform: rotate(-28deg); }
+    .diagram .lever-down { transform-origin: 70px 160px; }
+    .diagram.off .lever-down { transform: rotate(28deg); }
     .diagram.on .wire15 { stroke: var(--wire15); }
     .diagram.on .lamp { fill: var(--wire15); }
-    .diagram .ready { font-weight: 700; fill: var(--wire15); opacity: 0; transition: opacity .4s ease .5s; }
+    .diagram .waiting { fill: var(--ink-soft); font-weight: 400; transition: opacity .3s ease; }
+    .diagram .ready { fill: var(--wire15); font-weight: 700; opacity: 0; transition: opacity .4s ease .6s; }
     .diagram.on .ready { opacity: 1; }
+    .diagram.on .waiting { opacity: 0; transition-delay: .6s; }
 
     /* Download */
     .get-it { display: grid; gap: 14px; margin-top: 34px; }
@@ -255,64 +264,66 @@
         </div>
 
         <figure class="diagram off" id="diagram">
-          <svg class="wide" viewBox="0 0 1100 230" role="img" aria-labelledby="diagram-title">
+          <svg class="wide" viewBox="0 0 1100 190" role="img" aria-labelledby="diagram-title">
             <title id="diagram-title">Terminal 30, the battery, feeds the ignition switch. With the key on, terminal 15 goes live, the car's modules wake up, and Klemme15 can talk to them through the cable.</title>
-            <!-- Battery, terminal 30 -->
-            <rect class="box" x="20" y="58" width="120" height="74" rx="4"/>
-            <line class="line" x1="56" y1="78" x2="56" y2="112"/><line class="line" x1="72" y1="86" x2="72" y2="104"/>
-            <line class="line" x1="88" y1="78" x2="88" y2="112"/><line class="line" x1="104" y1="86" x2="104" y2="104"/>
-            <text class="term term30" x="20" y="40">30</text>
-            <text class="t" x="20" y="160">Battery, always live</text>
-            <!-- Ignition switch -->
-            <line class="line" x1="140" y1="95" x2="250" y2="95"/>
-            <circle cx="254" cy="95" r="6" fill="var(--ink)"/>
-            <line class="line lever" x1="254" y1="95" x2="326" y2="95"/>
-            <circle cx="330" cy="95" r="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.4"/>
-            <text class="t" x="232" y="160">Ignition switch</text>
-            <!-- Terminal 15 -->
-            <path class="wire15" d="M336 95 H560"/>
-            <text class="term term15" x="414" y="74">15</text>
-            <text class="t" x="374" y="128">Live with the key on</text>
+            <!-- One wire at y 80; every part the same height; every name on one line underneath. -->
+            <line class="line" x1="150" y1="80" x2="304" y2="80"/>
+            <path class="wire15" d="M356 80 H520"/>
+            <path class="wire15" d="M760 80 H920"/>
+            <!-- Battery -->
+            <rect class="box" x="30" y="45" width="120" height="70" rx="4"/>
+            <line class="line" x1="76" y1="62" x2="76" y2="98"/><line class="line" x1="86" y1="70" x2="86" y2="90"/>
+            <line class="line" x1="98" y1="62" x2="98" y2="98"/><line class="line" x1="108" y1="70" x2="108" y2="90"/>
+            <!-- Ignition switch: the lever closes onto the second contact -->
+            <circle cx="304" cy="80" r="5.5" fill="var(--ink)"/>
+            <line class="line lever" x1="304" y1="80" x2="351" y2="80"/>
+            <circle cx="356" cy="80" r="5.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.4"/>
             <!-- Modules -->
-            <rect class="box" x="560" y="40" width="210" height="110" rx="4"/>
-            <circle class="lamp" cx="598" cy="72" r="9"/><circle class="lamp" cx="634" cy="72" r="9"/><circle class="lamp" cx="670" cy="72" r="9"/>
-            <circle class="lamp" cx="706" cy="72" r="9"/><circle class="lamp" cx="742" cy="72" r="9"/>
-            <text class="t" x="584" y="112">Engine, DSC, cluster,</text>
-            <text class="t" x="584" y="134">every other module</text>
-            <!-- Cable and laptop -->
-            <path class="wire15" d="M770 95 H900"/>
-            <text class="t" x="784" y="128">K+DCAN cable</text>
-            <rect class="box" x="900" y="44" width="170" height="104" rx="4"/>
-            <line class="line" x1="884" y1="160" x2="1086" y2="160"/>
-            <text class="t" x="918" y="84">Your laptop</text>
-            <text class="t ready" x="918" y="120">Klemme15 ready</text>
+            <rect class="box" x="520" y="45" width="240" height="70" rx="4"/>
+            <circle class="lamp" cx="572" cy="80" r="10"/><circle class="lamp" cx="606" cy="80" r="10"/><circle class="lamp" cx="640" cy="80" r="10"/>
+            <circle class="lamp" cx="674" cy="80" r="10"/><circle class="lamp" cx="708" cy="80" r="10"/>
+            <!-- Laptop -->
+            <rect class="box" x="920" y="45" width="150" height="70" rx="4"/>
+            <text class="t waiting" x="995" y="85" text-anchor="middle">Waiting</text>
+            <text class="t ready" x="995" y="85" text-anchor="middle">Ready</text>
+            <!-- Wire tags, as a diagram labels its wires -->
+            <rect class="tag tag30" x="207" y="66" width="40" height="28" rx="3"/><text class="tagt term30" x="227" y="85" text-anchor="middle">30</text>
+            <rect class="tag tag15" x="418" y="66" width="40" height="28" rx="3"/><text class="tagt term15" x="438" y="85" text-anchor="middle">15</text>
+            <!-- Names -->
+            <text class="t" x="90" y="148" text-anchor="middle">Battery</text>
+            <text class="t soft" x="90" y="170" text-anchor="middle">always live</text>
+            <text class="t" x="330" y="148" text-anchor="middle">Ignition switch</text>
+            <text class="t" x="640" y="148" text-anchor="middle">The car's modules</text>
+            <text class="t soft" x="640" y="170" text-anchor="middle">live with the key on</text>
+            <text class="t" x="840" y="148" text-anchor="middle">K+DCAN cable</text>
+            <text class="t" x="995" y="148" text-anchor="middle">Klemme15</text>
+            <text class="t soft" x="995" y="170" text-anchor="middle">on your laptop</text>
           </svg>
-          <svg class="tall" viewBox="0 0 340 560" role="img" aria-labelledby="diagram-title-tall">
+          <svg class="tall" viewBox="0 0 340 520" role="img" aria-labelledby="diagram-title-tall">
             <title id="diagram-title-tall">Terminal 30, the battery, feeds the ignition switch. With the key on, terminal 15 goes live, the car's modules wake up, and Klemme15 can talk to them through the cable.</title>
-            <text class="term term30" x="20" y="34">30</text>
-            <rect class="box" x="20" y="46" width="110" height="64" rx="4"/>
-            <line class="line" x1="52" y1="62" x2="52" y2="94"/><line class="line" x1="67" y1="70" x2="67" y2="86"/>
-            <line class="line" x1="82" y1="62" x2="82" y2="94"/><line class="line" x1="97" y1="70" x2="97" y2="86"/>
-            <text class="t" x="148" y="84">Battery, always live</text>
-            <line class="line" x1="75" y1="110" x2="75" y2="150"/>
-            <circle cx="75" cy="154" r="6" fill="var(--ink)"/>
-            <line class="line lever lever-down" x1="75" y1="154" x2="75" y2="214"/>
-            <circle cx="75" cy="218" r="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.4"/>
-            <text class="t" x="148" y="190">Ignition switch</text>
-            <path class="wire15" d="M75 224 V300"/>
-            <text class="term term15" x="96" y="270">15</text>
-            <text class="t" x="148" y="270">Live with the key on</text>
-            <rect class="box" x="20" y="300" width="300" height="92" rx="4"/>
-            <circle class="lamp" cx="52" cy="328" r="9"/><circle class="lamp" cx="86" cy="328" r="9"/><circle class="lamp" cx="120" cy="328" r="9"/>
-            <circle class="lamp" cx="154" cy="328" r="9"/><circle class="lamp" cx="188" cy="328" r="9"/>
-            <text class="t" x="38" y="362">Engine, DSC, cluster,</text>
-            <text class="t" x="38" y="382">every other module</text>
-            <path class="wire15" d="M75 392 V452"/>
-            <text class="t" x="96" y="428">K+DCAN cable</text>
-            <rect class="box" x="20" y="452" width="300" height="72" rx="4"/>
-            <line class="line" x1="8" y1="536" x2="332" y2="536"/>
-            <text class="t" x="38" y="482">Your laptop</text>
-            <text class="t ready" x="38" y="508">Klemme15 ready</text>
+            <!-- One wire at x 70; every part the same width; names to the right. -->
+            <line class="line" x1="70" y1="90" x2="70" y2="160"/>
+            <path class="wire15" d="M70 206 V290"/>
+            <path class="wire15" d="M70 360 V430"/>
+            <rect class="box" x="20" y="30" width="100" height="60" rx="4"/>
+            <line class="line" x1="50" y1="46" x2="50" y2="74"/><line class="line" x1="60" y1="52" x2="60" y2="68"/>
+            <line class="line" x1="76" y1="46" x2="76" y2="74"/><line class="line" x1="86" y1="52" x2="86" y2="68"/>
+            <circle cx="70" cy="160" r="5.5" fill="var(--ink)"/>
+            <line class="line lever lever-down" x1="70" y1="160" x2="70" y2="201"/>
+            <circle cx="70" cy="206" r="5.5" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.4"/>
+            <rect class="box" x="20" y="290" width="100" height="70" rx="4"/>
+            <circle class="lamp" cx="45" cy="314" r="8"/><circle class="lamp" cx="70" cy="314" r="8"/><circle class="lamp" cx="95" cy="314" r="8"/>
+            <circle class="lamp" cx="57" cy="338" r="8"/><circle class="lamp" cx="83" cy="338" r="8"/>
+            <rect class="box" x="20" y="430" width="100" height="60" rx="4"/>
+            <text class="t waiting" x="70" y="465" text-anchor="middle">Waiting</text>
+            <text class="t ready" x="70" y="465" text-anchor="middle">Ready</text>
+            <rect class="tag tag30" x="50" y="111" width="40" height="28" rx="3"/><text class="tagt term30" x="70" y="130" text-anchor="middle">30</text>
+            <rect class="tag tag15" x="50" y="234" width="40" height="28" rx="3"/><text class="tagt term15" x="70" y="253" text-anchor="middle">15</text>
+            <text class="t" x="144" y="56">Battery</text><text class="t soft" x="144" y="78">always live</text>
+            <text class="t" x="144" y="188">Ignition switch</text>
+            <text class="t" x="144" y="318">The car's modules</text><text class="t soft" x="144" y="340">live with the key on</text>
+            <text class="t" x="144" y="400">K+DCAN cable</text>
+            <text class="t" x="144" y="456">Klemme15</text><text class="t soft" x="144" y="478">on your laptop</text>
           </svg>
           <figcaption><b>Why the name.</b> Klemme 15 (terminal 15) is BMW's name for the wire that goes live when you turn the key. That's when the car's modules wake up and can be asked what's wrong, and that's when Klemme15 does its work.</figcaption>
         </figure>
