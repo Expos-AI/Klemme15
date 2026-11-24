@@ -150,7 +150,7 @@
               <DataTemplate DataType="vm:TopologyTile">
                 <Border Classes="tile" Classes.warn="{Binding IsWarn}" Classes.bad="{Binding IsBad}" IsVisible="{Binding HasValue}"
                         Background="{DynamicResource SurfaceBrush}" BorderBrush="{DynamicResource LitBrush}" BorderThickness="1.5"
-                        CornerRadius="7" Padding="9,4" MinWidth="92" Opacity="0.94">
+                        CornerRadius="3" Padding="9,4" MinWidth="92" Opacity="0.94">
                   <StackPanel>
                     <TextBlock Text="{Binding Label}" FontSize="12" Foreground="{DynamicResource MutedBrush}" />
                     <TextBlock Text="{Binding Value}" FontSize="19" FontWeight="SemiBold" />

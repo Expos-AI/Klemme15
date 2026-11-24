@@ -21,7 +21,7 @@ public sealed class BaselineChoice(BaselineProfile? profile, BaselineCurve? curv
 {
     public BaselineProfile? Profile { get; } = profile;
     public BaselineCurve? Curve { get; } = curve;
-    public string Label => Profile is null || Curve is null ? "No baseline" : $"{Curve.Title} · {Profile.Title}";
+    public string Label => Profile is null || Curve is null ? "No baseline" : $"{Curve.Title} ({Profile.Title})";
     public override string ToString() => Label;
 }
 

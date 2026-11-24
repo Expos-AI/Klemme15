@@ -463,7 +463,7 @@ public static partial class GuidedTests
             if (canSeePump && stoppedFor > 30 * ticksPerSecond) break; // the routine ended by itself
             var left = (int)((total - tickDone) / ticksPerSecond);
             progress?.Report(new("Leave the ignition on. Top up the expansion tank if the level drops; don't start the engine.",
-                $"{left / 60}:{left % 60:00} left" + (v.TryGetValue("pump_speed", out var sp) ? $" · pump {sp:0}" : "") + (v.TryGetValue("voltage", out var vv) ? $" · {vv:0.0} V" : ""),
+                $"{left / 60}:{left % 60:00} left" + (v.TryGetValue("pump_speed", out var sp) ? $", pump {sp:0}" : "") + (v.TryGetValue("voltage", out var vv) ? $", {vv:0.0} V" : ""),
                 0.05 + 0.95 * tickDone / total, tickDone % 4 == 0 ? graph.Snapshot() : null));
             await Wait(speed, ct);
         }

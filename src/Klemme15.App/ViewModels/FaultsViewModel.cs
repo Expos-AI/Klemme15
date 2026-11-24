@@ -188,8 +188,8 @@ public sealed class FaultsViewModel : PageViewModel
     public ObservableCollection<StoryItem> Story { get; } = [];
     public bool HasStory => Story.Count > 0;
     public string StoryHeadline => _session.LastScan?.Story is { } s
-        ? $"Your car's story · {s.Entries} warnings the instrument cluster remembers" + (s.LastKm is { } km ? $", up to ~{DisplayUnits.Distance(km)}" : "")
-        : Story.Count > 0 ? "Your car's story · when its faults were stored" : "";
+        ? $"Your car's story: {s.Entries} warnings the instrument cluster remembers" + (s.LastKm is { } km ? $", up to ~{DisplayUnits.Distance(km)}" : "")
+        : Story.Count > 0 ? "Your car's story: when its faults were stored" : "";
     /// <summary>Whether faults could be placed on the timeline, and why not when they couldn't.</summary>
     public string StoryNote { get => _storyNote; private set { if (Set(ref _storyNote, value)) Raise(nameof(ShowStoryNote)); } }
     public bool ShowStoryNote => _storyOpen && _storyNote.Length > 0;
@@ -214,7 +214,7 @@ public sealed class FaultsViewModel : PageViewModel
         if (_session.LastScan?.Health is { } h)
         {
             foreach (var t in h.Trends) Trends.Add(new TrendItem(t));
-            TrendsHeadline = $"Health over time · {h.Scans} quick test{(h.Scans == 1 ? "" : "s")} since {h.Since.LocalDateTime:d MMM yyyy}";
+            TrendsHeadline = $"Health over time: {h.Scans} quick test{(h.Scans == 1 ? "" : "s")} since {h.Since.LocalDateTime:d MMM yyyy}";
             TrendsNote = Trends.Count > 0
                 ? (h.MadeUp ? "A made-up history for the demo car. " : "") + "Klemme15 compares every quick test of this car on this computer, so slow changes show up before they become faults."
                 : h.Scans < 3
@@ -269,7 +269,7 @@ public sealed class FaultsViewModel : PageViewModel
     public int InfoCount => BackgroundCount;
     public bool HasBackground => BackgroundCount > 0;
     public string Headline => !AllFaults.Any() ? "No faults"
-        : $"{FixNowCount} to fix now · {CheckCount} worth checking · {BackgroundCount} background";
+        : $"{FixNowCount} to fix now, {CheckCount} worth checking, {BackgroundCount} background";
     public string Verdict => !AllFaults.Any() ? ""
         : _session.IsSnapshot ? (FixNowCount > 0 ? "Start with the faults marked red; they were active when this snapshot was taken." : "No faults were active when this snapshot was taken.")
         : FixNowCount > 0 ? "Start with the faults marked red; they are active now."

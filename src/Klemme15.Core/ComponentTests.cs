@@ -80,7 +80,7 @@ public static partial class GuidedTests
             graph.Add("Engine speed", "rpm", sec, v, "rpm");
             if (v.TryGetValue("pump_target", out var t) && v.TryGetValue("pump_speed", out var a)) samples.Add((t, a));
             var instruction = tick is >= 24 and < 56 ? "Hold the engine at about 3,000 rpm, steady." : tick >= 56 ? "Let it idle again." : "Let the engine idle.";
-            progress?.Report(new(instruction, $"{v.GetValueOrDefault("rpm"):0} rpm" + (v.TryGetValue("pump_speed", out var ps) ? $" · pump {ps:0}" : ""),
+            progress?.Report(new(instruction, $"{v.GetValueOrDefault("rpm"):0} rpm" + (v.TryGetValue("pump_speed", out var ps) ? $", pump {ps:0}" : ""),
                 (double)tick / ticks, graph.Snapshot()));
             await Wait(speed, ct);
         }

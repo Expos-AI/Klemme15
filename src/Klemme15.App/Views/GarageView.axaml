@@ -168,7 +168,7 @@
         <!-- Families still being mapped with testers (E36) -->
         <Border Classes="warn" IsVisible="{Binding HasFamilyNote}">
           <StackPanel Spacing="4">
-            <TextBlock Text="Beta · in development" FontWeight="SemiBold" />
+            <TextBlock Text="Beta, in development" FontWeight="SemiBold" />
             <TextBlock Text="{Binding FamilyNote}" TextWrapping="Wrap" Classes="small" />
           </StackPanel>
         </Border>

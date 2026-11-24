@@ -46,8 +46,8 @@ public sealed record Incident(long? FromKm, long? ToKm, StoryEvent? Event, IRead
 
     public IReadOnlyList<string> Modules => Faults.Select(f => f.Module).Distinct().ToList();
 
-    /// <summary>"Stability control (DSC) 5DC0 · Instrument cluster (KOMBI) A3B9", or empty.</summary>
-    public string FaultLine => string.Join("  ·  ", Faults.Select(f => $"{f.Module} {f.Code}"));
+    /// <summary>"Stability control (DSC) 5DC0, Instrument cluster (KOMBI) A3B9", or empty.</summary>
+    public string FaultLine => string.Join(", ", Faults.Select(f => $"{f.Module} {f.Code}"));
 
     private static string Count(int n) => n == 1 ? "1 fault" : $"{n} faults";
 }

@@ -35,7 +35,7 @@ public sealed class CarCardViewModel : ViewModelBase
     public HealthSnapshot Latest { get; }
     public int Scans { get; }
     public string Name => Latest.ModelName ?? Latest.Chassis ?? "BMW";
-    public string LastScan => $"Last quick test {Latest.Time.LocalDateTime:d MMM yyyy}" + (Latest.Km is { } km ? $" · ~{DisplayUnits.Distance(km)}" : "") + $" · {Scans} quick test{(Scans == 1 ? "" : "s")}";
+    public string LastScan => $"Last quick test {Latest.Time.LocalDateTime:d MMM yyyy}" + (Latest.Km is { } km ? $" at ~{DisplayUnits.Distance(km)}" : "") + $", {Scans} quick test{(Scans == 1 ? "" : "s")}";
 
     public string Status
     {
@@ -44,7 +44,7 @@ public sealed class CarCardViewModel : ViewModelBase
             var parts = new List<string>();
             if (Latest.Voltage is { } v) parts.Add($"{v:0.0} V");
             parts.Add(Latest.FixNow > 0 ? $"{Latest.FixNow} to fix now" : Latest.CheckIt > 0 ? $"{Latest.CheckIt} worth checking" : "no faults to fix");
-            return string.Join(" · ", parts);
+            return string.Join(", ", parts);
         }
     }
 

@@ -58,7 +58,7 @@ public class IncidentTimelineTests
         Assert.Equal(2, dsc.Faults.Count);
         Assert.Contains("2 modules stored 2 faults", dsc.Explanation);
         Assert.Contains("most likely belong to one event", dsc.Explanation);
-        Assert.Equal("Instrument cluster (KOMBI) A3B9  ·  Stability control (DSC) 5DC0", dsc.FaultLine);
+        Assert.Equal("Instrument cluster (KOMBI) A3B9, Stability control (DSC) 5DC0", dsc.FaultLine);
         Assert.Empty(t.Incidents[0].Faults);
         Assert.Equal("The cluster showed a brake warning.", t.Incidents[0].Explanation);
     }

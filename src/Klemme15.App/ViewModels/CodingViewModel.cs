@@ -44,8 +44,8 @@ public sealed class CodingBackupItem : ViewModelBase
 
     public string Path { get; }
     public CodingBackup Backup { get; }
-    public string Title => $"{Backup.Taken.LocalDateTime:yyyy-MM-dd HH:mm}" + (Backup.Note is { } n ? $" · {n}" : "");
-    public string Detail => $"{Backup.Blocks.Count} blocks" + (Backup.PartNumber is { } p ? $" · part {p}" : "");
+    public string Title => $"{Backup.Taken.LocalDateTime:yyyy-MM-dd HH:mm}" + (Backup.Note is { } n ? $", {n}" : "");
+    public string Detail => $"{Backup.Blocks.Count} blocks" + (Backup.PartNumber is { } p ? $", part {p}" : "");
     public AsyncCommand RestoreCommand { get; }
     public AsyncCommand CompareCommand { get; }
 }
@@ -73,7 +73,7 @@ public sealed class CodingToggleItem(string title, string description, string? c
         ToggleState.Unknown => "Can't tell",
         _ => "Not in this module",
     };
-    public string IncludesText => IsPreset ? "Includes: " + string.Join(" · ", Toggles.Select(t => t.Title.Split(':')[0])) : "";
+    public string IncludesText => IsPreset ? "Includes: " + string.Join(", ", Toggles.Select(t => t.Title.Split(':')[0])) : "";
     public bool Available => State is not ToggleState.Unavailable;
     public bool CanTurnOn => canWrite && State is ToggleState.Off or ToggleState.Mixed;
     public bool CanTurnOff => canWrite && State is ToggleState.On or ToggleState.Mixed;

@@ -86,11 +86,11 @@
                   <ComboBox ItemsSource="{Binding Channels}" SelectedItem="{Binding ScatterX}" MinWidth="180" />
                 </StackPanel>
               </WrapPanel>
-              <Border Background="{DynamicResource RaisedBrush}" CornerRadius="6" Height="300">
+              <Border Background="{DynamicResource RaisedBrush}" CornerRadius="3" Height="300">
                 <c:ScatterPlot Points="{Binding ScatterPoints}" Highlight="{Binding Highlight}" Band="{Binding Band}"
                                AxisBrush="{DynamicResource LineBrush}" BandBrush="{DynamicResource LitBrush}" Margin="8" />
               </Border>
-              <Border IsVisible="{Binding HasBand}" Padding="10,8" CornerRadius="6"
+              <Border IsVisible="{Binding HasBand}" Padding="10,8" CornerRadius="3"
                       Background="{DynamicResource LitSoftBrush}">
                 <StackPanel Spacing="2">
                   <TextBlock Text="{Binding BaselineSummary}" TextWrapping="Wrap" FontWeight="SemiBold" />
@@ -136,7 +136,7 @@
                   <ComboBox ItemsSource="{Binding Channels}" SelectedItem="{Binding MapX}" MinWidth="120" />
                 </StackPanel>
               </WrapPanel>
-              <Border Background="{DynamicResource RaisedBrush}" CornerRadius="6" Height="300">
+              <Border Background="{DynamicResource RaisedBrush}" CornerRadius="3" Height="300">
                 <c:BinMap Bins="{Binding MapBins}" Diverging="{Binding MapDiverging}"
                           GridBrush="{DynamicResource LineBrush}" TextBrush="{DynamicResource InkBrush}" Margin="8" />
               </Border>

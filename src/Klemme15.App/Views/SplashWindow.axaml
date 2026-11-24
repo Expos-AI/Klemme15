@@ -92,7 +92,7 @@
   <!-- footer: version, what it is, and who it isn't -->
   <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="22,0,22,16"
         TextElement.FontSize="11" TextElement.Foreground="#4A5361">
-    <TextBlock x:Name="Footer" Text="Open-source BMW diagnostics · Not affiliated with BMW AG" />
+    <TextBlock x:Name="Footer" Text="Open-source BMW diagnostics. Not affiliated with BMW AG." />
     <TextBlock x:Name="VersionText" Grid.Column="1" />
   </Grid>
   </Grid>

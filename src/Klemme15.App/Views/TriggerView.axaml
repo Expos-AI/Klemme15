@@ -19,7 +19,7 @@
              x:DataType="vm:TriggerViewModel">
   <UserControl.Styles>
     <Style Selector="Border.card">
-      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="CornerRadius" Value="3" />
       <Setter Property="Padding" Value="14,10" />
       <Setter Property="Background" Value="{DynamicResource RaisedBrush}" />
     </Style>
@@ -95,7 +95,7 @@
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
-            <Border Background="{DynamicResource LitSoftBrush}" CornerRadius="6" Padding="10,8" IsVisible="{Binding HasTemplateHint}">
+            <Border Background="{DynamicResource LitSoftBrush}" CornerRadius="3" Padding="10,8" IsVisible="{Binding HasTemplateHint}">
               <TextBlock Text="{Binding TemplateHint}" TextWrapping="Wrap" />
             </Border>
             <TextBox Watermark="Name, e.g. Stumble when warm" Text="{Binding NewTitle}" />
@@ -148,7 +148,7 @@
             <TextBlock Classes="muted small" Text="{Binding StartHint}" TextWrapping="Wrap" />
           </StackPanel>
         </Border>
-        <Border Padding="18,14" CornerRadius="8" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" BorderThickness="1"
+        <Border Padding="18,14" CornerRadius="3" Background="{DynamicResource AmberSoftBrush}" BorderBrush="{DynamicResource AmberBrush}" BorderThickness="1"
                 IsVisible="{Binding HasBanner}">
           <TextBlock Text="{Binding Banner}" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap" />
         </Border>

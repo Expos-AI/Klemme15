@@ -174,6 +174,6 @@ public sealed class TopologyOverlayViewModel : ViewModelBase
         foreach (var t in Tiles) t.Show(_latest.TryGetValue(t.Id, out var v) ? v : null);
         Status = _lastRead == default ? "Reading..."
             : stale ? "The car isn't answering. Check the cable and the ignition."
-            : $"Live · updated {DateTime.UtcNow - _lastRead:s\\.f} s ago";
+            : $"Live, updated {DateTime.UtcNow - _lastRead:s\\.f} s ago";
     }
 }

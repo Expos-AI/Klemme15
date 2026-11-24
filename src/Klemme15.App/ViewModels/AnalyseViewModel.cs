@@ -83,7 +83,7 @@ public sealed partial class AnalyseViewModel : PageViewModel
     public bool HasData => _log.Count > 0;
     public bool NoData => !HasData;
     public string Status { get => _status; private set => Set(ref _status, value); }
-    public string FileTitle => _fileName is null ? "" : $"{_fileName} · {_log.Count} samples · {_log.Duration.TotalSeconds:0.#} s";
+    public string FileTitle => _fileName is null ? "" : $"{_fileName}: {_log.Count} samples, {_log.Duration.TotalSeconds:0.#} s";
     public bool HasFile => _fileName is not null;
 
     private ChannelChoice? _scatterX, _scatterY, _mapX, _mapY, _mapValue;

@@ -25,7 +25,7 @@ public sealed class StoryItem(Incident incident)
     public bool IsRed => Event is { Severity: CcSeverity.Critical } e && e.Kind != StoryKind.LowVoltage;
     public bool IsBattery => Event?.Kind is StoryKind.LowVoltage or StoryKind.BatteryWork || (Event is null && Incident.Faults.All(f => f.Supply));
     public bool IsOther => !IsRed && !IsBattery;
-    public string Codes => Event is not { } e ? "" : string.Join("  ", e.Messages.Select(m => m.Code)) + (e.Times > e.Messages.Count ? $"  ·  shown {e.Times}×" : "");
+    public string Codes => Event is not { } e ? "" : string.Join("  ", e.Messages.Select(m => m.Code)) + (e.Times > e.Messages.Count ? $", shown {e.Times} times" : "");
     public bool HasCodes => Codes.Length > 0;
 
     /// <summary>The faults modules stored at this mileage.</summary>

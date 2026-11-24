@@ -224,7 +224,7 @@ public static class ChainRunner
                             count++;
                         }
                         var gateText = hasGate ? $"{Label(gate)} {g:0.#}" : "";
-                        progress?.Report(new(step.Say ?? "Measuring...", inBand ? $"{gateText} · measuring ({count}/{step.Samples})".TrimStart(' ', '·') : $"{gateText} · waiting for {step.Min:0.#}-{step.Max:0.#}",
+                        progress?.Report(new(step.Say ?? "Measuring...", inBand ? $"{gateText}, measuring ({count}/{step.Samples})".TrimStart(' ', ',') : $"{gateText}, waiting for {step.Min:0.#}-{step.Max:0.#}".TrimStart(' ', ','),
                             start + (1.0 / total) * count / step.Samples, graph.Snapshot()));
                         await Task.Delay(TimeSpan.FromMilliseconds(Tick.TotalMilliseconds / speed), ct);
                     }

@@ -43,7 +43,7 @@ public sealed record ServiceDueItem(string Key, string Name, int? Percent, long?
         _ => "Not reported",
     };
 
-    /// <summary>One line: "62 % of the interval left · 14,000 km · by March 2027 · reset 3 times".</summary>
+    /// <summary>One line: "62 % of the interval left, 14,000 km, by March 2027, reset 3 times".</summary>
     public string Summary()
     {
         var parts = new List<string>();
@@ -52,7 +52,7 @@ public sealed record ServiceDueItem(string Key, string Name, int? Percent, long?
             parts.Add(r < 0 ? $"overdue by {DisplayUnits.Distance(-r)}" : $"{DisplayUnits.Distance(r)} to go");
         if (DueDate.Length > 0) parts.Add($"by {DueDate}");
         if (Resets is > 0) parts.Add($"reset {Resets} time{(Resets == 1 ? "" : "s")}");
-        return parts.Count == 0 ? "The cluster didn't report a figure for this item." : string.Join(" · ", parts);
+        return parts.Count == 0 ? "The cluster didn't report a figure for this item." : string.Join(", ", parts);
     }
 }
 

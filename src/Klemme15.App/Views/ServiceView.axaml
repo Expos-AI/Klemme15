@@ -25,25 +25,34 @@
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Padding" Value="12,8" />
-      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="CornerRadius" Value="3" />
     </Style>
     <Style Selector="Button.function.selected">
       <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
     </Style>
+    <!-- A note in the margin of the page, not a coloured box: a rule in the note's colour on the left. -->
     <Style Selector="Border.warn">
-      <Setter Property="Background" Value="{DynamicResource AmberSoftBrush}" />
-      <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource AmberBrush}" />
+      <Setter Property="BorderThickness" Value="3,0,0,0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="12,3" />
     </Style>
+    <!-- A note in the margin of the page, not a coloured box: a rule in the note's colour on the left. -->
     <Style Selector="Border.bad">
-      <Setter Property="Background" Value="{DynamicResource RedSoftBrush}" />
-      <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource RedBrush}" />
+      <Setter Property="BorderThickness" Value="3,0,0,0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="12,3" />
     </Style>
+    <!-- A note in the margin of the page, not a coloured box: a rule in the note's colour on the left. -->
     <Style Selector="Border.good">
-      <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
-      <Setter Property="CornerRadius" Value="8" />
-      <Setter Property="Padding" Value="14,10" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="{DynamicResource LitBrush}" />
+      <Setter Property="BorderThickness" Value="3,0,0,0" />
+      <Setter Property="CornerRadius" Value="0" />
+      <Setter Property="Padding" Value="12,3" />
     </Style>
   </UserControl.Styles>
 
@@ -113,7 +122,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate x:DataType="vm:ServiceDueRowViewModel">
               <Border Classes.bad="{Binding IsDue}" Classes.warn="{Binding IsSoon}" Classes.good="{Binding IsOk}" Classes.panel="{Binding IsUnknown}"
-                      Padding="14,10" CornerRadius="8" Margin="0,0,0,8">
+                      Padding="14,10" CornerRadius="3" Margin="0,0,0,8">
                 <DockPanel>
                   <TextBlock DockPanel.Dock="Right" Classes="small" Text="{Binding LevelText}" FontWeight="SemiBold" VerticalAlignment="Top" Margin="12,0,0,0" />
                   <StackPanel Spacing="2">

@@ -25,13 +25,13 @@
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderThickness" Value="0" />
       <Setter Property="Padding" Value="12,9" />
-      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="CornerRadius" Value="3" />
     </Style>
     <Style Selector="Button.test.selected">
       <Setter Property="Background" Value="{DynamicResource LitSoftBrush}" />
     </Style>
     <Style Selector="Border.finding">
-      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="CornerRadius" Value="3" />
       <Setter Property="Padding" Value="14,10" />
       <Setter Property="Background" Value="{DynamicResource RaisedBrush}" />
     </Style>
@@ -70,7 +70,7 @@
             <Button Classes="test" Classes.selected="{Binding IsSelected}" Command="{Binding SelectCommand}">
               <StackPanel Spacing="2">
                 <TextBlock Text="{Binding Title}" TextWrapping="Wrap" />
-                <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="Drives a part · experimental" IsVisible="{Binding DrivesParts}" />
+                <TextBlock Classes="small" Foreground="{DynamicResource AmberBrush}" Text="Drives a part (experimental)" IsVisible="{Binding DrivesParts}" />
                 <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Needs EDIABAS mode on this car" IsVisible="{Binding NeedsEdiabas}"
                            ToolTip.Tip="This test reads BMW's own engine values. On E46-era cars the standard OBD-II connection doesn't carry them: connect in EDIABAS mode with your BMW files." />
                 <TextBlock Classes="muted small" TextWrapping="Wrap" Text="Not for this engine" IsVisible="{Binding HasNotForEngine}" ToolTip.Tip="{Binding NotForEngine}" />
@@ -202,7 +202,7 @@
             <TextBlock Classes="mono muted" Text="{Binding Status}" />
             <ProgressBar Value="{Binding Fraction}" Minimum="0" Maximum="100" IsVisible="{Binding IsRunning}" Height="6" />
             <!-- A chain's question -->
-            <Border IsVisible="{Binding IsAsking}" Padding="14,12" CornerRadius="6" Background="{DynamicResource LitSoftBrush}">
+            <Border IsVisible="{Binding IsAsking}" Padding="14,12" CornerRadius="3" Background="{DynamicResource LitSoftBrush}">
               <StackPanel Spacing="10">
                 <TextBlock Text="{Binding Question}" FontWeight="SemiBold" TextWrapping="Wrap" />
                 <ItemsControl ItemsSource="{Binding Choices}">

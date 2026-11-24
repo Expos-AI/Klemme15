@@ -170,7 +170,7 @@ public sealed class MainViewModel : ViewModelBase
     public bool HasCar => Session.Model is not null && Session.IsConnected;
     public string CarTitle => Session.Model is { } m && Session.IsConnected ? $"{Session.Vehicle?.Id} {m.Name}" : "No car connected";
     public string CarSubtitle => Session.Model is { } m && Session.IsConnected ? m.Engine : "Pick your car in the garage";
-    public string Connection => Session.VoltageText.Length > 0 ? $"{Session.Connection} · {Session.VoltageText}" : Session.Connection;
+    public string Connection => Session.VoltageText.Length > 0 ? $"{Session.Connection}, {Session.VoltageText}" : Session.Connection;
     public bool IsConnected => Session.IsConnected;
     public bool IsSnapshot => Session.IsSnapshot;
     public bool HasInterrupted => Session.HasInterrupted;

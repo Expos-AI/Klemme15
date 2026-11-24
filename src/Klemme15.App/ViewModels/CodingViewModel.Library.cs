@@ -21,8 +21,8 @@ namespace Klemme15.App.ViewModels;
 public sealed class CodingMapItem(CodingMapEntry entry, bool fitsYourCar)
 {
     private VerifiedCoding Map => entry.Map;
-    public string Title => $"{Map.Module} · {Map.Chassis}";
-    public string Detail => $"Part {Map.PartNumber} · coding index {Map.CodingIndex}";
+    public string Title => $"{Map.Module}, {Map.Chassis}";
+    public string Detail => $"Part {Map.PartNumber}, coding index {Map.CodingIndex}";
     public string Options => string.Join(", ", Map.Toggles.Keys.Select(id =>
         CodingToggles.All.FirstOrDefault(t => t.Id == id)?.Title.Split(':')[0] ?? id).Order());
     public string Origin => entry.Origin switch
@@ -50,7 +50,7 @@ public sealed partial class CodingViewModel
         {
             var fits = Maps.Count(m => m.FitsYourCar);
             return Maps.Count == 0 ? "No coding maps yet"
-                : $"{Maps.Count} coding map{(Maps.Count == 1 ? "" : "s")}" + (_session.LastScan is null ? "" : fits == 0 ? " · none fits your modules yet" : $" · {fits} fit{(fits == 1 ? "s" : "")} your car");
+                : $"{Maps.Count} coding map{(Maps.Count == 1 ? "" : "s")}" + (_session.LastScan is null ? "" : fits == 0 ? ", none fits your modules yet" : $", {fits} fit{(fits == 1 ? "s" : "")} your car");
         }
     }
 

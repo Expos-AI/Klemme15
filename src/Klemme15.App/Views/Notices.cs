@@ -103,7 +103,7 @@ public sealed class NoticesWindow : Window
 {
     public NoticesWindow()
     {
-        Title = "Safety, legal and transparency · Klemme15";
+        Title = "Safety, legal and transparency - Klemme15";
         Width = 760;
         Height = 760;
         MinWidth = 420;
@@ -128,7 +128,7 @@ public sealed class WelcomeNoticeWindow : Window
 {
     public WelcomeNoticeWindow()
     {
-        Title = "Before you start · Klemme15";
+        Title = "Before you start - Klemme15";
         Width = 640;
         SizeToContent = SizeToContent.Height;
         MaxHeight = 820;
@@ -176,7 +176,7 @@ public sealed class ConfirmWindow : Window
 {
     public ConfirmWindow(string title, string message, string confirm)
     {
-        Title = title + " · Klemme15";
+        Title = title + " - Klemme15";
         Width = 560;
         SizeToContent = SizeToContent.Height;
         CanResize = false;

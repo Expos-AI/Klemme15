@@ -28,7 +28,7 @@ public sealed class FamilyOption(VehicleFamily family) : ViewModelBase
 
     /// <summary>The short label on the family's chip; 13 full-width rows pushed the model list off small screens.</summary>
     public string ChipName => Family.Id == "E9x" ? "E90–E93" : Family.IsBeta ? Family.Id + " beta" : Family.Id;
-    public string Tip => $"{Family.Name} · {Family.Years}";
+    public string Tip => $"{Family.Name}, {Family.Years}";
     public bool IsSelected { get => _isSelected; set => Set(ref _isSelected, value); }
     public RelayCommand? SelectCommand { get; set; }
 }
@@ -37,7 +37,7 @@ public sealed class FamilyOption(VehicleFamily family) : ViewModelBase
 public sealed class CarSearchResult(VehicleMatch match, Action<string> pick)
 {
     public string Title => $"{match.Family.Id} {match.Model.Name}";
-    public string Detail => $"{match.Model.Years} · {match.Model.Engine}";
+    public string Detail => $"{match.Model.Years}, {match.Model.Engine}";
     public RelayCommand PickCommand { get; } = new(() => pick(match.Model.Id));
 }
 

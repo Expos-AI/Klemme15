@@ -204,7 +204,7 @@ h1{font-size:26px;margin:0 0 4px}h2{font-size:19px;margin:28px 0 8px}
             sb.Append($"<h2>{title} ({list.Count})</h2>");
             foreach (var i in list)
             {
-                sb.Append($"<div class=\"card {kind.ToString().ToLowerInvariant()}\"><div class=\"tag\">{H(i.Area)}{(i.Where.Length > 0 ? " · " + H(i.Where) : "")}</div><div>{H(i.Title)}</div>");
+                sb.Append($"<div class=\"card {kind.ToString().ToLowerInvariant()}\"><div class=\"tag\">{H(i.Area)}{(i.Where.Length > 0 ? ", " + H(i.Where) : "")}</div><div>{H(i.Title)}</div>");
                 if (i.Detail.Length > 0) sb.Append($"<div class=\"muted\">{H(i.Detail)}</div>");
                 sb.Append("</div>");
             }

@@ -132,7 +132,7 @@
               <TextBox Text="{Binding RestingVolts}" Watermark="e.g. 12.5" Width="160" HorizontalAlignment="Left" />
             </StackPanel>
           </WrapPanel>
-          <Border CornerRadius="6" Padding="10,8" Background="{DynamicResource RaisedBrush}">
+          <Border CornerRadius="3" Padding="10,8" Background="{DynamicResource RaisedBrush}">
             <StackPanel Spacing="2">
               <StackPanel Orientation="Horizontal" Spacing="8">
                 <Ellipse Width="11" Height="11" Fill="{DynamicResource RedBrush}" IsVisible="{Binding EstimateWarn}" VerticalAlignment="Center" />
@@ -324,7 +324,7 @@
                     <!-- One line until opened: code, state, meaning, verdict. Everything else is one click away. -->
                     <Border Classes="panel" Padding="0" Margin="0,0,0,6">
                       <Grid ColumnDefinitions="4,*">
-                        <Border Classes="faultbar" Classes.active="{Binding IsActive}" CornerRadius="6,0,0,6" />
+                        <Border Classes="faultbar" Classes.active="{Binding IsActive}" CornerRadius="3,0,0,3" />
                         <StackPanel Grid.Column="1">
                           <Button Classes="cardhead" Command="{Binding ToggleExpandCommand}" ToolTip.Tip="Open or close this fault">
                             <Grid ColumnDefinitions="106,*,Auto">
@@ -360,11 +360,11 @@
                               <TextBlock Grid.Column="1" Classes="small" Text="{Binding Where}" TextWrapping="Wrap" />
                             </Grid>
                             <!-- Troubleshooting guide -->
-                            <Border IsVisible="{Binding GuideOpen}" Padding="14,12" CornerRadius="6" Background="{DynamicResource LitSoftBrush}">
+                            <Border IsVisible="{Binding GuideOpen}" Padding="14,12" CornerRadius="3" Background="{DynamicResource LitSoftBrush}">
                               <ContentControl Content="{Binding Guide}" />
                             </Border>
                             <!-- Multimeter check -->
-                            <Border IsVisible="{Binding CheckOpen}" Padding="14,12" CornerRadius="6" Background="{DynamicResource LitSoftBrush}">
+                            <Border IsVisible="{Binding CheckOpen}" Padding="14,12" CornerRadius="3" Background="{DynamicResource LitSoftBrush}">
                               <ContentControl Content="{Binding Check}" />
                             </Border>
                             <WrapPanel>

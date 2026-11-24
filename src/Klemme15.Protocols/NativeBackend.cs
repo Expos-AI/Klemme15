@@ -505,7 +505,7 @@ public sealed class NativeBackend : IDiagnosticBackend, IModuleDiscovery, IPrese
     /// </summary>
     internal static EcuIdentity ParseIdent(byte[] data)
     {
-        var ascii = new string(data.Select(b => b is >= 0x20 and < 0x7F ? (char)b : '·').ToArray());
+        var ascii = new string(data.Select(b => b is >= 0x20 and < 0x7F ? (char)b : '.').ToArray());
         string? part = null;
         for (var i = 0; i + 7 <= ascii.Length; i++)
         {

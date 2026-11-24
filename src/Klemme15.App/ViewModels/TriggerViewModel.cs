@@ -83,7 +83,7 @@ public sealed class RuleItem : ViewModelBase
     public bool HasWhenToUse => WhenToUse is not null;
     public string? DriveTip => Template is { } t ? "How to catch it: " + t.DriveTip : null;
     public bool HasDriveTip => DriveTip is not null;
-    public string Describe => $"{TriggerViewModel.Plain(Rule)} · keeps {Rule.Before.TotalSeconds:0} s before and {Rule.After.TotalSeconds:0} s after";
+    public string Describe => $"{TriggerViewModel.Plain(Rule)}. Keeps {Rule.Before.TotalSeconds:0} s before and {Rule.After.TotalSeconds:0} s after";
     public bool IsArmed { get => _armed; set => Set(ref _armed, value); }
     public RelayCommand? DeleteCommand { get; }
     public bool CanDelete => DeleteCommand is not null;
@@ -448,7 +448,7 @@ public sealed class TriggerViewModel : PageViewModel
             OnUi(() => ShowRightNow(lines));
         };
         monitor.StatusChanged += st => OnUi(() => Status = st.State == WatchState.Stopped ? $"Stopped. {st.Captures} capture{(st.Captures == 1 ? "" : "s")} this drive."
-            : $"Watching {st.ArmedRules} rule{(st.ArmedRules == 1 ? "" : "s")} · {st.FramesPerSecond:0.0} readings/s · {st.Captures} caught");
+            : $"Watching {st.ArmedRules} rule{(st.ArmedRules == 1 ? "" : "s")}, {st.FramesPerSecond:0.0} readings a second, {st.Captures} caught");
 
         _cts = new CancellationTokenSource();
         using var awake = Klemme15.App.Services.SleepGuard.Hold("Ghost Hunter watching");

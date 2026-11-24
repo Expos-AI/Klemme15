@@ -232,9 +232,9 @@ public sealed class FaultItemViewModel(Fault fault, EcuDefinition ecu, string? o
         "official" => "Official text from your SGBD file",
         "high" => Fault.Sources.Count switch
         {
-            0 => "Community meaning · high confidence",
-            1 => "Community meaning · high confidence · 1 source:",
-            var n => $"Community meaning · high confidence · {n} sources:",
+            0 => "Community meaning, high confidence",
+            1 => "Community meaning, high confidence, 1 source:",
+            var n => $"Community meaning, high confidence, {n} sources:",
         },
         "medium" => "Community meaning, medium confidence: treat as a lead",
         _ when Fault.Source == FaultSource.Obd2 && Fault.Description is not null => "Standard OBD-II meaning",
