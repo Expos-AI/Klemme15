@@ -22,7 +22,7 @@ Everything Klemme15 says, in the app, the docs, the website and the release note
 - No middle dots joining phrases ("A · B · C"); use commas or a full stop.
 - No all-caps labels over headings, no labels that just repeat the heading, and no "X: Y" sentence pattern when a normal sentence works.
 - Say what happens, with the real numbers, and stop. No selling, no "seamless", "powerful", "revolutionary" or "unlock".
-- In the app and on the website: square-ish corners (3 px), no pills, no glows, no gradients, no stacked coloured boxes. Notes get a thin rule in their colour on the left. Green is terminal 15 and means good or ready; red is terminal 30 and means danger or never.
+- In the app and on the website: square-ish corners (3 px), no pills, no glows, no gradients, no stacked coloured boxes. Notes get a thin rule in their colour on the left. The app is dark blue with a light blue accent; on the website, green is terminal 15 and red is terminal 30, the colours BMW draws those wires in.
 
 ## GitHub About
 

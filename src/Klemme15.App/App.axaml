@@ -31,35 +31,35 @@
 
       <ResourceDictionary.ThemeDictionaries>
         <ResourceDictionary x:Key="Dark">
-          <Color x:Key="SystemAccentColor">#4CB57A</Color>
-          <Color x:Key="SystemAccentColorDark1">#3E9A66</Color>
-          <Color x:Key="SystemAccentColorDark2">#2F7A50</Color>
-          <Color x:Key="SystemAccentColorLight1">#6CC893</Color>
-          <SolidColorBrush x:Key="CanvasBrush" Color="#121412" />
-          <SolidColorBrush x:Key="RailBrush" Color="#0D0F0D" />
-          <SolidColorBrush x:Key="SurfaceBrush" Color="#181B18" />
-          <SolidColorBrush x:Key="RaisedBrush" Color="#20241F" />
-          <SolidColorBrush x:Key="LineBrush" Color="#2E332D" />
-          <SolidColorBrush x:Key="InkBrush" Color="#E6E9E3" />
-          <SolidColorBrush x:Key="MutedBrush" Color="#97A095" />
-          <SolidColorBrush x:Key="SteelBrush" Color="#6F7B6D" />
-          <SolidColorBrush x:Key="SteelFaintBrush" Color="#363D35" />
-          <SolidColorBrush x:Key="LitBrush" Color="#4CB57A" />
-          <SolidColorBrush x:Key="OnLitBrush" Color="#08130C" />
-          <SolidColorBrush x:Key="AmberBrush" Color="#E3A233" />
-          <SolidColorBrush x:Key="RedBrush" Color="#E5574A" />
-          <SolidColorBrush x:Key="AmberSoftBrush" Color="#2D2615" />
-          <SolidColorBrush x:Key="RedSoftBrush" Color="#33201D" />
-          <SolidColorBrush x:Key="LitSoftBrush" Color="#1A2C21" />
-          <SolidColorBrush x:Key="CarBodyBrush" Color="#161916" />
+          <Color x:Key="SystemAccentColor">#8CCBEA</Color>
+          <Color x:Key="SystemAccentColorDark1">#76B4D4</Color>
+          <Color x:Key="SystemAccentColorDark2">#5E8FB5</Color>
+          <Color x:Key="SystemAccentColorLight1">#A6D8F0</Color>
+          <SolidColorBrush x:Key="CanvasBrush" Color="#121A23" />
+          <SolidColorBrush x:Key="RailBrush" Color="#0F161E" />
+          <SolidColorBrush x:Key="SurfaceBrush" Color="#18222D" />
+          <SolidColorBrush x:Key="RaisedBrush" Color="#202C39" />
+          <SolidColorBrush x:Key="LineBrush" Color="#2A3746" />
+          <SolidColorBrush x:Key="InkBrush" Color="#DCE3EA" />
+          <SolidColorBrush x:Key="MutedBrush" Color="#8796A5" />
+          <SolidColorBrush x:Key="SteelBrush" Color="#5E8FB5" />
+          <SolidColorBrush x:Key="SteelFaintBrush" Color="#33485C" />
+          <SolidColorBrush x:Key="LitBrush" Color="#8CCBEA" />
+          <SolidColorBrush x:Key="OnLitBrush" Color="#0D1620" />
+          <SolidColorBrush x:Key="AmberBrush" Color="#F2A93B" />
+          <SolidColorBrush x:Key="RedBrush" Color="#EF5B4C" />
+          <SolidColorBrush x:Key="AmberSoftBrush" Color="#33291A" />
+          <SolidColorBrush x:Key="RedSoftBrush" Color="#3A2124" />
+          <SolidColorBrush x:Key="LitSoftBrush" Color="#1C3242" />
+          <SolidColorBrush x:Key="CarBodyBrush" Color="#16202B" />
           <x:Double x:Key="SmallTextSize">12.5</x:Double>
           <x:Double x:Key="MonoTextSize">12</x:Double>
         </ResourceDictionary>
         <ResourceDictionary x:Key="Light">
-          <Color x:Key="SystemAccentColor">#1D7546</Color>
-          <Color x:Key="SystemAccentColorDark1">#18633B</Color>
-          <Color x:Key="SystemAccentColorDark2">#134F2F</Color>
-          <Color x:Key="SystemAccentColorLight1">#2E8A57</Color>
+          <Color x:Key="SystemAccentColor">#1F6E9E</Color>
+          <Color x:Key="SystemAccentColorDark1">#1A5F88</Color>
+          <Color x:Key="SystemAccentColorDark2">#154F72</Color>
+          <Color x:Key="SystemAccentColorLight1">#3A86B3</Color>
           <SolidColorBrush x:Key="CanvasBrush" Color="#EDEFEA" />
           <SolidColorBrush x:Key="RailBrush" Color="#E1E5DD" />
           <SolidColorBrush x:Key="SurfaceBrush" Color="#F5F6F2" />
@@ -67,25 +67,25 @@
           <SolidColorBrush x:Key="LineBrush" Color="#B9C0BC" />
           <SolidColorBrush x:Key="InkBrush" Color="#14233A" />
           <SolidColorBrush x:Key="MutedBrush" Color="#4B576A" />
-          <SolidColorBrush x:Key="SteelBrush" Color="#4B576A" />
-          <SolidColorBrush x:Key="SteelFaintBrush" Color="#B9C0BC" />
-          <SolidColorBrush x:Key="LitBrush" Color="#1D7546" />
+          <SolidColorBrush x:Key="SteelBrush" Color="#3E6E94" />
+          <SolidColorBrush x:Key="SteelFaintBrush" Color="#AFC0CF" />
+          <SolidColorBrush x:Key="LitBrush" Color="#1F6E9E" />
           <SolidColorBrush x:Key="OnLitBrush" Color="#FFFFFF" />
           <SolidColorBrush x:Key="AmberBrush" Color="#9A5B00" />
           <SolidColorBrush x:Key="RedBrush" Color="#B3261E" />
           <SolidColorBrush x:Key="AmberSoftBrush" Color="#F1E3C4" />
           <SolidColorBrush x:Key="RedSoftBrush" Color="#F2D9D5" />
-          <SolidColorBrush x:Key="LitSoftBrush" Color="#D5E7DA" />
+          <SolidColorBrush x:Key="LitSoftBrush" Color="#DCE8F1" />
           <SolidColorBrush x:Key="CarBodyBrush" Color="#F5F6F2" />
           <x:Double x:Key="SmallTextSize">12.5</x:Double>
           <x:Double x:Key="MonoTextSize">12</x:Double>
         </ResourceDictionary>
         <!-- Garage mode: black on white, heavy lines, larger small print. For daylight and glare. -->
         <ResourceDictionary x:Key="{x:Static services:AppThemes.Garage}">
-          <Color x:Key="SystemAccentColor">#0B5A31</Color>
-          <Color x:Key="SystemAccentColorDark1">#084726</Color>
-          <Color x:Key="SystemAccentColorDark2">#05361C</Color>
-          <Color x:Key="SystemAccentColorLight1">#1D7546</Color>
+          <Color x:Key="SystemAccentColor">#004F86</Color>
+          <Color x:Key="SystemAccentColorDark1">#003F6C</Color>
+          <Color x:Key="SystemAccentColorDark2">#003052</Color>
+          <Color x:Key="SystemAccentColorLight1">#1F6E9E</Color>
           <SolidColorBrush x:Key="CanvasBrush" Color="#FFFFFF" />
           <SolidColorBrush x:Key="RailBrush" Color="#EDEDED" />
           <SolidColorBrush x:Key="SurfaceBrush" Color="#FFFFFF" />
@@ -93,15 +93,15 @@
           <SolidColorBrush x:Key="LineBrush" Color="#1A1A1A" />
           <SolidColorBrush x:Key="InkBrush" Color="#000000" />
           <SolidColorBrush x:Key="MutedBrush" Color="#2E2E2E" />
-          <SolidColorBrush x:Key="SteelBrush" Color="#14233A" />
+          <SolidColorBrush x:Key="SteelBrush" Color="#003A66" />
           <SolidColorBrush x:Key="SteelFaintBrush" Color="#6F8799" />
-          <SolidColorBrush x:Key="LitBrush" Color="#0B5A31" />
+          <SolidColorBrush x:Key="LitBrush" Color="#004F86" />
           <SolidColorBrush x:Key="OnLitBrush" Color="#FFFFFF" />
           <SolidColorBrush x:Key="AmberBrush" Color="#8A4B00" />
           <SolidColorBrush x:Key="RedBrush" Color="#A1140C" />
           <SolidColorBrush x:Key="AmberSoftBrush" Color="#FFE3A8" />
           <SolidColorBrush x:Key="RedSoftBrush" Color="#FFD0CC" />
-          <SolidColorBrush x:Key="LitSoftBrush" Color="#CDE5D5" />
+          <SolidColorBrush x:Key="LitSoftBrush" Color="#CFE6F7" />
           <SolidColorBrush x:Key="CarBodyBrush" Color="#FFFFFF" />
           <x:Double x:Key="SmallTextSize">14</x:Double>
           <x:Double x:Key="MonoTextSize">13.5</x:Double>

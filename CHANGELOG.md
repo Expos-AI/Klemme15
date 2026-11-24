@@ -2,6 +2,10 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.46
+
+- The dark theme is back to dark blue with the light blue accent, by request. The squarer corners, the plain connection label, the Service page's thin note lines and the plain sentences from 0.99.45 stay. Light mode and Garage mode use the blue accent again too.
+
 ## 0.99.45
 
 - The app has a new look to match the website. The dark theme is near-black with the terminal 15 green as its accent, the light theme uses the website's paper and blue-black ink, and Garage mode stays black on white. Corners are squarer, the connection label is a plain box, and the notes on the Service page are a thin coloured line instead of a coloured box. Everything is where it was.
