@@ -3,720 +3,647 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Klemme15 · Offline BMW diagnostics</title>
-  <meta name="description" content="Free, open-source, offline diagnostics for older BMWs (E46, E90 family and more) with a K+DCAN cable. Read every module's faults and dash warnings in plain English, run graphed tests, catch intermittent faults, and back up and code comfort modules. Windows, macOS, Linux.">
-  <meta property="og:title" content="Klemme15: offline diagnostics for older BMWs">
+  <title>Klemme15: free diagnostics for older BMWs</title>
+  <meta name="description" content="Free, open-source, offline diagnostics for older BMWs (E46, E90 family and more) with a K+DCAN cable. Read every module's faults and dash warnings in plain English, run graphed tests, do service jobs and back up your coding.">
+  <meta property="og:title" content="Klemme15: free diagnostics for older BMWs">
   <meta property="og:description" content="Free and open source. Read, understand and test your E-series BMW with a K+DCAN cable and your own laptop.">
   <meta property="og:image" content="https://raw.githubusercontent.com/Expos-AI/Klemme15/main/docs/brand/klemme15-social.png">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#EDEFEA">
   <link rel="icon" href="brand/klemme15-icon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
+    /*
+      The look of a wiring diagram page: printed paper, blue-black linework, and the wire colours BMW draws its
+      terminals in. Green is terminal 15 (live with the key on), the one the app is named after; red is terminal 30
+      (the battery, always live), used only for the things Klemme15 never does.
+    */
     :root {
-      --bg: #121417;
-      --surface: #191c20;
-      --raised: #1f2329;
-      --line: #2b3037;
-      --ink: #e4e8ec;
-      --muted: #8f99a4;
-      --lit: #8ccbea;
-      --lit-soft: rgba(140, 203, 234, 0.12);
-      --amber: #f2a93b;
-      --red: #ef5b4c;
-      --radius: 14px;
-      --max: 1120px;
-      --display: "Barlow Condensed", "Barlow", system-ui, sans-serif;
-      --body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
-      --mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+      --paper: #EDEFEA;
+      --paper-deep: #E1E5DD;
+      --ink: #14233A;
+      --ink-soft: #4B576A;
+      --rule: #B9C0BC;
+      --wire15: #1D7546;
+      --wire15-pale: #D5E7DA;
+      --wire30: #B3261E;
+      --screen: #0E141B;
+      --max: 1180px;
+      --text: 66ch;
+      --wide: "Archivo", system-ui, sans-serif;
+      --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
     }
     * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
-    a { color: var(--lit); text-decoration: none; }
-    a:hover { text-decoration: underline; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body {
+      margin: 0; background: var(--paper); color: var(--ink);
+      font-family: var(--wide); font-stretch: 100%; font-size: 18px; line-height: 1.55;
+      -webkit-font-smoothing: antialiased; font-variant-numeric: lining-nums;
+    }
+    a { color: var(--wire15); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { text-decoration-thickness: 2px; }
     img, video, svg { max-width: 100%; display: block; }
-    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
-    :focus-visible { outline: 2px solid var(--lit); outline-offset: 3px; border-radius: 6px; }
+    :focus-visible { outline: 3px solid var(--wire15); outline-offset: 3px; }
+    code, kbd { font-family: var(--mono); font-size: 0.88em; }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 24px; }
 
-    /* Navigation */
-    .nav { position: sticky; top: 0; z-index: 10; background: rgba(18, 20, 23, 0.86); backdrop-filter: blur(10px); border-bottom: 1px solid var(--line); }
-    .nav .wrap { display: flex; align-items: center; gap: 24px; height: 60px; }
-    .nav img { height: 28px; width: auto; }
-    .nav nav { margin-left: auto; display: flex; gap: 22px; font-weight: 500; font-size: 15px; }
-    .nav nav a { color: var(--muted); }
-    .nav nav a:hover { color: var(--ink); text-decoration: none; }
+    /* Headings: the wide cut of the same family, set tight. Body stays at normal width. */
+    h1, h2, h3 { font-stretch: 125%; font-weight: 800; letter-spacing: -0.01em; margin: 0; line-height: 1.04; }
+    h1 { font-size: clamp(40px, 6.4vw, 84px); }
+    h2 { font-size: clamp(30px, 4vw, 50px); margin-bottom: 18px; }
+    h3 { font-size: 21px; line-height: 1.2; margin-bottom: 6px; }
+    p { margin: 0 0 1em; max-width: var(--text); }
+    .lede { font-size: 21px; color: var(--ink-soft); max-width: 58ch; }
+    .soft { color: var(--ink-soft); }
+    .small { font-size: 15px; color: var(--ink-soft); }
 
-    /* Hero */
-    .hero { padding: 56px 0 72px; text-align: center; }
-    #ignition-stage { margin: 0 auto 36px; max-width: 760px; min-height: 220px; border: 1px solid var(--line); border-radius: var(--radius); background: #0c0e10; display: grid; place-items: center; overflow: hidden; }
-    #ignition-stage:empty { display: none; }
-    /* Ignition animation: the app's startup screen, same shapes and timing. */
-    #ignition-stage { background: #0d1117; border-color: #1f2630; display: block; min-height: 0; }
-    .k15-splash { position: relative; width: 100%; padding: clamp(28px, 6vw, 56px) clamp(18px, 5vw, 40px) 14px; text-align: left; }
-    .k15-mark { width: 100%; max-width: 680px; height: auto; margin: 0 auto; }
-    .k15-tile, .k15-glyph { opacity: 0; }
-    .k15-tile { transition: opacity .45s ease; }
-    .k15-lamp { fill: #2b3038; }
-    .k15-cursor { fill: #f2a93b; }
-    .k15-load { max-width: 680px; margin: 22px auto 0; padding-left: 32.76%; padding-right: 2.02%; opacity: 0; transition: opacity .35s ease;
-      font: 12px var(--mono); }
-    .k15-load-line { display: flex; justify-content: space-between; gap: 12px; color: #7f8a98; }
-    .k15-percent { color: #5f6977; }
-    .k15-track { height: 2px; margin-top: 10px; background: #1b212a; border-radius: 1px; overflow: hidden; }
-    .k15-fill { height: 100%; width: 0; background: #f2a93b; transition: width .35s ease; }
-    .k15-foot { display: flex; justify-content: space-between; gap: 12px; margin-top: clamp(28px, 6vw, 48px); color: #4a5361; font-size: 11px; }
-    @media (max-width: 520px) { .k15-load { padding-left: 0; } .k15-foot span:first-child { display: none; } }
+    /* Top bar */
+    .bar { border-bottom: 2px solid var(--ink); background: var(--paper); position: sticky; top: 0; z-index: 10; }
+    .bar .wrap { display: flex; align-items: center; gap: 28px; min-height: 58px; flex-wrap: wrap; }
+    .brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font-stretch: 125%; font-weight: 800; font-size: 20px; }
+    .brand img { width: 30px; height: 30px; }
+    .bar nav { margin-left: auto; display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 16px; }
+    .bar nav a { color: var(--ink); text-decoration: none; padding: 6px 0; }
+    .bar nav a:hover { text-decoration: underline; }
+    .bar .get { font-weight: 700; color: var(--wire15); }
+    @media (max-width: 760px) { .bar nav .wide-only { display: none; } .bar .wrap { gap: 12px; } }
 
-    .eyebrow { color: var(--lit); font: 500 13px var(--mono); letter-spacing: .08em; text-transform: uppercase; }
-    h1 { font: 700 clamp(40px, 7vw, 76px)/1.02 var(--display); letter-spacing: -0.01em; margin: 14px auto 18px; max-width: 14ch; }
-    .lede { color: var(--muted); font-size: clamp(17px, 2.2vw, 20px); max-width: 640px; margin: 0 auto 32px; }
-    .cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; align-items: stretch; }
-    .button { display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: 16px; }
-    .button.primary { background: var(--lit); color: #0b1218; }
-    .button.primary:hover { text-decoration: none; filter: brightness(1.08); }
-    .code { display: inline-flex; align-items: center; gap: 12px; padding: 0 8px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); font: 15px var(--mono); color: var(--ink); max-width: 100%; }
-    .code .prompt { color: var(--muted); user-select: none; }
-    .code > span { white-space: nowrap; overflow-x: auto; min-width: 0; padding: 12px 0; }
-    .copy { border: 0; background: var(--raised); color: var(--muted); border-radius: 7px; padding: 8px 10px; font: 500 13px var(--body); cursor: pointer; }
-    .copy:hover { color: var(--ink); }
-    .meta { margin-top: 18px; color: var(--muted); font-size: 14px; }
-    .meta span + span::before { content: "·"; margin: 0 10px; color: var(--line); }
+    /* Hero: what the name means, as the diagram it comes from */
+    .hero { padding: 64px 0 40px; }
+    .hero h1 { max-width: 15ch; }
+    .hero .lede { margin-top: 22px; }
+    .hero .diagram { margin-top: 56px; }
+    .diagram { margin: 44px 0 8px; border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); padding: 22px 0 14px; }
+    .diagram svg { width: 100%; height: auto; }
+    .diagram .tall { display: none; max-width: 360px; }
+    @media (max-width: 700px) { .diagram .wide { display: none; } .diagram .tall { display: block; } }
+    .diagram figcaption { font-size: 15px; color: var(--ink-soft); max-width: 72ch; margin-top: 10px; }
+    .diagram .line { fill: none; stroke: var(--ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+    .diagram .wire15 { fill: none; stroke: var(--rule); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; transition: stroke .5s ease; }
+    .diagram .box { fill: var(--paper); stroke: var(--ink); stroke-width: 2.4; }
+    .diagram .lamp { fill: var(--paper); stroke: var(--ink); stroke-width: 2.4; transition: fill .3s ease; }
+    .diagram text { font-family: var(--wide); fill: var(--ink); }
+    .diagram .t { font-size: 15px; }
+    .diagram .term { font-size: 26px; font-weight: 800; font-stretch: 125%; }
+    .diagram .term15 { fill: var(--wire15); }
+    .diagram .term30 { fill: var(--wire30); }
+    .diagram .lever { transform-box: fill-box; transform-origin: 0% 50%; transition: transform .6s cubic-bezier(.3, .8, .3, 1); }
+    .diagram.off .lever { transform: rotate(-24deg); }
+    .diagram .lever-down { transform-origin: 50% 0%; }
+    .diagram.off .lever-down { transform: rotate(24deg); }
+    .diagram.on .wire15 { stroke: var(--wire15); }
+    .diagram.on .lamp { fill: var(--wire15); }
+    .diagram .ready { font-weight: 700; fill: var(--wire15); opacity: 0; transition: opacity .4s ease .5s; }
+    .diagram.on .ready { opacity: 1; }
+
+    /* Download */
+    .get-it { display: grid; gap: 14px; margin-top: 34px; }
+    .get-row { display: flex; flex-wrap: wrap; gap: 14px; align-items: stretch; }
+    .button {
+      display: inline-flex; align-items: center; gap: 10px; padding: 14px 22px; min-height: 54px;
+      background: var(--ink); color: var(--paper); text-decoration: none; font-weight: 700; font-size: 18px;
+      border: 2px solid var(--ink); border-radius: 4px;
+    }
+    .button:hover { background: var(--wire15); border-color: var(--wire15); text-decoration: none; }
+    .scoop { display: flex; align-items: center; gap: 10px; border: 2px solid var(--ink); border-radius: 4px; padding: 6px 6px 6px 14px; min-width: 0; max-width: 100%; flex: 0 1 auto; background: var(--paper); }
+    .scoop code { font-size: 14px; overflow-x: auto; white-space: nowrap; color: var(--ink); min-width: 0; flex: 1 1 auto; }
+    .get-it { min-width: 0; grid-template-columns: minmax(0, 1fr); }
+    .get-row > * { min-width: 0; }
+    .scoop button { font: inherit; font-size: 14px; font-weight: 700; border: 0; background: var(--ink); color: var(--paper); padding: 8px 12px; border-radius: 2px; cursor: pointer; flex: none; }
+    .scoop button:hover { background: var(--wire15); }
+    .get-it .small { margin: 0; }
 
     /* Sections */
-    section { padding: 72px 0; border-top: 1px solid var(--line); }
-    h2 { font: 700 clamp(30px, 4.2vw, 44px)/1.08 var(--display); margin: 0 0 12px; }
-    .section-lede { color: var(--muted); max-width: 640px; margin: 0 0 40px; }
+    section { padding: 80px 0; border-top: 2px solid var(--ink); }
+    section.tint { background: var(--paper-deep); }
+    .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: 56px; align-items: start; }
+    .split.reverse { grid-template-columns: minmax(0, 400px) minmax(0, 1fr); }
+    .split.reverse > :first-child { order: 2; }
+    @media (max-width: 900px) {
+      .split, .split.reverse { grid-template-columns: 1fr; gap: 36px; }
+      .split.reverse > :first-child { order: 0; }
+    }
 
-    /* Feature grid */
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
-    .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 26px 24px; }
-    .card .icon { width: 40px; height: 40px; border-radius: 10px; background: var(--lit-soft); display: grid; place-items: center; margin-bottom: 18px; }
-    .card .icon svg { width: 22px; height: 22px; stroke: var(--lit); }
-    .card h3 { font: 600 22px/1.2 var(--display); margin: 0 0 8px; letter-spacing: .01em; }
-    .card p { color: var(--muted); margin: 0; font-size: 16px; }
+    /* What each thing does: a term and what it means, like a manual's legend */
+    dl.legend { margin: 28px 0 0; display: grid; grid-template-columns: minmax(150px, 220px) minmax(0, 1fr); border-top: 1px solid var(--rule); max-width: 820px; }
+    dl.legend dt, dl.legend dd { margin: 0; padding: 14px 0; border-bottom: 1px solid var(--rule); }
+    dl.legend dt { font-weight: 700; padding-right: 22px; line-height: 1.35; }
+    dl.legend dd { color: var(--ink-soft); }
+    dl.legend dd a { white-space: nowrap; }
+    @media (max-width: 640px) {
+      dl.legend { grid-template-columns: 1fr; }
+      dl.legend dt { border-bottom: 0; padding-bottom: 2px; }
+      dl.legend dd { padding-top: 0; }
+    }
 
-    /* Demo reels */
-    .reel { display: grid; grid-template-columns: 5fr 7fr; gap: 48px; align-items: center; padding: 32px 0; }
-    .reel + .reel { border-top: 1px dashed var(--line); }
-    .reel.flip { grid-template-columns: 7fr 5fr; }
-    .reel.flip .reel-text { order: 2; }
-    .reel-text .eyebrow { display: block; margin-bottom: 8px; }
-    .reel-text h3 { font: 700 30px/1.1 var(--display); margin: 0 0 12px; }
-    .reel-text p { color: var(--muted); margin: 0 0 14px; }
-    .reel-text ul { margin: 0; padding-left: 18px; color: var(--muted); }
-    .reel-text li { margin: 4px 0; }
-    .frame { border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; background: #0c0e10; box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.7); }
-    .frame video { width: 100%; aspect-ratio: 16 / 10; object-fit: cover; }
-
-    /* Lines we don't cross */
-    .bounds { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
-    .bound { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; font-size: 15px; color: var(--muted); }
-    .bound b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
-
-    /* Jump links */
-    .shot-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 40px; }
-    .shot-pair figure { margin: 0; }
-    .shot-pair figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; line-height: 1.5; }
-    @media (max-width: 760px) { .shot-pair { grid-template-columns: 1fr; } }
-    .jumps-section { padding: 0 0 56px; border-top: 0; }
-    .jumps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    .jump { display: block; padding: 16px 18px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); color: var(--ink); }
-    .jump:hover { border-color: var(--lit); text-decoration: none; }
-    .jump b { display: block; font-weight: 600; }
-    .jump span { color: var(--muted); font-size: 15px; }
-
-    /* Feature sections */
-    .feature-grid { display: grid; grid-template-columns: 5fr 6fr; gap: 48px; align-items: center; }
-    .feature.flip .feature-grid { grid-template-columns: 6fr 5fr; }
-    .feature.flip .feature-text { order: 2; }
-    .feature .eyebrow { display: block; margin-bottom: 10px; }
-    .feature .section-lede { margin-bottom: 22px; }
-    .ticks { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
-    .ticks li { position: relative; padding-left: 26px; color: var(--muted); font-size: 16px; }
-    .ticks li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 10px; height: 6px; border-left: 2px solid var(--lit); border-bottom: 2px solid var(--lit); transform: rotate(-45deg); }
-    .ticks b { color: var(--ink); font-weight: 600; }
+    /* App clips: the real screen, in a plain black bezel */
+    .clip { margin: 0; }
+    .split > .clip { position: sticky; top: 84px; }
+    @media (max-width: 900px) { .split > .clip { position: static; max-width: 430px; } }
+    .clip .screen { background: var(--screen); border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; }
+    .clip video, .clip img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+    .clip figcaption { font-size: 14px; color: var(--ink-soft); margin-top: 8px; }
+    .shot { margin: 40px 0 0; }
+    .shot .screen { background: var(--screen); border: 2px solid var(--ink); border-radius: 6px; overflow: hidden; }
     .shot img { width: 100%; height: auto; }
-    /* Vertical clips recorded from the app (tools/Klemme15.Reel): zoomed in on what matters, so they read on a phone. */
-    .clip { margin: 0 auto; width: 100%; max-width: 430px; }
-    .clip .frame video { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
-    .clip figcaption { color: var(--muted); font-size: 13px; margin-top: 10px; text-align: center; line-height: 1.5; }
-    .shot-pair .clip { max-width: 400px; }
-    .shot-pair .clip figcaption { font-size: 14px; text-align: left; }
-    .note { color: var(--muted); font-size: 14px; margin: 18px 0 0; }
+    .shot figcaption { font-size: 14px; color: var(--ink-soft); margin-top: 8px; }
+    .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); gap: 32px; margin-top: 48px; }
+    @media (max-width: 760px) { .pair { grid-template-columns: 1fr; } }
+
+    /* Will it work on my car: the chassis code is how owners know their car, so it leads */
+    .cars { width: 100%; border-collapse: collapse; margin-top: 30px; }
+    .cars th, .cars td { text-align: left; vertical-align: top; padding: 14px 16px 14px 0; border-bottom: 1px solid var(--rule); }
+    .cars thead th { font-size: 15px; font-weight: 600; color: var(--ink-soft); border-bottom: 2px solid var(--ink); padding-bottom: 8px; }
+    .cars tbody th { font-stretch: 125%; font-weight: 800; font-size: 22px; line-height: 1.1; white-space: nowrap; }
+    .cars tbody th span { display: block; font-stretch: 100%; font-weight: 400; font-size: 15px; color: var(--ink-soft); margin-top: 4px; }
+    .cars td { font-size: 16px; }
+    .cars td.years { white-space: nowrap; }
+    .cars .models { color: var(--ink-soft); }
+    .cars .status { min-width: 210px; }
+    .cars .status.good { color: var(--wire15); font-weight: 700; }
+    .switch { display: inline-block; border: 1.5px solid var(--ink); border-radius: 3px; padding: 0 7px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+    @media (max-width: 820px) {
+      .cars thead { display: none; }
+      .cars, .cars tbody, .cars tr, .cars th, .cars td { display: block; width: 100%; }
+      .cars tr { border-bottom: 1px solid var(--rule); padding: 14px 0; }
+      .cars th, .cars td { border: 0; padding: 2px 0; }
+      .cars td.years::before { content: "Years: "; color: var(--ink-soft); }
+    }
+    .notes { margin: 26px 0 0; padding-left: 20px; max-width: 80ch; color: var(--ink-soft); font-size: 16px; }
+    .notes li { margin-bottom: 8px; }
+    .notes b { color: var(--ink); }
+
+    /* Steps: a real sequence, so they're numbered */
+    ol.steps { list-style: none; margin: 34px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px; counter-reset: step; }
+    ol.steps li { counter-increment: step; border-top: 2px solid var(--ink); padding-top: 14px; }
+    ol.steps li::before { content: counter(step); display: block; font-stretch: 125%; font-weight: 800; font-size: 44px; line-height: 1; color: var(--wire15); margin-bottom: 10px; }
+    ol.steps p { color: var(--ink-soft); font-size: 17px; }
+    @media (max-width: 860px) { ol.steps { grid-template-columns: 1fr; gap: 26px; } }
 
     /* Comparison */
-    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); }
-    .compare { width: 100%; border-collapse: collapse; font-size: 15px; min-width: 620px; }
-    .compare th, .compare td { text-align: left; padding: 14px 18px; border-bottom: 1px solid var(--line); vertical-align: top; }
-    .compare thead th { font: 600 13px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--surface); }
-    .compare thead th:last-child { color: var(--lit); }
-    .compare tbody th { font-weight: 500; color: var(--ink); width: 40%; }
-    .compare td { color: var(--muted); }
-    .compare td:last-child { color: var(--ink); }
-    .compare td.yes { color: var(--ink); }
-    .compare td.yes::before { content: "\2713  "; color: var(--lit); font-weight: 700; }
-    .compare td.no::before { content: "\2715  "; color: var(--muted); }
-    .compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+    .table-scroll { overflow-x: auto; margin-top: 28px; }
+    table.vs { border-collapse: collapse; width: 100%; min-width: 640px; font-size: 16px; }
+    table.vs th, table.vs td { text-align: left; vertical-align: top; padding: 12px 18px 12px 0; border-bottom: 1px solid var(--rule); }
+    table.vs thead th { font-stretch: 125%; font-weight: 800; font-size: 20px; border-bottom: 2px solid var(--ink); }
+    table.vs tbody th { font-weight: 600; width: 34%; }
+    table.vs td { color: var(--ink-soft); width: 33%; }
+    table.vs td.us { color: var(--ink); }
 
-    /* Getting started */
-    .step { display: inline-grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--lit-soft); color: var(--lit); font: 600 15px var(--mono); margin-bottom: 14px; }
-    .card code { font: 14px var(--mono); color: var(--ink); background: var(--raised); padding: 1px 6px; border-radius: 5px; }
-    .cars { display: grid; grid-template-columns: 1fr 2fr 1.4fr; gap: 14px; margin-top: 18px; }
-    .cars div { border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; color: var(--muted); font-size: 15px; }
-    .cars b { display: block; color: var(--ink); font-weight: 600; margin-bottom: 4px; }
+    /* Lines we don't cross: drawn in terminal 30 red */
+    .never { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; margin-top: 30px; border-top: 3px solid var(--wire30); }
+    .never div { padding: 16px 20px 6px 0; }
+    .never b { display: block; font-stretch: 125%; font-weight: 800; font-size: 20px; color: var(--wire30); margin-bottom: 4px; }
+    .never span { color: var(--ink-soft); font-size: 16px; }
+    @media (max-width: 860px) { .never { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 520px) { .never { grid-template-columns: 1fr; } }
 
-    @media (max-width: 900px) {
-      .jumps { grid-template-columns: 1fr 1fr; }
-      .feature-grid, .feature.flip .feature-grid { grid-template-columns: 1fr; gap: 26px; }
-      .feature.flip .feature-text { order: 0; }
-      .cars { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 520px) { .jumps { grid-template-columns: 1fr; } }
+    /* Short points in two columns, no boxes */
+    .points { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 56px; margin-top: 30px; max-width: 1000px; }
+    .points div { border-top: 1px solid var(--rule); padding-top: 14px; }
+    .points p { color: var(--ink-soft); font-size: 17px; }
+    @media (max-width: 760px) { .points { grid-template-columns: 1fr; } }
 
-    /* Hero screenshot */
-    .hero-shot { max-width: 1040px; margin: 44px auto 0; }
-    .hero-shot img { width: 100%; height: auto; }
+    /* The last call to download */
+    #download h2 { max-width: 18ch; }
+    #download .small { max-width: 80ch; margin: 0 0 8px; }
 
-    /* Supported vehicles */
-    .cars-table { min-width: 760px; }
-    .cars-table tbody th { width: auto; }
-    .cars-table tbody th b { display: block; font-weight: 600; }
-    .cars-table tbody th span { color: var(--muted); font-size: 14px; }
-    .cars-table td { color: var(--ink); white-space: nowrap; }
-    .cars-table td.models { white-space: normal; color: var(--muted); }
-    .switch { font: 13px var(--mono); padding: 3px 8px; border: 1px solid var(--line); border-radius: 6px; }
-    .badge { display: inline-block; font-size: 13px; color: var(--muted); white-space: normal; }
-    .badge.good { color: var(--lit); font-weight: 600; }
-    .small-print { margin: 18px 0 0; padding-left: 18px; color: var(--muted); font-size: 15px; display: grid; gap: 6px; }
-    .small-print b { color: var(--ink); font-weight: 600; }
-
-    @media (max-width: 640px) {
-      .cars-table { min-width: 0; }
-      .cars-table thead { display: none; }
-      .cars-table, .cars-table tbody, .cars-table tr, .cars-table th, .cars-table td { display: block; width: 100%; }
-      .cars-table tr { padding: 14px 16px; border-bottom: 1px solid var(--line); }
-      .cars-table tbody tr:last-child { border-bottom: 0; }
-      .cars-table tbody th, .cars-table td { border: 0; padding: 0; white-space: normal; }
-      .cars-table td { margin-top: 4px; font-size: 14px; }
-      .cars-table td:nth-child(2)::before { content: "Years "; color: var(--muted); }
-      .cars-table td.models { font-size: 13.5px; }
-      .cars-table td:nth-child(4) { display: inline-block; width: auto; margin-top: 8px; margin-right: 8px; }
-      .cars-table td:nth-child(5) { display: inline-block; width: auto; }
-    }
-
-    /* Cable */
-    .cable { margin-top: 18px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); padding: 26px 26px 20px; }
-    .cable h3 { font: 600 24px/1.2 var(--display); margin: 0 0 8px; }
-    .cable p { color: var(--muted); margin: 0 0 16px; }
-    .cable p b { color: var(--ink); }
-
-    /* Bottom call to action */
-    .final { text-align: center; padding: 88px 0; background: radial-gradient(ellipse at 50% 0%, rgba(140, 203, 234, 0.10), transparent 60%); }
-    .final .section-lede { margin: 0 auto 28px; }
-
-    footer { border-top: 1px solid var(--line); padding: 36px 0 48px; color: var(--muted); font-size: 14px; }
-    footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; }
-    footer nav { display: flex; gap: 20px; flex-wrap: wrap; }
-
-    @media (max-width: 900px) {
-      .grid, .bounds { grid-template-columns: 1fr; }
-      .reel, .reel.flip { grid-template-columns: 1fr; gap: 22px; }
-      .reel.flip .reel-text { order: 0; }
-      .nav nav a.hide-sm { display: none; }
-    }
-    @media (max-width: 520px) {
-      .code { width: 100%; justify-content: space-between; font-size: 12.5px; padding-left: 12px; }
-      .button { width: 100%; justify-content: center; }
-    }
-    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    footer { border-top: 2px solid var(--ink); padding: 34px 0 48px; font-size: 15px; color: var(--ink-soft); }
+    footer .wrap { display: grid; gap: 16px; }
+    footer nav { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+    footer nav a { color: var(--ink); }
+    footer p { max-width: 90ch; margin: 0; }
   </style>
 </head>
 <body>
-  <header class="nav">
+  <header class="bar">
     <div class="wrap">
-      <a href="./" aria-label="Klemme15 home"><img src="brand/klemme15-lockup-dark.svg" alt="Klemme15" width="111" height="28"></a>
+      <a class="brand" href="#top"><img src="brand/klemme15-icon.svg" alt="" width="30" height="30">Klemme15</a>
       <nav aria-label="Main">
-        <a href="#cars" class="hide-sm">Cars</a>
-        <a href="#find" class="hide-sm">Features</a>
-        <a href="#compare" class="hide-sm">vs ISTA</a>
-        <a href="#start" class="hide-sm">Get started</a>
-        <a href="https://github.com/Expos-AI/Klemme15#readme">Docs</a>
-        <a href="https://github.com/Expos-AI/Klemme15">GitHub</a>
-        <a href="https://paypal.me/KindricC">Support</a>
+        <a href="#cars">Cars</a>
+        <a href="#find" class="wide-only">What it does</a>
+        <a href="#compare" class="wide-only">Compared with ISTA</a>
+        <a href="#start">Getting started</a>
+        <a href="https://github.com/Expos-AI/Klemme15" class="wide-only">GitHub</a>
+        <a href="#download" class="get">Download</a>
       </nav>
     </div>
   </header>
 
-  <main>
-    <!-- Hero -->
-    <section class="hero" style="border-top: 0">
+  <main id="top">
+    <div class="hero">
       <div class="wrap">
-        <!-- The app's startup animation, rebuilt from SplashWindow (same shapes and timing). Click it to replay. -->
-        <div id="ignition-stage" role="img" aria-label="Klemme15 starting up: the name types in, the logo appears, and its lamp lights when it's ready">
-        <div class="k15-splash">
-          <svg class="k15-mark" viewBox="0 0 970 240" aria-hidden="true"><g transform="translate(10 0)">
-          <g class="k15-tile"><rect width="240" height="240" rx="52.5" fill="#FFFFFF"/>
-          <path fill="#0B0F14" d="M41.6 76.9 Q41.6 73.1 45.3 73.1 L73.5 73.1 Q77.2 73.1 77.2 76.9 L77.2 110.6 L71.6 120.0 L71.6 162.2 L66.9 166.9 L51.9 166.9 L47.2 162.2 L47.2 120.0 L41.6 110.6 Z"/>
-          <rect x="46.3" y="90" width="26.2" height="3.8" rx="0.9" fill="#FFFFFF"/>
-          <path fill="#0B0F14" d="M108.81696428571429 73.125H121.67410714285714Q122.34375 73.125 122.8125 73.59375Q123.28125 74.0625 123.28125 74.73214285714286V165.26785714285714Q123.28125 165.9375 122.8125 166.40625Q122.34375 166.875 121.67410714285714 166.875H109.35267857142858Q108.68303571428572 166.875 108.21428571428572 166.40625Q107.74553571428572 165.9375 107.74553571428572 165.26785714285714V89.19642857142857Q107.74553571428572 88.92857142857143 107.47767857142858 88.72767857142858Q107.20982142857143 88.52678571428572 106.94196428571429 88.66071428571429L93.54910714285715 92.8125Q93.28125 92.94642857142857 92.87946428571429 92.94642857142857Q92.34375 92.94642857142857 92.00892857142858 92.54464285714286Q91.67410714285715 92.14285714285714 91.67410714285715 91.47321428571429L91.27232142857143 82.63392857142857Q91.27232142857143 81.29464285714286 92.34375 80.75892857142857L106.80803571428572 73.52678571428572Q107.87946428571429 73.125 108.81696428571429 73.125ZM198.41517857142856 137.27678571428572Q198.41517857142856 143.57142857142858 196.67410714285714 149.19642857142858Q193.86160714285714 157.76785714285714 186.36160714285714 162.79017857142856Q178.86160714285714 167.8125 168.81696428571428 167.8125Q158.90625 167.8125 151.54017857142856 162.92410714285714Q144.17410714285714 158.03571428571428 141.22767857142858 149.73214285714286Q140.15625 146.78571428571428 139.48660714285714 143.03571428571428V142.76785714285714Q139.48660714285714 141.29464285714286 141.09375 141.29464285714286H153.81696428571428Q155.15625 141.29464285714286 155.55803571428572 142.76785714285714Q155.69196428571428 143.57142857142858 156.22767857142856 145.17857142857144Q157.70089285714286 149.59821428571428 160.91517857142856 152.00892857142856Q164.12946428571428 154.41964285714286 168.68303571428572 154.41964285714286Q173.37053571428572 154.41964285714286 176.71875 151.80803571428572Q180.06696428571428 149.19642857142858 181.40625 144.64285714285714Q182.61160714285714 141.42857142857144 182.61160714285714 137.27678571428572Q182.61160714285714 133.39285714285714 181.54017857142856 129.64285714285714Q180.60267857142856 125.22321428571428 177.25446428571428 122.87946428571428Q173.90625 120.53571428571428 169.08482142857144 120.53571428571428Q164.53125 120.53571428571428 160.84821428571428 122.61160714285714Q157.16517857142856 124.6875 156.09375 128.03571428571428Q155.55803571428572 129.375 154.21875 129.375H141.22767857142858Q140.55803571428572 129.375 140.08928571428572 128.90625Q139.62053571428572 128.4375 139.62053571428572 127.76785714285714V74.73214285714286Q139.62053571428572 74.0625 140.08928571428572 73.59375Q140.55803571428572 73.125 141.22767857142858 73.125H193.32589285714286Q193.99553571428572 73.125 194.46428571428572 73.59375Q194.93303571428572 74.0625 194.93303571428572 74.73214285714286V84.91071428571429Q194.93303571428572 85.58035714285714 194.46428571428572 86.04910714285714Q193.99553571428572 86.51785714285714 193.32589285714286 86.51785714285714H155.82589285714286Q155.15625 86.51785714285714 155.15625 87.1875L155.02232142857142 111.29464285714286Q155.02232142857142 111.83035714285714 155.29017857142856 111.89732142857143Q155.55803571428572 111.96428571428572 155.82589285714286 111.69642857142858Q162.12053571428572 107.00892857142858 170.95982142857144 107.00892857142858Q180.33482142857144 107.00892857142858 187.23214285714286 111.76339285714286Q194.12946428571428 116.51785714285714 196.67410714285714 124.82142857142857Q198.41517857142856 130.84821428571428 198.41517857142856 137.27678571428572Z"/></g>
-          <circle class="k15-lamp" cx="59.4" cy="148.1" r="5.6"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M307.808 168.96V71.04Q307.808 69.60000000000001 309.248 69.60000000000001H320.192Q321.632 69.60000000000001 321.632 71.04V116.976Q321.632 117.26400000000001 321.91999999999996 117.33600000000001Q322.20799999999997 117.40800000000002 322.352 117.12L363.536 70.46400000000001Q364.11199999999997 69.60000000000001 365.264 69.60000000000001H377.792Q378.656 69.60000000000001 378.94399999999996 70.10400000000001Q379.23199999999997 70.60800000000002 378.656 71.32800000000002L344.384 111.792Q344.24 112.22400000000002 344.384 112.656L381.104 168.672Q381.392 169.24800000000002 381.392 169.536Q381.392 170.4 380.24 170.4H367.712Q366.704 170.4 365.984 169.536L334.88 122.44800000000001Q334.736 122.16000000000001 334.448 122.16000000000001Q334.15999999999997 122.16000000000001 334.016 122.304L321.92 135.84Q321.632 136.416 321.632 136.56V168.96Q321.632 170.4 320.192 170.4H309.248Q307.808 170.4 307.808 168.96Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M396.224 168.96V71.04Q396.224 69.60000000000001 397.664 69.60000000000001H408.608Q410.048 69.60000000000001 410.048 71.04V168.96Q410.048 170.4 408.608 170.4H397.664Q396.224 170.4 396.224 168.96Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M491.26399999999995 137.856Q491.26399999999995 139.296 489.82399999999996 139.296H443.888Q443.31199999999995 139.296 443.31199999999995 139.872Q443.31199999999995 144.768 444.176 147.36Q445.76 153.12 450.58399999999995 156.36Q455.40799999999996 159.6 462.75199999999995 159.6Q473.40799999999996 159.6 479.16799999999995 150.816Q479.888 149.376 481.03999999999996 150.38400000000001L489.248 155.856Q490.256 156.72 489.67999999999995 157.728Q485.64799999999997 164.208 478.23199999999997 167.952Q470.816 171.696 461.45599999999996 171.696Q450.94399999999996 171.696 443.74399999999997 167.08800000000002Q436.544 162.48000000000002 432.94399999999996 153.984Q429.488 145.488 429.488 133.392Q429.488 122.88000000000001 431.072 117.40800000000002Q433.664 107.47200000000001 441.43999999999994 101.71200000000002Q449.21599999999995 95.95200000000001 460.304 95.95200000000001Q474.84799999999996 95.95200000000001 482.048 103.22400000000002Q489.248 110.49600000000001 490.832 124.608Q491.40799999999996 130.512 491.26399999999995 137.856ZM444.60799999999995 119.28Q443.59999999999997 122.44800000000001 443.31199999999995 127.34400000000001Q443.31199999999995 127.92000000000002 443.888 127.92000000000002H476.864Q477.44 127.92000000000002 477.44 127.34400000000001Q477.152 122.59200000000001 476.57599999999996 120.28800000000001Q475.13599999999997 114.67200000000001 470.888 111.28800000000001Q466.64 107.90400000000001 460.304 107.90400000000001Q454.11199999999997 107.90400000000001 450.08 111.0Q446.048 114.096 444.60799999999995 119.28Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M609.92 120.864V168.96Q609.92 170.4 608.48 170.4H597.68Q596.24 170.4 596.24 168.96V123.744Q596.24 116.54400000000001 592.28 112.296Q588.3199999999999 108.048 581.696 108.048Q575.072 108.048 570.896 112.224Q566.72 116.4 566.72 123.45600000000002V168.96Q566.72 170.4 565.28 170.4H554.48Q553.04 170.4 553.04 168.96V123.744Q553.04 116.54400000000001 549.0799999999999 112.296Q545.12 108.048 538.496 108.048Q531.872 108.048 527.912 112.224Q523.952 116.4 523.952 123.45600000000002V168.96Q523.952 170.4 522.512 170.4H511.568Q510.128 170.4 510.128 168.96V98.54400000000001Q510.128 97.10400000000001 511.568 97.10400000000001H522.512Q523.952 97.10400000000001 523.952 98.54400000000001V103.44000000000001Q523.952 103.72800000000001 524.168 103.87200000000001Q524.384 104.016 524.672 103.72800000000001Q531.008 96.09600000000002 543.104 96.09600000000002Q550.448 96.09600000000002 555.6320000000001 98.90400000000002Q560.816 101.71200000000002 563.696 107.18400000000001Q564.128 107.76000000000002 564.56 107.18400000000001Q568.016 101.56800000000001 573.704 98.83200000000002Q579.392 96.09600000000002 586.304 96.09600000000002Q597.248 96.09600000000002 603.5840000000001 102.64800000000002Q609.92 109.20000000000002 609.92 120.864Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M730.304 120.864V168.96Q730.304 170.4 728.864 170.4H718.064Q716.624 170.4 716.624 168.96V123.744Q716.624 116.54400000000001 712.664 112.296Q708.704 108.048 702.08 108.048Q695.456 108.048 691.28 112.224Q687.104 116.4 687.104 123.45600000000002V168.96Q687.104 170.4 685.664 170.4H674.864Q673.424 170.4 673.424 168.96V123.744Q673.424 116.54400000000001 669.4639999999999 112.296Q665.504 108.048 658.88 108.048Q652.256 108.048 648.296 112.224Q644.336 116.4 644.336 123.45600000000002V168.96Q644.336 170.4 642.896 170.4H631.952Q630.5120000000001 170.4 630.5120000000001 168.96V98.54400000000001Q630.5120000000001 97.10400000000001 631.952 97.10400000000001H642.896Q644.336 97.10400000000001 644.336 98.54400000000001V103.44000000000001Q644.336 103.72800000000001 644.552 103.87200000000001Q644.768 104.016 645.056 103.72800000000001Q651.392 96.09600000000002 663.488 96.09600000000002Q670.832 96.09600000000002 676.0160000000001 98.90400000000002Q681.2 101.71200000000002 684.08 107.18400000000001Q684.5120000000001 107.76000000000002 684.944 107.18400000000001Q688.4 101.56800000000001 694.088 98.83200000000002Q699.7760000000001 96.09600000000002 706.688 96.09600000000002Q717.6320000000001 96.09600000000002 723.9680000000001 102.64800000000002Q730.304 109.20000000000002 730.304 120.864Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M810.6560000000001 137.856Q810.6560000000001 139.296 809.216 139.296H763.28Q762.7040000000001 139.296 762.7040000000001 139.872Q762.7040000000001 144.768 763.568 147.36Q765.152 153.12 769.9760000000001 156.36Q774.8000000000001 159.6 782.144 159.6Q792.8000000000001 159.6 798.5600000000001 150.816Q799.28 149.376 800.432 150.38400000000001L808.64 155.856Q809.648 156.72 809.072 157.728Q805.04 164.208 797.624 167.952Q790.2080000000001 171.696 780.8480000000001 171.696Q770.336 171.696 763.136 167.08800000000002Q755.936 162.48000000000002 752.336 153.984Q748.88 145.488 748.88 133.392Q748.88 122.88000000000001 750.464 117.40800000000002Q753.056 107.47200000000001 760.8320000000001 101.71200000000002Q768.6080000000001 95.95200000000001 779.696 95.95200000000001Q794.24 95.95200000000001 801.44 103.22400000000002Q808.64 110.49600000000001 810.224 124.608Q810.8000000000001 130.512 810.6560000000001 137.856ZM764.0 119.28Q762.9920000000001 122.44800000000001 762.7040000000001 127.34400000000001Q762.7040000000001 127.92000000000002 763.28 127.92000000000002H796.2560000000001Q796.832 127.92000000000002 796.832 127.34400000000001Q796.544 122.59200000000001 795.9680000000001 120.28800000000001Q794.528 114.67200000000001 790.28 111.28800000000001Q786.032 107.90400000000001 779.696 107.90400000000001Q773.504 107.90400000000001 769.472 111.0Q765.44 114.096 764.0 119.28Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M845.7919999999999 69.60000000000001H857.1679999999999Q858.608 69.60000000000001 858.608 71.04V168.96Q858.608 170.4 857.1679999999999 170.4H846.2239999999999Q844.784 170.4 844.784 168.96V84.43200000000002Q844.784 84.144 844.568 84.0Q844.352 83.85600000000001 844.064 84.00000000000001L828.944 89.18400000000001Q828.656 89.32800000000002 828.2239999999999 89.32800000000002Q827.3599999999999 89.32800000000002 827.2159999999999 88.17600000000002L826.64 79.96800000000002Q826.64 78.528 827.5039999999999 78.24000000000001L843.92 70.03200000000001Q844.784 69.60000000000001 845.7919999999999 69.60000000000001Z"/>
-          <path class="k15-glyph" fill="#FFFFFF" d="M940.544 138.864Q940.544 145.632 938.816 151.392Q936.0799999999999 160.608 928.376 166.008Q920.672 171.40800000000002 910.016 171.40800000000002Q899.504 171.40800000000002 892.0160000000001 166.22400000000002Q884.528 161.04000000000002 881.504 152.112Q880.064 148.08 879.92 145.056V144.768Q879.92 143.616 881.216 143.616H892.592Q893.888 143.616 894.0319999999999 144.912Q894.1759999999999 145.92000000000002 894.752 147.936Q896.336 153.264 900.296 156.36Q904.256 159.45600000000002 909.872 159.45600000000002Q915.776 159.45600000000002 919.8799999999999 156.216Q923.9839999999999 152.976 925.424 147.216Q926.432 144.192 926.432 138.864Q926.432 134.11200000000002 925.568 130.08Q924.56 124.608 920.4559999999999 121.656Q916.352 118.70400000000001 910.304 118.70400000000001Q904.688 118.70400000000001 900.2239999999999 121.224Q895.76 123.744 894.4639999999999 127.92000000000002Q894.0319999999999 129.216 892.88 129.216H881.36Q879.92 129.216 879.92 127.77600000000001V71.04Q879.92 69.60000000000001 881.36 69.60000000000001H935.216Q936.656 69.60000000000001 936.656 71.04V80.11200000000001Q936.656 81.552 935.216 81.552H894.3199999999999Q893.744 81.552 893.744 82.12800000000001L893.6 112.22400000000002Q893.6 113.08800000000001 894.3199999999999 112.656Q897.776 109.632 902.3119999999999 108.12Q906.848 106.608 911.888 106.608Q921.968 106.608 929.24 111.64800000000001Q936.512 116.68800000000002 938.96 125.76000000000002Q940.544 132.096 940.544 138.864Z"/>
-          <rect class="k15-cursor" x="298.8" y="69.6" width="7" height="100.8" rx="1.2"/>
-          </g></svg>
-          <div class="k15-load">
-            <div class="k15-load-line"><span class="k15-status"></span><span class="k15-percent">0%</span></div>
-            <div class="k15-track"><div class="k15-fill"></div></div>
+        <h1>Free diagnostics for older BMWs, on your own laptop</h1>
+        <p class="lede">Read the faults and dash warnings stored in your E-series BMW, find out what they mean, and test a part before you buy it. It works with a K+DCAN cable, runs offline, needs no account, and nothing you read from the car leaves your computer.</p>
+
+        <div class="get-it">
+          <div class="get-row">
+            <a class="button" data-download href="https://github.com/Expos-AI/Klemme15/releases">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
+              <span data-download-label>Download Klemme15</span>
+            </a>
+            <div class="scoop">
+              <code id="scoop">scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15</code>
+              <button type="button" data-copy="scoop">Copy</button>
+            </div>
           </div>
-          <div class="k15-foot"><span>Open-source BMW diagnostics · Not affiliated with BMW AG</span><span class="k15-version"></span></div>
+          <p class="small">For Windows, macOS and Linux. Free and open source (GPL-3.0). Not affiliated with BMW AG. A beta, validated on a 2006 E90 325i: <a href="#cars">will it work on my car?</a></p>
+          <p class="small" data-mac-only hidden>Intel Mac? <a data-intel-mac href="https://github.com/Expos-AI/Klemme15/releases">Download the Intel version</a>.</p>
+          <p class="small" data-on-phone hidden>Klemme15 runs on a laptop (Windows, Mac or Linux), not on a phone. Open this page on your computer to download it.</p>
         </div>
+
+        <figure class="diagram off" id="diagram">
+          <svg class="wide" viewBox="0 0 1100 230" role="img" aria-labelledby="diagram-title">
+            <title id="diagram-title">Terminal 30, the battery, feeds the ignition switch. With the key on, terminal 15 goes live, the car's modules wake up, and Klemme15 can talk to them through the cable.</title>
+            <!-- Battery, terminal 30 -->
+            <rect class="box" x="20" y="58" width="120" height="74" rx="4"/>
+            <line class="line" x1="56" y1="78" x2="56" y2="112"/><line class="line" x1="72" y1="86" x2="72" y2="104"/>
+            <line class="line" x1="88" y1="78" x2="88" y2="112"/><line class="line" x1="104" y1="86" x2="104" y2="104"/>
+            <text class="term term30" x="20" y="40">30</text>
+            <text class="t" x="20" y="160">Battery, always live</text>
+            <!-- Ignition switch -->
+            <line class="line" x1="140" y1="95" x2="250" y2="95"/>
+            <circle cx="254" cy="95" r="6" fill="var(--ink)"/>
+            <line class="line lever" x1="254" y1="95" x2="326" y2="95"/>
+            <circle cx="330" cy="95" r="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.4"/>
+            <text class="t" x="232" y="160">Ignition switch</text>
+            <!-- Terminal 15 -->
+            <path class="wire15" d="M336 95 H560"/>
+            <text class="term term15" x="414" y="74">15</text>
+            <text class="t" x="374" y="128">Live with the key on</text>
+            <!-- Modules -->
+            <rect class="box" x="560" y="40" width="210" height="110" rx="4"/>
+            <circle class="lamp" cx="598" cy="72" r="9"/><circle class="lamp" cx="634" cy="72" r="9"/><circle class="lamp" cx="670" cy="72" r="9"/>
+            <circle class="lamp" cx="706" cy="72" r="9"/><circle class="lamp" cx="742" cy="72" r="9"/>
+            <text class="t" x="584" y="112">Engine, DSC, cluster,</text>
+            <text class="t" x="584" y="134">every other module</text>
+            <!-- Cable and laptop -->
+            <path class="wire15" d="M770 95 H900"/>
+            <text class="t" x="784" y="128">K+DCAN cable</text>
+            <rect class="box" x="900" y="44" width="170" height="104" rx="4"/>
+            <line class="line" x1="884" y1="160" x2="1086" y2="160"/>
+            <text class="t" x="918" y="84">Your laptop</text>
+            <text class="t ready" x="918" y="120">Klemme15 ready</text>
+          </svg>
+          <svg class="tall" viewBox="0 0 340 560" role="img" aria-labelledby="diagram-title-tall">
+            <title id="diagram-title-tall">Terminal 30, the battery, feeds the ignition switch. With the key on, terminal 15 goes live, the car's modules wake up, and Klemme15 can talk to them through the cable.</title>
+            <text class="term term30" x="20" y="34">30</text>
+            <rect class="box" x="20" y="46" width="110" height="64" rx="4"/>
+            <line class="line" x1="52" y1="62" x2="52" y2="94"/><line class="line" x1="67" y1="70" x2="67" y2="86"/>
+            <line class="line" x1="82" y1="62" x2="82" y2="94"/><line class="line" x1="97" y1="70" x2="97" y2="86"/>
+            <text class="t" x="148" y="84">Battery, always live</text>
+            <line class="line" x1="75" y1="110" x2="75" y2="150"/>
+            <circle cx="75" cy="154" r="6" fill="var(--ink)"/>
+            <line class="line lever lever-down" x1="75" y1="154" x2="75" y2="214"/>
+            <circle cx="75" cy="218" r="6" fill="var(--paper)" stroke="var(--ink)" stroke-width="2.4"/>
+            <text class="t" x="148" y="190">Ignition switch</text>
+            <path class="wire15" d="M75 224 V300"/>
+            <text class="term term15" x="96" y="270">15</text>
+            <text class="t" x="148" y="270">Live with the key on</text>
+            <rect class="box" x="20" y="300" width="300" height="92" rx="4"/>
+            <circle class="lamp" cx="52" cy="328" r="9"/><circle class="lamp" cx="86" cy="328" r="9"/><circle class="lamp" cx="120" cy="328" r="9"/>
+            <circle class="lamp" cx="154" cy="328" r="9"/><circle class="lamp" cx="188" cy="328" r="9"/>
+            <text class="t" x="38" y="362">Engine, DSC, cluster,</text>
+            <text class="t" x="38" y="382">every other module</text>
+            <path class="wire15" d="M75 392 V452"/>
+            <text class="t" x="96" y="428">K+DCAN cable</text>
+            <rect class="box" x="20" y="452" width="300" height="72" rx="4"/>
+            <line class="line" x1="8" y1="536" x2="332" y2="536"/>
+            <text class="t" x="38" y="482">Your laptop</text>
+            <text class="t ready" x="38" y="508">Klemme15 ready</text>
+          </svg>
+          <figcaption><b>Why the name.</b> Klemme 15 (terminal 15) is BMW's name for the wire that goes live when you turn the key. That's when the car's modules wake up and can be asked what's wrong, and that's when Klemme15 does its work.</figcaption>
+        </figure>
+
+        <figure class="shot">
+          <div class="screen"><img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/11-e90-325i-vehicle.png" alt="Klemme15 after a quick test of an E90 325i: every module on a top view of the car, with its faults and dash messages" width="1440" height="900" fetchpriority="high"></div>
+          <figcaption>After a quick test of an E90 325i: every module on a top view of the car, with its faults and dash messages.</figcaption>
+        </figure>
       </div>
-
-        <span class="eyebrow">Free · open source · offline</span>
-        <h1>Diagnose and fix your own BMW</h1>
-        <p class="lede">Read the faults and dash warnings stored in your E-series BMW, find out what they mean, and test a part before you buy it. It runs offline on your own laptop with a K+DCAN cable. Free, with no account, and nothing leaves your computer.</p>
-
-        <div class="cta">
-          <a class="button primary" data-download href="https://github.com/Expos-AI/Klemme15/releases">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
-            <span data-download-label>Download .ZIP</span>
-          </a>
-          <div class="code">
-            <span><span class="prompt">&gt; </span><code id="scoop">scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15</code></span>
-            <button class="copy" type="button" data-copy="scoop">Copy</button>
-          </div>
-        </div>
-        <p class="meta"><span>Windows, macOS, Linux</span><span>GPL-3.0</span><span>Not affiliated with BMW AG</span></p>
-        <p class="note" data-mac-only hidden>Intel Mac? <a data-intel-mac href="https://github.com/Expos-AI/Klemme15/releases">Download the Intel version</a>.</p>
-        <p class="note" data-on-phone hidden>Klemme15 runs on a laptop (Windows, Mac or Linux), not on a phone. Open this page on your computer to download it.</p>
-        <p class="note">Beta. Validated on a 2006 E90 325i: <a href="#cars">will it work on my car?</a></p>
-        <div class="frame hero-shot">
-          <img src="https://raw.githubusercontent.com/Expos-AI/Klemme15/screenshots/11-e90-325i-vehicle.png" alt="Klemme15 after a quick test of an E90 325i: every module on a top view of the car, with its faults and dash messages" width="1440" height="900" fetchpriority="high">
-        </div>
-      </div>
-    </section>
-
-
-    <!-- What it does: jump links -->
-    <section class="jumps-section">
-      <div class="wrap">
-        <div class="jumps">
-          <a class="jump" href="#find"><b>Find what's wrong</b><span>Every module's faults, in plain English</span></a>
-          <a class="jump" href="#test"><b>Test before you buy parts</b><span>Graphed tests that point to the cause</span></a>
-          <a class="jump" href="#workshop"><b>Do the workshop jobs</b><span>78 service functions, all experimental</span></a>
-          <a class="jump" href="#coding"><b>Code comfort options</b><span>Backed up first, restored if anything's off</span></a>
-          <a class="jump" href="#health"><b>Keep it healthy</b><span>Trends, your cars, buying a used one</span></a>
-          <a class="jump" href="#ghost"><b>Catch it in the act</b><span>Ghost Hunter, baselines, live values</span></a>
-          <a class="jump" href="#share"><b>Get help from anyone</b><span>Share your whole car in one file</span></a>
-          <a class="jump" href="#compare"><b>Klemme15 vs ISTA</b><span>What each one does, side by side</span></a>
-        </div>
-      </div>
-    </section>
+    </div>
 
     <!-- Supported vehicles -->
     <section id="cars">
       <div class="wrap">
         <h2>Will it work on my car?</h2>
-        <p class="section-lede">Klemme15 is built for BMW's E-series. Find your chassis code on the sticker in the door jamb or on your registration (the 2008 5 Series is an E60, for example).</p>
-        <div class="table-wrap">
-          <table class="compare cars-table">
-            <thead><tr><th scope="col">Chassis</th><th scope="col">Years</th><th scope="col">Models</th><th scope="col">Cable switch</th><th scope="col">Status</th></tr></thead>
-            <tbody>
-              <tr><th scope="row"><b>E90 · E91 · E92 · E93</b><span>3 Series</span></th><td>2006-2013</td><td class="models">316i-335i, 325xi-335xi and xDrive, 335is, 335d, M3, 316d-330d</td><td><span class="switch">D-CAN</span></td><td><span class="badge good">Validated</span></td></tr>
-              <tr><th scope="row"><b>E81 · E82 · E87 · E88</b><span>1 Series</span></th><td>2007-2013</td><td class="models">116i-130i, 135i, 135is, 1M, 116d-123d</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E60 · E61 · E63 · E64</b><span>5 Series, 6 Series</span></th><td>2007-2010</td><td class="models">523i-550i, 525xi-535xi and xDrive, 520d-535d, 630i, 650i, 635d, M5, M6</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E70 · E71</b><span>X5, X6</span></th><td>2007-2014</td><td class="models">X5 3.0si-xDrive50i, xDrive30d-40d, X5 M, X6 35i-50i, 30d-40d, X6 M</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E84</b><span>X1</span></th><td>2009-2015</td><td class="models">sDrive18i-xDrive35i, 20i, 18d-23d</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E89</b><span>Z4</span></th><td>2009-2016</td><td class="models">sDrive18i-35is</td><td><span class="switch">D-CAN</span></td><td><span class="badge">Like the E90 family · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E46</b><span>3 Series</span></th><td>1999-2006</td><td class="models">316i-330xi, 323Ci-330Ci, Compact, M3, 318d-330d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E39</b><span>5 Series</span></th><td>1997-2003</td><td class="models">520i-540i, M5, 520d-530d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E53</b><span>X5</span></th><td>2000-2006</td><td class="models">3.0i-4.8is, 3.0d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E85 · E86</b><span>Z4</span></th><td>2003-2008</td><td class="models">2.0i-3.0si, Z4 M</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E83</b><span>X3</span></th><td>2004-2006</td><td class="models">2.0i-3.0i, 2.0d, 3.0d</td><td><span class="switch">K-line</span></td><td><span class="badge">In development: engine over OBD-II, modules being mapped</span></td></tr>
-              <tr><th scope="row"><b>E38</b><span>7 Series</span></th><td>1995-2001</td><td class="models">728i-750iL, 730d</td><td><span class="switch">K-line</span></td><td><span class="badge">Engine and identification · validation in progress</span></td></tr>
-              <tr><th scope="row"><b>E36</b><span>3 Series</span></th><td>1996-1999</td><td class="models">318i-328is, 318ti, M3</td><td><span class="switch">K-line</span></td><td><span class="badge">In development: engine over OBD-II, modules being mapped · <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md">E36 tester guide</a></span></td></tr>
-            </tbody>
-          </table>
-        </div>
-        <ul class="small-print">
+        <p class="lede">Klemme15 is built for BMW's E-series. Your chassis code is on the sticker in the door jamb or on your registration (a 2008 5 Series is an E60, for example).</p>
+        <table class="cars">
+          <thead><tr><th scope="col">Chassis</th><th scope="col">Years</th><th scope="col">Models</th><th scope="col">Cable switch</th><th scope="col">Status</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">E90/E91/E92/E93<span>3 Series</span></th><td class="years">2006-2013</td><td class="models">316i-335i, 325xi-335xi and xDrive, 335is, 335d, M3, 316d-330d</td><td><span class="switch">D-CAN</span></td><td class="status good">Validated</td></tr>
+            <tr><th scope="row">E81/E82/E87/E88<span>1 Series</span></th><td class="years">2007-2013</td><td class="models">116i-130i, 135i, 135is, 1M, 116d-123d</td><td><span class="switch">D-CAN</span></td><td class="status">Like the E90 family, validation in progress</td></tr>
+            <tr><th scope="row">E60/E61/E63/E64<span>5 Series, 6 Series</span></th><td class="years">2007-2010</td><td class="models">523i-550i, 525xi-535xi and xDrive, 520d-535d, 630i, 650i, 635d, M5, M6</td><td><span class="switch">D-CAN</span></td><td class="status">Like the E90 family, validation in progress</td></tr>
+            <tr><th scope="row">E70/E71<span>X5, X6</span></th><td class="years">2007-2014</td><td class="models">X5 3.0si-xDrive50i, xDrive30d-40d, X5 M, X6 35i-50i, 30d-40d, X6 M</td><td><span class="switch">D-CAN</span></td><td class="status">Like the E90 family, validation in progress</td></tr>
+            <tr><th scope="row">E84<span>X1</span></th><td class="years">2009-2015</td><td class="models">sDrive18i-xDrive35i, 20i, 18d-23d</td><td><span class="switch">D-CAN</span></td><td class="status">Like the E90 family, validation in progress</td></tr>
+            <tr><th scope="row">E89<span>Z4</span></th><td class="years">2009-2016</td><td class="models">sDrive18i-35is</td><td><span class="switch">D-CAN</span></td><td class="status">Like the E90 family, validation in progress</td></tr>
+            <tr><th scope="row">E46<span>3 Series</span></th><td class="years">1999-2006</td><td class="models">316i-330xi, 323Ci-330Ci, Compact, M3, 318d-330d</td><td><span class="switch">K-line</span></td><td class="status">Engine and identification, validation in progress</td></tr>
+            <tr><th scope="row">E39<span>5 Series</span></th><td class="years">1997-2003</td><td class="models">520i-540i, M5, 520d-530d</td><td><span class="switch">K-line</span></td><td class="status">Engine and identification, validation in progress</td></tr>
+            <tr><th scope="row">E53<span>X5</span></th><td class="years">2000-2006</td><td class="models">3.0i-4.8is, 3.0d</td><td><span class="switch">K-line</span></td><td class="status">Engine and identification, validation in progress</td></tr>
+            <tr><th scope="row">E85/E86<span>Z4</span></th><td class="years">2003-2008</td><td class="models">2.0i-3.0si, Z4 M</td><td><span class="switch">K-line</span></td><td class="status">Engine and identification, validation in progress</td></tr>
+            <tr><th scope="row">E83<span>X3</span></th><td class="years">2004-2006</td><td class="models">2.0i-3.0i, 2.0d, 3.0d</td><td><span class="switch">K-line</span></td><td class="status">In development: engine over OBD-II, modules being mapped</td></tr>
+            <tr><th scope="row">E38<span>7 Series</span></th><td class="years">1995-2001</td><td class="models">728i-750iL, 730d</td><td><span class="switch">K-line</span></td><td class="status">Engine and identification, validation in progress</td></tr>
+            <tr><th scope="row">E36<span>3 Series</span></th><td class="years">1996-1999</td><td class="models">318i-328is, 318ti, M3</td><td><span class="switch">K-line</span></td><td class="status">In development: engine over OBD-II, modules being mapped. <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md">E36 tester guide</a></td></tr>
+          </tbody>
+        </table>
+        <ul class="notes">
           <li><b>D-CAN cars</b> (2006 on) get, without BMW files: every module's faults and dash messages, engine readings and live data, the guided tests except the water pump sweep, coding backups, battery registration (most engine computers) and Valvetronic learning (N52 engines only). Your own BMW files (EDIABAS mode, Windows) add every module's readings, the other service functions and BMW's fault texts.</li>
           <li><b>K-line cars</b> (E46 and older) get module identification, engine faults, live data, health history and the fuel trim test out of the box; every module's full fault memory needs your own BMW files (EDIABAS mode, Windows).</li>
-          <li><b>E60 / E61 / E63 / E64 and E8x built before March 2007</b> have no D-CAN and need EDIABAS mode. <b>F- and G-series</b> (Ethernet) aren't supported yet.</li>
+          <li><b>E60, E61, E63, E64 and E8x built before March 2007</b> have no D-CAN and need EDIABAS mode. <b>F- and G-series</b> (Ethernet) aren't supported yet.</li>
         </ul>
       </div>
     </section>
 
-    <section id="find" class="feature">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Diagnose</span>
+    <section id="find" class="tint">
+      <div class="wrap split">
+        <div>
           <h2>Find out what's wrong, in plain English</h2>
-          <p class="section-lede">Plug in, press one button, and Klemme15 asks every module in the car for its faults, then tells you what each one means and whether it needs fixing.</p>
-          <ul class="ticks">
-              <li><b>Quick test of every module.</b> Finds every fitted module with one broadcast, reads its part number and fault memory. 45 E90-family modules, 23 E46 modules.</li>
-              <li><b>One cause, not many.</b> Faults across modules that belong together are grouped: one low-voltage event, several modules that lost contact with the same one, or faults from the same mileage.</li>
-              <li><b>Every code explained.</b> 203 E90-family BMW codes researched in our own words with sources (and shown on other families where the module is the same version), all 2,066 standard OBD-II codes, and BMW's own text for your exact module when you have your BMW files.</li>
-              <li><b>Sorted by what matters.</b> Fix now, worth checking, or background, so ten codes don't turn into ten parts.</li>
-              <li><b>Why the triangle is lit.</b> 396 dash (Check Control) messages decoded, even when no module has a fault code.</li>
-              <li><b>The car's story.</b> The instrument cluster remembers its last warnings with the mileage; Klemme15 tells them as a timeline: a puncture here, a battery dip there.</li>
-              <li><b>Clear faults, Shadow / Info memory included.</b> Per module or the whole car, and Klemme15 shows which ones come straight back.</li>
-              <li><b>See where it is.</b> A top view of the car with each fault pinned to the part it points at.</li>
-          </ul>
+          <p class="lede">Plug in, press one button, and Klemme15 asks every module in the car for its faults, then tells you what each one means and whether it needs fixing.</p>
+          <dl class="legend">
+            <dt>Quick test</dt><dd>Finds every fitted module with one broadcast and reads its part number and fault memory. 45 E90-family modules, 23 E46 modules.</dd>
+            <dt>One cause, not many</dt><dd>Faults that belong together are grouped: one low-voltage event, several modules that lost contact with the same one, or faults from the same mileage.</dd>
+            <dt>Every code explained</dt><dd>203 E90-family BMW codes researched in our own words with sources (and shown on other families where the module is the same version), all 2,066 standard OBD-II codes, and BMW's own text for your exact module when you have your BMW files.</dd>
+            <dt>Sorted by what matters</dt><dd>Fix now, worth checking, or background, so ten codes don't turn into ten parts.</dd>
+            <dt>Why the triangle is lit</dt><dd>396 dash (Check Control) messages decoded, even when no module has a fault code.</dd>
+            <dt>The car's story</dt><dd>The instrument cluster remembers its last warnings with the mileage. Klemme15 tells them as a timeline: a puncture here, a battery dip there.</dd>
+            <dt>Clear faults</dt><dd>Shadow and Info memory included, per module or the whole car, and Klemme15 shows which ones come straight back.</dd>
+            <dt>See where it is</dt><dd>A top view of the car with each fault pinned to the part it points at.</dd>
+          </dl>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/quick-test.jpg" width="720" height="900" aria-label="Klemme15 Faults page with faults sorted by priority, health trends and the car's warning history"><source src="media/quick-test.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/quick-test.jpg" width="720" height="900" aria-label="Klemme15 Faults page with faults sorted by priority, health trends and the car's warning history"><source src="media/quick-test.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app.</figcaption></figure>
+      </div>
+      <div class="wrap pair">
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/plain-english.jpg" width="720" height="900" aria-label="A fault explained in plain English, then its troubleshooting steps"><source src="media/plain-english.mp4" type="video/mp4"></video></div>
+          <figcaption>What the code means, how urgent it is, and the checks to do, with the sources the meaning comes from.</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/battery-drain.jpg" width="720" height="900" aria-label="The battery drain finder: clues from the car, days until it won't start, the fuse hunt"><source src="media/battery-drain.mp4" type="video/mp4"></video></div>
+          <figcaption>Battery flat after the car sits? What the car recorded, how many days your parked current leaves you, and the hunt for the circuit, one fuse at a time.</figcaption></figure>
       </div>
     </section>
-    <section id="test" class="feature flip">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Test</span>
+
+    <section id="test">
+      <div class="wrap split reverse">
+        <div>
           <h2>Test the part before you buy it</h2>
-          <p class="section-lede">Guided tests tell you what to do (idle, hold 2,500 rpm, blip the throttle), graph what the engine does, and finish with a plain verdict.</p>
-          <ul class="ticks">
-              <li><b>Fuel trim test.</b> Lean at idle but fine at 2,500 rpm is a vacuum leak; lean everywhere is fuel delivery or the air mass meter.</li>
-              <li><b>Start from a symptom.</b> No code, or no idea where to begin? Pick what the car does and get what it already reports, then what to do in order.</li>
-              <li><b>Vacuum leak hunter.</b> A diagnostic chain that measures your fuel trims, asks you to lift the oil filler cap, and points to the crankcase vent valve or the leak.</li>
-              <li><b>VANOS, cylinder roughness, water pump.</b> Target against actual, cylinder by cylinder, requested pump speed against real speed.</li>
-              <li><b>Rough idle and air conditioning.</b> Idle with the air conditioning off, then on: does the idle hunt, does it chug when the compressor engages, does one cylinder falter under the load, or is the engine fine and the shake coming through the mounts.</li>
-              <li><b>Charging system check.</b> Battery at rest, alternator at idle and under load: a tired battery or a weak alternator?</li>
-              <li><b>Why won't it start?</b> Battery, cranking and the start-chain faults, routed to a cause.</li>
-              <li><b>How to check it.</b> Multimeter and swap checks under matching faults: connectors, grounds, VANOS solenoids, coils, sensors.</li>
-              <li><b>Readings and live data.</b> Engine values out of the box, every module's values with your BMW files. Live graphs, CSV recording and an Analyse page to replay a log.</li>
-              <li><b>Garage mode.</b> A high-contrast theme, black on white with larger small print, for a laptop on the fender in daylight.</li>
-          </ul>
+          <p class="lede">Guided tests tell you what to do (idle, hold 2,500 rpm, blip the throttle), graph what the engine does, and finish with a plain verdict.</p>
+          <dl class="legend">
+            <dt>Fuel trim test</dt><dd>Lean at idle but fine at 2,500 rpm is a vacuum leak; lean everywhere is fuel delivery or the air mass meter.</dd>
+            <dt>Start from a symptom</dt><dd>No code, or no idea where to begin? Pick what the car does and get what it already reports, then what to do in order.</dd>
+            <dt>Vacuum leak hunter</dt><dd>A diagnostic chain that measures your fuel trims, asks you to lift the oil filler cap, and points to the crankcase vent valve or the leak. Anyone can write a chain; chains only read and ask.</dd>
+            <dt>VANOS, cylinders, water pump</dt><dd>Target against actual, cylinder by cylinder, requested pump speed against real speed.</dd>
+            <dt>Rough idle and air conditioning</dt><dd>Idle with the air conditioning off, then on: does the idle hunt, does it chug when the compressor engages, does one cylinder falter under the load, or is the engine fine and the shake coming through the mounts.</dd>
+            <dt>Charging system</dt><dd>Battery at rest, alternator at idle and under load: a tired battery or a weak alternator?</dd>
+            <dt>Why won't it start?</dt><dd>Battery, cranking and the start-chain faults, routed to a cause.</dd>
+            <dt>How to check it</dt><dd>Multimeter and swap checks under matching faults: connectors, grounds, VANOS solenoids, coils, sensors.</dd>
+            <dt>Readings and live data</dt><dd>Engine values out of the box, every module's values with your BMW files. Live graphs, CSV recording and an Analyse page to replay a log.</dd>
+            <dt>Garage mode</dt><dd>A high-contrast theme, black on white with larger small print, for a laptop on the fender in daylight.</dd>
+          </dl>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/tests.jpg" width="720" height="900" aria-label="Klemme15 Tests page with a fuel trim test graph"><source src="media/tests.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/tests.jpg" width="720" height="900" aria-label="Klemme15 Tests page with a fuel trim test graph"><source src="media/tests.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app.</figcaption></figure>
+      </div>
+      <div class="wrap pair">
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/step-by-step.jpg" width="720" height="900" aria-label="The Vacuum leak hunter asking its question and giving its verdict"><source src="media/step-by-step.mp4" type="video/mp4"></video></div>
+          <figcaption>The Vacuum leak hunter compares your fuel trims at idle and 2,500 rpm, asks one question and points to the likely cause.</figcaption></figure>
       </div>
     </section>
-    <section id="workshop" class="feature">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Service functions</span>
+
+    <section id="workshop" class="tint">
+      <div class="wrap split">
+        <div>
           <h2>Do the workshop jobs yourself</h2>
-          <p class="section-lede">Service functions check the car first, ask you to confirm each requirement, run BMW's own procedure for your module version and show the result. Battery registration (on most engine computers) and Valvetronic learning (N52 engines with MSV70 or MSV80 engine computers only) work over the cable alone; the rest use your own BMW files (EDIABAS mode, Windows).</p>
-          <ul class="ticks">
-              <li><b>Battery registration.</b> After fitting a new battery. Validated on an E90.</li>
-              <li><b>Service reminders.</b> Oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check.</li>
-              <li><b>Engine.</b> Adaptation reset, Valvetronic and DISA learning, cylinder cut-out test, fuel tank leak test, VANOS flush.</li>
-              <li><b>Component tests.</b> Radiator fan, fuel pump, thermostat, electric water pump, throttle, DISA flap, purge valve.</li>
-              <li><b>Steering lock.</b> Red steering wheel on an early E90 with a key slot? Clear the lock's event counters after charging the battery, the reset owners ask for most. Keys and immobiliser data are never touched.</li>
-              <li><b>Brakes, DSC and steering.</b> Steering angle calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test.</li>
-              <li><b>Gearbox, xDrive and diesel.</b> Automatic gearbox adaptation reset, SMG learning, xDrive relearn, glow plugs, EGR, injector codes.</li>
-              <li><b>Body.</b> Windows, sunroof, climate flaps, rain sensor, and restarting a frozen iDrive, Bluetooth or amplifier without pulling the battery.</li>
-          </ul>
-            <p class="note">78 functions in all, all experimental. Battery registration is validated on an E90; every function remains behind the experimental switch until it is marked validated.</p>
+          <p class="lede">Service functions check the car first, ask you to confirm each requirement, run BMW's own procedure for your module version and show the result.</p>
+          <p class="soft">Battery registration (on most engine computers) and Valvetronic learning (N52 engines with MSV70 or MSV80 engine computers only) work over the cable alone; the rest use your own BMW files (EDIABAS mode, Windows). If a module refuses, Klemme15 says why in plain words and lists the faults it has stored.</p>
+          <dl class="legend">
+            <dt>Battery registration</dt><dd>After fitting a new battery. Validated on an E90.</dd>
+            <dt>Service reminders</dt><dd>Oil, brake pads, brake fluid, microfilter, spark plugs, vehicle check.</dd>
+            <dt>Engine</dt><dd>Adaptation reset, Valvetronic and DISA learning, cylinder cut-out test, fuel tank leak test, VANOS flush.</dd>
+            <dt>Component tests</dt><dd>Radiator fan, fuel pump, thermostat, electric water pump, throttle, DISA flap, purge valve.</dd>
+            <dt>Steering lock</dt><dd>Red steering wheel on an early E90 with a key slot? Clear the lock's event counters after charging the battery, the reset owners ask for most. Keys and immobiliser data are never touched.</dd>
+            <dt>Brakes, DSC, steering</dt><dd>Steering angle calibration, ABS unit bleeding, flat tyre monitor reset, wheel speed sensor test.</dd>
+            <dt>Gearbox, xDrive, diesel</dt><dd>Automatic gearbox adaptation reset, SMG learning, xDrive relearn, glow plugs, EGR, injector codes.</dd>
+            <dt>Body</dt><dd>Windows, sunroof, climate flaps, rain sensor, and restarting a frozen iDrive, Bluetooth or amplifier without pulling the battery.</dd>
+          </dl>
+          <p class="small" style="margin-top: 18px">78 functions in all, all experimental. Battery registration is validated on an E90; every function stays behind the experimental switch until it is marked validated.</p>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/service.jpg" width="720" height="900" aria-label="Klemme15 Service page running a service function"><source src="media/service.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/service.jpg" width="720" height="900" aria-label="Klemme15 Service page running a service function"><source src="media/service.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app.</figcaption></figure>
       </div>
     </section>
-    <section id="coding" class="feature flip">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Code</span>
+
+    <section id="coding">
+      <div class="wrap split reverse">
+        <div>
           <h2>Code comfort options, with a way back</h2>
-          <p class="section-lede">Back up a module's coding before any tool touches it, switch popular options, and get the original back automatically if anything reads back wrong.</p>
-          <ul class="ticks">
-              <li><b>Backup, compare, restore.</b> For the comfort modules on D-CAN cars, with no BMW files. Restoring writes to the module, so it's experimental.</li>
-              <li><b>Quick codes (experimental).</b> LED bulb-check off, digital speed, mirror fold, windows that keep closing when a door opens, and more.</li>
-              <li><b>Never guesses.</b> An option unlocks only when Klemme15 knows exactly where it lives on your module: verified against NCS Expert, learned from another tool, or a shared coding map.</li>
-              <li><b>FRM3 protection.</b> The footwell module that corrupts itself on a voltage dip is recognised and only written to at 13.0 V or more, on a charger.</li>
-              <li><b>Retrofit checker.</b> Notices a swapped or added module and tells you what the job needs.</li>
-          </ul>
+          <p class="lede">Back up a module's coding before any tool touches it, switch popular options, and get the original back automatically if anything reads back wrong.</p>
+          <dl class="legend">
+            <dt>Backup, compare, restore</dt><dd>For the comfort modules on D-CAN cars, with no BMW files. Restoring writes to the module, so it's experimental.</dd>
+            <dt>Quick codes</dt><dd>LED bulb-check off, digital speed, mirror fold, windows that keep closing when a door opens, and more. Experimental.</dd>
+            <dt>Never guesses</dt><dd>An option unlocks only when Klemme15 knows exactly where it lives on your module: verified against NCS Expert, learned from another tool, or a shared coding map.</dd>
+            <dt>FRM3 protection</dt><dd>The footwell module that corrupts itself on a voltage dip is recognised by its part number and only written to at 13.0 V or more, on a charger.</dd>
+            <dt>Retrofit checker</dt><dd>Notices a swapped or added module and tells you what the job needs.</dd>
+          </dl>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/coding.jpg" width="720" height="900" aria-label="Klemme15 Coding page with a module backup and comparison"><source src="media/coding.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/coding.jpg" width="720" height="900" aria-label="Klemme15 Coding page with a module backup and comparison"><source src="media/coding.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app.</figcaption></figure>
       </div>
     </section>
-    <section id="health" class="feature">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Over time</span>
+
+    <section id="health" class="tint">
+      <div class="wrap split">
+        <div>
           <h2>Keep it healthy, and buy the right one</h2>
-          <p class="section-lede">Every quick test leaves a small record on your computer, so Klemme15 can spot what's drifting before it becomes a fault.</p>
-          <ul class="ticks">
-              <li><b>Battery drain finder.</b> Battery flat after the car sits? Klemme15 lists what the car recorded about it, tells you how many days your parked current leaves you, and walks you through the fuse-pull hunt for the circuit.</li>
-              <li><b>Health over time.</b> A battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back.</li>
-              <li><b>Your cars.</b> Every car you've scanned, with its latest state: a fleet view for a family or a small shop.</li>
-              <li><b>Buying a used BMW?</b> The mileage check reads what every module remembers, including the engine computer's own count, and compares it with the odometer, so a wound-back cluster shows up. It also flags safety faults and freshly cleared codes.</li>
-              <li><b>Private.</b> The history stores no VIN and stays on your computer. Forget a car with one click.</li>
-          </ul>
+          <p class="lede">Every quick test leaves a small record on your computer, so Klemme15 can spot what's drifting before it becomes a fault.</p>
+          <dl class="legend">
+            <dt>Health over time</dt><dd>A battery resting lower each week, charging out of range, fuel trims creeping lean, faults that keep coming back.</dd>
+            <dt>Your cars</dt><dd>Every car you've scanned, with its latest state: a fleet view for a family or a small shop.</dd>
+            <dt>Buying a used BMW?</dt><dd>The mileage check reads what every module remembers, including the engine computer's own count, and compares it with the odometer, so a wound-back cluster shows up. It also flags safety faults and freshly cleared codes.</dd>
+            <dt>Private</dt><dd>The history stores no VIN and stays on your computer. Forget a car with one click.</dd>
+          </dl>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/buying-check.jpg" width="720" height="900" aria-label="Klemme15 Garage with every model and its demo car"><source src="media/buying-check.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/buying-check.jpg" width="720" height="900" aria-label="Klemme15 pre-purchase check comparing the mileage each module remembers"><source src="media/buying-check.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app.</figcaption></figure>
       </div>
     </section>
-    <section id="ghost" class="feature flip">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Catch and compare</span>
+
+    <section id="ghost">
+      <div class="wrap split reverse">
+        <div>
           <h2>Catch the fault that only happens sometimes</h2>
-          <p class="section-lede">Tick what you're chasing, drive, and Klemme15 saves the minute before and after it happens.</p>
-          <ul class="ticks">
-              <li><b>Ghost Hunter.</b> Say what you're chasing in plain words (an intermittent misfire, a voltage dip, a lean idle, a chug at idle, running rich, overheating, a charging dropout, a stall) and drive. When it happens, Klemme15 saves a snapshot with the minute before and the minute after, and for a misfire it names the rough cylinder. A <i>Right now</i> list shows what each watch is waiting for, like a warm engine or the car moving. Nothing to tap while driving.</li>
-              <li><b>Known good baselines.</b> The healthy range drawn behind your log, lined up by engine speed, with a line saying where your engine leaves it. Make one from your own car when it runs well, or share it with one button: a check on GitHub builds your engine's community baseline. An N52 physics model ships, clearly labelled as not measured.</li>
-              <li><b>Sustained drift.</b> With a baseline chosen, Klemme15 also says whether a value stayed outside the healthy range and from what point in the log. A measure of distance from the baseline, not a failure forecast.</li>
-              <li><b>Live values on the car.</b> Coolant, battery voltage, oil and intake temperature on the top view of the car, where each one happens, amber or red when out of range.</li>
-          </ul>
+          <p class="lede">Say what you're chasing, drive, and Klemme15 saves the minute before and after it happens.</p>
+          <dl class="legend">
+            <dt>Ghost Hunter</dt><dd>An intermittent misfire, a voltage dip, a lean idle, a chug at idle, running rich, overheating, a charging dropout, a stall. When it happens, Klemme15 saves a snapshot with the minute before and the minute after, and for a misfire it names the rough cylinder. A <i>Right now</i> list shows what each watch is waiting for.</dd>
+            <dt>Known good baselines</dt><dd>The healthy range drawn behind your log, lined up by engine speed, with a line saying where your engine leaves it. Make one from your own car when it runs well, or share it: a check on GitHub builds your engine's community baseline. An N52 physics model ships, clearly labelled as not measured.</dd>
+            <dt>Sustained drift</dt><dd>With a baseline chosen, Klemme15 says whether a value stayed outside the healthy range and from what point in the log. A measure of distance from the baseline, not a failure forecast.</dd>
+            <dt>Live values on the car</dt><dd>Coolant, battery voltage, oil and intake temperature on the top view of the car, where each one happens, amber or red when out of range.</dd>
+          </dl>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/ghost-hunter.jpg" width="720" height="900" aria-label="Klemme15 Ghost Hunter watching for a condition and saving a capture"><source src="media/ghost-hunter.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/ghost-hunter.jpg" width="720" height="900" aria-label="Klemme15 Ghost Hunter watching for a condition and saving a capture"><source src="media/ghost-hunter.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app.</figcaption></figure>
       </div>
-      <div class="wrap shot-pair">
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/compare-healthy.jpg" width="720" height="900" aria-label="A healthy fuel trim band drawn behind a log that runs lean at idle"><source src="media/compare-healthy.mp4" type="video/mp4"></video></div>
-          <figcaption><b>Demo car.</b> A healthy band behind your log. This one runs lean at idle and fine above it: the vacuum-leak pattern.</figcaption></figure>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/live-on-car.jpg" width="720" height="900" aria-label="Coolant, engine speed and battery voltage shown live on the top view of the car"><source src="media/live-on-car.mp4" type="video/mp4"></video></div>
-          <figcaption><b>Demo car.</b> Live values where they happen: coolant at the engine, voltage at the battery.</figcaption></figure>
+      <div class="wrap pair">
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/compare-healthy.jpg" width="720" height="900" aria-label="A healthy fuel trim band drawn behind a log that runs lean at idle"><source src="media/compare-healthy.mp4" type="video/mp4"></video></div>
+          <figcaption>A healthy band behind your log. This one runs lean at idle and fine above it: the vacuum-leak pattern.</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/live-on-car.jpg" width="720" height="900" aria-label="Coolant, engine speed and battery voltage shown live on the top view of the car"><source src="media/live-on-car.mp4" type="video/mp4"></video></div>
+          <figcaption>Live values where they happen: coolant at the engine, voltage at the battery.</figcaption></figure>
       </div>
     </section>
-    <section id="share" class="feature">
-      <div class="wrap feature-grid">
-        <div class="feature-text">
-          <span class="eyebrow">Get help</span>
+
+    <section id="share" class="tint">
+      <div class="wrap split">
+        <div>
           <h2>Get help from anyone, anywhere</h2>
-          <p class="section-lede">Send one file instead of a list of codes. Whoever helps you opens your car read-only.</p>
-          <ul class="ticks">
-              <li><b>Snapshots (.k15).</b> Modules, faults, dash messages, health trends, your test graphs and, if you include it, the last minute of live data, in one file, opened read-only with your note on top. VIN removed. No Klemme15 on the other end? <a href="viewer.html">Open a snapshot in the browser</a>.</li>
-              <li><b>Fingerprints.</b> Every snapshot has a short fingerprint. Post it next to the file and the buyer or helper can see the file wasn't changed.</li>
-              <li><b>Compare two snapshots.</b> Before and after a repair: which faults are gone, which are new, and which are still there.</li>
-              <li><b>Session recordings (.k15log).</b> Record everything Klemme15 asks and the car answers, then play it back later without the car. It contains the VIN, so share it privately. Pending field validation.</li>
-              <li><b>Community reading maps.</b> Small files, worked out on real cars, that let Klemme15 show a module's values without BMW files. Read requests only. Pending field validation.</li>
-              <li><b>Forum post.</b> One click copies a short summary with the VIN removed, ready for E90Post, Reddit or Bimmerforums.</li>
-              <li><b>Reports.</b> HTML, Markdown or JSON.</li>
-              <li><b>Phone dashboard.</b> Leave a small Linux computer on the OBD port and watch gauges and faults on your phone. A Raspberry Pi needs a build from source for now.</li>
-          </ul>
+          <p class="lede">Send one file instead of a list of codes. Whoever helps you opens your car read-only.</p>
+          <dl class="legend">
+            <dt>Snapshots (.k15)</dt><dd>Modules, faults, dash messages, health trends, your test graphs and, if you include it, the last minute of live data, in one file, opened read-only with your note on top. VIN removed. No Klemme15 on the other end? <a href="viewer.html">Open a snapshot in the browser</a>.</dd>
+            <dt>Fingerprints</dt><dd>Every snapshot has a short fingerprint. Post it next to the file and the buyer or helper can see the file wasn't changed.</dd>
+            <dt>Compare two snapshots</dt><dd>Before and after a repair: which faults are gone, which are new, and which are still there.</dd>
+            <dt>Session recordings (.k15log)</dt><dd>Record everything Klemme15 asks and the car answers, then play it back later without the car. It contains the VIN, so share it privately. Pending field validation.</dd>
+            <dt>Community reading maps</dt><dd>Small files, worked out on real cars, that let Klemme15 show a module's values without BMW files. Read requests only. Pending field validation.</dd>
+            <dt>Forum post</dt><dd>One click copies a short summary with the VIN removed, ready for E90Post, Reddit or Bimmerforums.</dd>
+            <dt>Reports</dt><dd>HTML, Markdown or JSON.</dd>
+            <dt>Phone dashboard</dt><dd>Leave a small Linux computer on the OBD port and watch gauges and faults on your phone. A Raspberry Pi needs a build from source for now.</dd>
+          </dl>
         </div>
-        <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/share.jpg" width="720" height="900" aria-label="A shared Klemme15 snapshot opened read-only with the owner's note"><source src="media/share.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
+        <figure class="clip"><div class="screen"><video muted loop playsinline preload="none" poster="media/share.jpg" width="720" height="900" aria-label="A shared Klemme15 snapshot opened read-only with the owner's note"><source src="media/share.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app.</figcaption></figure>
       </div>
     </section>
-    <!-- Why -->
+
     <section id="why">
       <div class="wrap">
         <h2>Built for owners, not dealerships</h2>
-        <p class="section-lede">Factory tools are made for workshops with a licence, a dedicated laptop and an afternoon to install them. Klemme15 runs on the laptop you already have.</p>
-        <div class="grid">
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
-            <h3>Small and portable</h3>
-            <p>Unzip and run, or install with Scoop on Windows. It runs on the Windows, Mac or Linux laptop you already have, without a licence key or a virtual machine.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.4-8 9-4.6-.6-8-4.5-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-            <h3>Careful with your modules</h3>
-            <p>Every coding change is backed up, read back and put back automatically if anything is off. Klemme15 recognises the FRM3 footwell module, which can corrupt itself on a voltage dip, by its part number and writes to it only at 13.0 V or more.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg></div>
-            <h3>Faults in plain English</h3>
-            <p>Every fault gets a meaning and a place: fix now, worth checking or background. 203 BMW codes and 396 dash messages are researched in our own words with sources, plus all standard OBD-II codes, and BMW's own text from your files when you have them.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7V3M15 7V3M7 7h10v5a5 5 0 0 1-10 0z"/><path d="M12 17v4"/></svg></div>
-            <h3>Checks your cable first</h3>
-            <p>Most "the software doesn't work" moments are the cable. Before it talks to the car, Klemme15 looks for the signs of a cloned chip, a slow latency setting or a port another program holds, and tells you what to change.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></div>
-            <h3>Survives a pulled cable</h3>
-            <p>If a job is cut off by a loose cable, a sleeping laptop or a forced restart, Klemme15 remembers it and says what to do next. The water pump test's pump is switched off again when you reconnect; other part tests end on BMW's own timeout. The laptop stays awake while jobs run.</p>
-          </article>
-          <article class="card">
-            <div class="icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
-            <h3>Downloads you can verify</h3>
-            <p>Every release is built in the open by GitHub from this repository, with checksums and a signed record of exactly which code it was built from.</p>
-          </article>
+        <p class="lede">Factory tools are made for workshops with a licence, a dedicated laptop and an afternoon to install them. Klemme15 runs on the laptop you already have.</p>
+        <div class="points">
+          <div><h3>Small and portable</h3><p>Unzip and run, or install with Scoop on Windows. It runs on the Windows, Mac or Linux laptop you already have, without a licence key or a virtual machine.</p></div>
+          <div><h3>Careful with your modules</h3><p>Every coding change is backed up, read back and put back automatically if anything is off. The FRM3 footwell module, which can corrupt itself on a voltage dip, is only written to at 13.0 V or more.</p></div>
+          <div><h3>Checks your cable first</h3><p>Most "the software doesn't work" moments are the cable. Before it talks to the car, Klemme15 looks for the signs of a cloned chip, a slow latency setting or a port another program holds, and tells you what to change.</p></div>
+          <div><h3>Survives a pulled cable</h3><p>If a job is cut off by a loose cable, a sleeping laptop or a forced restart, Klemme15 remembers it and says what to do next. The water pump test's pump is switched off again when you reconnect; other part tests end on BMW's own timeout. The laptop stays awake while jobs run.</p></div>
+          <div><h3>Downloads you can verify</h3><p>Every release is built in the open by GitHub from this repository, with checksums and a signed record of exactly which code it was built from.</p></div>
+          <div><h3>Private by design</h3><p>No account, no analytics, no ads. Nothing you read from your car leaves your computer unless you choose to share it. <a href="https://github.com/Expos-AI/Klemme15/blob/main/PRIVACY.md">Privacy policy</a>.</p></div>
         </div>
       </div>
     </section>
 
-    <!-- Demo reels: CI screenshots of the current build. -->
-    <section id="demos">
-      <div class="wrap">
-        <h2>Try it on the demo car</h2>
-        <p class="section-lede">Each of these runs on the built-in demo car, so you can try it without a cable.</p>
-
-        <div class="reel">
-          <div class="reel-text">
-            <span class="eyebrow">Fault meanings</span>
-            <h3>What the code means, and what to check</h3>
-            <p>Every fault comes with a plain-English meaning, how urgent it is, and where on the car it points. Press Troubleshoot and the checks open, step by step, with the sources the meaning comes from.</p>
-            <ul><li>Fix now, worth checking, or background</li><li>Sources and confidence on every meaning</li></ul>
-          </div>
-          <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/plain-english.jpg" width="720" height="900" aria-label="A fault explained in plain English, then its troubleshooting steps"><source src="media/plain-english.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
-        </div>
-
-        <div class="reel flip">
-          <div class="reel-text">
-            <span class="eyebrow">Diagnostic Chains</span>
-            <h3>A mechanic's reasoning, step by step</h3>
-            <p>Lean codes? The Vacuum leak hunter compares your fuel trims at idle and 2,500 rpm, checks the airflow against your engine's size, asks you one question and points to the likely cause, with the numbers and graphs to back it up.</p>
-            <ul><li>Anyone can write one; chains only read and ask</li><li>Offered right under the fault it explains</li></ul>
-          </div>
-          <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/step-by-step.jpg" width="720" height="900" aria-label="The Vacuum leak hunter asking its question and giving its verdict"><source src="media/step-by-step.mp4" type="video/mp4"></video></div><figcaption>Demo car, sped up, recorded from the app</figcaption></figure>
-        </div>
-
-        <div class="reel">
-          <div class="reel-text">
-            <span class="eyebrow">Battery drain finder</span>
-            <h3>Battery flat after the car sits?</h3>
-            <p>Klemme15 lists what the car itself recorded about its battery running down, works out how many days your parked current leaves you before it won't start, and walks you through finding the circuit, fuse by fuse.</p>
-            <ul><li>The car's own records plus one meter reading</li><li>A guided hunt, one fuse at a time</li></ul>
-          </div>
-          <figure class="clip"><div class="frame"><video muted loop playsinline preload="none" poster="media/battery-drain.jpg" width="720" height="900" aria-label="The battery drain finder: clues from the car, days until it won't start, the fuse hunt"><source src="media/battery-drain.mp4" type="video/mp4"></video></div><figcaption>Demo car, recorded from the app</figcaption></figure>
-        </div>
-      </div>
-    </section>
-
-
-    <!-- Honest comparison -->
-    <section id="compare">
+    <section id="compare" class="tint">
       <div class="wrap">
         <h2>Klemme15 and ISTA, side by side</h2>
-        <p class="section-lede">ISTA is BMW's workshop software. Here is what each one does for an owner working on an E-series car at home, including where Klemme15 falls short.</p>
-        <div class="table-wrap">
-          <table class="compare">
-            <thead><tr><th scope="col"></th><th scope="col">ISTA</th><th scope="col">Klemme15</th></tr></thead>
+        <p class="lede">ISTA is BMW's workshop software. Here is what each one does for an owner working on an E-series car at home, including where Klemme15 falls short.</p>
+        <div class="table-scroll">
+          <table class="vs">
+            <thead><tr><th scope="col"><span class="soft" style="font-size: 15px; font-weight: 600; font-stretch: 100%">For an owner at home</span></th><th scope="col">ISTA</th><th scope="col">Klemme15</th></tr></thead>
             <tbody>
-            <tr><th scope="row">Read and clear faults in every module, including Shadow / Info memory</th><td class="yes">Yes</td><td class="yes">Yes on D-CAN cars. K-line cars: the engine, or every module with your BMW files</td></tr>
-            <tr><th scope="row">Fault meanings</th><td>BMW's texts, written for workshops</td><td>Plain English, sorted by priority, with what to check next. BMW's own text needs your files or an optional third-party download</td></tr>
-            <tr><th scope="row">Live values and module status</th><td class="yes">Yes</td><td class="yes">Engine values out of the box, every module with your BMW files. Graphs, recording and replay</td></tr>
-            <tr><th scope="row">Guided fault finding and component tests</th><td class="yes">Yes, test plans for each fault</td><td>A smaller set of graphed tests and diagnostic chains</td></tr>
-            <tr><th scope="row">Service functions (battery registration, resets, calibrations)</th><td class="yes">Yes</td><td>78. Most need your BMW files (Windows); all are experimental. Battery registration is validated on an E90 and remains behind the experimental switch for now</td></tr>
-            <tr><th scope="row">Coding comfort options</th><td>A separate tool (NCS Expert)</td><td>Built in for comfort modules, with backup and automatic restore (experimental)</td></tr>
-            <tr><th scope="row">Health trends, pre-purchase check, shareable snapshots</th><td class="no">No</td><td class="yes">Yes</td></tr>
-            <tr><th scope="row">Programming / flashing modules, keys and immobiliser</th><td class="yes">Yes</td><td class="no">No</td></tr>
-            <tr><th scope="row">Wiring diagrams</th><td class="yes">Yes</td><td>Connector notes and checks in our own words</td></tr>
-            <tr><th scope="row">F- and G-series cars</th><td class="yes">Yes</td><td>Not yet (E-series)</td></tr>
-            <tr><th scope="row">Track record</th><td>BMW's dealer tool</td><td>Beta, validated on a 2006 E90 325i</td></tr>
-            <tr><th scope="row">Install</th><td>A large Windows-only install</td><td>A small portable app: Windows, macOS, Linux</td></tr>
-            <tr><th scope="row">Price</th><td>Licensed</td><td>Free and open source (GPL-3.0)</td></tr>
+              <tr><th scope="row">Read and clear faults in every module, including Shadow and Info memory</th><td>Yes</td><td class="us">Yes on D-CAN cars. K-line cars: the engine, or every module with your BMW files</td></tr>
+              <tr><th scope="row">Fault meanings</th><td>BMW's texts, written for workshops</td><td class="us">Plain English, sorted by priority, with what to check next. BMW's own text needs your files or an optional third-party download</td></tr>
+              <tr><th scope="row">Live values and module status</th><td>Yes</td><td class="us">Engine values out of the box, every module with your BMW files. Graphs, recording and replay</td></tr>
+              <tr><th scope="row">Guided fault finding and component tests</th><td>Yes, test plans for each fault</td><td class="us">A smaller set of graphed tests and diagnostic chains</td></tr>
+              <tr><th scope="row">Service functions (battery registration, resets, calibrations)</th><td>Yes</td><td class="us">78. Most need your BMW files (Windows); all are experimental. Battery registration is validated on an E90 and stays behind the experimental switch for now</td></tr>
+              <tr><th scope="row">Coding comfort options</th><td>A separate tool (NCS Expert)</td><td class="us">Built in for comfort modules, with backup and automatic restore (experimental)</td></tr>
+              <tr><th scope="row">Health trends, pre-purchase check, shareable snapshots</th><td>No</td><td class="us">Yes</td></tr>
+              <tr><th scope="row">Programming or flashing modules, keys and immobiliser</th><td>Yes</td><td class="us">No</td></tr>
+              <tr><th scope="row">Wiring diagrams</th><td>Yes</td><td class="us">Connector notes and checks in our own words</td></tr>
+              <tr><th scope="row">F- and G-series cars</th><td>Yes</td><td class="us">Not yet (E-series)</td></tr>
+              <tr><th scope="row">Track record</th><td>BMW's dealer tool</td><td class="us">Beta, validated on a 2006 E90 325i</td></tr>
+              <tr><th scope="row">Install</th><td>A large Windows-only install</td><td class="us">A small portable app: Windows, macOS, Linux</td></tr>
+              <tr><th scope="row">Price</th><td>Licensed</td><td class="us">Free and open source (GPL-3.0)</td></tr>
             </tbody>
           </table>
         </div>
       </div>
     </section>
 
-    <!-- Supported cars and getting started -->
     <section id="start">
       <div class="wrap">
         <h2>Your car, a cable, ten minutes</h2>
-        <p class="section-lede">Klemme15 talks to E-series BMWs through a K+DCAN cable, the inexpensive USB cable sold for INPA and NCS Expert.</p>
-        <div class="grid">
-          <article class="card"><span class="step">1</span><h3>Get the cable</h3><p>A K+DCAN USB cable with a K-line / D-CAN switch (see below). Set the switch for your car before plugging in.</p></article>
-          <article class="card"><span class="step">2</span><h3>Install Klemme15</h3><p>On Windows: <code>scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15</code> then <code>scoop install klemme15</code>. Or download the .zip for Windows, macOS or Linux and run it. No installer, no account. Every download comes with checksums and a signed build provenance, so you can <a href="https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download">check it</a>.</p></article>
-          <article class="card"><span class="step">3</span><h3>Run a quick test</h3><p>Ignition on, pick your model in the Garage and press Connect to my car. Choose the port, press Check cable, then Connect and Run quick test. No car nearby? Open a demo car.</p></article>
-        </div>
-        <div class="cable">
-          <div class="cable-text">
-            <h3>Which cable?</h3>
-            <p>A <b>K+DCAN USB cable with a switch</b>, the kind sold for INPA and NCS Expert. What matters:</p>
-            <ul class="ticks">
-              <li><b>A K-line / D-CAN switch.</b> K-line for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36; D-CAN for the E90 family and newer (see the table above). Without it, a cable only works on one kind of car.</li>
-              <li><b>An FTDI chip.</b> Klemme15 recognises FTDI cables by itself and picks the right port; on Windows the driver usually installs automatically.</li>
-              <li><b>Validated with Klemme15:</b> the inexpensive <a href="https://www.amazon.com/dp/B079KC43WG">AntiBreak K+DCAN cable with switch</a> (FTDI), used on a 2006 E90 325i for all field validation so far: quick test, faults, dash messages, live data, fuel trim test and battery registration.</li>
-              <li><b>Also popular:</b> the <a href="https://www.bimmergeeks.net/store">BimmerGeeks</a> K+DCAN cables, and plenty of plain FTDI cables with a switch. Klemme15 isn't affiliated with any seller.</li>
-              <li><b>Klemme15 checks it for you.</b> In the Garage, press <b>Connect to my car</b>, then <b>Check cable</b>: it tells you whether the chip is a genuine FTDI or shows the signs of a clone, whether the latency timer is slowing things down (and exactly where to set it to 1 ms), and whether another program still has the port.</li>
-              <li><b>No laptop in the car?</b> A cable behind a Wi-Fi bridge (ser2net or an ESP32) works too, best on D-CAN cars.</li>
-            </ul>
+        <p class="lede">Klemme15 talks to E-series BMWs through a K+DCAN cable, the inexpensive USB cable sold for INPA and NCS Expert.</p>
+        <ol class="steps">
+          <li><h3>Get the cable</h3><p>A K+DCAN USB cable with a K-line / D-CAN switch (more below). Set the switch for your car before plugging in.</p></li>
+          <li><h3>Install Klemme15</h3><p>Download the .zip for Windows, macOS or Linux and run it, or on Windows: <code>scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15</code> then <code>scoop install klemme15</code>. No installer, no account. Every download comes with checksums and a signed build record, so you can <a href="https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md#verifying-your-download">check it</a>.</p></li>
+          <li><h3>Run a quick test</h3><p>Ignition on, pick your model in the Garage and press Connect to my car. Choose the port, press Check cable, then Connect and Run quick test. No car nearby? Open a demo car.</p></li>
+        </ol>
+
+        <div style="margin-top: 64px">
+          <div>
+            <h3 style="font-size: 28px">Which cable?</h3>
+            <p class="soft">A K+DCAN USB cable with a switch, the kind sold for INPA and NCS Expert. What matters:</p>
+            <dl class="legend">
+              <dt>A K-line / D-CAN switch</dt><dd>K-line for the E46, E39, E53, E38, Z4 E85/E86, X3 E83 (to 2006) and E36; D-CAN for the E90 family and newer (see the table above). Without it, a cable only works on one kind of car.</dd>
+              <dt>An FTDI chip</dt><dd>Klemme15 recognises FTDI cables by itself and picks the right port; on Windows the driver usually installs automatically.</dd>
+              <dt>Validated with Klemme15</dt><dd>The inexpensive <a href="https://www.amazon.com/dp/B079KC43WG">AntiBreak K+DCAN cable with switch</a> (FTDI), used on a 2006 E90 325i for all field validation so far: quick test, faults, dash messages, live data, fuel trim test and battery registration.</dd>
+              <dt>Also popular</dt><dd>The <a href="https://www.bimmergeeks.net/store">BimmerGeeks</a> K+DCAN cables, and plenty of plain FTDI cables with a switch. Klemme15 isn't affiliated with any seller.</dd>
+              <dt>Klemme15 checks it</dt><dd>In the Garage, press Connect to my car, then Check cable: it tells you whether the chip is a genuine FTDI or shows the signs of a clone, whether the latency timer is slowing things down (and exactly where to set it to 1 ms), and whether another program still has the port.</dd>
+              <dt>No laptop in the car?</dt><dd>A cable behind a Wi-Fi bridge (ser2net or an ESP32) works too, best on D-CAN cars.</dd>
+            </dl>
+            <p class="small" style="margin-top: 18px">Tell us which cable you used in a <a href="https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml">test drive report</a>: one report confirms it for everyone with the same car and cable.</p>
           </div>
-          <p class="note">Tell us which cable you used in a <a href="https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml">test drive report</a>: one report confirms it for everyone with the same car and cable.</p>
         </div>
       </div>
     </section>
-    <!-- Lines we don't cross -->
-    <section>
+
+    <section id="never" class="tint">
       <div class="wrap">
         <h2>Lines we don't cross</h2>
-        <p class="section-lede">Some things a free tool should never do to your car. Klemme15 never does these:</p>
-        <div class="bounds">
-          <div class="bound"><b>No flashing</b>Module software is never rewritten.</div>
-          <div class="bound"><b>No immobiliser work</b>Keys and immobiliser data are never touched. The key module's one job: clearing the steering lock's counters.</div>
-          <div class="bound"><b>No mileage changes</b>Recorded mileage is read, never touched.</div>
-          <div class="bound"><b>No BMW files bundled</b>Your own files stay yours, and stay on your computer.</div>
+        <p class="lede">Some things a free tool should never do to your car. Klemme15 never does these.</p>
+        <div class="never">
+          <div><b>No flashing</b><span>Module software is never rewritten.</span></div>
+          <div><b>No immobiliser work</b><span>Keys and immobiliser data are never touched. The key module's one job: clearing the steering lock's counters.</span></div>
+          <div><b>No mileage changes</b><span>Recorded mileage is read, never touched.</span></div>
+          <div><b>No BMW files bundled</b><span>Your own files stay yours, and stay on your computer.</span></div>
         </div>
+        <p class="small" style="margin-top: 22px">More in <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/LEGAL.md">Safety and legal</a>.</p>
       </div>
     </section>
-    <!-- Bottom call to action -->
-    <section id="download" class="final">
+
+    <section id="download">
       <div class="wrap">
         <h2>Try it on the demo car first</h2>
-        <p class="section-lede">Free, open source, and yours to keep. The demo car needs no cable.</p>
-        <div class="cta">
-          <a class="button primary" data-download href="https://github.com/Expos-AI/Klemme15/releases">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
-            <span data-download-label>Download Klemme15</span>
-          </a>
-          <div class="code">
-            <span><span class="prompt">&gt; </span><code id="scoop-bottom">scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15</code></span>
-            <button class="copy" type="button" data-copy="scoop-bottom">Copy</button>
+        <p class="lede">Free, open source, and yours to keep. The demo car needs no cable.</p>
+        <div class="get-it">
+          <div class="get-row">
+            <a class="button" data-download href="https://github.com/Expos-AI/Klemme15/releases">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 19h16"/></svg>
+              <span data-download-label>Download Klemme15</span>
+            </a>
+            <div class="scoop">
+              <code id="scoop-bottom">scoop bucket add klemme15 https://github.com/Expos-AI/Klemme15; scoop install klemme15</code>
+              <button type="button" data-copy="scoop-bottom">Copy</button>
+            </div>
           </div>
+          <p class="small">Windows, macOS and Linux. No installer, no account. Not affiliated with BMW AG. <span data-version></span></p>
+          <p class="small" data-mac-only hidden>Intel Mac? <a data-intel-mac href="https://github.com/Expos-AI/Klemme15/releases">Download the Intel version</a>.</p>
+          <p class="small" data-on-phone hidden>Klemme15 runs on a laptop (Windows, Mac or Linux), not on a phone. Open this page on your computer to download it.</p>
+          <p class="small">First launch: Windows may say "Windows protected your PC" (click <b>More info</b>, then <b>Run anyway</b>); on a Mac, open <b>System Settings</b>, then <b>Privacy &amp; Security</b>, and click <b>Open Anyway</b>. <a href="https://github.com/Expos-AI/Klemme15#the-first-time-you-open-it">Why?</a></p>
+          <p class="small">Klemme15 is free and stays free, with nothing locked. If it saved you a trip to the shop, you can <a href="https://paypal.me/KindricC">leave a tip with PayPal</a>.</p>
+          <p class="small">Got an E46, E60 or E90-family car and a cable? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/BETA.md">Join the beta</a> and help validate it before 1.0. Got a 1996-1999 E36? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md">Help map it</a>.</p>
         </div>
-        <p class="meta"><span>Windows, macOS, Linux</span><span>No installer, no account</span><span>Not affiliated with BMW AG</span></p>
-        <p class="note" data-mac-only hidden>Intel Mac? <a data-intel-mac href="https://github.com/Expos-AI/Klemme15/releases">Download the Intel version</a>.</p>
-        <p class="note" data-on-phone hidden>Klemme15 runs on a laptop (Windows, Mac or Linux), not on a phone. Open this page on your computer to download it.</p>
-        <p class="note">First launch: Windows may say "Windows protected your PC" (click <b>More info</b>, then <b>Run anyway</b>); on a Mac, open <b>System Settings → Privacy &amp; Security</b> and click <b>Open Anyway</b>. <a href="https://github.com/Expos-AI/Klemme15#the-first-time-you-open-it">Why?</a></p>
-        <p class="note">Klemme15 is free and stays free, with nothing locked. If it saved you a trip to the shop, you can <a href="https://paypal.me/KindricC">leave a tip with PayPal</a>.</p>
-        <p class="note">Got an E46, E60 or E90-family car and a cable? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/BETA.md">Join the beta</a> and help validate it before 1.0. Got a 1996-1999 E36? <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/E36-BETA.md">Help map it</a>.</p>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="wrap">
-      <span>Copyright © 2026 Kindric Castro. GPL-3.0. Klemme15 is an independent open-source project, not affiliated with or endorsed by BMW AG. BMW is a trademark of BMW AG.</span>
       <nav aria-label="Footer">
+        <a href="https://github.com/Expos-AI/Klemme15">Source code</a>
         <a href="https://github.com/Expos-AI/Klemme15/releases">Releases</a>
         <a href="https://github.com/Expos-AI/Klemme15/blob/main/PRIVACY.md">Privacy</a>
-        <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/LEGAL.md">Safety &amp; legal</a>
+        <a href="https://github.com/Expos-AI/Klemme15/blob/main/docs/LEGAL.md">Safety and legal</a>
         <a href="https://github.com/Expos-AI/Klemme15/blob/main/SECURITY.md">Security</a>
         <a href="https://github.com/Expos-AI/Klemme15/blob/main/LICENSE">License</a>
         <a href="https://paypal.me/KindricC">Support the project</a>
         <a href="https://github.com/Expos-AI/Klemme15/issues/new?template=beta-report.yml">Report a test drive</a>
       </nav>
+      <p>Copyright © 2026 Kindric Castro. GPL-3.0. Klemme15 is an independent open-source project, not affiliated with or endorsed by BMW AG. BMW is a trademark of BMW AG.</p>
     </div>
   </footer>
 
   <script>
-    // Ignition animation (the app's startup screen). Same order and timing as SplashWindow: the wordmark types in,
-    // the tile builds with the lamp dim, the loading line runs through startup, then the lamp flickers on (ready).
+    // The newest version comes from latest.json on this site (the release workflow writes it), not from GitHub's
+    // API: the API turns away visitors who aren't logged in once their network has made too many requests, which
+    // happens to everyone on a shared mobile connection. The buttons then point straight at the file for this
+    // computer. A browser can't tell an Apple chip from an Intel one, so Macs get the Apple silicon file (every Mac
+    // since late 2020) and a link to the Intel one underneath.
     (function () {
-      var stage = document.querySelector(".k15-splash");
-      if (!stage) return;
-      var glyphs = stage.querySelectorAll(".k15-glyph"), cursor = stage.querySelector(".k15-cursor"),
-          tile = stage.querySelector(".k15-tile"), lamp = stage.querySelector(".k15-lamp"),
-          load = stage.querySelector(".k15-load"), status = stage.querySelector(".k15-status"),
-          percent = stage.querySelector(".k15-percent"), fill = stage.querySelector(".k15-fill");
-      var right = [381.4, 410.0, 491.3, 609.9, 730.3, 810.7, 858.6, 940.5];
-      var steps = [["Loading vehicle database", .05], ["Looking for EDIABAS, INPA or ISTA files", .30], ["Loading fault texts", .55],
-                   ["Checking cable ports", .80], ["Starting interface", .92]];
-      var wait = function (ms) { return new Promise(function (r) { setTimeout(r, ms); }); };
-      var setLoad = function (text, f) {
-        status.textContent = f < 1 ? text + "\u2026" : text;
-        percent.textContent = Math.round(f * 100) + "%";
-        fill.style.width = (f * 100) + "%";
-      };
-      var endState = function () {
-        glyphs.forEach(function (g) { g.style.opacity = 1; });
-        cursor.style.display = "none"; tile.style.opacity = 1; load.style.opacity = 1;
-        setLoad("Ready", 1); status.style.color = "#f2a93b"; lamp.style.fill = "#f2a93b";
-      };
-
-      // The newest version comes from latest.json on this site (the release workflow writes it), not from GitHub's
-      // API: the API turns away visitors who aren't logged in once their network has made too many requests, which
-      // happens to everyone on a shared mobile connection. The buttons then point straight at the file for this
-      // computer. A browser can't tell an Apple chip from an Intel one, so Macs get the Apple silicon file (every Mac
-      // since late 2020) and a link to the Intel one underneath.
       var releases = "https://github.com/Expos-AI/Klemme15/releases";
       fetch("latest.json", { cache: "no-cache" })
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (latest) {
           var tag = latest && latest.tag;
           if (!/^v\d+\.\d+\.\d+/.test(tag || "")) return;
-          stage.querySelector(".k15-version").textContent = tag;
+          document.querySelectorAll("[data-version]").forEach(function (s) { s.textContent = "Latest version: " + tag.slice(1) + "."; });
           var file = function (rid) { return releases + "/download/" + tag + "/Klemme15-" + tag + "-" + rid + ".zip"; };
           var ua = navigator.userAgent, mobile = /Android|iPhone|iPad|iPod/.test(ua);
           var os = mobile ? null : /Windows/.test(ua) ? "win-x64" : /Mac/.test(ua) ? "osx-arm64" : /Linux/.test(ua) ? "linux-x64" : null;
@@ -733,35 +660,33 @@
           document.querySelectorAll("[data-on-phone]").forEach(function (p) { p.hidden = !mobile; });
         })
         .catch(function () {});
+    })();
 
-      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) { endState(); return; }
-
-      async function run() {
-        glyphs.forEach(function (g) { g.style.opacity = 0; });
-        cursor.style.display = ""; tile.style.opacity = 0; load.style.opacity = 0; lamp.style.fill = "#2b3038";
-        status.style.color = ""; setLoad(steps[0][0], 0);
-        await wait(150);
-        for (var i = 0; i < glyphs.length; i++) {                // 1. the wordmark types in
-          glyphs[i].style.opacity = 1;
-          cursor.setAttribute("x", right[i] + 9);
-          await wait(45);
-        }
-        await wait(70);
-        cursor.style.display = "none";                            // 2. the tile builds, lamp still dim
-        tile.style.opacity = 1; lamp.style.fill = "#bfc4cc"; load.style.opacity = 1;
-        for (var s = 0; s < steps.length; s++) { setLoad(steps[s][0], steps[s][1]); await wait(260); }   // 3. startup steps
-        setLoad("Ready", 1); status.style.color = "#f2a93b";
-        var flicker = [true, false, true, false, true];           // 4. the lamp lights: ready
-        for (var k = 0; k < flicker.length; k++) { lamp.style.fill = flicker[k] ? "#f2a93b" : "#bfc4cc"; await wait(55); }
-      }
-
+    // The one moment of motion: the key turns, terminal 15 goes live, the modules wake and Klemme15 is ready.
+    // Played once when the diagram is on screen; with reduced motion it simply shows the result. Click to replay.
+    (function () {
+      var d = document.getElementById("diagram");
+      if (!d) return;
+      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var lamps = d.querySelectorAll(".lamp");
+      var turn = function () {
+        d.classList.remove("on"); d.classList.add("off");
+        lamps.forEach(function (l) { l.style.transitionDelay = "0s"; });
+        requestAnimationFrame(function () { requestAnimationFrame(function () {
+          d.classList.remove("off");
+          setTimeout(function () {
+            lamps.forEach(function (l, i) { l.style.transitionDelay = (0.25 + i * 0.09) + "s"; });
+            d.classList.add("on");
+          }, 600);
+        }); });
+      };
+      if (still) { d.classList.remove("off"); d.classList.add("on"); return; }
       var played = false;
-      var start = function () { if (!played) { played = true; run().catch(endState); } };
+      var go = function () { if (!played) { played = true; setTimeout(turn, 350); } };
       if ("IntersectionObserver" in window) {
-        new IntersectionObserver(function (e, o) { if (e[0].isIntersecting) { o.disconnect(); start(); } }, { threshold: 0.4 }).observe(stage);
-      } else start();
-      // Click to watch it again.
-      stage.addEventListener("click", function () { if (played) run().catch(endState); });
+        new IntersectionObserver(function (e, o) { if (e[0].isIntersecting) { o.disconnect(); go(); } }, { threshold: 0.5 }).observe(d);
+      } else go();
+      d.addEventListener("click", function () { if (played) turn(); });
     })();
 
     // Clips play while they're on screen and pause when they leave; with reduced motion they wait for a click.
@@ -771,8 +696,11 @@
       if (still || !("IntersectionObserver" in window)) { clips.forEach(function (v) { v.controls = true; v.preload = "metadata"; }); return; }
       var watch = new IntersectionObserver(function (entries) {
         entries.forEach(function (e) {
-          if (e.isIntersecting) { var p = e.target.play(); if (p && p.catch) p.catch(function () { e.target.controls = true; }); }
-          else e.target.pause();
+          var v = e.target;
+          if (e.isIntersecting) {
+            if (v.preload === "none") { v.preload = "auto"; }
+            var p = v.play(); if (p && p.catch) p.catch(function () { v.controls = true; });
+          } else v.pause();
         });
       }, { threshold: 0.35 });
       clips.forEach(function (v) { watch.observe(v); });
@@ -789,24 +717,6 @@
         }).catch(function () {});
       });
     });
-
-    // Demo videos: play only while on screen; respect reduced motion (the poster stays instead).
-    (function () {
-      var videos = Array.prototype.slice.call(document.querySelectorAll("video[autoplay]"));
-      var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      videos.forEach(function (v) { v.removeAttribute("autoplay"); v.pause(); });
-      if (still || !("IntersectionObserver" in window)) return;
-      var seen = new IntersectionObserver(function (entries) {
-        entries.forEach(function (e) {
-          var v = e.target;
-          if (e.isIntersecting) {
-            if (v.preload === "none") { v.preload = "auto"; v.load(); }
-            var p = v.play(); if (p && p.catch) p.catch(function () {});
-          } else v.pause();
-        });
-      }, { threshold: 0.35 });
-      videos.forEach(function (v) { seen.observe(v); });
-    })();
   </script>
 </body>
 </html>
