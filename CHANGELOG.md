@@ -2,6 +2,12 @@
 
 Every Klemme15 release, newest first. The downloads are on the [Releases page](https://github.com/Expos-AI/Klemme15/releases).
 
+## 0.99.45
+
+- The app has a new look to match the website. The dark theme is near-black with the terminal 15 green as its accent, the light theme uses the website's paper and blue-black ink, and Garage mode stays black on white. Corners are squarer, the connection label is a plain box, and the notes on the Service page are a thin coloured line instead of a coloured box. Everything is where it was.
+- Text that used to be strung together with dots ("1 to fix now · 3 worth checking") now reads as ordinary sentences.
+- The README and the documentation are rewritten in plain sentences.
+
 ## 0.99.44
 
 - When a module says no, Klemme15 now says why. A service function that a module refuses used to end with a code such as `ERROR_ECU_GENERAL_REJECT`. Now the result says in plain words what the module meant and what to do, keeps the module's own answer underneath, and, when the car's state is the likely reason, reads that module's stored faults and lists them. **Check the car** also mentions faults the module had at the last quick test.
