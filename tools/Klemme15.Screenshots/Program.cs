@@ -205,7 +205,9 @@ if (vm.Coding.Modules.FirstOrDefault(m => m.Ecu.Id.EndsWith(".FRM", StringCompar
 {
     footwell.SelectCommand.Execute(null);
     vm.Coding.BackupCommand.Execute(null);
-    WaitUntil(() => vm.Coding.HasBackups);
+    // The backup shows up before the backup job has handed the bus back; Compare is greyed out until it has, and
+    // pressing it earlier does nothing (which made this step time out now and then).
+    WaitUntil(() => vm.Coding.HasBackups && vm.Coding.Backups[0].CompareCommand.CanExecute(null));
     vm.Coding.Backups[0].CompareCommand.Execute(null);
     WaitUntil(() => vm.Coding.HasDiff);
     Shot("20-coding");
